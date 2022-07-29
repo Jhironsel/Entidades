@@ -13,6 +13,9 @@ public class Factura {
                 + "estado_factura, nombreTemp) "
             + "values (?, ?, ?, ?, ?, ?);";
     
+    public static String DELETE
+            ="DELETE FROM V_FACTURAS where id = ?";
+    
     private final Integer id;
     private final HeaderFactura headerFactura;
     private final List<DetalleFactura> detalleFactura;

@@ -9,13 +9,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import lombok.extern.java.Log;
 import org.apache.commons.codec.binary.Base64;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.ARS;
 import sur.softsurena.entidades.Categoria;
 import sur.softsurena.entidades.Cliente;
 import sur.softsurena.entidades.Consultas_aprobadas;
-import sur.softsurena.entidades.Contactos;
+import sur.softsurena.entidades.ContactosEmail;
+import sur.softsurena.entidades.ContactosTel;
 import sur.softsurena.entidades.Control_Consulta;
 import sur.softsurena.entidades.D_Recetas;
 import sur.softsurena.entidades.DetalleFactura;
@@ -31,28 +34,31 @@ import sur.softsurena.entidades.Tandas;
 import sur.softsurena.entidades.Usuario;
 import sur.softsurena.utilidades.Utilidades;
 
+@Log
 public class InsertMetodos {
 
     private static PreparedStatement ps;
     private static String sql;
     private static ResultSet rs;
-    
+
     /**
-     * Agregar las categorias de los productos a la base de datos en la tabla 
+     * Agregar las categorias de los productos a la base de datos en la tabla
      * Categoria.
-     * 
+     *
      * Actualizado el dia 13 de abril del 2022.
-     * 
-     * Actualizado el dia 06 de Julio del 2022: Se agrega el campo static 
+     *
+     * Actualizado el dia 06 de Julio del 2022: Se agrega el campo static
      * INSERT_CATEGORIA.
-     * 
-     * Actualizado el dia 09 de Julio del 2022: Se cambia el tipo de datos 
-     * devueltode boolean a String, que permite mostrar mensaje del estado del 
+     *
+     * Actualizado el dia 09 de Julio del 2022: Se cambia el tipo de datos
+     * devueltode boolean a String, que permite mostrar mensaje del estado del
      * metodo despues de hacer las operaciones.
      * 
-     * @param c Es un objeto de la clase Categoria que contiene los metodos y 
+     * @test agregarCategoria(), metodo creado para realizar pruebas al metodo.
+     *
+     * @param c Es un objeto de la clase Categoria que contiene los metodos y
      * atributos.
-     * 
+     *
      * @return Retorna un mensaje que permite saber si la categoria fue agregada
      * o no.
      */
@@ -69,29 +75,32 @@ public class InsertMetodos {
             return "Categoria agregada con exito.";
         } catch (SQLException ex) {
             //Instalar Logger
+            log.log(Level.SEVERE, ex.getMessage());
             return "Error al insertar categoria.";
         }
     }
-    
+
     /**
      * Agregar producto a la base de datos en la tabla productos.
-     * 
+     *
      * Actualizado el dia 13 Abril del 2022.
-     * 
-     * Actualizado el dia 09 Julio del 2022, Nota: se ha llevado el SQL a la 
+     *
+     * Actualizado el dia 09 Julio del 2022, Nota: se ha llevado el SQL a la
      * clase producto y por lo tanto se utiliza el nombre del campo que contiene
      * el SQL de la consulta.
-     * 
-     * @param p Objecto de la clase producto que permite obtener los valos de 
+     *
+     * @param p Objecto de la clase producto que permite obtener los valos de
      * del producto agregar.
      * 
-     * @return Devuelve un mensaje que notifica si el producto fue agregado 
-     * correctamente o no. 
+     * @test agregarProducto() metodo que realiza la prueba unitaria del metodo. 
+     *
+     * @return Devuelve un mensaje que notifica si el producto fue agregado
+     * correctamente o no.
      */
     public synchronized static String agregarProducto(Producto p) {
         try {
             ps = getCnn().prepareStatement(Producto.INSERT_PRODUCTO);
-            
+
             ps.setInt(1, p.getIdCategoria());
             ps.setString(2, p.getCodigo());
             ps.setString(3, p.getDescripcion());
@@ -103,25 +112,24 @@ public class InsertMetodos {
             return "Producto agregado correctamente.";
         } catch (SQLException ex) {
             //Instalar Logger
+            log.log(Level.SEVERE, ex.getMessage());
             return "Error al Insertar Producto.";
         }
     }
-    
+
     /**
-     * Agregar entrada de producto a la base de datos en la tabla de entrada 
-     * de productos.
-     * 
+     * Agregar entrada de producto a la base de datos en la tabla de entrada de
+     * productos.
+     *
      * Actualizado el dia 13 de abril del 2022.
-     * 
+     *
      * @param e Es un objeto de la clase EntradaProducto
-     * 
+     *
      * @return Devuelve un valor booleano que indica si el registro fue exitoso.
      */
     public synchronized static boolean agregarProductoEntrada(EntradaProducto e) {
         try {
-            sql = "EXECUTE PROCEDURE SP_INSERT_ENTRADA_PRODUCTOS (?, ?, ?, ?, ?, ?);";
-            
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(EntradaProducto.INSERT);
 
             ps.setInt(1, e.getIdProvedor());
             ps.setString(2, e.getCod_factura());
@@ -137,20 +145,20 @@ public class InsertMetodos {
             return false;
         }
     }
-    
+
     /**
-     * Metodos utilizado para agregar los clientes en el sistema, el cual es 
+     * Metodos utilizado para agregar los clientes en el sistema, el cual es
      * utilizado para agregar los contactos de este.
-     * 
-     * @param c Es el objecto de la clase cliente que contiene los metodos 
+     *
+     * @param c Es el objecto de la clase cliente que contiene los metodos
      * necesario para obtener los datos del cliente.
-     * 
-     * @param cc Es el objecto que nos permite agregar los tipos de contactos 
-     * de los clientes.
-     * 
-     * @return 
+     *
+     * @param ct Es el objecto que nos permite agregar los tipos de contactos de
+     * los clientes.
+     *
+     * @return
      */
-    public synchronized static String agregarCliente(Cliente c, Contactos[] cc) {
+    public synchronized static String agregarCliente(Cliente c, ContactosTel[] ct, ContactosEmail[] ce) {
         try {
 
             ps = getCnn().prepareStatement(Cliente.INSERT_CLIENTE);
@@ -175,9 +183,13 @@ public class InsertMetodos {
 
             int id = rs.getInt(1);
             //Tenemos el ID del Cliente vamos agregar los contactos
+
+            if (!agregarContactosTel(id, ct)) {
+                return "Error al agregar contactos telefonico del cliente.";
+            }
             
-            if (!agregarContactos(id, cc)) {
-                return "Error al agregar contactos del cliente.";
+            if (!agregarContactosEmail(id, ce)) {
+                return "Error al agregar contactos correos electronicos del cliente.";
             }
 
             return "Cliente Agregado Correctamente";
@@ -186,27 +198,50 @@ public class InsertMetodos {
             return "Error al insertar Cliente...";
         }
     }
+
+    /**
+     * Metodo para agregar numeros telefonicos de las personas del sistema.
+     *
+     * @param id
+     * @param contactos
+     * @return
+     */
+    public static boolean agregarContactosTel(int id, ContactosTel[] contactos) {
+        try {
+            ps = getCnn().prepareStatement(ContactosTel.INSERT);
+
+            for (ContactosTel c : contactos) {
+                ps.setInt(1, id);
+                ps.setString(2, c.getTelefono());
+                ps.addBatch();
+            }
+
+            return ps.execute();
+        } catch (SQLException ex) {
+            //Instalar Logger
+        }
+
+        return false;
+    }
     
     /**
-     * Metodo para agregar los contactos de las entidades como cliente, padre, 
-     * proveedor, estudiante, paciente.
+     * 
      * @param id
      * @param contactos
      * @return 
      */
-    public static boolean agregarContactos(int id, Contactos[] contactos) {
-        sql = "INSERT INTO v_contactos (IDPERSONA, EMAIL, TELEFONO) VALUES(?,?,?);";
-
+    public static boolean agregarContactosEmail(int id, ContactosEmail[] contactos) {
         try {
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(ContactosEmail.INSERT);
 
-            for (Contactos c : contactos) {
+            for (ContactosEmail c : contactos) {
                 ps.setInt(1, c.getId_persona());
                 ps.setString(2, c.getEmail());
-                ps.setString(3, c.getTelefono());
+                
+                ps.addBatch();
             }
-            
-            return true;
+
+            return ps.execute();
         } catch (SQLException ex) {
             //Instalar Logger
         }
@@ -215,16 +250,16 @@ public class InsertMetodos {
     }
 
     /**
-     * 
+     *
      * @param u
      * @param c
-     * @return 
+     * @return
      */
-    public synchronized static String agregarDoctor(Usuario u, Contactos[] c) {
+    public synchronized static String agregarDoctor(Usuario u, ContactosTel[] c) {
         try {
-            
-            sql = "SELECT p.O_SQL " +
-                  "FROM SP_INSERT_USUARIOS (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) p;";
+
+            sql = "SELECT p.O_SQL "
+                    + "FROM SP_INSERT_USUARIOS (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) p;";
 
             ps = getCnn().prepareStatement(sql);
 
@@ -242,20 +277,20 @@ public class InsertMetodos {
             rs = ps.executeQuery();
             rs.next();
             int id = rs.getInt(1);
-            
+
             /*Ya tenemos el ID del Usuario para agregar valores a la tabla de 
             contactos.*/
-            agregarContactos(id, c);
+            agregarContactosTel(id, c);
 
             sql = "GRANT ? TO ?";
-            
+
             ps = getCnn().prepareStatement(sql);
-            
+
             ps.setString(1, u.getRol());
             ps.setString(2, u.getUserName());
 
             ps.executeUpdate();
-            
+
             return "Usuario agregado correctamente";
         } catch (SQLException ex) {
             //Instalar Logger
@@ -264,26 +299,27 @@ public class InsertMetodos {
     }
 
     /**
-     * Metodo que permite agregar un paciente al sisteme. Primer metodo testeado.
-     * 
+     * Metodo que permite agregar un paciente al sisteme. Primer metodo
+     * testeado.
+     *
      * nota: Metodo actualizado 22 Junio del 2022.
-     * 
+     *
      * @Test agregarPaciente(), metodo de la prueba del funcionamiento.
-     * 
-     * @param p objecto de la clase Paciente, con los campos requerido para agregar un pacient. 
-     * 
+     *
+     * @param p objecto de la clase Paciente, con los campos requerido para
+     * agregar un pacient.
+     *
      * @return Retorna un mensaje que indica si el registro fue completado o no.
-     * 
+     *
      */
     public synchronized static String agregarPaciente(Paciente p) {
         /*Proceso de agregar paciente revizado y actualizado el 22 abril 2022*/
         try {
             sql = "SELECT p.V_ID "
-                + "FROM SP_INSERT_PACIENTE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) p;";
-            
-            
+                    + "FROM SP_INSERT_PACIENTE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) p;";
+
             ps = getCnn().prepareStatement(sql);
-            
+
             ps.setInt(1, p.getIdPadre());
             ps.setInt(2, p.getIdMadre());
             ps.setString(3, p.getCedula().trim());
@@ -346,11 +382,8 @@ public class InsertMetodos {
 
     public synchronized static String agregarProveedor(Proveedores p) {
         try {
-            sql = "insert into V_PROVEEDORES (CODIGO_PROVEEDOR, "
-                    + "NOMBRE_PROVEEDOR, TELEFONO_PROVEEDOR, ESTADO) "
-                    + "values (?, ?, ?, ?)";
-
-            ps = getCnn().prepareStatement(sql);
+            
+            ps = getCnn().prepareStatement(Proveedores.INSERT_PROVEEDOR);
 
             ps.setString(1, p.getCodigoProveedor());
             ps.setString(2, p.getPNombre());
@@ -607,14 +640,21 @@ public class InsertMetodos {
             return "Perfil no Creado:( ...! \n" + ex.toString();
         }
     }
-    
 
+    /**
+     * Metodo que permite agregar un estudiante al sistema de ballet, el cual 
+     * ejecuta un procedimiento almacenado en la base de datos. 
+     * 
+     * @param e Objecto de la clase estudiante que capsula los atributos de un 
+     * estudiantes. 
+     * 
+     * @return Retorna un mensaje que indica si el estudiantes ha sido registrado
+     * si o no. 
+     */
     public String agregarEstudiante(Estudiantes e) {
         try {
-            sql = "INSERT INTO ESTUDIANTE (ID, MATRICULA, ID_PADRE, ID_MADRE) "
-                    + "VALUES (?, ?, ?, ?);";
-
-            ps = getCnn().prepareStatement(sql);
+            
+            ps = getCnn().prepareStatement(Estudiantes.INSERT_ESTUDIANTE);
 
             ps.setInt(1, e.getId());
             ps.setString(2, e.getMatricula());
@@ -631,13 +671,7 @@ public class InsertMetodos {
 
     public String agregarTanda(Tandas t) {
         try {
-            sql = "insert into TANDAS (ANNO_INICIAL, ANNO_FINAL, HORA_INICIO, "
-                    + "HORA_FINAL,LUNES, MARTES, MIERCOLES, JUEVES, VIERNES, "
-                    + "SABADOS, DOMINGOS, CANTIDAD_ESTUDIANTES, EDAD_MINIMA, "
-                    + "EDAD_MAXIMA, CON_EDAD,ESTADO) "
-                    + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Tandas.INSERT_TANDA);
 
             ps.setDate(1, t.getAnno_inicial());
             ps.setDate(2, t.getAnno_final());
@@ -663,93 +697,80 @@ public class InsertMetodos {
             return "Existe Problemas al agregar Tanda, Contactar SoftSureña :( ...! \n" + ex.toString();
         }
     }
-    
+
     /**
-     * Metodo para agregar las facturas al temporar del sistema. 
-     * 
-     * Este metodo fue actualizado el dia 24 abril del 2022.
-     * Este metodo fue actualizado el 19 05 2022: Se agrego un parametro al 
-     * Insert que le faltaba.
-     * 
+     * Metodo para agregar las facturas al temporar del sistema.
+     *
+     * Este metodo fue actualizado el dia 24 abril del 2022. Este metodo fue
+     * actualizado el 19 05 2022: Se agrego un parametro al Insert que le
+     * faltaba.
+     *
      * @param f Un objecto de Factura que recibe la funcion.
-     * @return Retorna un valor booleando que indica si la factura fue inserta 
+     * @return Retorna un valor booleando que indica si la factura fue inserta
      * true y false si hubo un error.
      */
-    public synchronized static boolean agregarFacturaNombre(Factura f) {
-        
+    public synchronized static Integer agregarFacturaNombre(Factura f) {
+
         try {
             ps = getCnn().prepareStatement(Factura.INSERT_FACTURA);
-            
+
             ps.setInt(1, f.getHeaderFactura().getIdCliente());
             ps.setInt(2, f.getHeaderFactura().getIdTurno());
             ps.setBigDecimal(3, f.getHeaderFactura().getEfectivo());
             ps.setBigDecimal(4, f.getHeaderFactura().getCambio());
             ps.setString(5, String.valueOf(f.getHeaderFactura().getEstado()));
             ps.setString(6, f.getHeaderFactura().getNombreTemp());
-            
-            ps.executeUpdate();
-            
-            return agregarDetalleFactura(f);
+
+            Integer cantidad = ps.executeUpdate();
+
+            return cantidad + agregarDetalleFactura(f);
         } catch (SQLException ex) {
             //Instalar Logger
-            return false;
+            return -1;
         }
-        
-    }
 
-//    public boolean agregarFactura(int numFactura, String idCliente, Date fecha,
-//            String UsuarioActual, int TipoCompra) {
-//        try {
-//            String sql ="insert into factura(IDFACTURA, IDCLIENTE, FECHA, USUARIO, Tipo_Compra) "
-//                    + "values ("+numFactura+", '"+idCliente+"', '"
-//                    + Utilidades.formatDate(fecha, "MM-dd-yyyy")+"', '"+UsuarioActual
-//                    + "', "+TipoCompra+")";
-//            Statement st = cnn.createStatement();
-//            st.executeUpdate(sql);
-//            return true;
-//        } catch (SQLException ex) {
-//            JOptionPane.showMessageDialog(null, ex.getMessage());
-//            //Instalar Logger
-//            return false;
-//        }
-//    }    
+    }
     
     /**
-     * Metodo utilizado para agregar los datos de los detalle de la factura del 
+     * Metodo utilizado para agregar los datos de los detalle de la factura del
      * sistema.
-     * 
+     *
      * Metodo actualizado el dia 19 05 2022, Nota: se actualizó el nombre de la
-     * consulta por V_DETALLE_FACTURA. Se agrega el metodo execute() para que 
-     * se devuelto como true o false.
-     * 
+     * consulta por V_DETALLE_FACTURA. Se agrega el metodo execute() para que se
+     * devuelto como true o false.
+     *
      * @param d Es un objecto que tipo DetalleFactura que define el detalle de
-     * las facturas el sistema. 
-     * @return Devuelve un valor booleano que indica true si el registro se hizo
+     * las facturas el sistema.
+     * 
+     * @return Ahora devuelve un entero que indica las  cantidades de registros 
+     * que fueron afectadas en la inserción del registro. 
+     * 
+     * Antes: Devuelve un valor booleano que indica true si el registro se hizo
      * con exito y false si hubo un error al insertarla.
      */
-    public static synchronized boolean agregarDetalleFactura(Factura f) {
-        sql = "INSERT into V_DETALLE_FACTURA (IDFACTURA, IDLINEA, IDPRODUCTO, PRECIO, CANTIDAD) "
-            + "values (?, ?, ?, ?, ?);";
+    public static synchronized Integer agregarDetalleFactura(Factura f) {
         List<DetalleFactura> d = f.getDetalleFactura();
-        
         try {
-            ps = getCnn().prepareStatement(sql);
-            
-            ps.setInt(1, f.getId());
-            
+            ps = getCnn().prepareStatement(DetalleFactura.INSERT_DETALLE_FACTURA);
+
             for (Iterator<DetalleFactura> i = d.iterator(); i.hasNext();) {
-            DetalleFactura next = i.next();
+                DetalleFactura next = i.next();
+                
+                ps.setInt(1, f.getId());
                 ps.setInt(2, next.getIdLinea());
                 ps.setInt(3, next.getIdProducto());
                 ps.setBigDecimal(4, next.getPrecio());
                 ps.setBigDecimal(5, next.getCantidad());
+                
+                ps.addBatch();
+                
             }
-            
-            return ps.execute();
-            
+
+            return ps.executeUpdate();
+
         } catch (SQLException ex) {
             //Instalar Logger
-            return false;
+            return -1;
         }
     }
 
@@ -758,12 +779,17 @@ public class InsertMetodos {
         try {
             sql = "INSERT INTO ENTRADAS_PRODUCTO (IDENTRADA_PRODUCTO, CONCEPTO, "
                     + "IDPRODUCTO, ENTRADA, OP, IDUSUARIO, NUMERO)"
-                    + "VALUES (" + IDENTRADA_PRODUCTO + ", '" + cencepto
-                    + "', '" + idProducto + "', " + entrada + ", '-', '"
-                    + idUsuario + "', " + numero + " );";
-            
+                    + "VALUES (?, ?, ?, ?, '-', ?, ? );";
+
             ps = getCnn().prepareStatement(sql);
             
+//IDENTRADA_PRODUCTO
+//cencepto
+//idProducto
+//entrada
+//idUsuario
+//numero
+
             ps.executeUpdate();
             return true;
         } catch (SQLException ex) {
@@ -771,76 +797,4 @@ public class InsertMetodos {
             return false;
         }
     }
-    
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-//    public String agregarAcesso(String idPerfil, Perfil miPerfil) {
-//        //"set term ^ ; " +
-//        try {
-//            sql = 
-//                "EXECUTE BLOCK AS BEGIN "+
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'Archivos', '"+miPerfil.getArchivos()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'Clientes', '"+miPerfil.getClientes()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'Productos', '"+miPerfil.getProductos()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'Proveedores', '"+miPerfil.getProveedores()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'Usuarios', '"+miPerfil.getUsuarios()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'UsuariosCrear', '"+miPerfil.getUsuariosCrearMod()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'Perfil', '"+miPerfil.getPerfil()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'CambioClave', '"+miPerfil.getCambioClave()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'CambioUsuario', '"+miPerfil.getCambioUsuario()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'Salir', '"+miPerfil.getSalir()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'Movimiento', '"+miPerfil.getMovimiento()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'NuevaFactura', '"+miPerfil.getNuevaFactura()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'ReporteFactura', '"+miPerfil.getReporteFactura()+"');" +
-//                "INSERT INTO ACCESO (IDPERFIL, NOMBRE_FRM, PERMISO) " +
-//                "VALUES ('"+idPerfil+"', 'DatosEmpresa', '"+miPerfil.getDatosEmpresa()+
-//            "'); END";
-//            
-//            ps = getCnn().prepareStatement(sql);
-//            
-//            ps.execute(sql);
-//            
-//            return "Acesso Agregado Correctamente";
-//        } catch (SQLException ex) {
-//            //Instalar Logger
-//            return "Error al Insertar Acesso...";
-//        }
-//    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
 }

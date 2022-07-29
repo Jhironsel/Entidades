@@ -35,11 +35,12 @@ public class Categoria implements Comparable {
             + "WHERE "
             + "     a.ID = ?";
 
+    
     public final static String SELECT_CATEGORIA
             = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO, r.ESTADO,"
             + "FROM V_CATEGORIAS r "
             + "ORDER BY 1";
-    
+
     public final static String SELECT_CATEGORIA_ESTADO
             = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO, r.ESTADO,"
             + "FROM V_CATEGORIAS r "
@@ -52,7 +53,12 @@ public class Categoria implements Comparable {
             + "FROM V_CATEGORIAS r";
 
     public final static String SELECT_CATEGORIA_DESCRIPCION
-            = "SELECT (1) FROM V_CATEGORIAS WHERE descripcion like ?";
+            = "SELECT (1) "
+            + "FROM V_CATEGORIAS WHERE descripcion like ?";
+    
+    public final static String CATEGORIA_ACTIVAS
+            = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO "
+            + "FROM GET_CATEGORIA_ACTIVAS r";
 
     @Override
     public String toString() {

@@ -4,14 +4,19 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public class DetalleFactura {
+
+    public static String INSERT_DETALLE_FACTURA
+        = "INSERT INTO V_DETALLE_FACTURA (IDFACTURA, IDLINEA, IDPRODUCTO, PRECIO, CANTIDAD) "
+        + "VALUES (?, ?, ?, ?, ?);";
+    
     private final int idLinea;
     private final int idProducto;
     private final String descripcion;
     private final BigDecimal precio;
     private final BigDecimal cantidad;
     private final BigDecimal total;
-    
-    public DetalleFactura(Integer idFactura, int idLinea, int idProducto, 
+
+    public DetalleFactura(Integer idFactura, int idLinea, int idProducto,
             String descripcion, BigDecimal precio, BigDecimal cantidad) {//Fin
         this.idLinea = idLinea;
         this.idProducto = idProducto;
@@ -85,13 +90,13 @@ public class DetalleFactura {
 
     @Override
     public String toString() {
-        return "DetalleFactura{" + 
-                "idLinea=" + idLinea + 
-                ", idProducto=" + idProducto + 
-                ", descripcion=" + descripcion + 
-                ", precio=" + precio + 
-                ", cantidad=" + cantidad + 
-                ", total=" + total + 
-                '}';
+        return "DetalleFactura{"
+                + "idLinea=" + idLinea
+                + ", idProducto=" + idProducto
+                + ", descripcion=" + descripcion
+                + ", precio=" + precio
+                + ", cantidad=" + cantidad
+                + ", total=" + total
+                + '}';
     }
 }

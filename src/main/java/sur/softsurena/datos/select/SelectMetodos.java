@@ -15,8 +15,9 @@ import org.apache.commons.codec.binary.Base64;
 import sur.softsurena.conexion.Conexion;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Categoria;
+import sur.softsurena.entidades.Cliente;
 import sur.softsurena.entidades.Imagen;
-import sur.softsurena.entidades.Perfil;
+import sur.softsurena.entidades.Perfiles;
 import sur.softsurena.entidades.Producto;
 import sur.softsurena.entidades.Usuario;
 
@@ -190,6 +191,24 @@ public class SelectMetodos {
             return false;
         }
     }
+    
+    /** 
+     * Metodo utilizado para obtener todas las categorias del sistema.
+     * 
+     * Metodo creado 11 Julio 2022.
+     * 
+     * @return Devuelve un conjunto de datos de la tabla Categoria del sistema, 
+     * donde contiene todos los campos de la tabla.
+     */
+    public synchronized static ResultSet getCategorias() {
+        try {
+            ps = getCnn().prepareStatement(Categoria.SELECT_CATEGORIA);
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            //Instalar Logger
+            return null;
+        }
+    }
 
     /**
      * 
@@ -197,9 +216,8 @@ public class SelectMetodos {
      * @return 
      */
     public synchronized static boolean existeCategoriaProductos(int idCategoria) {
-        sql = "SELECT (1) FROM V_PRODUCTOS WHERE idCategoria = ?";
         try {
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Producto.EXISTE_CATEGORIA);
             ps.setInt(1, idCategoria);
             rs = ps.executeQuery();
             return rs.next();
@@ -209,48 +227,16 @@ public class SelectMetodos {
         }
     }
 
-    public synchronized static ResultSet getCategorias() {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT idCategoria, Descripcion, Image "
-                    + "FROM tabla_categorias "
-                    + "ORDER BY 1");
-            return ps.executeQuery();
-        } catch (SQLException ex) {
-            //Instalar Logger
-            return null;
-        }
-    }
-
+    /**
+     * Metodo que nos permite tener el conjunto de datos de las categorias que 
+     * estan activas y con un producto que está activo y enlazado a una 
+     * categoria. 
+     * 
+     * @return Retorna un conjunto de datos de tipo ResultSet.
+     */
     public synchronized static ResultSet getCategoriaActivas() {
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.IDCATEGORIA, r.DESCRIPCION, r.IMAGE "
-                    + "FROM GET_CATEGORIA_ACTIVAS r");
-            return ps.executeQuery();
-        } catch (SQLException ex) {
-            //Instalar Logger
-            return null;
-        }
-    }
-
-    /**
-     * Este metodo debe de indagarse mas su parametros. El parametro f viene es
-     * como un filtro de la consulta.
-     *
-     * @param f Investigar este metodo para poderlo describir.
-     * @param c No puedo llegarle.
-     * @return
-     */
-    public synchronized static ResultSet getClientesPorCriterios(String f, String c) {
-        sql = "SELECT r.IDCATEGORIA, r.DESCRIPCION, r.IMAGE "
-                + "FROM GET_CATEGORIA_ACTIVAS r "
-                + f;
-        try {
-            ps = getCnn().prepareStatement(sql);
-
-            ps.setString(1, c);
-
+            ps = getCnn().prepareStatement(Categoria.CATEGORIA_ACTIVAS);
             return ps.executeQuery();
         } catch (SQLException ex) {
             //Instalar Logger
@@ -299,13 +285,24 @@ public class SelectMetodos {
         }
     }
 
+    /**
+     * Metodo que verifica la identificación del equipo en el sistema, tomando 
+     * su numero unico de registro.
+     * 
+     * @param idMaquina identificador del equipo.
+     * 
+     * @return Devuelve true si el equipo se encuentra resgistrado, y false si 
+     * no existe registro en la base de datos. 
+     */
     public synchronized static boolean existeIdMaquina(String idMaquina) {
         try {
             ps = getCnn().prepareStatement(
                     "SELECT (1) "
                     + "FROM V_FCH_LC a "
                     + "WHERE a.ID = ?");
+            
             ps.setString(1, idMaquina.trim());
+            
             rs = ps.executeQuery();
             return rs.next();
         } catch (SQLException ex) {
@@ -324,6 +321,34 @@ public class SelectMetodos {
             ps.setInt(1, idFactura);
 
             return ps.executeQuery();
+        } catch (SQLException ex) {
+            //Instalar Logger
+            return null;
+        }
+    }
+    
+    /**
+     * Metodo utilizado para obtener los productos ya sea por su ID, Codigo o 
+     * Descripcion de los registros de la tabla productos. 
+     * 
+     * @param criterio Este valor puede ser el identificador, codigo o 
+     * descripcion del producto. 
+     * 
+     * @return Devuelve un conjunto de datos con los criterio de la busqueda 
+     * espeficicada. 
+     * 
+     */
+    public synchronized static ResultSet buscarProducto(String criterio) {
+        
+        try {
+            ps = getCnn().prepareStatement(Producto.BUSCAR_PRODUCTO_ID_DESCRIPCION_CODIGO);
+            
+            ps.setInt(1, Integer.parseInt(criterio));
+            ps.setString(2, criterio);
+            ps.setString(3, criterio);
+
+            return ps.executeQuery();
+            
         } catch (SQLException ex) {
             //Instalar Logger
             return null;
@@ -351,13 +376,7 @@ public class SelectMetodos {
      */
     public synchronized static boolean existeCliente(String criterio) {
         try {
-            ps = getCnn().prepareStatement(
-                      "SELECT (1) "
-                    + "FROM GET_CLIENTES WHERE CEDULA like ? or "
-                    + "CEDULA starting ? or "
-                    + "PNOMBRE CONTAINING ? or "
-                    + "SNOMBRE CONTAINING ? or "
-                    + "apellidos CONTAINING ? ");
+            ps = getCnn().prepareStatement(Cliente.GET_CLIENTES);
 
             ps.setString(1, criterio.trim());
             ps.setString(2, criterio.trim());
@@ -424,10 +443,7 @@ public class SelectMetodos {
      */
     public synchronized static boolean existeProducto(String codigo) {
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT (1) "
-                    + "FROM v_productos "
-                    + "WHERE codigo = ? or descripcion starting ?");
+            ps = getCnn().prepareStatement(Producto.EXISTE_PRODUCTO);
 
             ps.setString(1, codigo);
             ps.setString(2, codigo);
@@ -626,14 +642,14 @@ public class SelectMetodos {
     public synchronized static ResultSet getFacturasDetalladas(String idFactura) {
         try {
             ps = getCnn().prepareStatement(
-                    "SELECT factura.idFactura, factura.idCliente, nombres||' '||apellidos AS nombreFull, \n"
-                    + "        fecha, idLinea, (SELECT p.Descripcion \n"
-                    + "                            FROM TABLA_PRODUCTOS p \n"
-                    + "                            WHERE p.idProducto = DETALLEFACTURA.IDPRODUCTO ) as Descripcion, \n"
-                    + "        idProducto, precio, cantidad, precio * cantidad AS Valor \n"
-                    + "FROM TABLA_FACTURAS\n"
-                    + "INNER JOIN TABLA_CLIENTES ON factura.idCliente = cliente.idCliente \n"
-                    + "INNER JOIN TABLA_DETALLEFACTURA ON factura.idFactura = detalleFactura.idFactura\n"
+                    "SELECT factura.idFactura, factura.idCliente, nombres||' '||apellidos AS nombreFull, "
+                    + "        fecha, idLinea, (SELECT p.Descripcion "
+                    + "                            FROM TABLA_PRODUCTOS p "
+                    + "                            WHERE p.idProducto = DETALLEFACTURA.IDPRODUCTO ) as Descripcion, "
+                    + "        idProducto, precio, cantidad, precio * cantidad AS Valor "
+                    + "FROM TABLA_FACTURAS "
+                    + "INNER JOIN TABLA_CLIENTES ON factura.idCliente = cliente.idCliente "
+                    + "INNER JOIN TABLA_DETALLEFACTURA ON factura.idFactura = detalleFactura.idFactura "
                     + "WHERE factura.idFactura = ? ");
             ps.setString(1, idFactura);
             return ps.executeQuery();
@@ -798,45 +814,51 @@ public class SelectMetodos {
         }
     }
 
-    public synchronized static Perfil getAcceso(int idPerfil) {
+    public synchronized static Perfiles getPerfilUsuario(int idPerfil) {
         try {
-            sql = "SELECT r.ARCHIVOS, r.ARCHIVOSCLIENTES, "
-                    + "r.ARCHIVOSPRODUCTOS, r.ARCHIVOSUSUARIOS, r.ARCHIVOSCAMBIOCLAVE, "
-                    + "r.ARCHIVOSCAMBIOUSUARIO, r.ARCHIVOSSALIR, r.MOVIMIENTOS, "
-                    + "r.MOVIMIENTOSNUEVAFACTURA, r.MOVIMIENTOSREPORTEFACTURA, "
-                    + "r.MOVIMIENTOSINVENTARIO, r.MOVIMIENTOSABRILTURNO, r.MOVIMIENTOSCERRARTURNO, "
-                    + "r.MOVIMIENTOSDEUDA "
-                    + "FROM TABLA_ACCESO2 r "
-                    + "WHERE idPerfil = ?";
 
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Perfiles.SELECT_ID);
 
             ps.setInt(1, idPerfil);
 
             rs = ps.executeQuery();
-            boolean filas = rs.next();
 
-            if (!filas) {
+            if (!rs.next()) {
                 return null;
             }
+            
+            Perfiles p = Perfiles.builder().
+                    userName(rs.getString("USERNAME")).
+                    rol(rs.getString("ROL")).
+                    CLIENTE_SELECT(rs.getBoolean("CLIENTE_SELECT")).
+                    CLIENTE_INSERT(rs.getBoolean("CLIENTE_INSERT")).
+                    CLIENTE_UPDATE(rs.getBoolean("CLIENTE_UPDATE")).
+                    CLIENTE_DELETE(rs.getBoolean("CLIENTE_DELETE")).
+                    PRODUCTO_SELECT(rs.getBoolean("PRODUCTO_SELECT")).
+                    PRODUCTO_INSERT(rs.getBoolean("PRODUCTO_INSERT")).
+                    PRODUCTO_UPDATE(rs.getBoolean("PRODUCTO_UPDATE")).
+                    PRODUCTO_DELETE(rs.getBoolean("PRODUCTO_DELETE")).
+                    USUARIO_SELECT(rs.getBoolean("USUARIO_SELECT")).
+                    USUARIO_INSERT(rs.getBoolean("USUARIO_INSERT")).
+                    USUARIO_UPDATE(rs.getBoolean("USUARIO_UPDATE")).
+                    USUARIO_DELETE(rs.getBoolean("USUARIO_DELETE")).
+                    CAMBIO_CLAVE(rs.getBoolean("CAMBIO_CLAVE")).
+                    FACTURA_SELECT(rs.getBoolean("FACTURA_SELECT")).
+                    FACTURA_INSERT(rs.getBoolean("FACTURA_INSERT")).
+                    FACTURA_UPDATE(rs.getBoolean("FACTURA_UPDATE")).
+                    FACTURA_DELETE(rs.getBoolean("FACTURA_DELETE")).
+                    REPORTES_SELECT(rs.getBoolean("REPORTES_SELECT")).
+                    INVENTARIOS_SELECT(rs.getBoolean("INVENTARIOS_SELECT")).
+                    TURNO_SELECT(rs.getBoolean("TURNO_SELECT")).
+                    TURNO_INSERT(rs.getBoolean("TURNO_INSERT")).
+                    TURNO_UPDATE(rs.getBoolean("TURNO_UPDATE")).
+                    TURNO_DELETE(rs.getBoolean("TURNO_DELETE")).
+                    DEUDAS_SELECT(rs.getBoolean("DEUDAS_SELECT")).
+                    DEUDAS_INSERT(rs.getBoolean("DEUDAS_INSERT")).
+                    DEUDAS_UPDATE(rs.getBoolean("DEUDAS_UPDATE")).
+                    DEUDAS_DELETE(rs.getBoolean("DEUDAS_DELETE")).build();
 
-            return new Perfil(
-                    idPerfil,
-                    null,
-                    rs.getBoolean("ARCHIVOS"),
-                    rs.getBoolean("ARCHIVOSCLIENTES"),
-                    rs.getBoolean("ARCHIVOSPRODUCTOS"),
-                    rs.getBoolean("ARCHIVOSUSUARIOS"),
-                    rs.getBoolean("ARCHIVOSCAMBIOCLAVE"),
-                    rs.getBoolean("ARCHIVOSCAMBIOUSUARIO"),
-                    rs.getBoolean("ARCHIVOSSALIR"),
-                    rs.getBoolean("MOVIMIENTOS"),
-                    rs.getBoolean("MOVIMIENTOSNUEVAFACTURA"),
-                    rs.getBoolean("MOVIMIENTOSREPORTEFACTURA"),
-                    rs.getBoolean("MOVIMIENTOSINVENTARIO"),
-                    rs.getBoolean("MOVIMIENTOSABRILTURNO"),
-                    rs.getBoolean("MOVIMIENTOSCERRARTURNO"),
-                    rs.getBoolean("MOVIMIENTOSDEUDA"));
+            return p;
 
         } catch (SQLException ex) {
             //Instalar Logger
@@ -2314,12 +2336,8 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static ResultSet getClientesCombo() {
-        sql = "SELECT r.ID, r.CEDULA, r.PNOMBRE, r.SNOMBRE, r.APELLIDOS, r.ESTADO " +
-                "FROM GET_CLIENTES_SB r " +
-                "WHERE r.ESTADO";
-
         try {
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Cliente.GET_CLIENTES_ESTAD);
             
             return ps.executeQuery();
             

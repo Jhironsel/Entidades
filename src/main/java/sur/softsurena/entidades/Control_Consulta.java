@@ -3,6 +3,9 @@ package sur.softsurena.entidades;
 import java.sql.Time;
 
 public class Control_Consulta {
+
+    public final static String DELETE 
+            ="DELETE FROM V_CONTROL_CONSULTA WHERE id = ?";
     private final int id;
     private final String user_name;
     private final int cantidad;

@@ -1,21 +1,29 @@
 package sur.softsurena.entidades;
 
 import java.math.BigDecimal;
+import lombok.NonNull;
 
 public class ARS {
-    private final int id;
+
+    public static String DELETE
+            = "DELETE FROM V_ARS WHERE id = ?";
+
+    private final Integer id;
+    @NonNull
     private final String descripcion;
+    @NonNull
     private final BigDecimal covertura;
+    @NonNull
     private final Boolean estado;
 
-    public ARS(int id, String descripcion, BigDecimal covertura, 
+    public ARS(int id, String descripcion, BigDecimal covertura,
             Boolean estado) {
         this.id = id;
         this.descripcion = descripcion;
         this.covertura = covertura;
         this.estado = estado;
     }
-    
+
     public ARS(int id, String descripcion) {
         this.id = id;
         this.descripcion = descripcion;
@@ -37,7 +45,7 @@ public class ARS {
 
     public Boolean getEstado() {
         return estado;
-    }    
+    }
 
     @Override
     public String toString() {

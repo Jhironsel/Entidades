@@ -1,217 +1,163 @@
 package sur.softsurena.entidades;
 
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+
+@SuperBuilder
+@Getter
 public class Perfiles {
 
-    private Integer IdPerfil;
-    private String perfil;
-    private Boolean frm_Padres;
-    private Boolean frm_Padres_Registro;
-    private Boolean frm_Padres_Modificar;
-    private Boolean frm_Padres_Borrar;
-    private Boolean frm_Estudiantes;
-    private Boolean frm_Estudiantes_Registro;
-    private Boolean frm_Estudiantes_Modificar;
-    private Boolean frm_Estudiantes_Borrar;
-    private Boolean frm_Usuarios;
-    private Boolean frm_Usuarios_Registro;
-    private Boolean frm_Usuarios_Modificar;
-    private Boolean frm_Usuarios_Borrar;
-    private Boolean frm_Pagos;
-    private Boolean frm_Abono;
-    private Boolean frm_Reportes;
-    private Boolean frm_Ajuste_Tanda;
-    private Boolean frm_Ajuste_Perfil_Usuario;
-
-    public Perfiles(
-            Integer IdPerfil, 
-            String perfil, 
-            Boolean frm_Padres,
-            Boolean frm_Padres_Registro, 
-            Boolean frm_Padres_Modificar,
-            Boolean frm_Padres_Borrar, 
-            Boolean frm_Estudiantes,
-            Boolean frm_Estudiantes_Registro, 
-            Boolean frm_Estudiantes_Modificar,
-            Boolean frm_Estudiantes_Borrar, 
-            Boolean frm_Usuarios,
-            Boolean frm_Usuarios_Registro, 
-            Boolean frm_Usuarios_Modificar,
-            Boolean frm_Usuarios_Borrar, 
-            Boolean frm_Pagos, 
-            Boolean frm_Abono,
-            Boolean frm_Reportes, 
-            Boolean frm_Ajuste_Tanda,
-            Boolean frm_Ajuste_Perfil_Usuario) {
-        this.IdPerfil = IdPerfil;
-        this.perfil = perfil;
-        this.frm_Padres = frm_Padres;
-        this.frm_Padres_Registro = frm_Padres_Registro;
-        this.frm_Padres_Modificar = frm_Padres_Modificar;
-        this.frm_Padres_Borrar = frm_Padres_Borrar;
-        this.frm_Estudiantes = frm_Estudiantes;
-        this.frm_Estudiantes_Registro = frm_Estudiantes_Registro;
-        this.frm_Estudiantes_Modificar = frm_Estudiantes_Modificar;
-        this.frm_Estudiantes_Borrar = frm_Estudiantes_Borrar;
-        this.frm_Usuarios = frm_Usuarios;
-        this.frm_Usuarios_Registro = frm_Usuarios_Registro;
-        this.frm_Usuarios_Modificar = frm_Usuarios_Modificar;
-        this.frm_Usuarios_Borrar = frm_Usuarios_Borrar;
-        this.frm_Pagos = frm_Pagos;
-        this.frm_Abono = frm_Abono;
-        this.frm_Reportes = frm_Reportes;
-        this.frm_Ajuste_Tanda = frm_Ajuste_Tanda;
-        this.frm_Ajuste_Perfil_Usuario = frm_Ajuste_Perfil_Usuario;
-    }
-
-    public Integer getIdPerfil() {
-        return IdPerfil;
-    }
-
-    public void setIdPerfil(Integer IdPerfil) {
-        this.IdPerfil = IdPerfil;
-    }
-
-    public String getPerfil() {
-        return perfil;
-    }
-
-    public void setPerfil(String perfil) {
-        this.perfil = perfil;
-    }
-
-    public Boolean getFrm_Padres() {
-        return frm_Padres;
-    }
-
-    public void setFrm_Padres(Boolean frm_Padres) {
-        this.frm_Padres = frm_Padres;
-    }
-
-    public Boolean getFrm_Padres_Registro() {
-        return frm_Padres_Registro;
-    }
-
-    public void setFrm_Padres_Registro(Boolean frm_Padres_Registro) {
-        this.frm_Padres_Registro = frm_Padres_Registro;
-    }
-
-    public Boolean getFrm_Padres_Modificar() {
-        return frm_Padres_Modificar;
-    }
-
-    public void setFrm_Padres_Modificar(Boolean frm_Padres_Modificar) {
-        this.frm_Padres_Modificar = frm_Padres_Modificar;
-    }
-
-    public Boolean getFrm_Padres_Borrar() {
-        return frm_Padres_Borrar;
-    }
-
-    public void setFrm_Padres_Borrar(Boolean frm_Padres_Borrar) {
-        this.frm_Padres_Borrar = frm_Padres_Borrar;
-    }
-
-    public Boolean getFrm_Estudiantes() {
-        return frm_Estudiantes;
-    }
-
-    public void setFrm_Estudiantes(Boolean frm_Estudiantes) {
-        this.frm_Estudiantes = frm_Estudiantes;
-    }
-
-    public Boolean getFrm_Estudiantes_Registro() {
-        return frm_Estudiantes_Registro;
-    }
-
-    public void setFrm_Estudiantes_Registro(Boolean frm_Estudiantes_Registro) {
-        this.frm_Estudiantes_Registro = frm_Estudiantes_Registro;
-    }
-
-    public Boolean getFrm_Estudiantes_Modificar() {
-        return frm_Estudiantes_Modificar;
-    }
-
-    public void setFrm_Estudiantes_Modificar(Boolean frm_Estudiantes_Modificar) {
-        this.frm_Estudiantes_Modificar = frm_Estudiantes_Modificar;
-    }
-
-    public Boolean getFrm_Estudiantes_Borrar() {
-        return frm_Estudiantes_Borrar;
-    }
-
-    public void setFrm_Estudiantes_Borrar(Boolean frm_Estudiantes_Borrar) {
-        this.frm_Estudiantes_Borrar = frm_Estudiantes_Borrar;
-    }
-
-    public Boolean getFrm_Usuarios() {
-        return frm_Usuarios;
-    }
-
-    public void setFrm_Usuarios(Boolean frm_Usuarios) {
-        this.frm_Usuarios = frm_Usuarios;
-    }
-
-    public Boolean getFrm_Usuarios_Registro() {
-        return frm_Usuarios_Registro;
-    }
-
-    public void setFrm_Usuarios_Registro(Boolean frm_Usuarios_Registro) {
-        this.frm_Usuarios_Registro = frm_Usuarios_Registro;
-    }
-
-    public Boolean getFrm_Usuarios_Modificar() {
-        return frm_Usuarios_Modificar;
-    }
-
-    public void setFrm_Usuarios_Modificar(Boolean frm_Usuarios_Modificar) {
-        this.frm_Usuarios_Modificar = frm_Usuarios_Modificar;
-    }
-
-    public Boolean getFrm_Usuarios_Borrar() {
-        return frm_Usuarios_Borrar;
-    }
-
-    public void setFrm_Usuarios_Borrar(Boolean frm_Usuarios_Borrar) {
-        this.frm_Usuarios_Borrar = frm_Usuarios_Borrar;
-    }
-
-    public Boolean getFrm_Pagos() {
-        return frm_Pagos;
-    }
-
-    public void setFrm_Pagos(Boolean frm_Pagos) {
-        this.frm_Pagos = frm_Pagos;
-    }
-
-    public Boolean getFrm_Abono() {
-        return frm_Abono;
-    }
-
-    public void setFrm_Abono(Boolean frm_Abono) {
-        this.frm_Abono = frm_Abono;
-    }
-
-    public Boolean getFrm_Reportes() {
-        return frm_Reportes;
-    }
-
-    public void setFrm_Reportes(Boolean frm_Reportes) {
-        this.frm_Reportes = frm_Reportes;
-    }
-
-    public Boolean getFrm_Ajuste_Tanda() {
-        return frm_Ajuste_Tanda;
-    }
-
-    public void setFrm_Ajuste_Tanda(Boolean frm_Ajuste_Tanda) {
-        this.frm_Ajuste_Tanda = frm_Ajuste_Tanda;
-    }
-
-    public Boolean getFrm_Ajuste_Perfil_Usuario() {
-        return frm_Ajuste_Perfil_Usuario;
-    }
-
-    public void setFrm_Ajuste_Perfil_Usuario(Boolean frm_Ajuste_Perfil_Usuario) {
-        this.frm_Ajuste_Perfil_Usuario = frm_Ajuste_Perfil_Usuario;
-    }
+    public final static String SELECT
+            ="SELECT r.ID, r.USERNAME, r.ROL, r.CLIENTE_SELECT, r.CLIENTE_INSERT, " +
+            "     r.CLIENTE_UPDATE, r.CLIENTE_DELETE, r.PRODUCTO_SELECT, r.PRODUCTO_INSERT, " +
+            "     r.PRODUCTO_UPDATE, r.PRODUCTO_DELETE, r.USUARIO_SELECT, r.USUARIO_INSERT, " +
+            "     r.USUARIO_UPDATE, r.USUARIO_DELETE, r.CAMBIO_CLAVE, r.FACTURA_SELECT, " +
+            "     r.FACTURA_INSERT, r.FACTURA_UPDATE, r.FACTURA_DELETE, r.REPORTES_SELECT, " +
+            "     r.INVENTARIOS_SELECT, r.TURNO_SELECT, r.TURNO_INSERT, r.TURNO_UPDATE, " +
+            "     r.TURNO_DELETE, r.DEUDAS_SELECT, r.DEUDAS_INSERT, r.DEUDAS_UPDATE, " +
+            "     r.DEUDAS_DELETE " +
+            "FROM V_PERFILES r";
+    
+    public final static String SELECT_USERNAME_ROL
+            ="SELECT r.ID, r.CLIENTE_SELECT, r.CLIENTE_INSERT, " +
+            "     r.CLIENTE_UPDATE, r.CLIENTE_DELETE, r.PRODUCTO_SELECT, r.PRODUCTO_INSERT, " +
+            "     r.PRODUCTO_UPDATE, r.PRODUCTO_DELETE, r.USUARIO_SELECT, r.USUARIO_INSERT, " +
+            "     r.USUARIO_UPDATE, r.USUARIO_DELETE, r.CAMBIO_CLAVE, r.FACTURA_SELECT, " +
+            "     r.FACTURA_INSERT, r.FACTURA_UPDATE, r.FACTURA_DELETE, r.REPORTES_SELECT, " +
+            "     r.INVENTARIOS_SELECT, r.TURNO_SELECT, r.TURNO_INSERT, r.TURNO_UPDATE, " +
+            "     r.TURNO_DELETE, r.DEUDAS_SELECT, r.DEUDAS_INSERT, r.DEUDAS_UPDATE, " +
+            "     r.DEUDAS_DELETE " +
+            "FROM V_PERFILES r " + 
+            "WHERE TRIM(r.USERNAME) LIKE TRIM(?) AND TRIM(r.ROL) LIKE TRIM(?)";
+    
+    public final static String SELECT_USERNAME
+            ="SELECT r.ID, r.ROL, r.CLIENTE_SELECT, r.CLIENTE_INSERT, " +
+            "     r.CLIENTE_UPDATE, r.CLIENTE_DELETE, r.PRODUCTO_SELECT, r.PRODUCTO_INSERT, " +
+            "     r.PRODUCTO_UPDATE, r.PRODUCTO_DELETE, r.USUARIO_SELECT, r.USUARIO_INSERT, " +
+            "     r.USUARIO_UPDATE, r.USUARIO_DELETE, r.CAMBIO_CLAVE, r.FACTURA_SELECT, " +
+            "     r.FACTURA_INSERT, r.FACTURA_UPDATE, r.FACTURA_DELETE, r.REPORTES_SELECT, " +
+            "     r.INVENTARIOS_SELECT, r.TURNO_SELECT, r.TURNO_INSERT, r.TURNO_UPDATE, " +
+            "     r.TURNO_DELETE, r.DEUDAS_SELECT, r.DEUDAS_INSERT, r.DEUDAS_UPDATE, " +
+            "     r.DEUDAS_DELETE " +
+            "FROM V_PERFILES r " + 
+            "WHERE TRIM(r.USERNAME) LIKE TRIM(?);";
+    
+    public final static String SELECT_ID
+            ="SELECT r.USERNAME, r.ROL, r.CLIENTE_SELECT, r.CLIENTE_INSERT, " +
+            "     r.CLIENTE_UPDATE, r.CLIENTE_DELETE, r.PRODUCTO_SELECT, r.PRODUCTO_INSERT, " +
+            "     r.PRODUCTO_UPDATE, r.PRODUCTO_DELETE, r.USUARIO_SELECT, r.USUARIO_INSERT, " +
+            "     r.USUARIO_UPDATE, r.USUARIO_DELETE, r.CAMBIO_CLAVE, r.FACTURA_SELECT, " +
+            "     r.FACTURA_INSERT, r.FACTURA_UPDATE, r.FACTURA_DELETE, r.REPORTES_SELECT, " +
+            "     r.INVENTARIOS_SELECT, r.TURNO_SELECT, r.TURNO_INSERT, r.TURNO_UPDATE, " +
+            "     r.TURNO_DELETE, r.DEUDAS_SELECT, r.DEUDAS_INSERT, r.DEUDAS_UPDATE, " +
+            "     r.DEUDAS_DELETE " +
+            "FROM V_PERFILES r " + 
+            "WHERE r.ID = ?;";
+    
+    public final static String INSERT 
+            = 
+            "INSERT INTO V_PERFILES (ID, USERNAME, ROL, CLIENTE_SELECT, CLIENTE_INSERT, " +
+            "     CLIENTE_UPDATE, CLIENTE_DELETE, PRODUCTO_SELECT, PRODUCTO_INSERT, " +
+            "     PRODUCTO_UPDATE, PRODUCTO_DELETE, USUARIO_SELECT, USUARIO_INSERT, " +
+            "     USUARIO_UPDATE, USUARIO_DELETE, CAMBIO_CLAVE, FACTURA_SELECT, " +
+            "     FACTURA_INSERT, FACTURA_UPDATE, FACTURA_DELETE, REPORTES_SELECT, " +
+            "     INVENTARIOS_SELECT, TURNO_SELECT, TURNO_INSERT, TURNO_UPDATE, TURNO_DELETE, " +
+            "     DEUDAS_SELECT, DEUDAS_INSERT, DEUDAS_UPDATE, DEUDAS_DELETE) " +
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+    
+    /**
+     * Query que permite actualizar un perfil
+     */
+    public final static String UPDATE 
+            =   "UPDATE V_PERFILES a " +
+                "SET  " +
+                "     a.CLIENTE_SELECT = ?, " +
+                "     a.CLIENTE_INSERT = ?, " +
+                "     a.CLIENTE_UPDATE = ?, " +
+                "     a.CLIENTE_DELETE = ?, " +
+            
+                "     a.PRODUCTO_SELECT = ?, " +
+                "     a.PRODUCTO_INSERT = ?, " +
+                "     a.PRODUCTO_UPDATE = ?, " +
+                "     a.PRODUCTO_DELETE = ?, " +
+            
+                "     a.USUARIO_SELECT = ?, " +
+                "     a.USUARIO_INSERT = ?, " +
+                "     a.USUARIO_UPDATE = ?, " +
+                "     a.USUARIO_DELETE = ?, " +
+            
+                "     a.CAMBIO_CLAVE = ?, " +
+            
+                "     a.FACTURA_SELECT = ?, " +
+                "     a.FACTURA_INSERT = ?, " +
+                "     a.FACTURA_UPDATE = ?, " +
+                "     a.FACTURA_DELETE = ?, " +
+            
+                "     a.REPORTES_SELECT = ?, " +
+            
+                "     a.INVENTARIOS_SELECT = ?, " +
+            
+                "     a.TURNO_SELECT = ?, " +
+                "     a.TURNO_INSERT = ?, " +
+                "     a.TURNO_UPDATE = ?, " +
+                "     a.TURNO_DELETE = ?, " +
+            
+                "     a.DEUDAS_SELECT = ?, " +
+                "     a.DEUDAS_INSERT = ?, " +
+                "     a.DEUDAS_UPDATE = ?, " +
+                "     a.DEUDAS_DELETE = ? " +
+                "WHERE " +
+                "     a.ID = '?'";
+    
+    public final static String DELETE = "DELETE FROM V_PERFILES a WHERE a.ID = ?";
+    
+    
+    private final Integer id;
+    private final String userName;
+    private final String rol;
+    
+    //Cliente
+    private final Boolean CLIENTE_SELECT;
+    private final Boolean CLIENTE_INSERT;
+    private final Boolean CLIENTE_UPDATE;
+    private final Boolean CLIENTE_DELETE;
+    
+    //Producto
+    private final Boolean PRODUCTO_SELECT;
+    private final Boolean PRODUCTO_INSERT;
+    private final Boolean PRODUCTO_UPDATE;
+    private final Boolean PRODUCTO_DELETE;
+    
+    //Usuario
+    private final Boolean USUARIO_SELECT;
+    private final Boolean USUARIO_INSERT;
+    private final Boolean USUARIO_UPDATE;
+    private final Boolean USUARIO_DELETE;
+    
+    //CAMBIO_CLAVE
+    private final Boolean CAMBIO_CLAVE;
+    
+    //Factura
+    private final Boolean FACTURA_SELECT;
+    private final Boolean FACTURA_INSERT;
+    private final Boolean FACTURA_UPDATE;
+    private final Boolean FACTURA_DELETE;
+    
+    //Reportes
+    private final Boolean REPORTES_SELECT;
+    
+    //Investarios
+    private final Boolean INVENTARIOS_SELECT;
+    
+    //Turno
+    private final Boolean TURNO_SELECT;
+    private final Boolean TURNO_INSERT;
+    private final Boolean TURNO_UPDATE;
+    private final Boolean TURNO_DELETE;
+    
+    //Deudas
+    private final Boolean DEUDAS_SELECT;
+    private final Boolean DEUDAS_INSERT;
+    private final Boolean DEUDAS_UPDATE;
+    private final Boolean DEUDAS_DELETE;
 }

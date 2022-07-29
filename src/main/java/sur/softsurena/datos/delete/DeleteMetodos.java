@@ -4,8 +4,16 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import sur.softsurena.conexion.Conexion;
 import static sur.softsurena.conexion.Conexion.getCnn;
+import sur.softsurena.entidades.ARS;
+import sur.softsurena.entidades.Antecedente;
 import sur.softsurena.entidades.Categoria;
+import sur.softsurena.entidades.Cliente;
+import sur.softsurena.entidades.Control_Consulta;
 import sur.softsurena.entidades.DetalleMotivoConsulta;
+import sur.softsurena.entidades.Factura;
+import sur.softsurena.entidades.Motivo_Consulta;
+import sur.softsurena.entidades.Perfiles;
+import sur.softsurena.entidades.Producto;
 
 public class DeleteMetodos {
 
@@ -18,9 +26,8 @@ public class DeleteMetodos {
      * @return 
      */
     public synchronized static String borrarSeguro(int idARS) {
-        sql = "DELETE FROM V_ARS WHERE id = ?";
         try {
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(ARS.DELETE);
             
             ps.setInt(1, idARS);
             
@@ -35,9 +42,8 @@ public class DeleteMetodos {
     }
 
     public synchronized static String borrarControlConsulta(int idControlConsulta) {
-        sql = "DELETE FROM V_CONTROLCONSULTA a WHERE a.idcontrolconsulta = ?";
         try {
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Control_Consulta.DELETE);
             ps.setInt(1, idControlConsulta);
             ps.executeUpdate();
             return "Borrado correctamente";
@@ -48,47 +54,51 @@ public class DeleteMetodos {
         }
     }
 
-    public synchronized static String borrarMotivoConsulta(DetalleMotivoConsulta dmc) {
-        sql = "DELETE FROM V_Motivos_Consulta WHERE IDMConsulta = ?";
+    public synchronized static String borrarMotivoConsulta(Motivo_Consulta mc) {
         try {
             
-            ps = getCnn().prepareStatement(sql);
-            
-//            ps.setInt(1, idMConsulta);
+            ps = getCnn().prepareStatement(Motivo_Consulta.DELETE);
+            ps.setInt(1, mc.getId());
             
             int cantidad = ps.executeUpdate();
             
-            return "Borrado o inactivo correctamente { " + cantidad + " }";
+            return "Motivo de consulta borrado correctamente.";
         } catch (SQLException ex) {
             
             //Instalar Logger
-            return "Error al borrar motivo de la consulta...";
+            return "Error al borrar motivo de la consulta.";
         }
     }
 
-    public synchronized String borrarMotivoConsulta(int idConsulta, int turno,
-            String idMConsulta) {
-        sql = "DELETE FROM V_DETALLEMOTIVOCONSULTA d "
-                + "WHERE d.IDCONSULTA = ? and d.TURNO = ? and d.IDMCONSULTA = ? ;";
+    /**
+     * Metodo que elimina un detalle de la consulta de los paciente, por x o y 
+     * razones.
+     * 
+     * @param dmc
+     * 
+     * @return 
+     */
+    public synchronized String borrarDetalleMotivoConsulta(DetalleMotivoConsulta dmc) {
         try {
-            ps = getCnn().prepareStatement(sql);
-            ps.setInt(1, idConsulta);
-            ps.setInt(2, turno);
-            ps.setString(3, idMConsulta);
+            ps = getCnn().prepareStatement(DetalleMotivoConsulta.DELETE);
+            
+            ps.setInt(1, dmc.getIdConsulta());
+            ps.setInt(2, dmc.getTurno());
+            ps.setInt(3, dmc.getIdMotivoConsulta());
+            
             ps.executeUpdate();
+            
             return "Motivo eliminado correctamente.";
         } catch (SQLException ex) {
-            
             //Instalar Logger
-            return "Error al eliminar motivo.";
+            return "Error al eliminar detalle de motivo de la consulta.";
         }
     }
 
     public synchronized static String borrarCliente(int idCliente) {
         try {
-            sql = "DELETE FROM V_CLIENTES WHERE ID = ?";
 
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Cliente.DELETE);
             
             ps.setInt(1, idCliente);
             
@@ -105,33 +115,19 @@ public class DeleteMetodos {
 
     /**
      * Metodo utilizado para eliminar los productos del sistema, este solo
-     * necesita de su id para localizarlo en la tabla de V_PRODUCTOS
-     * @param id identificador del registro en la tabla de V_PRODUCTOS
+     * necesita de su id para localizarlo en la tabla de PRODUCTOS
+     * @param id identificador del registro en la tabla de PRODUCTOS
      * @return Devuelve un mensaje que indica como resultado de la acción. 
      */
     public synchronized static String borrarProducto(int id) {
         try {
-            ps = getCnn().prepareStatement("delete from V_PRODUCTOS where id = ? ");
+            ps = getCnn().prepareStatement(Producto.DELETE_PRODUCTO);
             
             ps.setInt(1, id);
             
-            int r = ps.executeUpdate();
+            ps.executeUpdate();
             
-            return "Producto Borrado Correctamente. {"+r+"}";
-        } catch (SQLException ex) {
-            //Instalar Logger
-            return "Ocurrio un error al intentar borrar el Producto...";
-        }
-    }
-    public synchronized static String borrarProducto(String idProducto) {
-        try {
-            PreparedStatement st = getCnn().prepareStatement(
-                    "delete from TABLA_PRODUCTOS "
-                    + "where idproducto = ? "
-            );
-            st.setString(1, idProducto);
-            st.executeUpdate();
-            return "Producto Borrado Correctamente";
+            return "Producto Borrado Correctamente.";
         } catch (SQLException ex) {
             //Instalar Logger
             return "Ocurrio un error al intentar borrar el Producto...";
@@ -139,11 +135,13 @@ public class DeleteMetodos {
     }
     
     public synchronized static String borrarAntecedente(int idAntecedente) {
-        sql = "delete from V_ANTECEDENTES WHERE IDANTECEDENTE = ?";
         try {
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Antecedente.DELETE);
+            
             ps.setInt(1, idAntecedente);
+            
             ps.executeUpdate();
+            
             return "Borrado o inactivo correctamente";
         } catch (SQLException ex) {
             //Instalar Logger
@@ -158,8 +156,7 @@ public class DeleteMetodos {
      */
     public String borrarPerfil(int idPerfil) {
         try {
-            sql = "delete from T_Perfil where idPerfil = ?";
-            ps = Conexion.getCnn().prepareStatement(sql);
+            ps = Conexion.getCnn().prepareStatement(Perfiles.DELETE);
             
             ps.setInt(1, idPerfil);
             
@@ -204,15 +201,16 @@ public class DeleteMetodos {
      * Metodo que elimina las facturas del sistema por el identificador 
      * suministrado.
      * 
+     * Nota: las facturas pueden eliminarse si el estado es nula. 
+     * 
      * Actualizado el 17/05/2022.
      * 
      * @param id Es el identificador del registro de la factura.
      * @return Devuelve un mensaje de la acción
      */
     public synchronized static String borrarFactura(int id) {
-        sql = "delete from V_FACTURAS where id = ?";
         try {
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Factura.DELETE);
             
             ps.setInt(1, id);
             

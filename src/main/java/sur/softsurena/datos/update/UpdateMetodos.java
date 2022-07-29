@@ -13,7 +13,7 @@ import static sur.softsurena.datos.procedure.ProcedureMetodos.pagoCumplido;
 import sur.softsurena.entidades.ARS;
 import sur.softsurena.entidades.Categoria;
 import sur.softsurena.entidades.Cliente;
-import sur.softsurena.entidades.Contactos;
+import sur.softsurena.entidades.ContactosTel;
 import sur.softsurena.entidades.Control_Consulta;
 import sur.softsurena.entidades.Estudiantes;
 import sur.softsurena.entidades.Factura;
@@ -39,7 +39,7 @@ public class UpdateMetodos {
      * @param c
      * @return 
      */
-    public synchronized static String modificarCliente(Cliente c, Contactos[] cc) {
+    public synchronized static String modificarCliente(Cliente c, ContactosTel[] cc) {
         try {
             sql = "update Tabla_CLIENTES "
                     + "set NOMBRES = ?, "
@@ -204,7 +204,7 @@ public class UpdateMetodos {
      * a la que pertenece el producto, su codigo de barra, la descripcion, 
      * la imagen de este, la nota del producto y su estado. 
      * 
-     * Metodo actualizado el dia 23 de abril, segun la vista v_productos.
+     * Metodo actualizado el dia 23 de abril, segun la vista productos.
      * 
      * @param El obj p perteneciente a la clase Producto, define los productos
      * del sistema.
@@ -212,15 +212,7 @@ public class UpdateMetodos {
      */
     public synchronized static String modificarProducto(Producto p) {
         try {
-            ps = getCnn().prepareStatement(
-                    "update V_PRODUCTOS set "
-                    + "idCategoria = ?, "
-                    + "codigo = ?, "
-                    + "descripcion = ?, "
-                    + "imagen_texto = ?, "
-                    + "nota = ?, "
-                    + "estado = ? "
-                    + "where id = ? ");
+            ps = getCnn().prepareStatement(Producto.UPDATE_PRODUCTO);
 
             ps.setInt(1, p.getIdCategoria());
             ps.setString(2, p.getCodigo());
@@ -570,32 +562,54 @@ public class UpdateMetodos {
     
     public String modificarPerfil(Perfiles p) {
         try {
-            sql = "update Perfiles set "
-                    + "perfil = '" + p.getPerfil() + "', "
-                    + "frm_Padres = " + p.getFrm_Padres() + ", "
-                    + "frm_Padres_Registro = " + p.getFrm_Padres_Registro() + ", "
-                    + "frm_Padres_Modificar = " + p.getFrm_Padres_Modificar() + ", "
-                    + "frm_Padres_Borrar = " + p.getFrm_Padres_Borrar() + ", "
-                    + "frm_Estudiantes = " + p.getFrm_Estudiantes() + ", "
-                    + "frm_Estudiantes_Registro = " + p.getFrm_Estudiantes_Registro() + ", "
-                    + "frm_Estudiantes_Modificar = " + p.getFrm_Estudiantes_Modificar() + ", "
-                    + "frm_Estudiantes_Borrar = " + p.getFrm_Estudiantes_Borrar() + ", "
-                    + "frm_Usuarios = " + p.getFrm_Usuarios() + ", "
-                    + "frm_Usuarios_registro = " + p.getFrm_Usuarios_Registro() + ", "
-                    + "frm_Usuarios_Modificar = " + p.getFrm_Usuarios_Modificar() + ", "
-                    + "frm_Usuarios_Borrar = " + p.getFrm_Usuarios_Borrar() + ", "
-                    + "frm_Pagos = " + p.getFrm_Pagos() + ", "
-                    + "frm_Abono = " + p.getFrm_Abono() + ", "
-                    + "frm_reportes = " + p.getFrm_Reportes() + ", "
-                    + "frm_ajuste_tandas = " + p.getFrm_Ajuste_Tanda() + ", "
-                    + "frm_Ajuste_Perfil_Usuarios = " + p.getFrm_Ajuste_Perfil_Usuario() + " "
-                    + "where IdPerfil = " + p.getIdPerfil() + "";
-            ps = getCnn().prepareStatement(sql);
+            
+            ps = getCnn().prepareStatement(Perfiles.UPDATE);
+            
+            ps.setBoolean(1, p.getCLIENTE_SELECT());
+            ps.setBoolean(2, p.getCLIENTE_INSERT());
+            ps.setBoolean(3, p.getCLIENTE_UPDATE());
+            ps.setBoolean(4, p.getCLIENTE_DELETE());
+            
+            ps.setBoolean(5, p.getPRODUCTO_SELECT());
+            ps.setBoolean(6, p.getPRODUCTO_INSERT());
+            ps.setBoolean(7, p.getPRODUCTO_UPDATE());
+            ps.setBoolean(8, p.getPRODUCTO_DELETE());
+            
+            ps.setBoolean(9, p.getUSUARIO_SELECT());
+            ps.setBoolean(10, p.getUSUARIO_INSERT());
+            ps.setBoolean(11, p.getUSUARIO_UPDATE());
+            ps.setBoolean(12, p.getUSUARIO_DELETE());
+            
+            ps.setBoolean(13, p.getCAMBIO_CLAVE());
+            
+            ps.setBoolean(14, p.getFACTURA_SELECT());
+            ps.setBoolean(15, p.getFACTURA_INSERT());
+            ps.setBoolean(16, p.getFACTURA_UPDATE());
+            ps.setBoolean(17, p.getFACTURA_DELETE());
+            
+            ps.setBoolean(18, p.getREPORTES_SELECT());
+            
+            ps.setBoolean(19, p.getINVENTARIOS_SELECT());
+            
+            ps.setBoolean(20, p.getTURNO_SELECT());
+            ps.setBoolean(21, p.getTURNO_INSERT());
+            ps.setBoolean(22, p.getTURNO_UPDATE());
+            ps.setBoolean(23, p.getTURNO_DELETE());
+            
+            ps.setBoolean(24, p.getDEUDAS_SELECT());
+            ps.setBoolean(25, p.getDEUDAS_INSERT());
+            ps.setBoolean(26, p.getDEUDAS_UPDATE());
+            ps.setBoolean(27, p.getDEUDAS_DELETE());
+            
+            ps.setInt(28, p.getId());
+            
+            
+            
             ps.execute(sql);
-            return "Perfil Modificado Correctamente Nombre: " + p.getPerfil();
+            return "Perfil Modificado Correctamente.";
         } catch (SQLException ex) {
             
-            return "Perfil no puedo ser Modificado, Nombre: " + p.getPerfil();
+            return "Perfil no puedo ser Modificado.";
         }
     }
 

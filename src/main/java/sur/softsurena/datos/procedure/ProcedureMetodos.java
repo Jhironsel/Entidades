@@ -33,6 +33,20 @@ public class ProcedureMetodos {
         return null;
     }
     
+    /**
+     * Metodo utilizado para settear las fechas del sistema.
+     * 
+     * @param fecha Fecha que tendra la licencia del sistema. 
+     * 
+     * @param idMaquina Identificador del equipo unico, UUID.
+     * 
+     * @param clave1 Secreto.
+     * 
+     * @param clave2 Secreto.
+     * 
+     * @return Devuelve un valor booleano que indica si tuvo exito el proceso de 
+     * registro. 
+     */
     public synchronized static boolean setLicencia(Date fecha, 
             String idMaquina, String clave1,String clave2) {
         try {

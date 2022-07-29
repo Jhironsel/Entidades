@@ -14,31 +14,6 @@ public class UpdateInsertMetodos {
     private static PreparedStatement ps;
     private static String sql;
 
-    public synchronized static boolean guardarImagen(String ruta, String nombre) {
-        sql = "update or insert into TABLA_IMAGENES(imagen,idUsuario) "
-                + "values(?,?) matching (idUsuario)";
-        ps = null;
-        try {
-            getCnn().setAutoCommit(false);
-
-            File file = new File(ruta);
-            FileInputStream fis = new FileInputStream(file);
-
-            ps = getCnn().prepareStatement(sql);
-            
-            ps.setBinaryStream(1, fis, (int) file.length());
-            ps.setString(2, nombre);
-            ps.executeUpdate();
-
-            getCnn().commit();
-
-            return true;
-        } catch (Exception ex) {
-            //Instalar Logger
-        }
-        return false;
-    }
-    
     public synchronized String agregarDatosNacimiento(Datos_nacimiento dato) {
         try {
             sql = "UPDATE OR INSERT INTO V_DATOSNACIMIENTO "
@@ -152,7 +127,7 @@ public class UpdateInsertMetodos {
         try {
             ps = getCnn().prepareStatement(sql);
             
-            ps.setInt(1, dmc.getId());
+            ps.setInt(1, dmc.getIdConsulta());
             ps.setInt(2, dmc.getTurno());
             ps.setInt(3, dmc.getIdMotivoConsulta());
 
