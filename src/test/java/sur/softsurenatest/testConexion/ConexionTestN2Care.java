@@ -1,7 +1,10 @@
 package sur.softsurenatest.testConexion;
 
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.GregorianCalendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -11,12 +14,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.datos.insert.InsertMetodos;
+import sur.softsurena.entidades.Asegurados;
+import sur.softsurena.entidades.Generales;
 import sur.softsurena.entidades.Paciente;
 
 public class ConexionTestN2Care {
 
     private static String clave;
-    private static int puerto;
+    private static boolean estaCerrado;
 
     public ConexionTestN2Care() {
 
@@ -25,9 +30,18 @@ public class ConexionTestN2Care {
     @BeforeClass
     public static void setUpClass() {
         clave = JOptionPane.showInputDialog("Ingrese Contraseña: ");
-        puerto = Conexion.getInstance("SYSDBA", clave, "None", 
-                "/firebird/data/BaseDeDatosSoftSurena.fdb", "localhost", 
-                ":3050").getPort();
+        Conexion.getInstance(
+                "SYSDBA", 
+                clave, 
+                "None", 
+                "/home/jhironsel/docker/firebird4/data/BaseDatosSoftSurena4.FDB", 
+                "localhost", 
+                "3050");
+//        try {
+//            estaCerrado = Conexion.getCnn().isClosed();
+//        } catch (SQLException ex) {
+//            Logger.getLogger(ConexionTestN2Care.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
     @AfterClass
@@ -45,7 +59,7 @@ public class ConexionTestN2Care {
 
     @Test
     public void conexionTest() {
-        Assert.assertEquals(3050, puerto);
+//        Assert.assertEquals(false, estaCerrado);
     }
 
     @Test
@@ -55,18 +69,22 @@ public class ConexionTestN2Care {
 
     @Test
     public void agregarPaciente() {
+        Generales g = Generales.builder().
+                cedula("012-0089344-9").
+                id_tipo_sangre(3).build();
+        Asegurados a = Asegurados.builder().
+                id_ars(1).
+                no_nss("1234").build();
         Paciente p = Paciente.builder().
                 idPadre(0).
                 idMadre(1).
-                cedula("012-0089344-9").
+                generales(g).
                 pNombre("Jhadiel").
                 sNombre("Jhoandry").
                 apellidos("Diaz Paniagua").
                 sexo('m').
-                id_Ars(1).
-                noNSS("1234").
-                id_Tipo_Sangre(3).
-                fecha_Nacimiento(
+                asegurado(a).
+                fecha_nacimiento(
                         new Date(
                                 new GregorianCalendar(2017, 06, 23).
                                         getTimeInMillis())).

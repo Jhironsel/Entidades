@@ -25,6 +25,7 @@ import sur.softsurena.entidades.Padres;
 import sur.softsurena.entidades.Perfiles;
 import sur.softsurena.entidades.Producto;
 import sur.softsurena.entidades.Proveedores;
+import sur.softsurena.entidades.Resultados;
 import sur.softsurena.entidades.Tandas;
 import sur.softsurena.utilidades.Utilidades;
 
@@ -37,37 +38,49 @@ public class UpdateMetodos {
     
 
     /**
-     * Crear el procedimiento para modificar los clientes del sistema.
+     * Metodo que permite modificar a los clientes del sistema de facturacion. 
+     * 
      * @param c
+     * @param cc
      * @return 
      */
-    public synchronized static String modificarCliente(Clientes c, ContactosTel[] cc) {
+    public synchronized static Resultados modificarCliente(Clientes c, 
+            ContactosTel[] cc) {
+        Resultados r;
         try {
-            sql = "update Tabla_CLIENTES "
-                    + "set NOMBRES = ?, "
-                    + "    APELLIDOS = ?, "
-                    + "    CIUDAD = ?, "
-                    + "    DIRECCION = ?, "
-                    + "    TELEFONO = ?, "
-                    + "    FECHANACIMIENTO = ?, "
-                    + "    ESTADO = ?  "
-                    + "where (ID = ?)";
 
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Clientes.UPDATE);
 
-            ps.setString(1, c.getNombres());
-            ps.setString(2, c.getApellidos());
-            ps.setString(4, c.getDireccion());
-            ps.setDate(6, Utilidades.javaDateToSqlDate(c.getFecha_Nacimiento()));
-            ps.setBoolean(7, c.getEstado());
-            ps.setInt(8, c.getId());
+            ps.setInt(1, c.getId_persona());
+            ps.setInt(2, c.getDireccion().getId_provincia());
+            ps.setInt(3, c.getDireccion().getId_municipio());
+            ps.setInt(3, c.getDireccion().getId_distrito_municipal());
+            ps.setString(4, String.valueOf(c.getPersona()));
+            ps.setString(5, c.getGenerales().getCedula());
+            ps.setString(6, c.getPNombre());
+            ps.setString(7, c.getSNombre());
+            ps.setString(8, c.getApellidos());
+            ps.setString(9, String.valueOf(c.getSexo()));
+            ps.setString(10, c.getDireccion().getDireccion());
+            ps.setDate(11, c.getFecha_nacimiento());
+            ps.setBoolean(12, c.getEstado());
+            ps.setString(13, String.valueOf(c.getGenerales().getEstado_civil()));
+            
+            int cant = ps.executeUpdate();
+            
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje("Cliente Modificado Correctamente").
+                    cantidad(cant).build();
 
-            ps.executeUpdate();
-
-            return "Cliente Modificado Correctamente";
+            return r;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al Modificar Cliente...";
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje("Error al Modificar Cliente...").
+                    cantidad(-1).build();
+            return r;
         }
     }
 
@@ -279,7 +292,7 @@ public class UpdateMetodos {
     }
     
 
-    public synchronized static String modificarPaciente(Paciente miPaciente) {
+    public synchronized static String modificarPaciente(Paciente p) {
         try {
             ps = getCnn().prepareStatement(sql);
 
@@ -299,17 +312,17 @@ public class UpdateMetodos {
                     + "WHERE"
                     + "    IDPACIENTE = ?");
 
-            ps.setInt(1, miPaciente.getIdPadre());
-            ps.setInt(2, miPaciente.getIdMadre());
-            ps.setString(3, miPaciente.getCedula());
-            ps.setString(4, miPaciente.getNombres());
-            ps.setString(5, miPaciente.getApellidos());
-            ps.setString(6, "" + miPaciente.getSexo());
-            ps.setInt(7, miPaciente.getId_Tipo_Sangre());
-            ps.setInt(8, miPaciente.getId_Ars());
-            ps.setString(9, miPaciente.getNoNSS());
-            ps.setBoolean(10, miPaciente.getEstado());
-            ps.setInt(11, miPaciente.getId());
+            ps.setInt(1, p.getIdPadre());
+            ps.setInt(2, p.getIdMadre());
+            ps.setString(3, p.getGenerales().getCedula());
+            ps.setString(4, p.getPNombre());
+            ps.setString(5, p.getApellidos());
+            ps.setString(6, "" + p.getSexo());
+            ps.setInt(7, p.getGenerales().getId_tipo_sangre());
+            ps.setInt(8, p.getAsegurado().getId_ars());
+            ps.setString(9, p.getAsegurado().getNo_nss());
+            ps.setBoolean(10, p.getEstado());
+            ps.setInt(11, p.getId_persona());
 
             return "Paciente modificado correctamente";
         } catch (SQLException ex) {
@@ -389,23 +402,23 @@ public class UpdateMetodos {
 
             ps = getCnn().prepareStatement(sql);
 
-            ps.setInt(1, p.getId());
+            ps.setInt(1, p.getId_persona());
             ps.setInt(2, p.getAsegurado().getId_ars());
             ps.setString(3, p.getAsegurado().getNo_nss());
-            ps.setInt(4, p.getId_Provincia());
-            ps.setInt(5, p.getId_Municipio());
-            ps.setInt(6, p.getId_Distrito_Municipal());
-            ps.setInt(7, p.getId_Codigo_Postal());
-            ps.setInt(8, p.getId_Tipo_Sangre());
-            ps.setString(9, p.getCedula());
+            ps.setInt(4, p.getDireccion().getId_provincia());
+            ps.setInt(5, p.getDireccion().getId_municipio());
+            ps.setInt(6, p.getDireccion().getId_distrito_municipal());
+            ps.setInt(7, p.getDireccion().getId_codigo_postal());
+            ps.setInt(8, p.getGenerales().getId_tipo_sangre());
+            ps.setString(9, p.getGenerales().getCedula());
             ps.setString(10, p.getPNombre());
             ps.setString(11, p.getSNombre());
             ps.setString(12, p.getApellidos());
             ps.setString(13, "" + p.getSexo());
-            ps.setString(14, p.getDireccion());
-            ps.setDate(15, p.getFecha_Nacimiento());
+            ps.setString(14, p.getDireccion().getDireccion());
+            ps.setDate(15, p.getFecha_nacimiento());
             ps.setBoolean(16, p.getEstado());
-            ps.setString(17, "" + p.getEstado_Civil());
+            ps.setString(17, "" + p.getGenerales().getEstado_civil());
 
             ps.executeUpdate();
             return "Padre modificado correctamente";
@@ -665,7 +678,7 @@ public class UpdateMetodos {
             
             ps = getCnn().prepareStatement(sql);
             
-            ps.setInt(1, e.getId());
+            ps.setInt(1, e.getId_persona());
             ps.setInt(2, e.getIdPadre());
             ps.setInt(3, e.getIdMadre());
             ps.setInt(4, e.getIdTutor());
@@ -674,7 +687,7 @@ public class UpdateMetodos {
             ps.setString(7, e.getSNombre());
             ps.setString(8, e.getApellidos());
             ps.setString(9, ""+e.getSexo());
-            ps.setDate(10, e.getFecha_Nacimiento());
+            ps.setDate(10, e.getFecha_nacimiento());
             ps.setBoolean(11, e.getEstado());
             
             ps.executeUpdate();

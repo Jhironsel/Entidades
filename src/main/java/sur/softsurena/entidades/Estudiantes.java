@@ -35,7 +35,6 @@ public class Estudiantes extends Personas {
     private final Integer idMadre;
     private final Integer idTutor;
     private final Integer jcb_parentesco;
-    private final Generales generales;
 
     @Override
     public String toString() {

@@ -73,7 +73,7 @@ public class UpdateInsertMetodos {
 //        }
 //    }
 
-    public synchronized static String agregarPadre(Padres padre) {
+    public synchronized static String agregarPadre(Padres p) {
         try {
             sql = "UPDATE OR INSERT INTO V_PADRES (CEDULA, NOMBRES, APELLIDOS, "
                     + "SEXO, IDTIPOSANGRE, IDARS, NONSS, TELEFONO, MOVIL, "
@@ -82,16 +82,16 @@ public class UpdateInsertMetodos {
 
             ps = getCnn().prepareStatement(sql);
 
-            ps.setString(1, padre.getCedula().trim());
-            ps.setString(2, padre.getNombres().trim());
-            ps.setString(3, padre.getApellidos().trim());
-            ps.setString(4, "" + padre.getSexo());
-            ps.setInt(5, padre.getId_Tipo_Sangre());
-            ps.setInt(6, padre.getAsegurado().getId_ars());
-            ps.setString(7, (padre.getAsegurado().getNo_nss().trim().isEmpty() ? null : padre.getAsegurado().getNo_nss().trim()));
-            ps.setString(11, padre.getDireccion().trim());
-            ps.setDate(13, padre.getFecha_Nacimiento());
-            ps.setBoolean(14, padre.getEstado());
+            ps.setString(1, p.getGenerales().getCedula().trim());
+            ps.setString(2, p.getGenerales().getPNombre().trim());
+            ps.setString(3, p.getApellidos().trim());
+            ps.setString(4, "" + p.getSexo());
+            ps.setInt(5, p.getGenerales().getId_tipo_sangre());
+            ps.setInt(6, p.getAsegurado().getId_ars());
+            ps.setString(7, (p.getAsegurado().getNo_nss().trim().isEmpty() ? null : p.getAsegurado().getNo_nss().trim()));
+            ps.setString(11, p.getDireccion().getDireccion().trim());
+            ps.setDate(13, p.getFecha_nacimiento());
+            ps.setBoolean(14, p.getEstado());
 
             ps.executeUpdate();
 

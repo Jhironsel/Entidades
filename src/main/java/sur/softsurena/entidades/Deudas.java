@@ -15,5 +15,5 @@ public class Deudas extends Personas{
     private final BigDecimal monto;
     private final Date fecha;
     private final Time hora;
-    private final char estado;
+    private final char estadoDeuda;
 }

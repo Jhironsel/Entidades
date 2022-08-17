@@ -9,8 +9,6 @@ import lombok.experimental.SuperBuilder;
 public class Paciente extends Personas{
     private final int idPadre;
     private final int idMadre;
-    private final Generales generales;
-    private final Asegurados asegurado;
     
     @Override
     public String toString() {

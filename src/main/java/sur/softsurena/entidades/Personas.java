@@ -27,26 +27,30 @@ public abstract class Personas {
     private final Boolean estado;//10
     private final String user_name;//11
     private final String rol;//12
+    
+    private final Asegurados asegurado;
+    private final Direcciones direccion;
+    private final Generales generales;
 
     public static void llenarPersona(JComboBox jcbPersona) {
         TipoPersona tp = TipoPersona.builder().
                 abreviatura('X').persona("Tipo de persona").build();
         jcbPersona.addItem(tp);
         tp = TipoPersona.builder().
-                abreviatura('F').persona("Física").build();
+                abreviatura('F').persona("FÍSICA").build();
         jcbPersona.addItem(tp);
         tp = TipoPersona.builder().
-                abreviatura('J').persona("Jurídica").build();
+                abreviatura('J').persona("JURÍDICA").build();
         jcbPersona.addItem(tp);
 
     }
 
     public static void llenarSexo(JComboBox jcbSexo) {
-        Sexo s = Sexo.builder().abreviatura('F').sexo("Seleccione sexo").build();
+        Sexo s = Sexo.builder().abreviatura('X').sexo("Seleccione sexo").build();
         jcbSexo.addItem(s);
-        s = Sexo.builder().abreviatura('F').sexo("Femenino").build();
+        s = Sexo.builder().abreviatura('F').sexo("FEMENINA").build();
         jcbSexo.addItem(s);
-        s = Sexo.builder().abreviatura('M').sexo("Masculino").build();
+        s = Sexo.builder().abreviatura('M').sexo("MASCULINO").build();
         jcbSexo.addItem(s);
     }
 
@@ -86,6 +90,7 @@ public abstract class Personas {
     public static void llenarTipoSangre(JComboBox jcbTipoSangre) {
         TipoSangre ts;
         ResultSet rts = SelectMetodos.getTipoSangre();
+        jcbTipoSangre.removeAllItems();
         try {
             while (rts.next()) {
                 ts = TipoSangre.builder().

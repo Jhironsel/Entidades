@@ -6,13 +6,11 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class Clientes extends Personas {
-
-    private final Direcciones direccion;
-    private final Generales generales;
     
     /**
      * Consulta SQL utilizada para agregar clientes al sistema.
      *
+     * Nota: Este Query fue actualizado el dia 16 de agosto 2022.
      *
      */
     public final static String INSERT
@@ -21,6 +19,8 @@ public class Clientes extends Personas {
 
     /**
      * Consulta de SQL utilizada para actualizar los clientes del sistema.
+     * 
+     * Nota: Este Query fue actualizado el dia 17 de agosto 2022.
      */
     public final static String UPDATE
             = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE (?, ?, ?, ?, ?, ?, ?, ?, ?, "
@@ -29,6 +29,7 @@ public class Clientes extends Personas {
     /**
      * Para eliminar un cliente, no debe de tener registros en el sistema.
      *
+     * Nota: 
      */
     public static String DELETE
             = "DELETE FROM V_CLIENTES WHERE ID = ?";
@@ -76,7 +77,7 @@ public class Clientes extends Personas {
     @Override
     public String toString() {
         if(super.getPNombre() == null){
-            return generales.getCedula();
+            return super.getGenerales().getCedula();
         }
         return super.toString();
     }

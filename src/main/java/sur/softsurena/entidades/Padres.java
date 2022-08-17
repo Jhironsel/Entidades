@@ -7,7 +7,5 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Padres extends Personas{
 
-    private final Asegurados asegurado;
-    private final Direcciones direccion;
-    private final Generales generales;
+    
 }
