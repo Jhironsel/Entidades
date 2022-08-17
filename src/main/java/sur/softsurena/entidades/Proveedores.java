@@ -5,7 +5,7 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class Proveedores extends Persona {
+public class Proveedores extends Personas {
 
     /**
      * Este campo permite hacer una consulta y una inserción de un registro
@@ -34,7 +34,7 @@ public class Proveedores extends Persona {
 
     @Override
     public String toString() {
-        return super.getNombres() + " " + super.getApellidos();
+        return super.toString();
     }
 
 }

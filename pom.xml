@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.firebirdsql.jdbc</groupId>
             <artifactId>jaybird</artifactId>
-            <version>4.0.2.java11</version>
+            <version>4.0.6.java11</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -54,6 +54,23 @@
             <groupId>org.jfree</groupId>
             <artifactId>jfreechart</artifactId>
             <version>1.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>sur.softsurena</groupId>
+            <artifactId>imagenes</artifactId>
+            <version>1</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>sur.softsurena</groupId>
+            <artifactId>imagenes</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>sur.softsurena</groupId>
+            <artifactId>RSMaterialComponents</artifactId>
+            <version>3.0</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
     <name>entidades</name>

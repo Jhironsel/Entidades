@@ -1,43 +1,17 @@
 package sur.softsurena.entidades;
 
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+
+@SuperBuilder
+@Getter
 public class EstadoCivil {
-    private int id;
-    private char letra;
-    private String descripcion;
-
-    public EstadoCivil(int id, char letra, String descripcion) {
-        this.id = id;
-        this.letra = letra;
-        this.descripcion = descripcion;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public char getLetra() {
-        return letra;
-    }
-
-    public void setLetra(char letra) {
-        this.letra = letra;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
+    private char abreviatura;
+    private String estadoCivil;
 
     @Override
     public String toString() {
-        return descripcion;
+        return estadoCivil;
     }
 
 }

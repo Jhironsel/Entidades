@@ -5,13 +5,8 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
-public class TipoSangre {
+public class Resultados {
     private final int id;
-    private final String descripcion;
-
-    @Override
-    public String toString() {
-        return descripcion;
-    }
-    
+    private final String mensaje;
+    private final Integer cantidad;
 }

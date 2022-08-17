@@ -7,19 +7,21 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.codec.binary.Base64;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import static sur.softsurena.datos.procedure.ProcedureMetodos.pagoCumplido;
 import sur.softsurena.entidades.ARS;
-import sur.softsurena.entidades.Categoria;
-import sur.softsurena.entidades.Cliente;
+import sur.softsurena.entidades.Categorias;
+import sur.softsurena.entidades.Clientes;
 import sur.softsurena.entidades.ContactosTel;
 import sur.softsurena.entidades.Control_Consulta;
 import sur.softsurena.entidades.Estudiantes;
-import sur.softsurena.entidades.Factura;
+import sur.softsurena.entidades.Facturas;
 import sur.softsurena.entidades.Medicamentos;
 import sur.softsurena.entidades.Paciente;
-import sur.softsurena.entidades.Padre;
+import sur.softsurena.entidades.Padres;
 import sur.softsurena.entidades.Perfiles;
 import sur.softsurena.entidades.Producto;
 import sur.softsurena.entidades.Proveedores;
@@ -28,9 +30,9 @@ import sur.softsurena.utilidades.Utilidades;
 
 public class UpdateMetodos {
 
+    private static final Logger LOG = Logger.getLogger(UpdateMetodos.class.getName());
     private static String sql;
     private static PreparedStatement ps;
-    private static ResultSet rs;
     
     
 
@@ -39,7 +41,7 @@ public class UpdateMetodos {
      * @param c
      * @return 
      */
-    public synchronized static String modificarCliente(Cliente c, ContactosTel[] cc) {
+    public synchronized static String modificarCliente(Clientes c, ContactosTel[] cc) {
         try {
             sql = "update Tabla_CLIENTES "
                     + "set NOMBRES = ?, "
@@ -64,7 +66,7 @@ public class UpdateMetodos {
 
             return "Cliente Modificado Correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al Modificar Cliente...";
         }
     }
@@ -80,7 +82,7 @@ public class UpdateMetodos {
      * @return retorna true si fue modificada y false si hubo un error en la
      * modificacion de la factura.
      */
-    public synchronized static boolean modificarFactura(Factura f) {
+    public synchronized static boolean modificarFactura(Facturas f) {
         try {
             ps = getCnn().prepareStatement(
                     "UPDATE V_FACTURAS a SET "
@@ -102,7 +104,7 @@ public class UpdateMetodos {
             ps.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }
@@ -121,9 +123,9 @@ public class UpdateMetodos {
      * realizo con exito si o no.
      * 
      */
-    public synchronized static String modificarCategoria(Categoria c) {
+    public synchronized static String modificarCategoria(Categorias c) {
         try {
-            ps = getCnn().prepareStatement(Categoria.UPDATE_CATEGORIA);
+            ps = getCnn().prepareStatement(Categorias.UPDATE);
 
             ps.setString(1, c.getDescripcion());
             ps.setString(2, Utilidades.imagenEncode64(c.getPathImage()));
@@ -132,7 +134,7 @@ public class UpdateMetodos {
             ps.executeUpdate();
             return "Se modificó la categoria correctamente.";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al modificar la categoria.";
         }
     }
@@ -153,7 +155,7 @@ public class UpdateMetodos {
             int r = ps.executeUpdate();
             return "Perfil Modificado Correctamente. {"+r+"}";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al Modificar Perfil";
         }
     }
@@ -194,7 +196,7 @@ public class UpdateMetodos {
 
             return "Opciones de mensaje modificada.";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al Modificar opciones de mensaje...";
         }
     }
@@ -212,7 +214,7 @@ public class UpdateMetodos {
      */
     public synchronized static String modificarProducto(Producto p) {
         try {
-            ps = getCnn().prepareStatement(Producto.UPDATE_PRODUCTO);
+            ps = getCnn().prepareStatement(Producto.UPDATE);
 
             ps.setInt(1, p.getIdCategoria());
             ps.setString(2, p.getCodigo());
@@ -225,7 +227,7 @@ public class UpdateMetodos {
             ps.executeUpdate();
             return "Producto Modificado Correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return "Error al Modificar Producto...";
     }
@@ -255,7 +257,7 @@ public class UpdateMetodos {
             ps.executeUpdate();
 
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         sql = "INSERT INTO PAGODEUDA (IDCLIENTE, IDFACTURA, IDTURNO, MONTOPAGO, ESTADO) "
@@ -270,7 +272,7 @@ public class UpdateMetodos {
 
             ps.executeUpdate();
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         pagoCumplido(idFactura);
@@ -311,7 +313,7 @@ public class UpdateMetodos {
 
             return "Paciente modificado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al modificar cliente...";
         }
     }
@@ -332,7 +334,7 @@ public class UpdateMetodos {
 
             return "Paciente modificado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al modificar cliente...";
         }
     }
@@ -352,7 +354,7 @@ public class UpdateMetodos {
 
             return "Paciente modificado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al modificar cliente...";
         }
     }
@@ -375,12 +377,12 @@ public class UpdateMetodos {
             ps.executeUpdate();
             return "Seguro modificado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al modificar seguro...";
         }
     }
 
-    public synchronized static String modificarPadre(Padre p) {
+    public synchronized static String modificarPadre(Padres p) {
         try {
             sql = "EXECUTE PROCEDURE SP_UPDATE_PADRES (?, ?, ?, ?, ?, ?, ?, ?, ?"
                     + ", ?, ?, ?, ?, ?, ?, ?, ?);";
@@ -388,8 +390,8 @@ public class UpdateMetodos {
             ps = getCnn().prepareStatement(sql);
 
             ps.setInt(1, p.getId());
-            ps.setInt(2, p.getId_Ars());
-            ps.setString(3, p.getNoNSS());
+            ps.setInt(2, p.getAsegurado().getId_ars());
+            ps.setString(3, p.getAsegurado().getNo_nss());
             ps.setInt(4, p.getId_Provincia());
             ps.setInt(5, p.getId_Municipio());
             ps.setInt(6, p.getId_Distrito_Municipal());
@@ -408,7 +410,7 @@ public class UpdateMetodos {
             ps.executeUpdate();
             return "Padre modificado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al modificar padre...";
         }
     }
@@ -438,7 +440,7 @@ public class UpdateMetodos {
             ps.executeUpdate(sql);
             return "Consulta modificado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al modificar consulta...";
         }
     }
@@ -458,12 +460,12 @@ public class UpdateMetodos {
             ps.setString(2, p.getPNombre());
             ps.setString(3, p.getSNombre());
             ps.setBoolean(5, p.getEstado());
-            ps.setInt(6, p.getId());
+            ps.setInt(6, p.getId_persona());
 
             ps.executeUpdate(sql);
             return "Consulta modificado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al modificar consulta...";
         }
     }
@@ -501,11 +503,11 @@ public class UpdateMetodos {
 
             return "Medicamento modificado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         } catch (FileNotFoundException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         } catch (IOException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return "Error al modificar Medicamento...";
     }
@@ -529,7 +531,7 @@ public class UpdateMetodos {
             ps.executeUpdate();
             return "Paciente borrado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al borrar paciente...";
         }
     }
@@ -555,7 +557,7 @@ public class UpdateMetodos {
                     );
             return "Borrado o inactivo correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al borrar padre...";
         }
     }
@@ -798,7 +800,7 @@ public class UpdateMetodos {
 //            
 //            return "Cliente Modificado Correctamente";
 //        } catch (SQLException ex) {
-//            //Instalar Logger
+//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
 //            return "Error al Modificar Cliente...";
 //        }
 //    }

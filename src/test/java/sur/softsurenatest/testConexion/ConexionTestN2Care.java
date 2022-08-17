@@ -25,7 +25,9 @@ public class ConexionTestN2Care {
     @BeforeClass
     public static void setUpClass() {
         clave = JOptionPane.showInputDialog("Ingrese Contraseña: ");
-        puerto = Conexion.getInstance("None", "SYSDBA", clave).getPort();
+        puerto = Conexion.getInstance("SYSDBA", clave, "None", 
+                "/firebird/data/BaseDeDatosSoftSurena.fdb", "localhost", 
+                ":3050").getPort();
     }
 
     @AfterClass

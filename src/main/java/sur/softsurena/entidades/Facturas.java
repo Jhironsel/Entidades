@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
-public class Factura {
+public class Facturas {
     
     public final static String INSERT_FACTURA = 
             "INSERT INTO V_FACTURAS (id_Cliente, id_Turno, efectivo, cambio, "

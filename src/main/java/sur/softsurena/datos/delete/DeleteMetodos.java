@@ -2,21 +2,25 @@ package sur.softsurena.datos.delete;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import sur.softsurena.conexion.Conexion;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.ARS;
-import sur.softsurena.entidades.Antecedente;
-import sur.softsurena.entidades.Categoria;
-import sur.softsurena.entidades.Cliente;
+import sur.softsurena.entidades.Antecedentes;
+import sur.softsurena.entidades.Categorias;
+import sur.softsurena.entidades.Clientes;
 import sur.softsurena.entidades.Control_Consulta;
 import sur.softsurena.entidades.DetalleMotivoConsulta;
-import sur.softsurena.entidades.Factura;
+import sur.softsurena.entidades.Facturas;
 import sur.softsurena.entidades.Motivo_Consulta;
 import sur.softsurena.entidades.Perfiles;
 import sur.softsurena.entidades.Producto;
+import sur.softsurena.entidades.Resultados;
 
 public class DeleteMetodos {
 
+    private static final Logger LOG = Logger.getLogger(DeleteMetodos.class.getName());
     private static PreparedStatement ps;
     private static String sql;
 
@@ -36,7 +40,7 @@ public class DeleteMetodos {
             return "Borrado correctamente {"+r+"}";
         } catch (SQLException ex) {
             
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al borrar...";
         }
     }
@@ -49,7 +53,7 @@ public class DeleteMetodos {
             return "Borrado correctamente";
         } catch (SQLException ex) {
             
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al borrar control consulta";
         }
     }
@@ -65,7 +69,7 @@ public class DeleteMetodos {
             return "Motivo de consulta borrado correctamente.";
         } catch (SQLException ex) {
             
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al borrar motivo de la consulta.";
         }
     }
@@ -90,38 +94,48 @@ public class DeleteMetodos {
             
             return "Motivo eliminado correctamente.";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al eliminar detalle de motivo de la consulta.";
         }
     }
 
-    public synchronized static String borrarCliente(int idCliente) {
+    public synchronized static Resultados borrarCliente(int idCliente) {
+        Resultados r;//Resultados obtenidos del metodos.
         try {
 
-            ps = getCnn().prepareStatement(Cliente.DELETE);
+            ps = getCnn().prepareStatement(Clientes.DELETE);
             
             ps.setInt(1, idCliente);
             
-            int r = ps.executeUpdate();
-            return "Cliente borrado correctamente. {"+r+"}.";
+            int c = ps.executeUpdate();//Cantidad de registros afectados.
+            
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje("Cliente borrado correctamente.").
+                    cantidad(c).build();
+            
+            return r;
         } catch (SQLException ex) {
-            //Instalar Logger
-            return "Cliente no puede ser borrado";
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje("Cliente no puede ser borrado").
+                    cantidad(-1).build();
+            return r;
         }
     }
     
-    
-    
-
     /**
      * Metodo utilizado para eliminar los productos del sistema, este solo
-     * necesita de su id para localizarlo en la tabla de PRODUCTOS
+     * necesita de su ID para localizarlo en la tabla de PRODUCTOS.
+     * 
      * @param id identificador del registro en la tabla de PRODUCTOS
+     * 
      * @return Devuelve un mensaje que indica como resultado de la acción. 
      */
-    public synchronized static String borrarProducto(int id) {
+    public synchronized static String borrarProductoPorID(int id) {
         try {
-            ps = getCnn().prepareStatement(Producto.DELETE_PRODUCTO);
+            ps = getCnn().prepareStatement(Producto.DELETE);
             
             ps.setInt(1, id);
             
@@ -129,14 +143,37 @@ public class DeleteMetodos {
             
             return "Producto Borrado Correctamente.";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return "Ocurrio un error al intentar borrar el Producto...";
+        }
+    }
+    
+    /**
+     * Metodo utilizado para eliminar los productos del sistema, este solo
+     * necesita de su CODIGO para localizarlo en la tabla de PRODUCTOS.
+     * 
+     * @param codigo codigo del Producto o codigo de barra del producto.
+     * 
+     * @return Devuelve un mensaje que indica como resultado de la acción. 
+     */
+    public synchronized static String borrarProductoPorCodigo(String codigo) {
+        try {
+            ps = getCnn().prepareStatement(Producto.DELETE_PRODUCTO_CODIGO);
+            
+            ps.setString(1, codigo);
+            
+            ps.executeUpdate();
+            
+            return "Producto Borrado Correctamente.";
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Ocurrio un error al intentar borrar el Producto...";
         }
     }
     
     public synchronized static String borrarAntecedente(int idAntecedente) {
         try {
-            ps = getCnn().prepareStatement(Antecedente.DELETE);
+            ps = getCnn().prepareStatement(Antecedentes.DELETE);
             
             ps.setInt(1, idAntecedente);
             
@@ -144,7 +181,7 @@ public class DeleteMetodos {
             
             return "Borrado o inactivo correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al borrar paciente...";
         }
     }
@@ -163,7 +200,7 @@ public class DeleteMetodos {
             ps.executeUpdate(sql);
             return "Perfil Borrado Correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Ocurrio un error al intentar borrar el Perfil...";
         }
     }
@@ -182,15 +219,15 @@ public class DeleteMetodos {
      */
     public static String borrarCategoria(int idCategoria) {
         try {
-            ps = getCnn().prepareStatement(Categoria.DELETE_CATEGORIA);
+            ps = getCnn().prepareStatement(Categorias.DELETE);
             
             ps.setInt(1, idCategoria);
             
             int cant = ps.executeUpdate();
             
-            return "Categoria Borrado Correctamente. {"+cant+"}";
+            return "Categoria Borrado Correctamente.";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Ocurrio un error al intentar borrar la Categoria...";
         }
     }
@@ -210,14 +247,14 @@ public class DeleteMetodos {
      */
     public synchronized static String borrarFactura(int id) {
         try {
-            ps = getCnn().prepareStatement(Factura.DELETE);
+            ps = getCnn().prepareStatement(Facturas.DELETE);
             
             ps.setInt(1, id);
             
             int r = ps.executeUpdate();
             return "Factura Borrada Correctamente. {"+r+"}";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "!Ocurrio un error al intentar borrar la Factura...!!!";
         }
     }

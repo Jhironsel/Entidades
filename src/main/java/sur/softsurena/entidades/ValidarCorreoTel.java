@@ -15,4 +15,10 @@ public class ValidarCorreoTel {
         Matcher mat = pat.matcher(tel.trim());
         return mat.matches();
     }
+    
+    public static boolean cedula(String tel) {//012-0000000-0
+        Pattern pat = Pattern.compile("\\d{3}-\\d{7}-\\d{1}");
+        Matcher mat = pat.matcher(tel.trim());
+        return mat.matches();
+    }
 }

@@ -5,12 +5,14 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
-public class Sexo {
+public class TipoPersona {
+    private final String persona;
     private final char abreviatura;
-    private final String sexo;
 
     @Override
     public String toString() {
-        return sexo;
+        return persona ;
     }
+    
+    
 }

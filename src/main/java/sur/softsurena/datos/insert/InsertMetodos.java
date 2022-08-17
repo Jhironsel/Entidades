@@ -10,12 +10,12 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
-import lombok.extern.java.Log;
+import java.util.logging.Logger;
 import org.apache.commons.codec.binary.Base64;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.ARS;
-import sur.softsurena.entidades.Categoria;
-import sur.softsurena.entidades.Cliente;
+import sur.softsurena.entidades.Categorias;
+import sur.softsurena.entidades.Clientes;
 import sur.softsurena.entidades.Consultas_aprobadas;
 import sur.softsurena.entidades.ContactosEmail;
 import sur.softsurena.entidades.ContactosTel;
@@ -24,19 +24,20 @@ import sur.softsurena.entidades.D_Recetas;
 import sur.softsurena.entidades.DetalleFactura;
 import sur.softsurena.entidades.EntradaProducto;
 import sur.softsurena.entidades.Estudiantes;
-import sur.softsurena.entidades.Factura;
+import sur.softsurena.entidades.Facturas;
 import sur.softsurena.entidades.Metricas;
 import sur.softsurena.entidades.Paciente;
-import sur.softsurena.entidades.Padre;
+import sur.softsurena.entidades.Padres;
 import sur.softsurena.entidades.Producto;
 import sur.softsurena.entidades.Proveedores;
+import sur.softsurena.entidades.Resultados;
 import sur.softsurena.entidades.Tandas;
 import sur.softsurena.entidades.Usuario;
 import sur.softsurena.utilidades.Utilidades;
 
-@Log
 public class InsertMetodos {
 
+    private static final Logger LOG = Logger.getLogger(InsertMetodos.class.getName());
     private static PreparedStatement ps;
     private static String sql;
     private static ResultSet rs;
@@ -53,7 +54,7 @@ public class InsertMetodos {
      * Actualizado el dia 09 de Julio del 2022: Se cambia el tipo de datos
      * devueltode boolean a String, que permite mostrar mensaje del estado del
      * metodo despues de hacer las operaciones.
-     * 
+     *
      * @test agregarCategoria(), metodo creado para realizar pruebas al metodo.
      *
      * @param c Es un objeto de la clase Categoria que contiene los metodos y
@@ -62,22 +63,32 @@ public class InsertMetodos {
      * @return Retorna un mensaje que permite saber si la categoria fue agregada
      * o no.
      */
-    public synchronized static String agregarCategoria(Categoria c) {
+    public synchronized static Resultados agregarCategoria(Categorias c) {
+        Resultados r;
         try {
-            ps = getCnn().prepareStatement(Categoria.INSERT_CATEGORIA);
+            ps = getCnn().prepareStatement(Categorias.INSERT);
 
             ps.setString(1, c.getDescripcion());
             ps.setString(2, Utilidades.imagenEncode64(c.getPathImage()));
             ps.setBoolean(3, c.getEstado());
 
-            ps.executeUpdate();
+            ResultSet resultSet = ps.executeQuery();
 
-            return "Categoria agregada con exito.";
+            resultSet.next();
+
+            r = Resultados.builder().
+                    id(resultSet.getInt(1)).
+                    mensaje("Categoria agregada con exito.").cantidad(-1).build();
+
         } catch (SQLException ex) {
-            //Instalar Logger
-            log.log(Level.SEVERE, ex.getMessage());
-            return "Error al insertar categoria.";
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje("Error al insertar categoria.").
+                    cantidad(-1).build();
+
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
+        return r;
     }
 
     /**
@@ -91,15 +102,16 @@ public class InsertMetodos {
      *
      * @param p Objecto de la clase producto que permite obtener los valos de
      * del producto agregar.
-     * 
-     * @test agregarProducto() metodo que realiza la prueba unitaria del metodo. 
+     *
+     * @test agregarProducto() metodo que realiza la prueba unitaria del metodo.
      *
      * @return Devuelve un mensaje que notifica si el producto fue agregado
      * correctamente o no.
      */
-    public synchronized static String agregarProducto(Producto p) {
+    public synchronized static Resultados agregarProducto(Producto p) {
+        Resultados r;
         try {
-            ps = getCnn().prepareStatement(Producto.INSERT_PRODUCTO);
+            ps = getCnn().prepareStatement(Producto.INSERT);
 
             ps.setInt(1, p.getIdCategoria());
             ps.setString(2, p.getCodigo());
@@ -109,12 +121,19 @@ public class InsertMetodos {
             ps.setBoolean(6, p.getEstado());
 
             ps.executeUpdate();
-            return "Producto agregado correctamente.";
+
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje("Producto agregado correctamente.").
+                    cantidad(-1).build();
         } catch (SQLException ex) {
-            //Instalar Logger
-            log.log(Level.SEVERE, ex.getMessage());
-            return "Error al Insertar Producto.";
+            LOG.log(Level.SEVERE, ex.getMessage());
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje("Error al Insertar Producto.").
+                    cantidad(-1).build();
         }
+            return r;
     }
 
     /**
@@ -141,7 +160,7 @@ public class InsertMetodos {
             ps.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }
@@ -158,24 +177,26 @@ public class InsertMetodos {
      *
      * @return
      */
-    public synchronized static String agregarCliente(Cliente c, ContactosTel[] ct, ContactosEmail[] ce) {
+    public synchronized static Resultados agregarCliente(Clientes c, 
+            ContactosTel[] ct, ContactosEmail[] ce) {
+        Resultados r;
         try {
 
-            ps = getCnn().prepareStatement(Cliente.INSERT_CLIENTE);
+            ps = getCnn().prepareStatement(Clientes.INSERT);
 
-            ps.setInt(1, c.getId_Provincia());
-            ps.setInt(2, c.getId_Municipio());
-            ps.setInt(3, c.getId_Distrito_Municipal());
+            ps.setInt(1, c.getDireccion().getId_provincia());
+            ps.setInt(2, c.getDireccion().getId_municipio());
+            ps.setInt(3, c.getDireccion().getId_distrito_municipal());
             ps.setString(4, "" + c.getPersona());
-            ps.setString(5, c.getCedula());
+            ps.setString(5, c.getGenerales().getCedula());
             ps.setString(6, c.getPNombre());
             ps.setString(7, c.getSNombre());
             ps.setString(8, c.getApellidos());
             ps.setString(9, "" + c.getSexo());
-            ps.setString(10, c.getDireccion());
-            ps.setDate(11, c.getFecha_Nacimiento());
+            ps.setString(10, c.getDireccion().getDireccion());
+            ps.setDate(11, c.getFecha_nacimiento());
             ps.setBoolean(12, c.getEstado());
-            ps.setString(13, "" + c.getEstado_Civil());
+            ps.setString(13, "" + c.getGenerales().getEstado_civil());
 
             rs = ps.executeQuery();
 
@@ -185,17 +206,33 @@ public class InsertMetodos {
             //Tenemos el ID del Cliente vamos agregar los contactos
 
             if (!agregarContactosTel(id, ct)) {
-                return "Error al agregar contactos telefonico del cliente.";
-            }
-            
-            if (!agregarContactosEmail(id, ce)) {
-                return "Error al agregar contactos correos electronicos del cliente.";
+                r=Resultados.builder().
+                        id(-1).
+                        mensaje("Error al agregar contactos telefonico del cliente.").
+                        cantidad(-1) .build();
+                return r;
             }
 
-            return "Cliente Agregado Correctamente";
+            if (!agregarContactosEmail(id, ce)) {
+                r=Resultados.builder().
+                        id(-1).
+                        mensaje("Error al agregar contactos correos electronicos del cliente.").
+                        cantidad(-1) .build();
+                return r;
+            }
+            r=Resultados.builder().
+                        id(-1).
+                        mensaje("Cliente Agregado Correctamente").
+                        cantidad(-1) .build();
+            
+            return r;
         } catch (SQLException ex) {
-            //Instalar Logger
-            return "Error al insertar Cliente...";
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            r=Resultados.builder().
+                        id(-1).
+                        mensaje("Error al insertar Cliente...").
+                        cantidad(-1) .build();
+            return r;
         }
     }
 
@@ -218,17 +255,17 @@ public class InsertMetodos {
 
             return ps.execute();
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         return false;
     }
-    
+
     /**
-     * 
+     *
      * @param id
      * @param contactos
-     * @return 
+     * @return
      */
     public static boolean agregarContactosEmail(int id, ContactosEmail[] contactos) {
         try {
@@ -237,15 +274,14 @@ public class InsertMetodos {
             for (ContactosEmail c : contactos) {
                 ps.setInt(1, c.getId_persona());
                 ps.setString(2, c.getEmail());
-                
+
                 ps.addBatch();
             }
 
             return ps.execute();
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
-
         return false;
     }
 
@@ -293,7 +329,7 @@ public class InsertMetodos {
 
             return "Usuario agregado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al insertar usuario...";
         }
     }
@@ -322,15 +358,15 @@ public class InsertMetodos {
 
             ps.setInt(1, p.getIdPadre());
             ps.setInt(2, p.getIdMadre());
-            ps.setString(3, p.getCedula().trim());
+            ps.setString(3, p.getGenerales().getCedula().trim());
             ps.setString(4, p.getPNombre().trim());
             ps.setString(5, p.getSNombre().trim());
             ps.setString(6, p.getApellidos().trim());
             ps.setString(7, "" + p.getSexo());
-            ps.setDate(8, p.getFecha_Nacimiento());
-            ps.setInt(9, p.getId_Tipo_Sangre());
-            ps.setInt(10, p.getId_Ars());
-            ps.setString(11, p.getNoNSS().trim());
+            ps.setDate(8, p.getFecha_nacimiento());
+            ps.setInt(9, p.getGenerales().getId_tipo_sangre());
+            ps.setInt(10, p.getAsegurado().getId_ars());
+            ps.setString(11, p.getAsegurado().getNo_nss().trim());
             ps.setBoolean(12, p.getEstado());
 
             rs = ps.executeQuery();
@@ -339,7 +375,7 @@ public class InsertMetodos {
 
             return "Paciente agregado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al insertar paciente...";
         }
     }
@@ -358,7 +394,7 @@ public class InsertMetodos {
 
             return "Seguro agregado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al insertar Seguro...";
         }
     }
@@ -375,14 +411,14 @@ public class InsertMetodos {
 
             return true;
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }
 
     public synchronized static String agregarProveedor(Proveedores p) {
         try {
-            
+
             ps = getCnn().prepareStatement(Proveedores.INSERT_PROVEEDOR);
 
             ps.setString(1, p.getCodigoProveedor());
@@ -393,7 +429,7 @@ public class InsertMetodos {
             ps.executeUpdate();
             return "Proveedor agregado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al insertar Proveedor...";
         }
     }
@@ -410,7 +446,7 @@ public class InsertMetodos {
             ps.executeUpdate();
             return "Antecedente agregado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al insertar Antecedentes...";
         }
     }
@@ -428,7 +464,7 @@ public class InsertMetodos {
             ps.executeUpdate(sql);
             return "Consulta agregada correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al insertar consulta";
         }
     }
@@ -463,7 +499,7 @@ public class InsertMetodos {
             }
 
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return -1;
         }
     }
@@ -484,7 +520,7 @@ public class InsertMetodos {
 
             ps.executeUpdate(sql);
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
@@ -512,11 +548,11 @@ public class InsertMetodos {
 
             return "Foto Insertada";
         } catch (FileNotFoundException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         } catch (IOException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return "Foto NO Insertada";
     }
@@ -541,7 +577,7 @@ public class InsertMetodos {
 
             ps.executeUpdate(sql);
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
@@ -561,7 +597,7 @@ public class InsertMetodos {
             ps.executeUpdate();
             return "Consulta Aprobada correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al insertar registro";
         }
     }
@@ -582,12 +618,12 @@ public class InsertMetodos {
             ps.executeUpdate();
             return "Cambios Guardados";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "No se pueden guardar los cambios";
         }
     }
 
-    public static String agregarPadreMadre(Padre p) {
+    public static String agregarPadreMadre(Padres p) {
         try {
             sql = "SELECT p.O_ID "
                     + "FROM SP_INSERT_PADRES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
@@ -595,22 +631,22 @@ public class InsertMetodos {
 
             ps = getCnn().prepareStatement(sql);
 
-            ps.setInt(1, p.getId_Ars());
-            ps.setString(2, p.getNoNSS());
-            ps.setInt(3, p.getId_Provincia());
-            ps.setInt(4, p.getId_Municipio());
-            ps.setInt(5, p.getId_Distrito_Municipal());
-            ps.setInt(6, p.getId_Codigo_Postal());
-            ps.setInt(7, p.getId_Tipo_Sangre());
-            ps.setString(8, p.getCedula());
+            ps.setInt(1, p.getAsegurado().getId_ars());
+            ps.setString(2, p.getAsegurado().getNo_nss());
+            ps.setInt(3, p.getDireccion().getId_provincia());
+            ps.setInt(4, p.getDireccion().getId_municipio());
+            ps.setInt(5, p.getDireccion().getId_distrito_municipal());
+            ps.setInt(6, p.getDireccion().getId_codigo_postal());
+            ps.setInt(7, p.getGenerales().getId_tipo_sangre());
+            ps.setString(8, p.getGenerales().getCedula());
             ps.setString(9, p.getPNombre());
             ps.setString(10, p.getSNombre());
             ps.setString(11, p.getApellidos());
             ps.setString(12, "" + p.getSexo());
-            ps.setString(13, p.getDireccion());
-            ps.setDate(14, p.getFecha_Nacimiento());
+            ps.setString(13, p.getDireccion().getDireccion());
+            ps.setDate(14, p.getFecha_nacimiento());
             ps.setBoolean(15, p.getEstado());
-            ps.setString(16, "" + p.getEstado_Civil());
+            ps.setString(16, "" + p.getGenerales().getEstado_civil());
 
             ResultSet rs = ps.executeQuery();
 
@@ -620,7 +656,7 @@ public class InsertMetodos {
 
             return "Padre Agregado Exitosamente...! id {" + id + "}";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Padre no Agregado :( ...!";
         }
     }
@@ -636,27 +672,27 @@ public class InsertMetodos {
             ps.executeUpdate(sql);
             return "Perfil Creado";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Perfil no Creado:( ...! \n" + ex.toString();
         }
     }
 
     /**
-     * Metodo que permite agregar un estudiante al sistema de ballet, el cual 
-     * ejecuta un procedimiento almacenado en la base de datos. 
-     * 
-     * @param e Objecto de la clase estudiante que capsula los atributos de un 
-     * estudiantes. 
-     * 
-     * @return Retorna un mensaje que indica si el estudiantes ha sido registrado
-     * si o no. 
+     * Metodo que permite agregar un estudiante al sistema de ballet, el cual
+     * ejecuta un procedimiento almacenado en la base de datos.
+     *
+     * @param e Objecto de la clase estudiante que capsula los atributos de un
+     * estudiantes.
+     *
+     * @return Retorna un mensaje que indica si el estudiantes ha sido
+     * registrado si o no.
      */
     public String agregarEstudiante(Estudiantes e) {
         try {
-            
+
             ps = getCnn().prepareStatement(Estudiantes.INSERT_ESTUDIANTE);
 
-            ps.setInt(1, e.getId());
+            ps.setInt(1, e.getId_persona());
             ps.setString(2, e.getMatricula());
             ps.setInt(3, e.getIdPadre());
             ps.setInt(4, e.getIdMadre());
@@ -664,7 +700,7 @@ public class InsertMetodos {
             ps.executeUpdate();
             return "Estudiante Agregado Correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al agregar estudiante";
         }
     }
@@ -693,7 +729,7 @@ public class InsertMetodos {
             ps.executeUpdate();
             return "Tanda Agregada Correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Existe Problemas al agregar Tanda, Contactar SoftSureña :( ...! \n" + ex.toString();
         }
     }
@@ -709,10 +745,10 @@ public class InsertMetodos {
      * @return Retorna un valor booleando que indica si la factura fue inserta
      * true y false si hubo un error.
      */
-    public synchronized static Integer agregarFacturaNombre(Factura f) {
+    public synchronized static Integer agregarFacturaNombre(Facturas f) {
 
         try {
-            ps = getCnn().prepareStatement(Factura.INSERT_FACTURA);
+            ps = getCnn().prepareStatement(Facturas.INSERT_FACTURA);
 
             ps.setInt(1, f.getHeaderFactura().getIdCliente());
             ps.setInt(2, f.getHeaderFactura().getIdTurno());
@@ -725,12 +761,12 @@ public class InsertMetodos {
 
             return cantidad + agregarDetalleFactura(f);
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return -1;
         }
 
     }
-    
+
     /**
      * Metodo utilizado para agregar los datos de los detalle de la factura del
      * sistema.
@@ -741,35 +777,35 @@ public class InsertMetodos {
      *
      * @param d Es un objecto que tipo DetalleFactura que define el detalle de
      * las facturas el sistema.
-     * 
-     * @return Ahora devuelve un entero que indica las  cantidades de registros 
-     * que fueron afectadas en la inserción del registro. 
-     * 
+     *
+     * @return Ahora devuelve un entero que indica las cantidades de registros
+     * que fueron afectadas en la inserción del registro.
+     *
      * Antes: Devuelve un valor booleano que indica true si el registro se hizo
      * con exito y false si hubo un error al insertarla.
      */
-    public static synchronized Integer agregarDetalleFactura(Factura f) {
+    public static synchronized Integer agregarDetalleFactura(Facturas f) {
         List<DetalleFactura> d = f.getDetalleFactura();
         try {
             ps = getCnn().prepareStatement(DetalleFactura.INSERT_DETALLE_FACTURA);
 
             for (Iterator<DetalleFactura> i = d.iterator(); i.hasNext();) {
                 DetalleFactura next = i.next();
-                
+
                 ps.setInt(1, f.getId());
                 ps.setInt(2, next.getIdLinea());
                 ps.setInt(3, next.getIdProducto());
                 ps.setBigDecimal(4, next.getPrecio());
                 ps.setBigDecimal(5, next.getCantidad());
-                
+
                 ps.addBatch();
-                
+
             }
 
             return ps.executeUpdate();
 
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return -1;
         }
     }
@@ -782,18 +818,17 @@ public class InsertMetodos {
                     + "VALUES (?, ?, ?, ?, '-', ?, ? );";
 
             ps = getCnn().prepareStatement(sql);
-            
+
 //IDENTRADA_PRODUCTO
 //cencepto
 //idProducto
 //entrada
 //idUsuario
 //numero
-
             ps.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }

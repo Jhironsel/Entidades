@@ -5,7 +5,7 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class Estudiantes extends Persona {
+public class Estudiantes extends Personas {
 
     /**
      * Procedimiento almacenado que permite registro de estudiantes al sistema.
@@ -35,10 +35,11 @@ public class Estudiantes extends Persona {
     private final Integer idMadre;
     private final Integer idTutor;
     private final Integer jcb_parentesco;
+    private final Generales generales;
 
     @Override
     public String toString() {
-        return super.getNombres();
+        return super.toString();
     }
     
 }

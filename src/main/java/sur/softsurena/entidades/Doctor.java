@@ -5,7 +5,7 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class Doctor extends Persona{
+public class Doctor extends Personas{
     private final String especialidad;
     private final String execuatur;
 

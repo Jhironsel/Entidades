@@ -5,23 +5,16 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
-public class Municipios {
-
-    public static String SELECT
-            = "SELECT ID, NOMBRE "
-            + "FROM V_MUNICIPIOS "
-            + "WHERE IDPROVINCIA = ?";
-    
+public class Provincias {
     private final int id;
     private final String nombre;
-    private final int idProvincia;
-
+    private final String zona;
     
+    public final static String SELECT
+            = "SELECT ID, NOMBRE FROM V_PROVINCIAS r";
 
     @Override
     public String toString() {
         return nombre;
-    }
-    
-    
+    }    
 }

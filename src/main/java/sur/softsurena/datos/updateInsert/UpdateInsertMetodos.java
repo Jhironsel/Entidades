@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Datos_nacimiento;
 import sur.softsurena.entidades.DetalleMotivoConsulta;
-import sur.softsurena.entidades.Padre;
+import sur.softsurena.entidades.Padres;
 
 public class UpdateInsertMetodos {
 
@@ -73,7 +73,7 @@ public class UpdateInsertMetodos {
 //        }
 //    }
 
-    public synchronized static String agregarPadre(Padre padre) {
+    public synchronized static String agregarPadre(Padres padre) {
         try {
             sql = "UPDATE OR INSERT INTO V_PADRES (CEDULA, NOMBRES, APELLIDOS, "
                     + "SEXO, IDTIPOSANGRE, IDARS, NONSS, TELEFONO, MOVIL, "
@@ -87,8 +87,8 @@ public class UpdateInsertMetodos {
             ps.setString(3, padre.getApellidos().trim());
             ps.setString(4, "" + padre.getSexo());
             ps.setInt(5, padre.getId_Tipo_Sangre());
-            ps.setInt(6, padre.getId_Ars());
-            ps.setString(7, (padre.getNoNSS().trim().isEmpty() ? null : padre.getNoNSS().trim()));
+            ps.setInt(6, padre.getAsegurado().getId_ars());
+            ps.setString(7, (padre.getAsegurado().getNo_nss().trim().isEmpty() ? null : padre.getAsegurado().getNo_nss().trim()));
             ps.setString(11, padre.getDireccion().trim());
             ps.setDate(13, padre.getFecha_Nacimiento());
             ps.setBoolean(14, padre.getEstado());
