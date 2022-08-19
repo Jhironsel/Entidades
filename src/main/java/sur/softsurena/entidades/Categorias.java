@@ -34,6 +34,9 @@ public class Categorias implements Comparable {
             = "DELETE FROM V_CATEGORIAS a "
             + "WHERE "
             + "     a.ID = ?";
+    
+    public final static String SELECT
+            = "SELECT ID, DESCRIPCION FROM V_CATEGORIAS r";
 
     public final static String SELECT_CATEGORIA
             = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO, r.ESTADO,"

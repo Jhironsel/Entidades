@@ -21,7 +21,7 @@ import sur.softsurena.entidades.Municipios;
 import sur.softsurena.entidades.Perfiles;
 import sur.softsurena.entidades.Producto;
 import sur.softsurena.entidades.Provincias;
-import sur.softsurena.entidades.Turno;
+import sur.softsurena.entidades.Turnos;
 import sur.softsurena.entidades.Usuario;
 
 public class SelectMetodos {
@@ -159,7 +159,7 @@ public class SelectMetodos {
      */
     public synchronized static int idTurnoActivo(String userName) {
         try {
-            ps = getCnn().prepareStatement(Turno.SELECT_IDUSUARIO_ESTADO);
+            ps = getCnn().prepareStatement(Turnos.SELECT_IDUSUARIO_ESTADO);
 
             ps.setString(1, userName.trim().toUpperCase());
 

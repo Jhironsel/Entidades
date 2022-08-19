@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
-public class Turno {
+public class Turnos {
 
     public static String SELECT_IDUSUARIO_ESTADO
             = "SELECT id "
@@ -19,8 +19,8 @@ public class Turno {
     private final Time hora_inicio;
     private final Date fecha_final;
     private final Time hora_final;
-    private final String idUsuario;
     private final Boolean estado;
+    private final String idUsuario;
     
 
 

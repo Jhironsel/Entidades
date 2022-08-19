@@ -248,7 +248,7 @@ public class ProcedureMetodos {
 
             cs = getCnn().prepareCall(sql);
 
-            cs.setString(1, u.getUserName());
+            cs.setString(1, u.getUser_name());
             cs.setString(2, u.getClave());
             cs.setString(3, u.getPNombre());
             cs.setString(4, u.getSNombre());

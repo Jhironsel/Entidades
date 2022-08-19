@@ -299,7 +299,7 @@ public class InsertMetodos {
 
             ps = getCnn().prepareStatement(sql);
 
-            ps.setString(1, u.getUserName());
+            ps.setString(1, u.getUser_name());
             ps.setString(2, u.getClave());
             ps.setString(3, u.getPNombre());
             ps.setString(4, u.getSNombre());
@@ -323,7 +323,7 @@ public class InsertMetodos {
             ps = getCnn().prepareStatement(sql);
 
             ps.setString(1, u.getRol());
-            ps.setString(2, u.getUserName());
+            ps.setString(2, u.getUser_name());
 
             ps.executeUpdate();
 

@@ -50,7 +50,6 @@ public class Usuario extends Personas {
             + "WHERE trim(u.idusuario) = upper(trim(?)) and "
             + "u.autorizado";
 
-    private final String userName;
     private final String clave;
     private final String rol;
     private final Boolean administrador;

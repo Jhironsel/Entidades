@@ -255,17 +255,19 @@ public class UpdateMetodos {
      * @param idTurno 
      */
     public synchronized static void pagarCredito(BigDecimal deuda,
-            String idCliente, BigDecimal Valor, int idFactura, int idTurno) {
+            int idCliente, BigDecimal Valor, int idFactura, int idTurno) {
 
         BigDecimal deudaActual = deuda.subtract(Valor);
 
-        sql = "update clientes set deudaActual = ? where idCliente = ?;";
+        sql = "update clientes set "
+                + "deudaActual = ? "
+                + "where idCliente = ?;";
         
         try {
             ps = getCnn().prepareStatement(sql);
 
             ps.setBigDecimal(1, deudaActual);
-            ps.setString(2, idCliente);
+            ps.setInt(2, idCliente);
 
             ps.executeUpdate();
 
@@ -278,7 +280,7 @@ public class UpdateMetodos {
         try {
             ps = getCnn().prepareStatement(sql);
 
-            ps.setString(1, idCliente);
+            ps.setInt(1, idCliente);
             ps.setInt(2, idFactura);
             ps.setInt(3, idTurno);
             ps.setBigDecimal(4, Valor);
