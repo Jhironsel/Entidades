@@ -52,21 +52,23 @@ public class UpdateMetodos {
             ps = getCnn().prepareStatement(Clientes.UPDATE);
 
             ps.setInt(1, c.getId_persona());
-            ps.setInt(2, c.getDireccion().getId_provincia());
-            ps.setInt(3, c.getDireccion().getId_municipio());
-            ps.setInt(3, c.getDireccion().getId_distrito_municipal());
-            ps.setString(4, String.valueOf(c.getPersona()));
-            ps.setString(5, c.getGenerales().getCedula());
-            ps.setString(6, c.getPNombre());
-            ps.setString(7, c.getSNombre());
-            ps.setString(8, c.getApellidos());
-            ps.setString(9, String.valueOf(c.getSexo()));
-            ps.setString(10, c.getDireccion().getDireccion());
-            ps.setDate(11, c.getFecha_nacimiento());
-            ps.setBoolean(12, c.getEstado());
-            ps.setString(13, String.valueOf(c.getGenerales().getEstado_civil()));
+            ps.setString(2, String.valueOf(c.getPersona()));
+            ps.setString(3, c.getGenerales().getCedula());
+            ps.setString(4, c.getPNombre());
+            ps.setString(5, c.getSNombre());
+            ps.setString(6, c.getApellidos());
+            ps.setString(7, String.valueOf(c.getSexo()));
+            ps.setDate(8, c.getFecha_nacimiento());
+            ps.setBoolean(9, c.getEstado());
+            ps.setString(10, String.valueOf(c.getGenerales().getEstado_civil()));
             
             int cant = ps.executeUpdate();
+            
+            //Modificar Telefono de contactos
+            
+            //Modificar Correos de contactos
+            
+            //Modificar las direcciones de cliente
             
             r = Resultados.builder().
                     id(-1).
@@ -399,28 +401,23 @@ public class UpdateMetodos {
 
     public synchronized static String modificarPadre(Padres p) {
         try {
-            sql = "EXECUTE PROCEDURE SP_UPDATE_PADRES (?, ?, ?, ?, ?, ?, ?, ?, ?"
-                    + ", ?, ?, ?, ?, ?, ?, ?, ?);";
+            sql = "EXECUTE PROCEDURE SP_UPDATE_PADRES (?, ?, ?, ?, ?, ?, ?, ?,"
+                    + " ?, ?, ?, ?);";
 
             ps = getCnn().prepareStatement(sql);
 
             ps.setInt(1, p.getId_persona());
             ps.setInt(2, p.getAsegurado().getId_ars());
             ps.setString(3, p.getAsegurado().getNo_nss());
-            ps.setInt(4, p.getDireccion().getId_provincia());
-            ps.setInt(5, p.getDireccion().getId_municipio());
-            ps.setInt(6, p.getDireccion().getId_distrito_municipal());
-            ps.setInt(7, p.getDireccion().getId_codigo_postal());
-            ps.setInt(8, p.getGenerales().getId_tipo_sangre());
-            ps.setString(9, p.getGenerales().getCedula());
-            ps.setString(10, p.getPNombre());
-            ps.setString(11, p.getSNombre());
-            ps.setString(12, p.getApellidos());
-            ps.setString(13, "" + p.getSexo());
-            ps.setString(14, p.getDireccion().getDireccion());
-            ps.setDate(15, p.getFecha_nacimiento());
-            ps.setBoolean(16, p.getEstado());
-            ps.setString(17, "" + p.getGenerales().getEstado_civil());
+            ps.setInt(4, p.getGenerales().getId_tipo_sangre());
+            ps.setString(5, p.getGenerales().getCedula());
+            ps.setString(6, p.getPNombre());
+            ps.setString(7, p.getSNombre());
+            ps.setString(8, p.getApellidos());
+            ps.setString(9, "" + p.getSexo());
+            ps.setDate(10, p.getFecha_nacimiento());
+            ps.setBoolean(11, p.getEstado());
+            ps.setString(12, "" + p.getGenerales().getEstado_civil());
 
             ps.executeUpdate();
             return "Padre modificado correctamente";

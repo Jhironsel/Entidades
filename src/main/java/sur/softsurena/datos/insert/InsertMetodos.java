@@ -22,6 +22,8 @@ import sur.softsurena.entidades.ContactosTel;
 import sur.softsurena.entidades.Control_Consulta;
 import sur.softsurena.entidades.D_Recetas;
 import sur.softsurena.entidades.DetalleFactura;
+import sur.softsurena.entidades.Direcciones;
+import sur.softsurena.entidades.Doctor;
 import sur.softsurena.entidades.EntradaProducto;
 import sur.softsurena.entidades.Estudiantes;
 import sur.softsurena.entidades.Facturas;
@@ -174,6 +176,8 @@ public class InsertMetodos {
      *
      * @param ct Es el objecto que nos permite agregar los tipos de contactos de
      * los clientes.
+     * 
+     * @param ce
      *
      * @return
      */
@@ -184,26 +188,22 @@ public class InsertMetodos {
 
             ps = getCnn().prepareStatement(Clientes.INSERT);
 
-            ps.setInt(1, c.getDireccion().getId_provincia());
-            ps.setInt(2, c.getDireccion().getId_municipio());
-            ps.setInt(3, c.getDireccion().getId_distrito_municipal());
-            ps.setString(4, "" + c.getPersona());
-            ps.setString(5, c.getGenerales().getCedula());
-            ps.setString(6, c.getPNombre());
-            ps.setString(7, c.getSNombre());
-            ps.setString(8, c.getApellidos());
-            ps.setString(9, "" + c.getSexo());
-            ps.setString(10, c.getDireccion().getDireccion());
-            ps.setDate(11, c.getFecha_nacimiento());
-            ps.setBoolean(12, c.getEstado());
-            ps.setString(13, "" + c.getGenerales().getEstado_civil());
+            ps.setString(1, "" + c.getPersona());
+            ps.setString(2, c.getGenerales().getCedula());
+            ps.setString(3, c.getPNombre());
+            ps.setString(4, c.getSNombre());
+            ps.setString(5, c.getApellidos());
+            ps.setString(6, "" + c.getSexo());
+            ps.setDate(7, c.getFecha_nacimiento());
+            ps.setBoolean(8, c.getEstado());
+            ps.setString(9, "" + c.getGenerales().getEstado_civil());
 
             rs = ps.executeQuery();
 
             rs.next();
 
             int id = rs.getInt(1);
-            //Tenemos el ID del Cliente vamos agregar los contactos
+            
 
             if (!agregarContactosTel(id, ct)) {
                 r=Resultados.builder().
@@ -220,6 +220,16 @@ public class InsertMetodos {
                         cantidad(-1) .build();
                 return r;
             }
+            
+            if(!agregarDirecciones(id, c.getDireccion())){
+                r=Resultados.builder().
+                        id(-1).
+                        mensaje("Error al agregar direcciones del cliente").
+                        cantidad(-1) .build();
+                return r;
+            }
+            
+            
             r=Resultados.builder().
                         id(-1).
                         mensaje("Cliente Agregado Correctamente").
@@ -250,14 +260,36 @@ public class InsertMetodos {
             for (ContactosTel c : contactos) {
                 ps.setInt(1, id);
                 ps.setString(2, c.getTelefono());
+                ps.setString(3, c.getTipo());
                 ps.addBatch();
             }
-
-            return ps.execute();
+            ps.executeBatch();
+            return true;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
 
+        return false;
+    }
+    
+    public static boolean agregarDirecciones(int id, Direcciones[] direcciones) {
+        try {
+            ps = getCnn().prepareStatement(Direcciones.INSERT);
+
+            for (Direcciones d : direcciones) {
+                ps.setInt(1, id);
+                ps.setInt(2, d.getId_provincia());
+                ps.setInt(3, d.getId_municipio());
+                ps.setInt(4, d.getId_distrito_municipal());
+                ps.setInt(5, d.getId_codigo_postal());
+                ps.setString(6, d.getDireccion());
+                ps.addBatch();
+            }
+            ps.executeBatch();
+            return true;
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        }
         return false;
     }
 
@@ -277,8 +309,8 @@ public class InsertMetodos {
 
                 ps.addBatch();
             }
-
-            return ps.execute();
+            ps.executeBatch();
+            return true;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -293,11 +325,7 @@ public class InsertMetodos {
      */
     public synchronized static String agregarDoctor(Usuario u, ContactosTel[] c) {
         try {
-
-            sql = "SELECT p.O_SQL "
-                    + "FROM SP_INSERT_USUARIOS (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) p;";
-
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Doctor.INSERT);
 
             ps.setString(1, u.getUser_name());
             ps.setString(2, u.getClave());
@@ -524,38 +552,38 @@ public class InsertMetodos {
         }
     }
 
-    public synchronized static String guardarImagen(File file, String id, String query) {
-        try {
-            if (file == null) {
-                return "Proceso cancelado";
-            }
-
-            FileInputStream imageInFile = new FileInputStream(file);
-
-            byte imageData[] = new byte[(int) file.length()];
-
-            imageInFile.read(imageData);
-
-            // Converting Image byte array into Base64 String
-            String imageDataString = Base64.encodeBase64URLSafeString(imageData);
-
-            ps = getCnn().prepareStatement(query);
-
-            ps.setString(1, id);
-            ps.setString(2, imageDataString);
-
-            ps.executeUpdate();
-
-            return "Foto Insertada";
-        } catch (FileNotFoundException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-        }
-        return "Foto NO Insertada";
-    }
+//    public synchronized static String guardarImagen(File file, String id, String query) {
+//        try {
+//            if (file == null) {
+//                return "Proceso cancelado";
+//            }
+//
+//            FileInputStream imageInFile = new FileInputStream(file);
+//
+//            byte imageData[] = new byte[(int) file.length()];
+//
+//            imageInFile.read(imageData);
+//
+//            // Converting Image byte array into Base64 String
+//            String imageDataString = Base64.encodeBase64URLSafeString(imageData);
+//
+//            ps = getCnn().prepareStatement(query);
+//
+//            ps.setString(1, id);
+//            ps.setString(2, imageDataString);
+//
+//            ps.executeUpdate();
+//
+//            return "Foto Insertada";
+//        } catch (FileNotFoundException ex) {
+//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+//        } catch (IOException ex) {
+//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+//        } catch (SQLException ex) {
+//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+//        }
+//        return "Foto NO Insertada";
+//    }
 
     public synchronized static void agregarMetricas(Metricas m) {
         try {
@@ -623,42 +651,48 @@ public class InsertMetodos {
         }
     }
 
-    public static String agregarPadreMadre(Padres p) {
+    public static Resultados agregarPadreMadre(Padres p) {
+        Resultados r;
         try {
             sql = "SELECT p.O_ID "
-                    + "FROM SP_INSERT_PADRES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
-                    + " ?, ?, ?) p;";
+                    + "FROM SP_INSERT_PADRES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) p;";
 
             ps = getCnn().prepareStatement(sql);
 
             ps.setInt(1, p.getAsegurado().getId_ars());
             ps.setString(2, p.getAsegurado().getNo_nss());
-            ps.setInt(3, p.getDireccion().getId_provincia());
-            ps.setInt(4, p.getDireccion().getId_municipio());
-            ps.setInt(5, p.getDireccion().getId_distrito_municipal());
-            ps.setInt(6, p.getDireccion().getId_codigo_postal());
-            ps.setInt(7, p.getGenerales().getId_tipo_sangre());
-            ps.setString(8, p.getGenerales().getCedula());
-            ps.setString(9, p.getPNombre());
-            ps.setString(10, p.getSNombre());
-            ps.setString(11, p.getApellidos());
-            ps.setString(12, "" + p.getSexo());
-            ps.setString(13, p.getDireccion().getDireccion());
-            ps.setDate(14, p.getFecha_nacimiento());
-            ps.setBoolean(15, p.getEstado());
-            ps.setString(16, "" + p.getGenerales().getEstado_civil());
+            ps.setInt(3, p.getGenerales().getId_tipo_sangre());
+            ps.setString(4, p.getGenerales().getCedula());
+            ps.setString(5, p.getPNombre());
+            ps.setString(6, p.getSNombre());
+            ps.setString(7, p.getApellidos());
+            ps.setString(8, "" + p.getSexo());
+            ps.setDate(9, p.getFecha_nacimiento());
+            ps.setBoolean(10, p.getEstado());
+            ps.setString(11, "" + p.getGenerales().getEstado_civil());
 
             ResultSet rs = ps.executeQuery();
 
             rs.next();
 
             int id = rs.getInt(1);
+            
+            r = Resultados.builder().
+                    id(id).
+                    mensaje("Padre Agregado Exitosamente!").
+                    cantidad(-1).build();
 
-            return "Padre Agregado Exitosamente...! id {" + id + "}";
+            return r;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Padre no Agregado :( ...!";
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje("Error al agregar padre al sistema").
+                    cantidad(-1).build();
+            return r;
         }
+        
+        
     }
 
     public String agregarPerfil(String Perfil) {

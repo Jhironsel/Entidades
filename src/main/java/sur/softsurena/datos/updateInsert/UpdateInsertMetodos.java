@@ -77,7 +77,7 @@ public class UpdateInsertMetodos {
         try {
             sql = "UPDATE OR INSERT INTO V_PADRES (CEDULA, NOMBRES, APELLIDOS, "
                     + "SEXO, IDTIPOSANGRE, IDARS, NONSS, TELEFONO, MOVIL, "
-                    + "CORREO, DIRECCION, CIUDAD, FECHANACIMIENTO, ESTADO) "
+                    + "CORREO, CIUDAD, FECHANACIMIENTO, ESTADO) "
                     + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) matching(CEDULA)";
 
             ps = getCnn().prepareStatement(sql);
@@ -89,9 +89,8 @@ public class UpdateInsertMetodos {
             ps.setInt(5, p.getGenerales().getId_tipo_sangre());
             ps.setInt(6, p.getAsegurado().getId_ars());
             ps.setString(7, (p.getAsegurado().getNo_nss().trim().isEmpty() ? null : p.getAsegurado().getNo_nss().trim()));
-            ps.setString(11, p.getDireccion().getDireccion().trim());
-            ps.setDate(13, p.getFecha_nacimiento());
-            ps.setBoolean(14, p.getEstado());
+            ps.setDate(8, p.getFecha_nacimiento());
+            ps.setBoolean(9, p.getEstado());
 
             ps.executeUpdate();
 

@@ -6,6 +6,10 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class Doctor extends Personas{
+
+    public static String INSERT
+            = "SELECT p.O_SQL FROM SP_INSERT_USUARIOS (?, ?, ?, ?, ?, ?, ?, ?,"
+            + " ?, ?) p;";
     private final String especialidad;
     private final String execuatur;
 

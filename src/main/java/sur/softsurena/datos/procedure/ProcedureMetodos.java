@@ -244,9 +244,8 @@ public class ProcedureMetodos {
      */
     public String modificarUsuario(Usuario u) {
         try {
-            sql = "EXECUTE PROCEDURE SP_UPDATE_USUARIOS (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-
-            cs = getCnn().prepareCall(sql);
+            
+            cs = getCnn().prepareCall(Usuario.UPDATE);
 
             cs.setString(1, u.getUser_name());
             cs.setString(2, u.getClave());

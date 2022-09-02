@@ -66,7 +66,7 @@ public class AlterMetodos {
     public synchronized static String borrarUsuario(String idUsuario, String rol) {
         try {
             
-            ps = getCnn().prepareStatement(Usuario.QUITAR_ROL_USUARIO);
+            ps = getCnn().prepareStatement(Usuario.DELETE_ROL);
             
             ps.setString(1, rol);
             ps.setString(2, idUsuario);

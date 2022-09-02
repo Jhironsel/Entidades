@@ -1,6 +1,7 @@
 package sur.softsurena.entidades;
 
 import RSMaterialComponent.RSComboBox;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -20,7 +21,13 @@ public class Direcciones {
     private final int id_distrito_municipal;
     private final int id_codigo_postal;
     private final String direccion;
-
+    private final Date fecha;
+    
+    public static String INSERT
+            = "INSERT INTO DIRECCIONES (ID_PERSONA, ID_PROVINCIA, ID_MUNICIPIO, " 
+            + "     ID_DISTRITO_MUNICIPAL, ID_CODIGO_POSTAL, DIRECCION) " 
+            + "VALUES (?, ?, ?, ?, ?, ?);";
+    
     public static void llenarProvincias(RSComboBox jcbProvincias) {
 
         ResultSet rp = SelectMetodos.getProvincias();
@@ -67,21 +74,23 @@ public class Direcciones {
 
     public static void llenarDistritoMunicipal(int id_municipio,
             RSComboBox jcbDistritoMunicipal) {
-        ResultSet rdm = SelectMetodos.getDistritosMunicipales(id_municipio);
+        
+        ResultSet rdm = SelectMetodos.getDistritosMunicipales(id_municipio);//rdm = ResulSet Distrito Municipal
         
         jcbDistritoMunicipal.removeAllItems();
 
         Distritos_municipales dm = Distritos_municipales.builder().
                 id(0).
                 nombre("Inserte Distrito").build();
-        jcbDistritoMunicipal.addItem(dm);;
-
+        
+        jcbDistritoMunicipal.addItem(dm);
 
         try {
             while (rdm.next()) {
                 dm = Distritos_municipales.builder().
                         id(rdm.getInt("id")).
                         nombre(rdm.getString("nombre")).build();
+                
                 jcbDistritoMunicipal.addItem(dm);
             }
         } catch (SQLException ex) {

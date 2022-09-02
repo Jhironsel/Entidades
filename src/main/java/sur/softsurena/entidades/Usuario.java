@@ -7,6 +7,15 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Usuario extends Personas {
 
+    public static String UPDATE
+            ="EXECUTE PROCEDURE SP_UPDATE_USUARIOS (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+    
+    public static String CAMBIAR_CLAVE
+            = "ALTER USER ? PASSWORD ?";
+    
+    public static String DELETE_ROL
+            = "REVOKE ? FROM ? GRANTED BY ?";
+    
     public final static String GET_ALL_USER
             = "SELECT p.O_USER_NAME, p.O_PRIMER_NOMBRE, p.O_SEGUNDO_NOMBRE, p.O_APELLIDOS, "
             + "     p.O_ESTADO_ACTIVO, p.O_ADMINISTRADOR, p.O_TAG_NOMBRE, p.O_TAG_VALOR "
@@ -17,11 +26,6 @@ public class Usuario extends Personas {
             + "FROM SP_SELECT_USUARIOS_TAGS ('all') p "
             + "WHERE TRIM(p.O_USER_NAME) LIKE TRIM(UPPER(?))";
 
-    public static String CAMBIAR_CLAVE
-            = "ALTER USER ? PASSWORD ?";
-
-    public static String QUITAR_ROL_USUARIO
-            = "REVOKE ? FROM ? GRANTED BY ?";
 
     public static String SELECT_ROLES_USUARIOS
             = "SELECT r.ROL "

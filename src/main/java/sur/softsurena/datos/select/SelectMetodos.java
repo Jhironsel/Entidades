@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import static sur.softsurena.conexion.Conexion.getCnn;
+import sur.softsurena.entidades.ARS;
+import sur.softsurena.entidades.BaseDeDatos;
 import sur.softsurena.entidades.Categorias;
 import sur.softsurena.entidades.Clientes;
 import sur.softsurena.entidades.Distritos_municipales;
@@ -33,8 +35,7 @@ public class SelectMetodos {
 
     public synchronized static String pathBaseDeDatos() {
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT MON$DATABASE_NAME FROM MON$DATABASE");
+            ps = getCnn().prepareStatement(BaseDeDatos.PATH_BASE_DATOS);
             rs = ps.executeQuery();
             rs.next();
             return rs.getString(1);
@@ -46,12 +47,32 @@ public class SelectMetodos {
     
     public synchronized static ResultSet metaBaseDatos(){
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT CURRENT_CONNECTION, CURRENT_DATE, CURRENT_ROLE, CURRENT_TIME, " +
-                    "          CURRENT_TIMESTAMP, CURRENT_TRANSACTION, CURRENT_USER " +
-                    "FROM RDB$DATABASE");
+            ps = getCnn().prepareStatement(BaseDeDatos.METADATOS);
             rs = ps.executeQuery();
             return rs;
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
+    
+    /**
+     * Metodo para consultar cual es el usuario actual del sistema.
+     *
+     * Metodo actualizado el 17/05/2022.
+     *
+     * @return Retorna un String con el dato de cual es usuario del sistema que
+     * ha iniciado sessión actualmente.
+     */
+    public synchronized static String getUsuarioActual() {
+        try {
+            ps = getCnn().prepareStatement(BaseDeDatos.USUARIO_ACTUAL);
+
+            rs = ps.executeQuery();
+
+            rs.next();
+
+            return rs.getString(1);
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -178,67 +199,6 @@ public class SelectMetodos {
 
     }
 
-//    public synchronized static ImageIcon getImagenes(String sql) {
-//        try {
-//            ps = getCnn().prepareStatement(sql);
-//            rs = ps.executeQuery();
-//            byte[] data = null;
-//
-//            if (rs.next()) {
-//                data = Base64.decodeBase64(rs.getString("FOTO"));
-//            } else {
-//                if (rs.next()) {
-//                    data = Base64.decodeBase64(rs.getString("FOTO"));
-//                }
-//            }
-//
-//            if (data == null) {
-//                return null;
-//            }
-//
-//            BufferedImage img = null;
-//            try {
-//                img = ImageIO.read(new ByteArrayInputStream(data));
-//            } catch (IOException ex) {
-//                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-//            }
-//            return new ImageIcon(img);
-//        } catch (SQLException ex) {
-//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-//        }
-//        return null;
-//    }
-
-//    public static synchronized ArrayList<Imagen> getImagenes() {
-//        ArrayList<Imagen> lista = new ArrayList<>();
-//        try {
-//            ps = getCnn().prepareStatement("SELECT imagen, nombre FROM tabla_Imagenes");
-//            rs = ps.executeQuery();
-//
-//            while (rs.next()) {
-//                Blob blob = rs.getBlob("imagen");
-//
-//                String nombre = rs.getObject("nombre").toString();
-//
-//                byte[] data = blob.getBytes(1, (int) blob.length());
-//
-//                BufferedImage img = null;
-//
-//                try {
-//                    img = ImageIO.read(new ByteArrayInputStream(data));
-//                } catch (IOException ex) {
-//                    LOG.log(Level.SEVERE, ex.getMessage(), ex);
-//                }
-//
-//                lista.add(new Imagen(new ImageIcon(img), nombre));
-//            }
-//            rs.close();
-//        } catch (SQLException ex) {
-//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-//        }
-//        return lista;
-//    }
-
     /**
      * Metodo que permite investigar si existe una descripcion de una categoria
      * ya existen.
@@ -321,10 +281,13 @@ public class SelectMetodos {
 
     /*--------------------Fin de las consultas de categorias------------------*/
 
+    /**
+     * 
+     * @return 
+     */
     public synchronized static int periodoMaquina() {
-        sql = "SELECT r.D FROM V_TIME_LIC r";
         try {
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(BaseDeDatos.PERIODO);
 
             rs = ps.executeQuery();
 
@@ -336,29 +299,7 @@ public class SelectMetodos {
         }
     }
 
-    /**
-     * Metodo para consultar cual es el usuario actual del sistema.
-     *
-     * Metodo actualizado el 17/05/2022.
-     *
-     * @return Retorna un String con el dato de cual es usuario del sistema que
-     * ha iniciado sessión actualmente.
-     */
-    public synchronized static String getUsuarioActual() {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT TRIM(CURRENT_USER) FROM MON$DATABASE");
-
-            rs = ps.executeQuery();
-
-            rs.next();
-
-            return rs.getString(1);
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
+    
 
     /**
      * Metodo que verifica la identificación del equipo en el sistema, tomando 
@@ -371,10 +312,7 @@ public class SelectMetodos {
      */
     public synchronized static boolean existeIdMaquina(String idMaquina) {
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT (1) "
-                    + "FROM V_FCH_LC a "
-                    + "WHERE a.ID = ?");
+            ps = getCnn().prepareStatement(BaseDeDatos.EXISTE_REGISTRO);
             
             ps.setString(1, idMaquina.trim());
             
@@ -431,11 +369,11 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getMensajes() {
+        sql = "SELECT MENSAJE, NOMBREEMPRESA, DIRECCIONEMPRESA, TELEFONOEMPRESA "
+                    + "FROM GET_MENSAJES ";
+        
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT MENSAJE, NOMBREEMPRESA, DIRECCIONEMPRESA, TELEFONOEMPRESA "
-                    + "FROM GET_MENSAJES "
-            );
+            ps = getCnn().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -454,10 +392,6 @@ public class SelectMetodos {
             ps = getCnn().prepareStatement(Clientes.GET_CLIENTES);
 
             ps.setString(1, criterio.trim());
-            ps.setString(2, criterio.trim());
-            ps.setString(3, criterio.trim());
-            ps.setString(4, criterio.trim());
-            ps.setString(5, criterio.trim());
 
             rs = ps.executeQuery();
 
@@ -559,8 +493,8 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getRoles() {
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT ROL FROM GET_ROLES");
+            sql = "SELECT ROL FROM GET_ROLES";
+            ps = getCnn().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -570,13 +504,12 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getTemporales() {
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.ID, r.NOMBRETEMP, r.PNOMBRE, r.SNOMBRE, "
+            sql = "SELECT r.ID, r.NOMBRETEMP, r.PNOMBRE, r.SNOMBRE, "
                     + "r.APELLIDOS, r.ID_CLIENTE, r.FECHA,  r.IDUSUARIO, r.HORA, "
                     + "r.MONTO "
                     + "FROM GET_TEMPORALES r "
-                    + "ORDER BY 1"
-            );
+                    + "ORDER BY 1";
+            ps = getCnn().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -733,8 +666,7 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getFacturasDetalladaPorCliente(String idCliente) {
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
+            sql = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
                     + "COALESCE(SUM(d.precio * d.cantidad), 0.00) AS Valor "
                     + "FROM TABLA_FACTURAS f "
                     + "LEFT JOIN TABLA_CLIENTES c "
@@ -743,8 +675,8 @@ public class SelectMetodos {
                     + "    ON f.idFactura = d.idFactura "
                     + "WHERE f.idCliente = ? "
                     + "GROUP BY f.idFactura, f.estado , f.fecha, f.USUARIO "
-                    + "order by 1"
-            );
+                    + "order by 1";
+            ps = getCnn().prepareStatement(sql);
             ps.setString(1, idCliente);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -756,8 +688,7 @@ public class SelectMetodos {
     public synchronized static ResultSet getFacturasDetalladaPorCliente(
             String idCliente, int idFactura) {
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
+            sql = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
                     + "COALESCE(SUM(d.precio * d.cantidad), 0.00) AS Valor "
                     + "FROM TABLA_FACTURAS f "
                     + "LEFT JOIN TABLA_CLIENTES c "
@@ -766,8 +697,8 @@ public class SelectMetodos {
                     + "    ON f.idFactura = d.idFactura "
                     + "WHERE f.idCliente = ? and f.idFactura = ? "
                     + "GROUP BY f.idFactura, f.estado , f.fecha, f.USUARIO "
-                    + "order by 1"
-            );
+                    + "order by 1";
+            ps = getCnn().prepareStatement(sql);
             ps.setString(1, idCliente);
             ps.setInt(2, idFactura);
             return ps.executeQuery();
@@ -779,11 +710,10 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getDeudaCliente(String idCliente) {
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.IDDEUDAS, r.CONCEPTO, r.MONTO, r.FECHA, r.ESTADO "
+            sql = "SELECT r.IDDEUDAS, r.CONCEPTO, r.MONTO, r.FECHA, r.ESTADO "
                     + "FROM TABLA_DEUDAS r "
-                    + "WHERE r.IDCLIENTE LIKE ? AND r.ESTADO NOT IN('n', 'p')"
-            );
+                    + "WHERE r.IDCLIENTE LIKE ? AND r.ESTADO NOT IN('n', 'p')";
+            ps = getCnn().prepareStatement(sql);
             ps.setString(1, idCliente);
 
             return ps.executeQuery();
@@ -1105,7 +1035,7 @@ public class SelectMetodos {
 
             return new ImageIcon(img);
         } catch (SQLException ex) {
-//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return null;
     }
@@ -1130,7 +1060,6 @@ public class SelectMetodos {
 
             return rs.getString(1);
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "N/A";
         }
@@ -1154,7 +1083,6 @@ public class SelectMetodos {
             rs.next();
             return rs.getInt(1);
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return 1;
@@ -1184,7 +1112,6 @@ public class SelectMetodos {
             return rs.next();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
@@ -1206,7 +1133,6 @@ public class SelectMetodos {
 
             return rs.next();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
@@ -1228,7 +1154,6 @@ public class SelectMetodos {
             return rs.next();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
@@ -1271,7 +1196,6 @@ public class SelectMetodos {
 
             return rs.next();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
@@ -1293,7 +1217,6 @@ public class SelectMetodos {
             rs = ps.executeQuery();
             return rs.next();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
@@ -1317,7 +1240,6 @@ public class SelectMetodos {
             }
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return -1;
@@ -1343,7 +1265,6 @@ public class SelectMetodos {
             }
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return -1;
@@ -1366,7 +1287,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1394,7 +1314,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1424,7 +1343,6 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1450,7 +1368,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1493,7 +1410,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1521,7 +1437,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1541,7 +1456,6 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1564,7 +1478,6 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1585,7 +1498,6 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1609,7 +1521,6 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1634,7 +1545,6 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1649,7 +1559,6 @@ public class SelectMetodos {
                     ResultSet.HOLD_CURSORS_OVER_COMMIT);
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1678,7 +1587,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1700,7 +1608,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1721,7 +1628,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1744,7 +1650,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1766,7 +1671,6 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1813,7 +1717,6 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1835,7 +1738,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1843,11 +1745,7 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getARS() {
         try {
-            sql = "SELECT IDARS, DESCRIPCION, COVERCONSULTAPORC, ESTADO, CANTIDAD "
-                    + "FROM GET_ARS "
-                    + "WHERE idArs != 0";
-
-            ps = getCnn().prepareStatement(sql,
+            ps = getCnn().prepareStatement(ARS.SELECT_CANTIDAD,
                     ResultSet.TYPE_SCROLL_INSENSITIVE,
                     ResultSet.CONCUR_READ_ONLY,
                     ResultSet.HOLD_CURSORS_OVER_COMMIT);
@@ -1855,7 +1753,6 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1879,7 +1776,6 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1902,7 +1798,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1923,7 +1818,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1944,7 +1838,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1965,7 +1858,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -1990,7 +1882,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -2013,7 +1904,6 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -2083,7 +1973,7 @@ public class SelectMetodos {
             ps = getCnn().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException ex) {
-
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
@@ -2094,7 +1984,7 @@ public class SelectMetodos {
             ps = getCnn().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException ex) {
-
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
@@ -2105,7 +1995,7 @@ public class SelectMetodos {
             ps = getCnn().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException ex) {
-
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
@@ -2121,7 +2011,7 @@ public class SelectMetodos {
             ps = getCnn().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException ex) {
-
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
@@ -2176,7 +2066,7 @@ public class SelectMetodos {
             ps = getCnn().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException ex) {
-
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
@@ -2187,7 +2077,7 @@ public class SelectMetodos {
             ps = getCnn().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException ex) {
-
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
@@ -2214,7 +2104,7 @@ public class SelectMetodos {
             ps = getCnn().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException ex) {
-
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
@@ -2415,7 +2305,7 @@ public class SelectMetodos {
      */
     public static synchronized ResultSet getClientes() {
         try {
-            ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_SB_TABLA);
+            ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_SB);
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2480,22 +2370,6 @@ public class SelectMetodos {
             return null;
         }
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     /**
      * 
@@ -2525,7 +2399,6 @@ public class SelectMetodos {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
@@ -2541,14 +2414,11 @@ public class SelectMetodos {
             return ps.executeQuery();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
-    
-    
-    
+        
     /**
      * 
      * @param idUsuario
@@ -2571,11 +2441,11 @@ public class SelectMetodos {
     }
 
     /**
-     * 
+     * Se está utilizando para llenar los comboBox de los usuarios activos.
      * @return 
      */
     public synchronized static ResultSet getUsuariosActivo() {
-        //Se está utilizando para llenar los comboBox de los usuarios activos.
+        
         try {
             ps = getCnn().prepareStatement(
                     "SELECT u.idUsuario, u.NombreUNO, u.Apellidos "
@@ -2592,8 +2462,11 @@ public class SelectMetodos {
         }
     }
 
+    /**
+     * Para que sirve este metodo...????
+     * @return 
+     */
     public synchronized static ResultSet getUsuariosActivos() {
-        //Para que sirve este metodo...
         try {
             ps = getCnn().prepareStatement(
                     "SELECT r.IDUSUARIO, (r.NOMBREUNO||' '||r.APELLIDOS) AS Nombre "
@@ -2609,11 +2482,11 @@ public class SelectMetodos {
     }
 
     /**
-     * 
+     * Se esta utilizando para llenar la tabla de usuarios
      * @return 
      */
     public synchronized static ResultSet getUsuarios() {
-        //Se esta utilizando para llenar la tabla de usuarios
+        
         sql = "SELECT r.IDUSUARIO, r.NOMBREUNO, r.NOMBREDOS, "
                 + "       r.APELLIDOS, r.ESTADO, r.AUTORIZADO, r.ROL "
                 + "FROM GET_USUARIOS r";
@@ -2628,63 +2501,4 @@ public class SelectMetodos {
             return null;
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
-
-
-/**
- * Nota sobre esta clase....
- * 
- * 
- * 
- * 
- */

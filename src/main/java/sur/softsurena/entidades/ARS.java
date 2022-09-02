@@ -9,6 +9,11 @@ import lombok.experimental.SuperBuilder;
 @Getter
 public class ARS {
 
+    public static String SELECT_CANTIDAD
+            = "SELECT IDARS, DESCRIPCION, COVERCONSULTAPORC, ESTADO, CANTIDAD "
+                    + "FROM GET_ARS "
+                    + "WHERE idArs != 0";
+    
     public static String DELETE
             = "DELETE FROM V_ARS WHERE id = ?";
 

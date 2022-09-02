@@ -29,16 +29,21 @@ public abstract class Personas {
     private final String rol;//12
     
     private final Asegurados asegurado;
-    private final Direcciones direccion;
+    private final Direcciones[] direccion;
     private final Generales generales;
 
     public static void llenarPersona(JComboBox jcbPersona) {
+        
+        jcbPersona.removeAllItems();
+        
         TipoPersona tp = TipoPersona.builder().
                 abreviatura('X').persona("Tipo de persona").build();
         jcbPersona.addItem(tp);
+        
         tp = TipoPersona.builder().
                 abreviatura('F').persona("FÍSICA").build();
         jcbPersona.addItem(tp);
+        
         tp = TipoPersona.builder().
                 abreviatura('J').persona("JURÍDICA").build();
         jcbPersona.addItem(tp);
@@ -46,6 +51,7 @@ public abstract class Personas {
     }
 
     public static void llenarSexo(JComboBox jcbSexo) {
+        jcbSexo.removeAllItems();
         Sexo s = Sexo.builder().abreviatura('X').sexo("Seleccione sexo").build();
         jcbSexo.addItem(s);
         s = Sexo.builder().abreviatura('F').sexo("FEMENINA").build();
@@ -55,6 +61,7 @@ public abstract class Personas {
     }
 
     public static void llenarEstadoCivil(JComboBox jcbEstadoCivil) {
+        jcbEstadoCivil.removeAllItems();
         EstadoCivil ec = EstadoCivil.builder().
                 abreviatura('X').
                 estadoCivil("Seleccione Estado Civil").build();

@@ -13,26 +13,25 @@ public class Clientes extends Personas {
      * Nota: Este Query fue actualizado el dia 16 de agosto 2022.
      *
      */
-    public final static String INSERT
+    public final static String INSERT //Se utiliza
             = "SELECT V_ID "
-            + "FROM SP_INSERT_CLIENTE_SB(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";//13 ?
+            + "FROM SP_INSERT_CLIENTE_SB(?, ?, ?, ?, ?, ?, ?, ?, ?);";//9
 
     /**
      * Consulta de SQL utilizada para actualizar los clientes del sistema.
      * 
      * Nota: Este Query fue actualizado el dia 17 de agosto 2022.
      */
-    public final static String UPDATE
-            = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE (?, ?, ?, ?, ?, ?, ?, ?, ?, "
-            + "?, ?, ?, ?, ?);";//14 ?
+    public final static String UPDATE //Se Utiliza
+            = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE_SB (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";//10 ?
     
     /**
      * Para eliminar un cliente, no debe de tener registros en el sistema.
      *
      * Nota: 
      */
-    public static String DELETE
-            = "DELETE FROM V_CLIENTES WHERE ID = ?";
+    public static String DELETE //No se Utiliza
+            = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_SB (?, ?);";
     
     /**
      * Esta consulta es utilizada para obtener el identificador, nombres y
@@ -64,16 +63,25 @@ public class Clientes extends Personas {
      * Consulta utilizada para presentar los datos en la tabla del formulario
      * clientes.
      */
-    public static String GET_CLIENTES_SB_TABLA
-            = "SELECT r.ID, r.CEDULA, r.PERSONA, r.PNOMBRE, r.SNOMBRE, r.APELLIDOS, "
-            + "     r.FECHA_INGRESO, r.ESTADO "
-            + "FROM GET_CLIENTES_SB_TABLA r";
+    public static String GET_CLIENTES_SB
+            = "SELECT r.ID, r.CEDULA, r.PERSONA, r.PNOMBRE, r.SNOMBRE, r.APELLIDOS, r.SEXO, " 
+            + "     r.FECHA_NACIMIENTO, r.ESTADO_CIVIL, r.FECHA_INGRESO, r.ESTADO " 
+            + "FROM GET_CLIENTES_SB r";
 
+    /**
+     * Consulta utilizada para presentar los datos en la tabla del formulario
+     * clientes.
+     */
+    public static String GET_CLIENTES_SB_BY_ID
+            = "SELECT r.ID, r.CEDULA, r.PERSONA, r.PNOMBRE, r.SNOMBRE, r.APELLIDOS, r.SEXO, " 
+            + "     r.FECHA_NACIMIENTO, r.ESTADO_CIVIL, r.FECHA_INGRESO, r.ESTADO " 
+            + "FROM GET_CLIENTES_SB r "
+            + "WHERE r.ID = ?";
+    
     /**
      * Retorna el nombre del cliente completo. 
      * @return Retorna un String con la información del nombre del cliente.
      */
-
     @Override
     public String toString() {
         if(super.getPNombre() == null){

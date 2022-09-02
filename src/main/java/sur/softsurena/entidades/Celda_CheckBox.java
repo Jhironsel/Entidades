@@ -35,7 +35,7 @@ public class Celda_CheckBox extends DefaultCellEditor implements
     @Override
     public boolean stopCellEditing() {        
         value = ((Boolean) getCellEditorValue()) ;
-        ((JCheckBox)component).setSelected( value );
+        ((JCheckBox) component).setSelected( value );
         return super.stopCellEditing();
     }
 
