@@ -18,10 +18,10 @@ public class ContactosTel {
             + "FROM V_CONTACTS_TEL a ";
 
     public final static String SELECT_BY_ID
-            = "SELECT a.ID, a.IDPERSONA, a.TELEFONO "
-            + "FROM CONTACTOS_TEL a  "
+            = "SELECT a.ID, a.TELEFONO, a.TIPO, a.FECHA "
+            + "FROM V_CONTACTS_TEL a  "
             + "WHERE "
-            + "     a.ID = ?";
+            + "     a.ID_PERSONA = ?";
 
     public static String INSERT
             = "INSERT INTO V_CONTACTS_TEL (ID_PERSONA, TELEFONO, TIPO) VALUES(?,?,?);";

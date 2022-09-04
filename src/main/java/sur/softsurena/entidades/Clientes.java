@@ -34,30 +34,16 @@ public class Clientes extends Personas {
             = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_SB (?, ?);";
     
     /**
-     * Esta consulta es utilizada para obtener el identificador, nombres y
-     * apellidos de los clientes
-     */
-    public final static String SELECT_CLIENTE_POR_ID_PSNOMBRE_APELLIDOS
-            = "SELECT id, pNombre, sNombre, apellidos "
-            + "FROM GET_CLIENTES "
-            + "WHERE estado || pNombre like ?% || sNombre like ?% || id = ? "
-            + "order by 1";
-
-    /**
-     * Se consulta a la base de datos que no exista un cliente con una cedula x
-     *
-     */
-    public static String GET_CLIENTES
-            = "SELECT (1) "
-            + "FROM GET_CLIENTES "
-            + "WHERE CEDULA starting ? ";
-
-    /**
      * 
      */
     public static String GET_CLIENTES_ESTADO_SB
             = "SELECT r.ID, r.CEDULA, r.ESTADO "
             + "FROM GET_CLIENTES_ESTADO_SB r";
+    
+    public static String GET_CLIENTE_BY_CEDULA
+            = "SELECT r.ID, r.ESTADO "
+            + "FROM GET_CLIENTES_ESTADO_SB r "
+            + "WHERE r.CEDULA LIKE ?;";
 
     /**
      * Consulta utilizada para presentar los datos en la tabla del formulario

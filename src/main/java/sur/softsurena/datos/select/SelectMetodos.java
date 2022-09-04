@@ -18,11 +18,20 @@ import sur.softsurena.entidades.ARS;
 import sur.softsurena.entidades.BaseDeDatos;
 import sur.softsurena.entidades.Categorias;
 import sur.softsurena.entidades.Clientes;
+import sur.softsurena.entidades.Codigo_Postal;
+import sur.softsurena.entidades.ContactosEmail;
+import sur.softsurena.entidades.ContactosTel;
+import sur.softsurena.entidades.DetalleFactura;
+import sur.softsurena.entidades.Direcciones;
 import sur.softsurena.entidades.Distritos_municipales;
 import sur.softsurena.entidades.Municipios;
+import sur.softsurena.entidades.Paciente;
+import sur.softsurena.entidades.Padres;
 import sur.softsurena.entidades.Perfiles;
 import sur.softsurena.entidades.Producto;
 import sur.softsurena.entidades.Provincias;
+import sur.softsurena.entidades.Temporales;
+import sur.softsurena.entidades.TipoSangre;
 import sur.softsurena.entidades.Turnos;
 import sur.softsurena.entidades.Usuario;
 
@@ -44,8 +53,8 @@ public class SelectMetodos {
             return null;
         }
     }
-    
-    public synchronized static ResultSet metaBaseDatos(){
+
+    public synchronized static ResultSet metaBaseDatos() {
         try {
             ps = getCnn().prepareStatement(BaseDeDatos.METADATOS);
             rs = ps.executeQuery();
@@ -55,7 +64,7 @@ public class SelectMetodos {
             return null;
         }
     }
-    
+
     /**
      * Metodo para consultar cual es el usuario actual del sistema.
      *
@@ -78,74 +87,95 @@ public class SelectMetodos {
             return null;
         }
     }
-    
+
     /**
      * Metodo que me trae un conjunto de datos de las provincias del pais.
-     * 
+     *
      * @nota Metodo creado el dia 16 de agosto 2022.
-     * 
+     *
      * @return retorna un conjunto de datos encapsulados en un ResultSet.
      */
-    public synchronized static ResultSet getProvincias(){
+    public synchronized static ResultSet getProvincias() {
         try {
             ps = getCnn().prepareStatement(Provincias.SELECT);
-            
+
             rs = ps.executeQuery();
-            
+
             return rs;
-            
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }    
-    
-    /**
-     * Metodo que me trae un conjunto de datos de los municipios del pais.
-     * 
-     * @nota Metodo creado el dia 16 de agosto 2022.
-     * 
-     * @param id_provincia Identificador que permite obtener los municipios de
-     * un lugar determinado de la provincia.
-     * 
-     * @return retorna un conjunto de datos encapsulados en un ResultSet.
-     */
-    public synchronized static ResultSet getMunicipio(int id_provincia){
-        try {
-            ps = getCnn().prepareStatement(Municipios.SELECT);
-            
-            ps.setInt(1, id_provincia);
-            
-            rs = ps.executeQuery();
-            
-            return rs;
-            
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
-    
+
     /**
-     * Metodo que me trae un conjunto de datos de los Distritos Municipales del 
-     * pais.
-     * 
+     * Metodo que me trae un conjunto de datos de los municipios del pais.
+     *
      * @nota Metodo creado el dia 16 de agosto 2022.
-     * 
-     * @param id_municipio
-     * 
-     * @return 
+     *
+     * @param id_provincia Identificador que permite obtener los municipios de
+     * un lugar determinado de la provincia.
+     *
+     * @return retorna un conjunto de datos encapsulados en un ResultSet.
      */
-    public synchronized static ResultSet getDistritosMunicipales(int id_municipio){
+    public synchronized static ResultSet getMunicipio(int id_provincia) {
+        try {
+            ps = getCnn().prepareStatement(Municipios.SELECT);
+
+            ps.setInt(1, id_provincia);
+
+            rs = ps.executeQuery();
+
+            return rs;
+
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
+
+    /**
+     * Metodo que me trae un conjunto de datos de los Distritos Municipales del
+     * pais.
+     *
+     * @nota Metodo creado el dia 16 de agosto 2022.
+     *
+     * @param id_municipio
+     *
+     * @return
+     */
+    public synchronized static ResultSet getDistritosMunicipales(int id_municipio) {
         try {
             ps = getCnn().prepareStatement(Distritos_municipales.SELECT);
-            
+
             ps.setInt(1, id_municipio);
-            
+
             rs = ps.executeQuery();
-            
+
             return rs;
-            
+
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
+
+    /**
+     *
+     * @param id_provincia
+     * @return
+     */
+    public synchronized static ResultSet getCodigoPostal(int id_provincia) {
+        try {
+            ps = getCnn().prepareStatement(Codigo_Postal.SELECT);
+
+            ps.setInt(1, id_provincia);
+
+            rs = ps.executeQuery();
+
+            return rs;
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -202,16 +232,16 @@ public class SelectMetodos {
     /**
      * Metodo que permite investigar si existe una descripcion de una categoria
      * ya existen.
-     * 
-     * Metodo actualizado, 06 julio 2022.: Se le aplicó una restructuración 
+     *
+     * Metodo actualizado, 06 julio 2022.: Se le aplicó una restructuración
      * completa al metodo llevando el sql a la clase categoria.
-     * 
-     * @param descripcion Es la descripcion que se pretende dar a la categoria la
-     * cual este metodo verifica de comprobar si existe o no. devolviendo true 
-     * si existe o false si no existe. 
-     * 
+     *
+     * @param descripcion Es la descripcion que se pretende dar a la categoria
+     * la cual este metodo verifica de comprobar si existe o no. devolviendo
+     * true si existe o false si no existe.
+     *
      * @return Retorna un valor boolean indicando si existe o no la descripcion
-     * de la categoria que se le pretende dar. 
+     * de la categoria que se le pretende dar.
      */
     public synchronized static boolean existeCategoria(String descripcion) {
         try {
@@ -226,13 +256,13 @@ public class SelectMetodos {
             return false;
         }
     }
-    
-    /** 
+
+    /**
      * Metodo utilizado para obtener todas las categorias del sistema.
-     * 
+     *
      * Metodo creado 11 Julio 2022.
-     * 
-     * @return Devuelve un conjunto de datos de la tabla Categoria del sistema, 
+     *
+     * @return Devuelve un conjunto de datos de la tabla Categoria del sistema,
      * donde contiene todos los campos de la tabla.
      */
     public synchronized static ResultSet getCategorias() {
@@ -246,9 +276,9 @@ public class SelectMetodos {
     }
 
     /**
-     * 
+     *
      * @param idCategoria
-     * @return 
+     * @return
      */
     public synchronized static boolean existeCategoriaProductos(int idCategoria) {
         try {
@@ -263,10 +293,10 @@ public class SelectMetodos {
     }
 
     /**
-     * Metodo que nos permite tener el conjunto de datos de las categorias que 
-     * estan activas y con un producto que está activo y enlazado a una 
-     * categoria. 
-     * 
+     * Metodo que nos permite tener el conjunto de datos de las categorias que
+     * estan activas y con un producto que está activo y enlazado a una
+     * categoria.
+     *
      * @return Retorna un conjunto de datos de tipo ResultSet.
      */
     public synchronized static ResultSet getCategoriaActivas() {
@@ -280,10 +310,9 @@ public class SelectMetodos {
     }
 
     /*--------------------Fin de las consultas de categorias------------------*/
-
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public synchronized static int periodoMaquina() {
         try {
@@ -299,23 +328,21 @@ public class SelectMetodos {
         }
     }
 
-    
-
     /**
-     * Metodo que verifica la identificación del equipo en el sistema, tomando 
+     * Metodo que verifica la identificación del equipo en el sistema, tomando
      * su numero unico de registro.
-     * 
+     *
      * @param idMaquina identificador del equipo.
-     * 
-     * @return Devuelve true si el equipo se encuentra resgistrado, y false si 
-     * no existe registro en la base de datos. 
+     *
+     * @return Devuelve true si el equipo se encuentra resgistrado, y false si
+     * no existe registro en la base de datos.
      */
     public synchronized static boolean existeIdMaquina(String idMaquina) {
         try {
             ps = getCnn().prepareStatement(BaseDeDatos.EXISTE_REGISTRO);
-            
+
             ps.setString(1, idMaquina.trim());
-            
+
             rs = ps.executeQuery();
             return rs.next();
         } catch (SQLException ex) {
@@ -325,12 +352,8 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getBuscarTemporal(Integer idFactura) {
-        sql = "SELECT IDFACTURA, IDLINEA, IDPRODUCTO, DESCRIPCION, CANTIDAD, PRECIO "
-                + "FROM GET_DETALLEFACTURA "
-                + "WHERE IDFACTURA = ? "
-                + "order by 1 2";
         try {
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(DetalleFactura.GET_DETALLE_FACTURA);
             ps.setInt(1, idFactura);
 
             return ps.executeQuery();
@@ -339,42 +362,29 @@ public class SelectMetodos {
             return null;
         }
     }
-    
+
     /**
-     * Metodo utilizado para obtener los productos ya sea por su ID, Codigo o 
-     * Descripcion de los registros de la tabla productos. 
-     * 
-     * @param criterio Este valor puede ser el identificador, codigo o 
-     * descripcion del producto. 
-     * 
-     * @return Devuelve un conjunto de datos con los criterio de la busqueda 
-     * espeficicada. 
-     * 
+     * Metodo utilizado para obtener los productos ya sea por su ID, Codigo o
+     * Descripcion de los registros de la tabla productos.
+     *
+     * @param criterio Este valor puede ser el identificador, codigo o
+     * descripcion del producto.
+     *
+     * @return Devuelve un conjunto de datos con los criterio de la busqueda
+     * espeficicada.
+     *
      */
     public synchronized static ResultSet buscarProducto(String criterio) {
-        
+
         try {
             ps = getCnn().prepareStatement(Producto.BUSCAR_PRODUCTO_ID_DESCRIPCION_CODIGO);
-            
+
             ps.setInt(1, Integer.parseInt(criterio));
             ps.setString(2, criterio);
             ps.setString(3, criterio);
 
             return ps.executeQuery();
-            
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
 
-    public synchronized static ResultSet getMensajes() {
-        sql = "SELECT MENSAJE, NOMBREEMPRESA, DIRECCIONEMPRESA, TELEFONOEMPRESA "
-                    + "FROM GET_MENSAJES ";
-        
-        try {
-            ps = getCnn().prepareStatement(sql);
-            return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -384,14 +394,14 @@ public class SelectMetodos {
     /**
      * Metodo revisado y actualizado el 26 de abril 2022.
      *
-     * @param criterio
+     * @param cedula
      * @return
      */
-    public synchronized static boolean existeCliente(String criterio) {
+    public synchronized static boolean existeCliente(String cedula) {
         try {
-            ps = getCnn().prepareStatement(Clientes.GET_CLIENTES);
+            ps = getCnn().prepareStatement(Clientes.GET_CLIENTE_BY_CEDULA);
 
-            ps.setString(1, criterio.trim());
+            ps.setString(1, cedula.trim());
 
             rs = ps.executeQuery();
 
@@ -402,7 +412,67 @@ public class SelectMetodos {
         }
     }
     
+    /**
+     * Obtenemos los datos basico de un cliente por una consulta por su ID.
+     * 
+     * @param id identificador del cliente del sistema, la cual ayuda obtener 
+     * los registros de un usuario en expecifico.
+     * 
+     * @return Retorna un conjunto de datos del tipo resultSet. 
+     */
+    public synchronized static ResultSet getClienteByID(int id) {
+        try {
+            ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_SB_BY_ID);
+            ps.setInt(1, id);
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
+    
+    /**
+     * Obtenemos el historia de direcciones del cliente, lo cual permite tener
+     * mejor control de la direcciones de los clientes. 
+     * 
+     * @param id identificador del cliente del sistema, la cual ayuda obtener 
+     * los registros de un usuario en expecifico.
+     * 
+     * @return Retorna un conjunto de datos del tipo resultSet.
+     */
+    public synchronized static ResultSet getDireccionByID(int id) {
+        try {
+            ps = getCnn().prepareStatement(Direcciones.SELECT_BY_ID);
+            ps.setInt(1, id);
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
 
+    public synchronized static ResultSet getTelefonoByID(int id) {
+        try {
+            ps = getCnn().prepareStatement(ContactosTel.SELECT_BY_ID);
+            ps.setInt(1, id);
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
+    
+    public synchronized static ResultSet getCorreoByID(int id) {
+        try {
+            ps = getCnn().prepareStatement(ContactosEmail.SELECT_BY_ID);
+            ps.setInt(1, id);
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
+    
     /**
      * Metodo utilizado para consultar a la base de datos, los roles creado y
      * aquienes fueron asignados esos roles.
@@ -463,20 +533,20 @@ public class SelectMetodos {
             return false;
         }
     }
-    
+
     /**
      * Metodo para llamar a los usuarios del sistema, este ejecuta un
      * procedimiento almacenado que realizar el SELECT complejo en la BD.
-     * 
-     * Actualizado 09 Julio 2022, se agregar el campo estatico de la clase 
+     *
+     * Actualizado 09 Julio 2022, se agregar el campo estatico de la clase
      * Usuario el cual contiene el SQL de la consulta de este metodo.
      *
      * @param userName Es el identificador que utiliza el usuario para iniciar
-     * session en el sistema, este campo tambien puede recibir un string con el 
+     * session en el sistema, este campo tambien puede recibir un string con el
      * valor all para obtener todos los usuarios del sistema.
-     * 
-     * @return retorna un conjunto de valores dependiendo del valor pasado por 
-     * parametro, si se le pasa all recibi un conjunto de datos de todos los 
+     *
+     * @return retorna un conjunto de valores dependiendo del valor pasado por
+     * parametro, si se le pasa all recibi un conjunto de datos de todos los
      * usuarios del sistema.
      */
     public synchronized static ResultSet getUsuarios(String userName) {
@@ -491,25 +561,13 @@ public class SelectMetodos {
         }
     }
 
-    public synchronized static ResultSet getRoles() {
-        try {
-            sql = "SELECT ROL FROM GET_ROLES";
-            ps = getCnn().prepareStatement(sql);
-            return ps.executeQuery();
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
-
+    /**
+     * Para obtener las facturas temporales del sistema.
+     * @return 
+     */
     public synchronized static ResultSet getTemporales() {
         try {
-            sql = "SELECT r.ID, r.NOMBRETEMP, r.PNOMBRE, r.SNOMBRE, "
-                    + "r.APELLIDOS, r.ID_CLIENTE, r.FECHA,  r.IDUSUARIO, r.HORA, "
-                    + "r.MONTO "
-                    + "FROM GET_TEMPORALES r "
-                    + "ORDER BY 1";
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Temporales.GET_TEMPORALES);
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -537,9 +595,9 @@ public class SelectMetodos {
     }
 
     /**
-     * 
+     *
      * @param idCliente
-     * @return 
+     * @return
      */
     public synchronized static ResultSet getCobrosClientesFactura(String idCliente) {
         try {
@@ -627,7 +685,6 @@ public class SelectMetodos {
             return null;
         }
     }
-    
 
     public synchronized static ResultSet getFacturasNombreClientes(int idFactura) {
         try {
@@ -669,10 +726,8 @@ public class SelectMetodos {
             sql = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
                     + "COALESCE(SUM(d.precio * d.cantidad), 0.00) AS Valor "
                     + "FROM TABLA_FACTURAS f "
-                    + "LEFT JOIN TABLA_CLIENTES c "
-                    + "    ON f.idCliente = c.idCliente "
-                    + "LEFT JOIN TABLA_DETALLEFACTURA d "
-                    + "    ON f.idFactura = d.idFactura "
+                    + "LEFT JOIN TABLA_CLIENTES c ON f.idCliente = c.idCliente "
+                    + "LEFT JOIN TABLA_DETALLEFACTURA d ON f.idFactura = d.idFactura "
                     + "WHERE f.idCliente = ? "
                     + "GROUP BY f.idFactura, f.estado , f.fecha, f.USUARIO "
                     + "order by 1";
@@ -691,10 +746,8 @@ public class SelectMetodos {
             sql = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
                     + "COALESCE(SUM(d.precio * d.cantidad), 0.00) AS Valor "
                     + "FROM TABLA_FACTURAS f "
-                    + "LEFT JOIN TABLA_CLIENTES c "
-                    + "    ON f.idCliente = c.idCliente "
-                    + "LEFT JOIN TABLA_DETALLEFACTURA d "
-                    + "    ON f.idFactura = d.idFactura "
+                    + "LEFT JOIN TABLA_CLIENTES c ON f.idCliente = c.idCliente "
+                    + "LEFT JOIN TABLA_DETALLEFACTURA d ON f.idFactura = d.idFactura "
                     + "WHERE f.idCliente = ? and f.idFactura = ? "
                     + "GROUP BY f.idFactura, f.estado , f.fecha, f.USUARIO "
                     + "order by 1";
@@ -791,10 +844,11 @@ public class SelectMetodos {
     /**
      * Metodo de consulta que es utilizada para obtener el numero de registros
      * de una tabla del sistema.
+     *
      * @param tabla nombre de la tabla para obtener las cantidad de registros.
-     * 
+     *
      * @return Devuelve la cantindad de registros que existe en una tabla dada
-     * en el parametro. 
+     * en el parametro.
      */
     public synchronized static int cantidadRegistros(String tabla) {
         try {//Conseguir con el conteos de las tablas....
@@ -828,7 +882,7 @@ public class SelectMetodos {
             if (!rs.next()) {
                 return null;
             }
-            
+
             Perfiles p = Perfiles.builder().
                     userName(rs.getString("USERNAME")).
                     rol(rs.getString("ROL")).
@@ -867,11 +921,11 @@ public class SelectMetodos {
             return null;
         }
     }
-    
+
     /**
-     * 
+     *
      * @param idTurno
-     * @return 
+     * @return
      */
     public synchronized static Integer getNumFac(int idTurno) {
         try {
@@ -1013,7 +1067,7 @@ public class SelectMetodos {
                     "SELECT imagen "
                     + "FROM Tabla_Imagenes "
                     + "WHERE TRIM(idUsuario) like ?");
-            
+
             ps.setString(1, idUsuario);
 
             rs = ps.executeQuery();
@@ -1039,7 +1093,6 @@ public class SelectMetodos {
         }
         return null;
     }
-
 
     public synchronized static String getSexoPaciente(int idPaciente) {
         try {
@@ -1160,17 +1213,17 @@ public class SelectMetodos {
     }
 
     /**
-     * Metodo que permite verificar si existe un usuario en el sistema, esto con 
+     * Metodo que permite verificar si existe un usuario en el sistema, esto con
      * el objetivo de permitir a un usuario ser registrado en la base de datos.
-     * 
+     *
      * @param userName Identificador unico de un usuario para ser utilizado como
      * parte de login de inicio en el sistema.
-     * 
-     * Actualizado el dia 09 julio 2022, Nota: se agrega el campo de la clase 
-     * Usuario, para que tome el SQL de la consulta. 
-     * 
-     * @return retorna un valor booleano que nos permite saber si existe "TRUE" o
-     * no "FALSE" un usuario en el sistema.
+     *
+     * Actualizado el dia 09 julio 2022, Nota: se agrega el campo de la clase
+     * Usuario, para que tome el SQL de la consulta.
+     *
+     * @return retorna un valor booleano que nos permite saber si existe "TRUE"
+     * o no "FALSE" un usuario en el sistema.
      */
     public synchronized static boolean existeUsuario(String userName) {
         try {
@@ -1393,8 +1446,6 @@ public class SelectMetodos {
         }
     }
 
-    
-
     public synchronized static ResultSet getConsulta(String fecha) {
         try {
             sql = "SELECT idConsulta, TURNO, idPaciente, FINAL, NOMBRES, APELLIDOS, IDARS, NONSS "
@@ -1502,7 +1553,7 @@ public class SelectMetodos {
             return null;
         }
     }
-    
+
     public synchronized static ResultSet getHorario(String idUsuario) {
         try {
             sql = "SELECT IDCONTROLCONSULTA, CANTIDADPACIENTE,"
@@ -1565,9 +1616,9 @@ public class SelectMetodos {
     }
 
     /**
-     * 
+     *
      * @param estado
-     * @return 
+     * @return
      */
     public synchronized static ResultSet getPadresActivo(boolean estado) {
         try {
@@ -1633,15 +1684,15 @@ public class SelectMetodos {
         }
     }
 
+    /**
+     *
+     * @param cedula
+     * @return
+     */
     public synchronized static ResultSet getPadresRecuperar(String cedula) {
         try {
-            sql = "SELECT NOMBRES, APELLIDOS, SEXO, IDTIPOSANGRE, IDARS, "
-                    + "NONSS, TELEFONO, MOVIL, CORREO, DIRECCION, CIUDAD, "
-                    + "FECHANACIMIENTO "
-                    + "FROM V_PADRES "
-                    + "WHERE CEDULA = ? AND ESTADO IS FALSE;";
 
-            ps = getCnn().prepareStatement(sql,
+            ps = getCnn().prepareStatement(Padres.RECUPERAR_PADRE,
                     ResultSet.TYPE_SCROLL_INSENSITIVE,
                     ResultSet.CONCUR_READ_ONLY,
                     ResultSet.HOLD_CURSORS_OVER_COMMIT);
@@ -1655,13 +1706,36 @@ public class SelectMetodos {
         }
     }
 
+    /**
+     *
+     * @param idCliente
+     * @return
+     */
+    public synchronized static ResultSet getDireccionesByID(int idCliente) {
+        try {
+            ps = getCnn().prepareStatement(Direcciones.SELECT_BY_ID,
+                    ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_READ_ONLY,
+                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+
+            ps.setInt(1, idCliente);
+
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
+
+    /**
+     *
+     * @param idPaciente
+     * @return
+     */
     public synchronized static ResultSet getPacienteActivoID(int idPaciente) {
         try {
-            sql = "SELECT NOMBRES, APELLIDOS, IDARS, NONSS "
-                    + "FROM GET_PACIENTES "
-                    + "WHERE IDPACIENTE = " + idPaciente;
 
-            ps = getCnn().prepareStatement(sql,
+            ps = getCnn().prepareStatement(Paciente.GET_PACIENTES,
                     ResultSet.TYPE_SCROLL_INSENSITIVE,
                     ResultSet.CONCUR_READ_ONLY,
                     ResultSet.HOLD_CURSORS_OVER_COMMIT);
@@ -1677,21 +1751,20 @@ public class SelectMetodos {
     }
 
     /**
-     * Metodo utilizado para llenar los JCombox del sistema. 
-     * 
-     * Metodo verificado el dia 25 de abril, el cual nos permite tener los ID 
-     * de los tipos de sangre que existe en el mundo, resultset utilizado para 
+     * Metodo utilizado para llenar los JCombox del sistema.
+     *
+     * Metodo verificado el dia 25 de abril, el cual nos permite tener los ID de
+     * los tipos de sangre que existe en el mundo, resultset utilizado para
      * llegar los ComboBox.
-     * 
-     * Metodo actualizado el 23 de Junio del 2022, agregamos la clave Conexion y 
-     * utilizamos el metodo getInstance para tener mejor control. 
-     * @return 
+     *
+     * Metodo actualizado el 23 de Junio del 2022, agregamos la clave Conexion y
+     * utilizamos el metodo getInstance para tener mejor control.
+     *
+     * @return
      */
     public synchronized static ResultSet getTipoSangre() {
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT ID, DESCRIPCION "
-                    + "FROM V_TIPOS_SANGRE order by 1");
+            ps = getCnn().prepareStatement(TipoSangre.SELECT);
 
             return ps.executeQuery();
 
@@ -2150,16 +2223,16 @@ public class SelectMetodos {
      *
      * <b>Metodo actualizado el 22 abril 2022</b>, Nota: Agregado el campo id.
      *
-     * <b>Metodo actualizado el 19 05 2022</b>, Nota: Se ha agregado nueva vista para
-     * traer los datos del producto consultado. Esta vista agrega dos campos mas
-     * que son DESC_CATEGORIA y IMAGEN_CATEGORIA
+     * <b>Metodo actualizado el 19 05 2022</b>, Nota: Se ha agregado nueva vista
+     * para traer los datos del producto consultado. Esta vista agrega dos
+     * campos mas que son DESC_CATEGORIA y IMAGEN_CATEGORIA
      *
-     * <b>Actualizado el 09 julio 2022</b>, Nota: He modificado la clase producto la
-     * cual ahora se construye utilizando Metodologia Builder. Tambien, se
-     * modificó el nombre del metodo de plural a singular.
+     * <b>Actualizado el 09 julio 2022</b>, Nota: He modificado la clase
+     * producto la cual ahora se construye utilizando Metodologia Builder.
+     * Tambien, se modificó el nombre del metodo de plural a singular.
      *
      * @param id identificador del producto.
-     * 
+     *
      * @return Devuelve un objecto de la clase Producto consultado a la base de
      * datos por su identificador.
      */
@@ -2250,8 +2323,9 @@ public class SelectMetodos {
     }
 
     /**
-     * Listado de clientes de la base de datos, obtenidos de la vista 
+     * Listado de clientes de la base de datos, obtenidos de la vista
      * GET_CLIENTES_SB, donde los clientes para mostrarse deben estar activo.
+     *
      * @param filtro
      * @param criterio
      * @return
@@ -2259,9 +2333,9 @@ public class SelectMetodos {
     public synchronized static ResultSet getClientesCombo() {
         try {
             ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_ESTADO_SB);
-            
+
             return ps.executeQuery();
-            
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -2299,11 +2373,11 @@ public class SelectMetodos {
     }
 
     /**
-     * 
+     *
      * @return Devuelve todos los datos realacionado con los clientes en la base
      * de datos.
      */
-    public static synchronized ResultSet getClientes() {
+    public static synchronized ResultSet getClientesTablaSB() {
         try {
             ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_SB);
             return ps.executeQuery();
@@ -2341,53 +2415,53 @@ public class SelectMetodos {
             return "Error a ejecutar Operacion";
         }
     }
-    
+
     /**
-     * 
+     *
      * @param idProducto
      * @param codigo
-     * @return 
+     * @return
      */
     public synchronized static ResultSet getProductoById(Integer idProducto,
             String codigo) {
-        
+
         try {
-            
+
             ps = getCnn().prepareStatement(Producto.SELECT);
 
             ps.setString(1, codigo);
-        
+
             if (idProducto == null) {
                 idProducto = 0;
             }
-            
+
             ps.setInt(2, idProducto);
-            
+
             return ps.executeQuery();
-            
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
-    
+
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public synchronized static ResultSet getCajerosActivos() {
         //Para que sirve este metodo...
         try {
             ps = getCnn().prepareStatement(Usuario.GET_SELECT_USUARIOS_ACTIVOS);
-            
+
             return ps.executeQuery();
-            
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
-    
+
     public synchronized static ResultSet getUsuario(boolean estado) {
         try {
             ps = getCnn().prepareStatement(Usuario.GET_SELECT_USUARIOS,
@@ -2418,21 +2492,21 @@ public class SelectMetodos {
             return null;
         }
     }
-        
+
     /**
-     * 
+     *
      * @param idUsuario
-     * @return 
+     * @return
      */
     public synchronized static boolean delega(String idUsuario) {
 
         try {
             ps = getCnn().prepareStatement(Usuario.DELEGA);
-            
+
             ps.setString(1, idUsuario);
-            
+
             rs = ps.executeQuery();
-            
+
             return rs.next();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2442,10 +2516,11 @@ public class SelectMetodos {
 
     /**
      * Se está utilizando para llenar los comboBox de los usuarios activos.
-     * @return 
+     *
+     * @return
      */
     public synchronized static ResultSet getUsuariosActivo() {
-        
+
         try {
             ps = getCnn().prepareStatement(
                     "SELECT u.idUsuario, u.NombreUNO, u.Apellidos "
@@ -2453,9 +2528,9 @@ public class SelectMetodos {
                     + "left JOIN tabla_TURNOS t on t.IDUSUARIO like u.IDUSUARIO "
                     + "WHERE TRIM(u.Rol) like 'CAJERO' and u.ESTADO"
             );
-            
+
             return ps.executeQuery();
-            
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -2464,7 +2539,8 @@ public class SelectMetodos {
 
     /**
      * Para que sirve este metodo...????
-     * @return 
+     *
+     * @return
      */
     public synchronized static ResultSet getUsuariosActivos() {
         try {
@@ -2472,9 +2548,9 @@ public class SelectMetodos {
                     "SELECT r.IDUSUARIO, (r.NOMBREUNO||' '||r.APELLIDOS) AS Nombre "
                     + "FROM GET_USUARIOS r "
                     + "WHERE r.ESTADO");
-            
+
             return ps.executeQuery();
-            
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -2483,10 +2559,11 @@ public class SelectMetodos {
 
     /**
      * Se esta utilizando para llenar la tabla de usuarios
-     * @return 
+     *
+     * @return
      */
     public synchronized static ResultSet getUsuarios() {
-        
+
         sql = "SELECT r.IDUSUARIO, r.NOMBREUNO, r.NOMBREDOS, "
                 + "       r.APELLIDOS, r.ESTADO, r.AUTORIZADO, r.ROL "
                 + "FROM GET_USUARIOS r";

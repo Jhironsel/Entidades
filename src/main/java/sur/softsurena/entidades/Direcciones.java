@@ -22,14 +22,34 @@ public class Direcciones {
     private final int id_codigo_postal;
     private final String direccion;
     private final Date fecha;
-    
+
+    /**
+     * Consulta utilizada para obtener la direccion de una persona en
+     * particular.
+     */
+    public static String SELECT_BY_ID
+            = "SELECT r.ID, r.ID_PERSONA, r.ID_PROVINCIA, r.PROVINCIA, r.ID_MUNICIPIO, "
+            + "     r.MUNICIPIO, r.ID_DISTRITO_MUNICIPAL, r.DISTRITO_MUNICIPAL, "
+            + "     r.ID_CODIGO_POSTAL, r.CODIGO_POSTAL, r.DIRECCION, r.FECHA "
+            + "FROM GET_DIRECCION_BY_ID r "
+            + "WHERE r.ID_PERSONA = ?";
+
+    /**
+     * Permite agregar la direccion de una persona al sistema.
+     */
     public static String INSERT
-            = "INSERT INTO DIRECCIONES (ID_PERSONA, ID_PROVINCIA, ID_MUNICIPIO, " 
-            + "     ID_DISTRITO_MUNICIPAL, ID_CODIGO_POSTAL, DIRECCION) " 
+            = "INSERT INTO V_DIRECCIONES (ID_PERSONA, ID_PROVINCIA, ID_MUNICIPIO, "
+            + "     ID_DISTRITO_MUNICIPAL, ID_CODIGO_POSTAL, DIRECCION) "
             + "VALUES (?, ?, ?, ?, ?, ?);";
-    
+
+    /**
+     * Metodo que llena a los comboBox de las provincias del pais.
+     *
+     * @param jcbProvincias
+     */
     public static void llenarProvincias(RSComboBox jcbProvincias) {
 
+        //ResulSet de las provincias
         ResultSet rp = SelectMetodos.getProvincias();
 
         Provincias p;
@@ -48,16 +68,21 @@ public class Direcciones {
 
     }
 
+    /**
+     * Metodo que llena a los comboBox de los municipios del pais.
+     *
+     * @param id_provincia
+     * @param jcbMunicipios
+     */
     public static void llenarMunicipios(int id_provincia,
             RSComboBox jcbMunicipios) {
+
+        //ResulSet de Municipio
         ResultSet rm = SelectMetodos.getMunicipio(id_provincia);
 
         jcbMunicipios.removeAllItems();
-        
-        Municipios m = Municipios.builder().
-                        id(0).
-                        nombre("Ingrese Municipio").build();
-                jcbMunicipios.addItem(m);;
+
+        Municipios m;
 
         try {
             while (rm.next()) {
@@ -72,26 +97,59 @@ public class Direcciones {
 
     }
 
+    /**
+     * Metodo que llena a los comboBox de los distritos municipal del pais.
+     *
+     * @param id_municipio
+     * @param jcbDistritoMunicipal
+     */
     public static void llenarDistritoMunicipal(int id_municipio,
             RSComboBox jcbDistritoMunicipal) {
-        
-        ResultSet rdm = SelectMetodos.getDistritosMunicipales(id_municipio);//rdm = ResulSet Distrito Municipal
-        
+
+        //rdm = ResulSet Distrito Municipal
+        ResultSet rdm = SelectMetodos.getDistritosMunicipales(id_municipio);
+
         jcbDistritoMunicipal.removeAllItems();
 
-        Distritos_municipales dm = Distritos_municipales.builder().
-                id(0).
-                nombre("Inserte Distrito").build();
-        
-        jcbDistritoMunicipal.addItem(dm);
+        Distritos_municipales dm;
 
         try {
             while (rdm.next()) {
                 dm = Distritos_municipales.builder().
                         id(rdm.getInt("id")).
                         nombre(rdm.getString("nombre")).build();
-                
+
                 jcbDistritoMunicipal.addItem(dm);
+            }
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Metodo que llena a los comboBox de los codigos postales del pais.
+     *
+     * @param id_provincia
+     * @param jcbCodigoPostal
+     */
+    public static void llenarCodigoPostal(int id_provincia,
+            RSComboBox jcbCodigoPostal) {
+
+        //rdm = ResulSet Distrito Municipal
+        ResultSet rcp = SelectMetodos.getCodigoPostal(id_provincia);
+
+        jcbCodigoPostal.removeAllItems();
+
+        Codigo_Postal cp;
+
+        try {
+            while (rcp.next()) {
+                cp = Codigo_Postal.builder().
+                        id(rcp.getInt("ID")).
+                        localidad(rcp.getString("LOCALIDAD")).
+                        codigo_postal(rcp.getInt("CODIGO_POSTAL")).build();
+
+                jcbCodigoPostal.addItem(cp);
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

@@ -304,7 +304,7 @@ public class InsertMetodos {
             ps = getCnn().prepareStatement(ContactosEmail.INSERT);
 
             for (ContactosEmail c : contactos) {
-                ps.setInt(1, c.getId_persona());
+                ps.setInt(1, id);
                 ps.setString(2, c.getEmail());
 
                 ps.addBatch();
