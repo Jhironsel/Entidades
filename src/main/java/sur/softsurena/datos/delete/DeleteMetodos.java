@@ -99,13 +99,15 @@ public class DeleteMetodos {
         }
     }
 
-    public synchronized static Resultados borrarCliente(int idCliente) {
+    public synchronized static Resultados borrarCliente(int idCliente, 
+            boolean estado) {
         Resultados r;//Resultados obtenidos del metodos.
         try {
 
             ps = getCnn().prepareStatement(Clientes.DELETE);
             
             ps.setInt(1, idCliente);
+            ps.setBoolean(2, estado);
             
             int c = ps.executeUpdate();//Cantidad de registros afectados.
             

@@ -84,6 +84,11 @@ public class Direcciones {
 
         Municipios m;
 
+        m = Municipios.builder().
+                id(0).
+                nombre("Ingrese Municipio").build();
+        jcbMunicipios.addItem(m);
+
         try {
             while (rm.next()) {
                 m = Municipios.builder().
@@ -112,6 +117,12 @@ public class Direcciones {
         jcbDistritoMunicipal.removeAllItems();
 
         Distritos_municipales dm;
+
+        dm = Distritos_municipales.builder().
+                id(0).
+                nombre("Inserte Distritos").build();
+
+        jcbDistritoMunicipal.addItem(dm);
 
         try {
             while (rdm.next()) {

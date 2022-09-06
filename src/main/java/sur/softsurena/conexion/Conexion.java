@@ -60,7 +60,7 @@ public class Conexion {
         } catch (ClassNotFoundException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             JOptionPane.showMessageDialog(null, "Libreria del driver no encontrada");
-            return false;
+            return true;
         } catch (SQLException ex) {
             if (ex.getMessage().contains("password")) {
                 JOptionPane.showMessageDialog(null, "Usuario no identificado");
@@ -69,9 +69,9 @@ public class Conexion {
                 JOptionPane.showMessageDialog(null, "No es posible conectarse al servidor: " + dominio);
             }
             LOG.log(Level.INFO, ex.getMessage(), ex);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**

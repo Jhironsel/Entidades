@@ -28,6 +28,7 @@ import sur.softsurena.entidades.Municipios;
 import sur.softsurena.entidades.Paciente;
 import sur.softsurena.entidades.Padres;
 import sur.softsurena.entidades.Perfiles;
+import sur.softsurena.entidades.Privilegios;
 import sur.softsurena.entidades.Producto;
 import sur.softsurena.entidades.Provincias;
 import sur.softsurena.entidades.Temporales;
@@ -898,7 +899,7 @@ public class SelectMetodos {
                     USUARIO_INSERT(rs.getBoolean("USUARIO_INSERT")).
                     USUARIO_UPDATE(rs.getBoolean("USUARIO_UPDATE")).
                     USUARIO_DELETE(rs.getBoolean("USUARIO_DELETE")).
-                    CAMBIO_CLAVE(rs.getBoolean("CAMBIO_CLAVE")).
+                    USUARIO_CAMBIO_CLAVE(rs.getBoolean("USUARIO_CAMBIO_CLAVE")).
                     FACTURA_SELECT(rs.getBoolean("FACTURA_SELECT")).
                     FACTURA_INSERT(rs.getBoolean("FACTURA_INSERT")).
                     FACTURA_UPDATE(rs.getBoolean("FACTURA_UPDATE")).
@@ -1229,6 +1230,48 @@ public class SelectMetodos {
         try {
             ps = getCnn().prepareStatement(Usuario.EXISTE_USUARIO);
             ps.setString(1, userName);
+            rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return false;
+        }
+    }
+    
+    /**
+     * 
+     * @param p
+     * @return 
+     */
+    public synchronized static boolean privilegioCampo(Privilegios p) {
+        try {
+            ps = getCnn().prepareStatement(Privilegios.PERMISO_UPDATE_CAMPO);
+            
+            
+            ps.setString(1, ""+p.getPrivilegio());
+            ps.setString(2, p.getNombre_relacion());
+            ps.setString(3, p.getNombre_campo());
+            
+            rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return false;
+        }
+    }
+    
+    /**
+     * 
+     * @param p
+     * @return 
+     */
+    public synchronized static boolean privilegioTabla(Privilegios p) {
+        try {
+            ps = getCnn().prepareStatement(Privilegios.PERMISO_UPDATE_TABLA);
+            
+            ps.setString(1, ""+p.getPrivilegio());
+            ps.setString(2, p.getNombre_relacion());
+            
             rs = ps.executeQuery();
             return rs.next();
         } catch (SQLException ex) {

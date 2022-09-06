@@ -594,7 +594,7 @@ public class UpdateMetodos {
             ps.setBoolean(11, p.getUSUARIO_UPDATE());
             ps.setBoolean(12, p.getUSUARIO_DELETE());
             
-            ps.setBoolean(13, p.getCAMBIO_CLAVE());
+            ps.setBoolean(13, p.getUSUARIO_CAMBIO_CLAVE());
             
             ps.setBoolean(14, p.getFACTURA_SELECT());
             ps.setBoolean(15, p.getFACTURA_INSERT());
