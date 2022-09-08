@@ -30,8 +30,6 @@ public class ContactosEmail {
     public final static String UPDATE
             = "UPDATE V_CONTACTS_EMAIL a "
             + "SET "
-            + "   a.ID = ?, "
-            + "   a.IDPERSONA = ?, "
             + "   a.EMAIL = ? "
             + "WHERE "
             + "     a.ID = ?";

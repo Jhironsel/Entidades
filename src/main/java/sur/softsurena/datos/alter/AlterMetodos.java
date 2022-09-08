@@ -20,12 +20,11 @@ public class AlterMetodos {
      * @param clave
      * @param usuario 
      */
-    public synchronized static boolean cambioClave(String usuario, String clave) {
+    public synchronized static boolean cambioClave(String clave) {
         try {
             ps = getCnn().prepareStatement(Usuario.CAMBIAR_CLAVE);
             
-            ps.setString(1, usuario);
-            ps.setString(2, clave);
+            ps.setString(1, clave);
             
             return ps.execute();
         } catch (SQLException ex) {

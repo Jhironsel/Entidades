@@ -29,7 +29,8 @@ public class ContactosTel {
     public final static String UPDATE
             = "UPDATE V_CONTACTS_TEL a "
             + "SET "
-            + "     a.TELEFONO = ? "
+            + "     a.TELEFONO = ?, "
+            + "     a.TIPO = ? "
             + "WHERE "
             + "     a.ID = ?";
 

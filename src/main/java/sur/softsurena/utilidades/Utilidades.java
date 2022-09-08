@@ -33,6 +33,7 @@ import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperPrintManager;
 import org.apache.commons.codec.binary.Base64;
+import sur.softsurena.metodos.Imagenes;
 
 public class Utilidades {
 //    public static final Logger LOGGER = Logger.getLogger(Utilidades.class.getName());
@@ -216,7 +217,8 @@ public class Utilidades {
         byte[] data = Base64.decodeBase64(imagen64);
 
         if (data == null) {
-            return null;
+            Imagenes img = new Imagenes();
+            return img.getIcono("Sin_imagen 64 x 64.png");
         }
 
         BufferedImage img = null;

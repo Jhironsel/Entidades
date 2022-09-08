@@ -10,8 +10,12 @@ public class Usuario extends Personas {
     public static String UPDATE
             ="EXECUTE PROCEDURE SP_UPDATE_USUARIOS (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
     
+    /**
+     * OJO! Revisar este caso, puede ser que el usuario se le asista cambiar su clave
+     * en este caso necesitamos pasar el nombre del usuario. 
+     */
     public static String CAMBIAR_CLAVE
-            = "ALTER USER ? PASSWORD ?";
+            = "ALTER USER CURRENT_USER PASSWORD ?";
     
     public static String DELETE_ROL
             = "REVOKE ? FROM ? GRANTED BY ?";

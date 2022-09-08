@@ -24,6 +24,7 @@ import sur.softsurena.entidades.ContactosTel;
 import sur.softsurena.entidades.DetalleFactura;
 import sur.softsurena.entidades.Direcciones;
 import sur.softsurena.entidades.Distritos_municipales;
+import sur.softsurena.entidades.E_S_SYS;
 import sur.softsurena.entidades.Municipios;
 import sur.softsurena.entidades.Paciente;
 import sur.softsurena.entidades.Padres;
@@ -74,15 +75,10 @@ public class SelectMetodos {
      * @return Retorna un String con el dato de cual es usuario del sistema que
      * ha iniciado sessión actualmente.
      */
-    public synchronized static String getUsuarioActual() {
+    public synchronized static ResultSet getUsuarioActual() {
         try {
             ps = getCnn().prepareStatement(BaseDeDatos.USUARIO_ACTUAL);
-
-            rs = ps.executeQuery();
-
-            rs.next();
-
-            return rs.getString(1);
+            return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -1097,11 +1093,8 @@ public class SelectMetodos {
 
     public synchronized static String getSexoPaciente(int idPaciente) {
         try {
-            sql = "SELECT sexo "
-                    + "FROM V_PACIENTES "
-                    + "WHERE idPaciente = ?";
 
-            ps = getCnn().prepareStatement(sql,
+            ps = getCnn().prepareStatement(Paciente.GET_SEXO_BY_ID,
                     ResultSet.TYPE_SCROLL_INSENSITIVE,
                     ResultSet.CONCUR_READ_ONLY,
                     ResultSet.HOLD_CURSORS_OVER_COMMIT);
@@ -1118,6 +1111,23 @@ public class SelectMetodos {
             return "N/A";
         }
 
+    }
+    
+    public synchronized static String getLogo(){
+        try {
+            ps = getCnn().prepareStatement(E_S_SYS.SELECT_LOGO,
+                    ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_READ_ONLY,
+                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+            rs = ps.executeQuery();
+
+            rs.next();
+
+            return rs.getString(1);
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return "";
     }
 
     public synchronized static int numeroPadres(boolean estado) {

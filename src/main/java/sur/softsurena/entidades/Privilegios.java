@@ -66,7 +66,7 @@ public class Privilegios {
     public static String PERMISO_UPDATE_TABLA
             = "SELECT (1) "
             + "FROM GET_PRIVILEGIOS r \n" 
-            + "WHERE TRIM(r.USER_NAME) LIKE TRIM(CURRENT_USER) OR \n"
+            + "WHERE TRIM(r.USER_NAME) LIKE TRIM(CURRENT_USER) AND \n"
             + "      TRIM(r.USER_NAME) LIKE TRIM(CURRENT_ROLE) AND \n"
             + "      TRIM(r.PRIVILEGIO) LIKE TRIM(?) AND \n"
             + "      TRIM(r.NOMBRE_RELACION) LIKE TRIM(?) ";

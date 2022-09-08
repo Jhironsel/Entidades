@@ -4,10 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Datos_nacimiento;
 import sur.softsurena.entidades.DetalleMotivoConsulta;
+import sur.softsurena.entidades.E_S_SYS;
 import sur.softsurena.entidades.Padres;
+import sur.softsurena.utilidades.Utilidades;
 
 public class UpdateInsertMetodos {
 
@@ -41,37 +45,6 @@ public class UpdateInsertMetodos {
         }
     }
     
-//    public String agregarOrModificarAcesso(int idAcceso, int idPerfil, Perfil miPerfil) {
-//        try {
-//            Statement st = cnn.createStatement();
-//            st.execute(
-//                    "UPDATE OR INSERT INTO Tabla_ACCESO2 (IDACCESO, IDPERFIL, ARCHIVOS, ARCHIVOSCLIENTES,"
-//                    + "                    ARCHIVOSPRODUCTOS, ARCHIVOSUSUARIOS, ARCHIVOSCAMBIOCLAVE,"
-//                    + "                    ARCHIVOSCAMBIOUSUARIO, ARCHIVOSSALIR, MOVIMIENTOS, "
-//                    + "                    MOVIMIENTOSNUEVAFACTURA,MOVIMIENTOSREPORTEFACTURA, "
-//                    + "                    MOVIMIENTOSINVENTARIO, MOVIMIENTOSABRILTURNO, "
-//                    + "                    MOVIMIENTOSCERRARTURNO, MOVIMIENTOSDEUDA) "
-//                    + "    VALUES (" + idAcceso + ", " + idPerfil + ", '"
-//                    + miPerfil.getArchivos() + "', '"
-//                    + miPerfil.getArchivosClientes() + "', '"
-//                    + miPerfil.getArchivosProductos() + "', '"
-//                    + miPerfil.getArchivosUsuarios() + "', '"
-//                    + miPerfil.getArchivosCambioClave() + "', '"
-//                    + miPerfil.getArchivosCambioUsuario() + "', '"
-//                    + miPerfil.getArchivosSalir() + "', '"
-//                    + miPerfil.getMovimientos() + "', '"
-//                    + miPerfil.getMovimientosNuevaFactura() + "', '"
-//                    + miPerfil.getMovimientosReporteFactura() + "', '"
-//                    + miPerfil.getMovimientosInventarios() + "', '"
-//                    + miPerfil.getMovimientosAbrirTurno() + "', '"
-//                    + miPerfil.getMovimientosCerrarTurno() + "', '"
-//                    + miPerfil.getMovimientosDeuda() + "') matching(IDACCESO);");
-//            return "Acesso Agregado Correctamente";
-//        } catch (SQLException ex) {
-//            //Instalar Logger
-//            return "Error al Insertar Acesso...";
-//        }
-//    }
 
     public synchronized static String agregarPadre(Padres p) {
         try {
@@ -136,6 +109,18 @@ public class UpdateInsertMetodos {
             //Instalar Logger
             return "Error al insertar Detalle Consulta...";
         }
+    }
+    
+    public synchronized static boolean insertLogo(File file){
+        
+        try {
+            ps = getCnn().prepareStatement(E_S_SYS.INSERT_LOGO);
+            ps.setString(1, Utilidades.imagenEncode64(file));
+            return ps.execute();
+        } catch (SQLException ex) {
+            Logger.getLogger(UpdateInsertMetodos.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
     }
     
 }

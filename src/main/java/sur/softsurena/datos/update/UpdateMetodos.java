@@ -15,8 +15,10 @@ import static sur.softsurena.datos.procedure.ProcedureMetodos.pagoCumplido;
 import sur.softsurena.entidades.ARS;
 import sur.softsurena.entidades.Categorias;
 import sur.softsurena.entidades.Clientes;
+import sur.softsurena.entidades.ContactosEmail;
 import sur.softsurena.entidades.ContactosTel;
 import sur.softsurena.entidades.Control_Consulta;
+import sur.softsurena.entidades.Direcciones;
 import sur.softsurena.entidades.Estudiantes;
 import sur.softsurena.entidades.Facturas;
 import sur.softsurena.entidades.Medicamentos;
@@ -45,7 +47,7 @@ public class UpdateMetodos {
      * @return 
      */
     public synchronized static Resultados modificarCliente(Clientes c, 
-            ContactosTel[] cc) {
+            ContactosTel[] ct, ContactosEmail[] ce) {
         Resultados r;
         try {
 
@@ -64,11 +66,29 @@ public class UpdateMetodos {
             
             int cant = ps.executeUpdate();
             
-            //Modificar Telefono de contactos
+            if (!modificarContactosTel(c.getId_persona(), ct)) {
+                r=Resultados.builder().
+                        id(-1).
+                        mensaje("Error al modificar contactos telefonico del cliente.").
+                        cantidad(-1) .build();
+                return r;
+            }
+
+            if (!modificarContactosEmail(c.getId_persona(), ce)) {
+                r=Resultados.builder().
+                        id(-1).
+                        mensaje("Error al agregar contactos correos electronicos del cliente.").
+                        cantidad(-1) .build();
+                return r;
+            }
             
-            //Modificar Correos de contactos
-            
-            //Modificar las direcciones de cliente
+            if(!modificarDirecciones(c.getId_persona(), c.getDireccion())){
+                r=Resultados.builder().
+                        id(-1).
+                        mensaje("Error al agregar direcciones del cliente").
+                        cantidad(-1) .build();
+                return r;
+            }
             
             r = Resultados.builder().
                     id(-1).
@@ -84,6 +104,77 @@ public class UpdateMetodos {
                     cantidad(-1).build();
             return r;
         }
+    }
+    
+    /**
+     * Metodo para agregar numeros telefonicos de las personas del sistema.
+     *
+     * @param id
+     * @param contactos
+     * @return
+     */
+    public static boolean modificarContactosTel(int id, ContactosTel[] contactos) {
+        try {
+            ps = getCnn().prepareStatement(ContactosTel.UPDATE);
+
+            for (ContactosTel c : contactos) {
+                ps.setString(1, c.getTelefono());
+                ps.setString(2, c.getTipo());
+                ps.setInt(3, id);
+                ps.addBatch();
+            }
+            ps.executeBatch();
+            return true;
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        }
+
+        return false;
+    }
+    
+    public static boolean modificarDirecciones(int id, Direcciones[] direcciones) {
+        try {
+            ps = getCnn().prepareStatement(Direcciones.UPDATE);
+
+            for (Direcciones d : direcciones) {
+                ps.setInt(1, d.getId_provincia());
+                ps.setInt(2, d.getId_municipio());
+                ps.setInt(3, d.getId_distrito_municipal());
+                ps.setInt(4, d.getId_codigo_postal());
+                ps.setString(5, d.getDireccion());
+                ps.setInt(6, id);
+                ps.addBatch();
+            }
+            ps.executeBatch();
+            return true;
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param id
+     * @param contactos
+     * @return
+     */
+    public static boolean modificarContactosEmail(int id, ContactosEmail[] contactos) {
+        try {
+            ps = getCnn().prepareStatement(ContactosEmail.INSERT);
+
+            for (ContactosEmail c : contactos) {
+                ps.setInt(1, id);
+                ps.setString(2, c.getEmail());
+
+                ps.addBatch();
+            }
+            ps.executeBatch();
+            return true;
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return false;
     }
 
     /**

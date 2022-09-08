@@ -42,6 +42,17 @@ public class Direcciones {
             + "     ID_DISTRITO_MUNICIPAL, ID_CODIGO_POSTAL, DIRECCION) "
             + "VALUES (?, ?, ?, ?, ?, ?);";
 
+    public static String UPDATE
+            = "UPDATE V_DIRECCIONES a \n"
+            + "SET \n"
+            + "     a.ID_PROVINCIA = ?, \n"
+            + "     a.ID_MUNICIPIO = ?, \n"
+            + "     a.ID_DISTRITO_MUNICIPAL = ?, \n"
+            + "     a.ID_CODIGO_POSTAL = ?, \n"
+            + "     a.DIRECCION = ? \n"
+            + "WHERE \n"
+            + "     a.ID = ?";
+
     /**
      * Metodo que llena a los comboBox de las provincias del pais.
      *
@@ -84,10 +95,10 @@ public class Direcciones {
 
         Municipios m;
 
-        m = Municipios.builder().
-                id(0).
-                nombre("Ingrese Municipio").build();
-        jcbMunicipios.addItem(m);
+//        m = Municipios.builder().
+//                id(0).
+//                nombre("Ingrese Municipio").build();
+//        jcbMunicipios.addItem(m);
 
         try {
             while (rm.next()) {
@@ -118,11 +129,11 @@ public class Direcciones {
 
         Distritos_municipales dm;
 
-        dm = Distritos_municipales.builder().
-                id(0).
-                nombre("Inserte Distritos").build();
-
-        jcbDistritoMunicipal.addItem(dm);
+//        dm = Distritos_municipales.builder().
+//                id(0).
+//                nombre("Inserte Distritos").build();
+//
+//        jcbDistritoMunicipal.addItem(dm);
 
         try {
             while (rdm.next()) {
