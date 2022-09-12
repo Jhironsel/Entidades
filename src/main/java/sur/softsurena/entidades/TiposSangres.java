@@ -5,7 +5,7 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
-public class TipoSangre {
+public class TiposSangres {
 
     private final int id;
     private final String descripcion;

@@ -161,11 +161,11 @@ public class UpdateMetodos {
      */
     public static boolean modificarContactosEmail(int id, ContactosEmail[] contactos) {
         try {
-            ps = getCnn().prepareStatement(ContactosEmail.INSERT);
+            ps = getCnn().prepareStatement(ContactosEmail.UPDATE);
 
             for (ContactosEmail c : contactos) {
-                ps.setInt(1, id);
-                ps.setString(2, c.getEmail());
+                ps.setString(1, c.getEmail());
+                ps.setInt(2, id);
 
                 ps.addBatch();
             }

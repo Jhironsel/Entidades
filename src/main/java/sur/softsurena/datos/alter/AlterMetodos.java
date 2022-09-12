@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import static sur.softsurena.datos.select.SelectMetodos.getCreadorUsuario;
-import sur.softsurena.entidades.Usuario;
+import sur.softsurena.entidades.Usuarios;
 
 public class AlterMetodos {
 
@@ -22,7 +22,7 @@ public class AlterMetodos {
      */
     public synchronized static boolean cambioClave(String clave) {
         try {
-            ps = getCnn().prepareStatement(Usuario.CAMBIAR_CLAVE);
+            ps = getCnn().prepareStatement(Usuarios.CAMBIAR_CLAVE);
             
             ps.setString(1, clave);
             
@@ -65,7 +65,7 @@ public class AlterMetodos {
     public synchronized static String borrarUsuario(String idUsuario, String rol) {
         try {
             
-            ps = getCnn().prepareStatement(Usuario.DELETE_ROL);
+            ps = getCnn().prepareStatement(Usuarios.DELETE_ROL);
             
             ps.setString(1, rol);
             ps.setString(2, idUsuario);

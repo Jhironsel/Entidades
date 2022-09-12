@@ -11,7 +11,7 @@ import sur.softsurena.entidades.Deudas;
 import sur.softsurena.entidades.Estudiantes;
 import sur.softsurena.entidades.Inscripcion;
 import sur.softsurena.entidades.Resultados;
-import sur.softsurena.entidades.Usuario;
+import sur.softsurena.entidades.Usuarios;
 
 public class ProcedureMetodos {
 
@@ -242,10 +242,10 @@ public class ProcedureMetodos {
      * @param u Un objeto de la case Usuario.
      * @return Devuelve un mensaje que indica si la actualizacion fue exitosa.
      */
-    public String modificarUsuario(Usuario u) {
+    public String modificarUsuario(Usuarios u) {
         try {
             
-            cs = getCnn().prepareCall(Usuario.UPDATE);
+            cs = getCnn().prepareCall(Usuarios.UPDATE);
 
             cs.setString(1, u.getUser_name());
             cs.setString(2, u.getClave());

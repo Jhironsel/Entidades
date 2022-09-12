@@ -34,7 +34,7 @@ import sur.softsurena.entidades.Producto;
 import sur.softsurena.entidades.Proveedores;
 import sur.softsurena.entidades.Resultados;
 import sur.softsurena.entidades.Tandas;
-import sur.softsurena.entidades.Usuario;
+import sur.softsurena.entidades.Usuarios;
 import sur.softsurena.utilidades.Utilidades;
 
 public class InsertMetodos {
@@ -323,7 +323,7 @@ public class InsertMetodos {
      * @param c
      * @return
      */
-    public synchronized static String agregarDoctor(Usuario u, ContactosTel[] c) {
+    public synchronized static String agregarDoctor(Usuarios u, ContactosTel[] c) {
         try {
             ps = getCnn().prepareStatement(Doctor.INSERT);
 

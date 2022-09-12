@@ -51,9 +51,11 @@ public class Conexion {
         info.setProperty("password", clave);
         info.setProperty("roleName", role);
         info.setProperty("charSet", "UTF8");
+        
         String url = "jdbc:firebirdsql://" + dominio + 
                 (puerto.isBlank() || puerto.isEmpty() ? "":":"+puerto) + "/" + 
                 pathBaeDatos;
+        
         try {
             Class.forName("org.firebirdsql.jdbc.FBDriver");
             setCnn(DriverManager.getConnection(url, info));

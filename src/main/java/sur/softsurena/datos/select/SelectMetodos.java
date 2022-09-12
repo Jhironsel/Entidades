@@ -33,9 +33,9 @@ import sur.softsurena.entidades.Privilegios;
 import sur.softsurena.entidades.Producto;
 import sur.softsurena.entidades.Provincias;
 import sur.softsurena.entidades.Temporales;
-import sur.softsurena.entidades.TipoSangre;
+import sur.softsurena.entidades.TiposSangres;
 import sur.softsurena.entidades.Turnos;
-import sur.softsurena.entidades.Usuario;
+import sur.softsurena.entidades.Usuarios;
 
 public class SelectMetodos {
 
@@ -61,6 +61,21 @@ public class SelectMetodos {
             ps = getCnn().prepareStatement(BaseDeDatos.METADATOS);
             rs = ps.executeQuery();
             return rs;
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
+    
+    /**
+     * Es el metodo que nos devuelve los Roles del sistema, los cuales son asig-
+     * nados a los usuarios. 
+     * @return 
+     */
+    public synchronized static ResultSet getRoles() {
+        try {
+            ps = getCnn().prepareStatement(Privilegios.GET_ROLES);
+            return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -483,7 +498,7 @@ public class SelectMetodos {
     public synchronized static ArrayList<String> comprobandoRol(String userName) {
         ArrayList<String> roles = new ArrayList<>();
         try {
-            ps = getCnn().prepareStatement(Usuario.SELECT_ROLES_USUARIOS);
+            ps = getCnn().prepareStatement(Usuarios.SELECT_ROLES_USUARIOS);
 
             ps.setString(1, userName.trim().toUpperCase());
 
@@ -548,7 +563,7 @@ public class SelectMetodos {
      */
     public synchronized static ResultSet getUsuarios(String userName) {
         try {
-            ps = getCnn().prepareStatement(Usuario.GET_ALL_USER);
+            ps = getCnn().prepareStatement(Usuarios.GET_USER_BY_USER_NAME);
 
             ps.setString(1, userName);
             return ps.executeQuery();
@@ -1236,9 +1251,9 @@ public class SelectMetodos {
      * @return retorna un valor booleano que nos permite saber si existe "TRUE"
      * o no "FALSE" un usuario en el sistema.
      */
-    public synchronized static boolean existeUsuario(String userName) {
+    public synchronized static boolean existeUsuarioByUserName(String userName) {
         try {
-            ps = getCnn().prepareStatement(Usuario.EXISTE_USUARIO);
+            ps = getCnn().prepareStatement(Usuarios.EXISTE_USUARIO_BY_USER_NAME);
             ps.setString(1, userName);
             rs = ps.executeQuery();
             return rs.next();
@@ -1817,7 +1832,7 @@ public class SelectMetodos {
      */
     public synchronized static ResultSet getTipoSangre() {
         try {
-            ps = getCnn().prepareStatement(TipoSangre.SELECT);
+            ps = getCnn().prepareStatement(TiposSangres.SELECT);
 
             return ps.executeQuery();
 
@@ -2505,7 +2520,7 @@ public class SelectMetodos {
     public synchronized static ResultSet getCajerosActivos() {
         //Para que sirve este metodo...
         try {
-            ps = getCnn().prepareStatement(Usuario.GET_SELECT_USUARIOS_ACTIVOS);
+            ps = getCnn().prepareStatement(Usuarios.GET_SELECT_USUARIOS_ACTIVOS);
 
             return ps.executeQuery();
 
@@ -2517,7 +2532,7 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getUsuario(boolean estado) {
         try {
-            ps = getCnn().prepareStatement(Usuario.GET_SELECT_USUARIOS,
+            ps = getCnn().prepareStatement(Usuarios.GET_SELECT_USUARIOS,
                     ResultSet.TYPE_SCROLL_INSENSITIVE,
                     ResultSet.CONCUR_READ_ONLY,
                     ResultSet.HOLD_CURSORS_OVER_COMMIT);
@@ -2533,7 +2548,7 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getUsuarioDoctor() {
         try {
-            ps = getCnn().prepareStatement(Usuario.GET_SELECT_DOCTORES,
+            ps = getCnn().prepareStatement(Usuarios.GET_SELECT_DOCTORES,
                     ResultSet.TYPE_SCROLL_INSENSITIVE,
                     ResultSet.CONCUR_READ_ONLY,
                     ResultSet.HOLD_CURSORS_OVER_COMMIT);
@@ -2554,7 +2569,7 @@ public class SelectMetodos {
     public synchronized static boolean delega(String idUsuario) {
 
         try {
-            ps = getCnn().prepareStatement(Usuario.DELEGA);
+            ps = getCnn().prepareStatement(Usuarios.DELEGA);
 
             ps.setString(1, idUsuario);
 
@@ -2573,42 +2588,16 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static ResultSet getUsuariosActivo() {
-
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT u.idUsuario, u.NombreUNO, u.Apellidos "
-                    + "FROM GET_Usuarios u "
-                    + "left JOIN tabla_TURNOS t on t.IDUSUARIO like u.IDUSUARIO "
-                    + "WHERE TRIM(u.Rol) like 'CAJERO' and u.ESTADO"
-            );
-
+            ps = getCnn().prepareStatement("");
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
 
-    /**
-     * Para que sirve este metodo...????
-     *
-     * @return
-     */
-    public synchronized static ResultSet getUsuariosActivos() {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.IDUSUARIO, (r.NOMBREUNO||' '||r.APELLIDOS) AS Nombre "
-                    + "FROM GET_USUARIOS r "
-                    + "WHERE r.ESTADO");
-
-            return ps.executeQuery();
-
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
+    
 
     /**
      * Se esta utilizando para llenar la tabla de usuarios
@@ -2616,13 +2605,9 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static ResultSet getUsuarios() {
-
-        sql = "SELECT r.IDUSUARIO, r.NOMBREUNO, r.NOMBREDOS, "
-                + "       r.APELLIDOS, r.ESTADO, r.AUTORIZADO, r.ROL "
-                + "FROM GET_USUARIOS r";
         try {
 
-            ps = getCnn().prepareStatement(sql);
+            ps = getCnn().prepareStatement(Usuarios.SELECT);
 
             return ps.executeQuery();
 

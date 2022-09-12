@@ -95,12 +95,12 @@ public abstract class Personas {
     }
 
     public static void llenarTipoSangre(JComboBox jcbTipoSangre) {
-        TipoSangre ts;
+        TiposSangres ts;
         ResultSet rts = SelectMetodos.getTipoSangre();
         jcbTipoSangre.removeAllItems();
         try {
             while (rts.next()) {
-                ts = TipoSangre.builder().
+                ts = TiposSangres.builder().
                         id(rts.getInt("ID")).
                         descripcion(rts.getString("DESCRIPCION")).build();
                 jcbTipoSangre.addItem(ts);
