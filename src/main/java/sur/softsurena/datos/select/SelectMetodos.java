@@ -2606,11 +2606,8 @@ public class SelectMetodos {
      */
     public synchronized static ResultSet getUsuarios() {
         try {
-
             ps = getCnn().prepareStatement(Usuarios.SELECT);
-
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;

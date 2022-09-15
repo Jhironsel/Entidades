@@ -59,12 +59,8 @@ public class Direcciones {
      * @param jcbProvincias
      */
     public static void llenarProvincias(RSComboBox jcbProvincias) {
-
-        //ResulSet de las provincias
-        ResultSet rp = SelectMetodos.getProvincias();
-
+        ResultSet rp = SelectMetodos.getProvincias();//ResulSet de las provincias
         Provincias p;
-
         jcbProvincias.removeAllItems();
         try {
             while (rp.next()) {
@@ -76,7 +72,6 @@ public class Direcciones {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
-
     }
 
     /**
@@ -87,19 +82,12 @@ public class Direcciones {
      */
     public static void llenarMunicipios(int id_provincia,
             RSComboBox jcbMunicipios) {
-
-        //ResulSet de Municipio
-        ResultSet rm = SelectMetodos.getMunicipio(id_provincia);
-
+        ResultSet rm = SelectMetodos.getMunicipio(id_provincia);//ResulSet de Municipio
         jcbMunicipios.removeAllItems();
-
-        Municipios m;
-
-//        m = Municipios.builder().
-//                id(0).
-//                nombre("Ingrese Municipio").build();
-//        jcbMunicipios.addItem(m);
-
+        Municipios m = Municipios.builder().
+                id(0).
+                nombre("Ingrese Municipio").build();
+        jcbMunicipios.addItem(m);
         try {
             while (rm.next()) {
                 m = Municipios.builder().
@@ -110,7 +98,6 @@ public class Direcciones {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
-
     }
 
     /**
@@ -121,19 +108,12 @@ public class Direcciones {
      */
     public static void llenarDistritoMunicipal(int id_municipio,
             RSComboBox jcbDistritoMunicipal) {
-
-        //rdm = ResulSet Distrito Municipal
-        ResultSet rdm = SelectMetodos.getDistritosMunicipales(id_municipio);
-
+        ResultSet rdm = SelectMetodos.getDistritosMunicipales(id_municipio);//rdm = ResulSet Distrito Municipal
         jcbDistritoMunicipal.removeAllItems();
-
-        Distritos_municipales dm;
-
-//        dm = Distritos_municipales.builder().
-//                id(0).
-//                nombre("Inserte Distritos").build();
-//
-//        jcbDistritoMunicipal.addItem(dm);
+        Distritos_municipales dm = Distritos_municipales.builder().
+                id(0).
+                nombre("Inserte Distritos").build();
+        jcbDistritoMunicipal.addItem(dm);
 
         try {
             while (rdm.next()) {
