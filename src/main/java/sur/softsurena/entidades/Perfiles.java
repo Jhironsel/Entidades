@@ -43,41 +43,7 @@ public class Perfiles {
             = "INSERT INTO V_PERFILES (" + CAMPOS.replaceAll("r.", "") + ") "
             + "VALUES (" + PARAMETROS + ");";
 
-    /**
-     * Query que permite actualizar un perfil
-     */
-    public final static String UPDATE
-            = "UPDATE V_PERFILES a \n"
-            + "SET \n"
-            + " a.CLIENTE_SELECT = ?, \n"
-            + " a.CLIENTE_INSERT = ?, \n"
-            + " a.CLIENTE_UPDATE = ?, \n"
-            + " a.CLIENTE_DELETE = ?, \n"
-            + " a.PRODUCTO_SELECT = ?, \n"
-            + " a.PRODUCTO_INSERT = ?, \n"
-            + " a.PRODUCTO_UPDATE = ?, \n"
-            + " a.PRODUCTO_DELETE = ?, \n"
-            + " a.USUARIO_SELECT = ?, \n"
-            + " a.USUARIO_INSERT = ?, \n"
-            + " a.USUARIO_UPDATE = ?, \n"
-            + " a.USUARIO_DELETE = ?, \n"
-            + " a.CAMBIO_CLAVE = ?, \n"
-            + " a.FACTURA_SELECT = ?, \n"
-            + " a.FACTURA_INSERT = ?, \n"
-            + " a.FACTURA_UPDATE = ?, \n"
-            + " a.FACTURA_DELETE = ?, \n"
-            + " a.REPORTES_SELECT = ?, \n"
-            + " a.INVENTARIOS_SELECT = ?, \n"
-            + " a.TURNO_SELECT = ?, \n"
-            + " a.TURNO_INSERT = ?, \n"
-            + " a.TURNO_UPDATE = ?, \n"
-            + " a.TURNO_DELETE = ?, \n"
-            + " a.DEUDAS_SELECT = ?, \n"
-            + " a.DEUDAS_INSERT = ?, \n"
-            + " a.DEUDAS_UPDATE = ?, \n"
-            + " a.DEUDAS_DELETE = ? \n"
-            + "WHERE \n"
-            + "     a.ID = ?";
+    
 
     public final static String DELETE = "DELETE FROM V_PERFILES a WHERE a.ID = ?";
 

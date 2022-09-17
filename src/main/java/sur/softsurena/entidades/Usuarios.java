@@ -8,7 +8,19 @@ import lombok.experimental.SuperBuilder;
 public class Usuarios extends Personas {
 
     /**
-     *
+     * Query que permite agregar usuarios al sistema. 
+     */
+    public static String INSERT
+            = "EXECUTE PROCEDURE SP_INSERT_USUARIOS(?,?,?,?,?,?,?,?)";
+    
+    /**
+     * Procedimiento que se encarga de actualizar a los usuarios del sistema.
+     */
+    public static String UPDATE
+            = "EXECUTE PROCEDURE SP_UPDATE_USUARIOS(?,?,?,?,?,?,?,?)";
+    
+    /**
+     * 
      */
     public final static String GET_USER_BY_USER_NAME
             = "SELECT p.O_USER_NAME, p.O_PRIMER_NOMBRE, p.O_SEGUNDO_NOMBRE, p.O_APELLIDOS, "
@@ -66,7 +78,8 @@ public class Usuarios extends Personas {
             + "u.autorizado";
 
     /**
-     *
+     * Este Query es utilizado para obtener Inf. de los usuarios del sistema.
+     * Actualizado: 15 Sep 2022.
      */
     public static String SELECT
             = "SELECT TRIM(u.SEC$USER_NAME) AS USER_NAME, \n"
@@ -76,12 +89,6 @@ public class Usuarios extends Personas {
             + "     u.SEC$ACTIVE AS ESTADO, u.SEC$ADMIN AS ADMINISTRADOR, \n"
             + "     TRIM(u.SEC$DESCRIPTION) AS DESCRIPCION \n"
             + "FROM SEC$USERS u";
-
-    /**
-     * Procedimiento que se encarga de actualizar a los usuarios del sistema.
-     */
-    public static String UPDATE
-            = "EXECUTE PROCEDURE SP_UPDATE_USUARIOS (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
     /**
      * OJO! Revisar este caso, puede ser que el usuario se le asista cambiar su
@@ -105,8 +112,13 @@ public class Usuarios extends Personas {
             = "REVOKE ? FROM ? GRANTED BY ?";
 
     private final String clave;
-    private final String rol;
+    private final String descripcion;
     private final Boolean administrador;
-    private final String cod_Exequatur;
-    private final String especialidad;
+
+    @Override
+    public String toString() {
+        return super.getUser_name();
+    }
+    
+    
 }

@@ -1,9 +1,5 @@
 package sur.softsurena.datos.insert;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.codec.binary.Base64;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.ARS;
 import sur.softsurena.entidades.Categorias;
@@ -317,50 +312,7 @@ public class InsertMetodos {
         return false;
     }
 
-    /**
-     *
-     * @param u
-     * @param c
-     * @return
-     */
-    public synchronized static String agregarDoctor(Usuarios u, ContactosTel[] c) {
-        try {
-            ps = getCnn().prepareStatement(Doctor.INSERT);
-
-            ps.setString(1, u.getUser_name());
-            ps.setString(2, u.getClave());
-            ps.setString(3, u.getPNombre());
-            ps.setString(4, u.getSNombre());
-            ps.setString(5, u.getApellidos());
-            ps.setString(7, u.getRol());
-            ps.setString(8, u.getCod_Exequatur());
-            ps.setString(9, u.getEspecialidad());
-            ps.setBoolean(10, u.getEstado());
-            ps.setBoolean(11, u.getAdministrador());
-
-            rs = ps.executeQuery();
-            rs.next();
-            int id = rs.getInt(1);
-
-            /*Ya tenemos el ID del Usuario para agregar valores a la tabla de 
-            contactos.*/
-            agregarContactosTel(id, c);
-
-            sql = "GRANT ? TO ?";
-
-            ps = getCnn().prepareStatement(sql);
-
-            ps.setString(1, u.getRol());
-            ps.setString(2, u.getUser_name());
-
-            ps.executeUpdate();
-
-            return "Usuario agregado correctamente";
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al insertar usuario...";
-        }
-    }
+    
 
     /**
      * Metodo que permite agregar un paciente al sisteme. Primer metodo

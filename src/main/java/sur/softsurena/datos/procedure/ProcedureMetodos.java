@@ -242,25 +242,23 @@ public class ProcedureMetodos {
      * @param u Un objeto de la case Usuario.
      * @return Devuelve un mensaje que indica si la actualizacion fue exitosa.
      */
-    public String modificarUsuario(Usuarios u) {
+    public static synchronized String agregarModificarUsuario(Usuarios u, String sql) {
         try {
             
-            cs = getCnn().prepareCall(Usuarios.UPDATE);
+            cs = getCnn().prepareCall(sql);
 
             cs.setString(1, u.getUser_name());
             cs.setString(2, u.getClave());
             cs.setString(3, u.getPNombre());
             cs.setString(4, u.getSNombre());
             cs.setString(5, u.getApellidos());
-            cs.setString(6, u.getRol());
-            cs.setString(7, u.getCod_Exequatur());
-            cs.setString(8, u.getEspecialidad());
-            cs.setBoolean(9, u.getEstado());
-            cs.setBoolean(10, u.getAdministrador());
+            cs.setBoolean(6, u.getEstado());
+            cs.setBoolean(7, u.getAdministrador());
+            cs.setString(8, u.getDescripcion());
 
-            int r = cs.executeUpdate();
+            cs.executeUpdate();
 
-            return "Usuario Modificado Correctamente { " + r + " }";
+            return "Usuario Agregado o Modificado Correctamente.";
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al Modificar Usuario...";
