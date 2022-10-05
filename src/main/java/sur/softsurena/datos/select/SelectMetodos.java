@@ -59,8 +59,7 @@ public class SelectMetodos {
     public synchronized static ResultSet metaBaseDatos() {
         try {
             ps = getCnn().prepareStatement(BaseDeDatos.METADATOS);
-            rs = ps.executeQuery();
-            return rs;
+            return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -110,11 +109,7 @@ public class SelectMetodos {
     public synchronized static ResultSet getProvincias() {
         try {
             ps = getCnn().prepareStatement(Provincias.SELECT);
-
-            rs = ps.executeQuery();
-
-            return rs;
-
+            return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -137,9 +132,7 @@ public class SelectMetodos {
 
             ps.setInt(1, id_provincia);
 
-            rs = ps.executeQuery();
-
-            return rs;
+            return ps.executeQuery();
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -162,10 +155,8 @@ public class SelectMetodos {
             ps = getCnn().prepareStatement(Distritos_municipales.SELECT);
 
             ps.setInt(1, id_municipio);
-
-            rs = ps.executeQuery();
-
-            return rs;
+            
+            return ps.executeQuery();
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -183,11 +174,8 @@ public class SelectMetodos {
             ps = getCnn().prepareStatement(Codigo_Postal.SELECT);
 
             ps.setInt(1, id_provincia);
-
-            rs = ps.executeQuery();
-
-            return rs;
-
+            
+            return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -367,7 +355,6 @@ public class SelectMetodos {
         try {
             ps = getCnn().prepareStatement(DetalleFactura.GET_DETALLE_FACTURA);
             ps.setInt(1, idFactura);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -499,13 +486,9 @@ public class SelectMetodos {
         ArrayList<String> roles = new ArrayList<>();
         try {
             ps = getCnn().prepareStatement(Usuarios.SELECT_ROLES_USUARIOS);
-
             ps.setString(1, userName.trim().toUpperCase());
-
             rs = ps.executeQuery();
-
             String aux;
-
             while (rs.next()) {
                 aux = rs.getString("ROL");
                 if (aux.equalsIgnoreCase("RDB$ADMIN")) {

@@ -14,8 +14,7 @@ public class Clientes extends Personas {
      *
      */
     public final static String INSERT //Se utiliza
-            = "SELECT V_ID "
-            + "FROM SP_INSERT_CLIENTE_SB(?, ?, ?, ?, ?, ?, ?, ?, ?);";//9
+            = "EXECUTE PROCEDURE SP_INSERT_CLIENTE(?,?);";//7
 
     /**
      * Consulta de SQL utilizada para actualizar los clientes del sistema.

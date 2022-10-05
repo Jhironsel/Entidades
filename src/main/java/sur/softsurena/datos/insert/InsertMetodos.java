@@ -22,9 +22,11 @@ import sur.softsurena.entidades.Doctor;
 import sur.softsurena.entidades.EntradaProducto;
 import sur.softsurena.entidades.Estudiantes;
 import sur.softsurena.entidades.Facturas;
+import sur.softsurena.entidades.Generales;
 import sur.softsurena.entidades.Metricas;
 import sur.softsurena.entidades.Paciente;
 import sur.softsurena.entidades.Padres;
+import sur.softsurena.entidades.Personas;
 import sur.softsurena.entidades.Producto;
 import sur.softsurena.entidades.Proveedores;
 import sur.softsurena.entidades.Resultados;
@@ -180,26 +182,39 @@ public class InsertMetodos {
             ContactosTel[] ct, ContactosEmail[] ce) {
         Resultados r;
         try {
-
-            ps = getCnn().prepareStatement(Clientes.INSERT);
-
+            getCnn().setAutoCommit(true);
+            
+            ps = getCnn().prepareStatement(Personas.INSERT);
+            
             ps.setString(1, "" + c.getPersona());
-            ps.setString(2, c.getGenerales().getCedula());
-            ps.setString(3, c.getPNombre());
-            ps.setString(4, c.getSNombre());
-            ps.setString(5, c.getApellidos());
-            ps.setString(6, "" + c.getSexo());
-            ps.setDate(7, c.getFecha_nacimiento());
-            ps.setBoolean(8, c.getEstado());
-            ps.setString(9, "" + c.getGenerales().getEstado_civil());
-
+            ps.setString(2, c.getPNombre());
+            ps.setString(3, c.getSNombre());
+            ps.setString(4, c.getApellidos());
+            ps.setString(5, "" + c.getSexo());
+            ps.setDate(6, c.getFecha_nacimiento());
+            ps.setBoolean(7, c.getEstado());
+            
             rs = ps.executeQuery();
-
+            
             rs.next();
 
             int id = rs.getInt(1);
             
+            //Agregar las generales.
+            ps = getCnn().prepareStatement(Generales.INSERT);
+            ps.setInt(1, id);
+            ps.setString(2, c.getGenerales().getCedula());
+            ps.setInt(3, 0);
+            ps.setString(4, "" + c.getGenerales().getEstado_civil());
+            
+            ps.execute();
+            
+            ps = getCnn().prepareStatement(Clientes.INSERT);
+            ps.setInt(1, id);
+            
 
+            ps.execute();
+            
             if (!agregarContactosTel(id, ct)) {
                 r=Resultados.builder().
                         id(-1).
@@ -232,7 +247,7 @@ public class InsertMetodos {
             
             return r;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(Level.SEVERE, "Error al insertar un cliente al sistema", ex);
             r=Resultados.builder().
                         id(-1).
                         mensaje("Error al insertar Cliente...").

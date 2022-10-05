@@ -15,6 +15,10 @@ import sur.softsurena.datos.select.SelectMetodos;
 public abstract class Personas {
 
     private static final Logger LOG = Logger.getLogger(Personas.class.getName());
+    
+    public static String INSERT
+            ="SELECT p.V_ID FROM SP_INSERT_PERSONA (?, ?, ?, ?, ?, ?, ?) p;";
+    
     private final int id_persona;//1
     private final char persona;//2 Este campo es para saber si es F Fisica o J Juridica la persona
     private final String pNombre;//3
