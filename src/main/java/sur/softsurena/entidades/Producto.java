@@ -43,7 +43,12 @@ public class Producto {
     public static final String EXISTE_CATEGORIA
             = "SELECT (1) FROM V_PRODUCTOS WHERE idCategoria = ?";
     
-    public static String SELECT
+    public static String SELECT 
+            =   "SELECT r.ID, r.CODIGO, r.IDCATEGORIA, r.DESC_CATEGORIA, " +
+                "     r.DESCRIPCION,  r.NOTA, r.FECHA_CREACION, r.ESTADO " +
+                "FROM GET_PRODUCTOS r";
+    
+    public static String SELECT_CODIGO_ID
             = "select id, codigo, descripcion, estado, image, "
             + "idCategoria, Cantidad "
             + "from v_Productos "

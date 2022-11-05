@@ -14,8 +14,8 @@ public class Clientes extends Personas {
      *
      */
     public final static String INSERT //Se utiliza
-            = "EXECUTE PROCEDURE SP_INSERT_CLIENTE(?,?);";//7
-
+            = "SELECT p.V_ID FROM SP_INSERT_CLIENTE_SB (?, ?, ?, ?, ?, ?, ?, ?, ?) p;";//7
+    
     /**
      * Consulta de SQL utilizada para actualizar los clientes del sistema.
      *
@@ -52,6 +52,12 @@ public class Clientes extends Personas {
             = "SELECT r.ID, r.CEDULA, r.PERSONA, r.PNOMBRE, r.SNOMBRE, r.APELLIDOS, r.SEXO, "
             + "     r.FECHA_NACIMIENTO, r.ESTADO_CIVIL, r.FECHA_INGRESO, r.ESTADO "
             + "FROM GET_CLIENTES_SB r";
+    
+    /**
+     * Consulta corta con solo 4 campos de la vista de GET_CLIENTES_SB
+     */
+    public static String GET_CLIENTES_SB_COMBO
+            = "SELECT r.ID, r.PNOMBRE, r.SNOMBRE, r.APELLIDOS FROM GET_CLIENTES_SB r";
 
     /**
      * Consulta utilizada para presentar los datos en la tabla del formulario

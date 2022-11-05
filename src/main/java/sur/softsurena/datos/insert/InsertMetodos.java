@@ -18,7 +18,6 @@ import sur.softsurena.entidades.Control_Consulta;
 import sur.softsurena.entidades.D_Recetas;
 import sur.softsurena.entidades.DetalleFactura;
 import sur.softsurena.entidades.Direcciones;
-import sur.softsurena.entidades.Doctor;
 import sur.softsurena.entidades.EntradaProducto;
 import sur.softsurena.entidades.Estudiantes;
 import sur.softsurena.entidades.Facturas;
@@ -26,12 +25,10 @@ import sur.softsurena.entidades.Generales;
 import sur.softsurena.entidades.Metricas;
 import sur.softsurena.entidades.Paciente;
 import sur.softsurena.entidades.Padres;
-import sur.softsurena.entidades.Personas;
 import sur.softsurena.entidades.Producto;
 import sur.softsurena.entidades.Proveedores;
 import sur.softsurena.entidades.Resultados;
 import sur.softsurena.entidades.Tandas;
-import sur.softsurena.entidades.Usuarios;
 import sur.softsurena.utilidades.Utilidades;
 
 public class InsertMetodos {
@@ -132,7 +129,7 @@ public class InsertMetodos {
                     mensaje("Error al Insertar Producto.").
                     cantidad(-1).build();
         }
-            return r;
+        return r;
     }
 
     /**
@@ -173,85 +170,69 @@ public class InsertMetodos {
      *
      * @param ct Es el objecto que nos permite agregar los tipos de contactos de
      * los clientes.
-     * 
+     *
      * @param ce
      *
      * @return
      */
-    public synchronized static Resultados agregarCliente(Clientes c, 
+    public synchronized static Resultados agregarCliente(Clientes c,
             ContactosTel[] ct, ContactosEmail[] ce) {
         Resultados r;
         try {
-            getCnn().setAutoCommit(true);
-            
-            ps = getCnn().prepareStatement(Personas.INSERT);
-            
+            ps = getCnn().prepareStatement(Clientes.INSERT);
+
             ps.setString(1, "" + c.getPersona());
-            ps.setString(2, c.getPNombre());
-            ps.setString(3, c.getSNombre());
-            ps.setString(4, c.getApellidos());
-            ps.setString(5, "" + c.getSexo());
-            ps.setDate(6, c.getFecha_nacimiento());
-            ps.setBoolean(7, c.getEstado());
-            
+            ps.setString(2, c.getGenerales().getCedula());
+            ps.setString(3, c.getPNombre());
+            ps.setString(4, c.getSNombre());
+            ps.setString(5, c.getApellidos());
+            ps.setString(6, "" + c.getSexo());
+            ps.setDate(7, c.getFecha_nacimiento());
+            ps.setBoolean(8, c.getEstado());
+            ps.setString(9, "" + c.getGenerales().getEstado_civil());
+
             rs = ps.executeQuery();
-            
+
             rs.next();
 
             int id = rs.getInt(1);
-            
-            //Agregar las generales.
-            ps = getCnn().prepareStatement(Generales.INSERT);
-            ps.setInt(1, id);
-            ps.setString(2, c.getGenerales().getCedula());
-            ps.setInt(3, 0);
-            ps.setString(4, "" + c.getGenerales().getEstado_civil());
-            
-            ps.execute();
-            
-            ps = getCnn().prepareStatement(Clientes.INSERT);
-            ps.setInt(1, id);
-            
 
-            ps.execute();
-            
             if (!agregarContactosTel(id, ct)) {
-                r=Resultados.builder().
+                r = Resultados.builder().
                         id(-1).
                         mensaje("Error al agregar contactos telefonico del cliente.").
-                        cantidad(-1) .build();
+                        cantidad(-1).build();
                 return r;
             }
 
             if (!agregarContactosEmail(id, ce)) {
-                r=Resultados.builder().
+                r = Resultados.builder().
                         id(-1).
                         mensaje("Error al agregar contactos correos electronicos del cliente.").
-                        cantidad(-1) .build();
+                        cantidad(-1).build();
                 return r;
             }
-            
-            if(!agregarDirecciones(id, c.getDireccion())){
-                r=Resultados.builder().
+
+            if (!agregarDirecciones(id, c.getDireccion())) {
+                r = Resultados.builder().
                         id(-1).
                         mensaje("Error al agregar direcciones del cliente").
-                        cantidad(-1) .build();
+                        cantidad(-1).build();
                 return r;
             }
-            
-            
-            r=Resultados.builder().
-                        id(-1).
-                        mensaje("Cliente Agregado Correctamente").
-                        cantidad(-1) .build();
-            
+
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje("Cliente Agregado Correctamente").
+                    cantidad(-1).build();
+
             return r;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, "Error al insertar un cliente al sistema", ex);
-            r=Resultados.builder().
-                        id(-1).
-                        mensaje("Error al insertar Cliente...").
-                        cantidad(-1) .build();
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje("Error al insertar Cliente...").
+                    cantidad(-1).build();
             return r;
         }
     }
@@ -281,7 +262,7 @@ public class InsertMetodos {
 
         return false;
     }
-    
+
     public static boolean agregarDirecciones(int id, Direcciones[] direcciones) {
         try {
             ps = getCnn().prepareStatement(Direcciones.INSERT);
@@ -326,8 +307,6 @@ public class InsertMetodos {
         }
         return false;
     }
-
-    
 
     /**
      * Metodo que permite agregar un paciente al sisteme. Primer metodo
@@ -551,7 +530,6 @@ public class InsertMetodos {
 //        }
 //        return "Foto NO Insertada";
 //    }
-
     public synchronized static void agregarMetricas(Metricas m) {
         try {
             sql = "insert into V_METRICAS (IDCONSULTA, PESOKG, ESTATURAMETRO, "
@@ -643,7 +621,7 @@ public class InsertMetodos {
             rs.next();
 
             int id = rs.getInt(1);
-            
+
             r = Resultados.builder().
                     id(id).
                     mensaje("Padre Agregado Exitosamente!").
@@ -658,8 +636,7 @@ public class InsertMetodos {
                     cantidad(-1).build();
             return r;
         }
-        
-        
+
     }
 
     public String agregarPerfil(String Perfil) {

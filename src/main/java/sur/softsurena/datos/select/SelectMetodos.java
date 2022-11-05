@@ -1,5 +1,6 @@
 package sur.softsurena.datos.select;
 
+import RSMaterialComponent.RSComboBox;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -9,10 +10,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
+import javax.swing.table.DefaultTableModel;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.ARS;
 import sur.softsurena.entidades.BaseDeDatos;
@@ -25,6 +29,7 @@ import sur.softsurena.entidades.DetalleFactura;
 import sur.softsurena.entidades.Direcciones;
 import sur.softsurena.entidades.Distritos_municipales;
 import sur.softsurena.entidades.E_S_SYS;
+import sur.softsurena.entidades.Generales;
 import sur.softsurena.entidades.Municipios;
 import sur.softsurena.entidades.Paciente;
 import sur.softsurena.entidades.Padres;
@@ -36,20 +41,28 @@ import sur.softsurena.entidades.Temporales;
 import sur.softsurena.entidades.TiposSangres;
 import sur.softsurena.entidades.Turnos;
 import sur.softsurena.entidades.Usuarios;
+import sur.softsurena.utilidades.Utilidades;
 
 public class SelectMetodos {
 
     private static final Logger LOG = Logger.getLogger(SelectMetodos.class.getName());
-    private static PreparedStatement ps;
-    private static ResultSet rs;
     private static String sql;
 
     public synchronized static String pathBaseDeDatos() {
-        try {
-            ps = getCnn().prepareStatement(BaseDeDatos.PATH_BASE_DATOS);
-            rs = ps.executeQuery();
-            rs.next();
-            return rs.getString(1);
+        try ( PreparedStatement ps1 = getCnn().prepareStatement(
+                BaseDeDatos.PATH_BASE_DATOS,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+
+            try ( ResultSet rs1 = ps1.executeQuery()) {
+                rs1.next();
+                return rs1.getString(1);
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -57,27 +70,67 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet metaBaseDatos() {
-        try {
-            ps = getCnn().prepareStatement(BaseDeDatos.METADATOS);
+        try ( PreparedStatement ps1 = getCnn().prepareStatement(
+                BaseDeDatos.METADATOS,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+            return ps1.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
+
+    /**
+     * Es el metodo que nos devuelve los Roles del sistema, los cuales son asig-
+     * nados a los usuarios.
+     *
+     * @return
+     */
+    public synchronized static ResultSet getRoles() {
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                Privilegios.GET_ROLES,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
-    
-    /**
-     * Es el metodo que nos devuelve los Roles del sistema, los cuales son asig-
-     * nados a los usuarios. 
-     * @return 
-     */
-    public synchronized static ResultSet getRoles() {
-        try {
-            ps = getCnn().prepareStatement(Privilegios.GET_ROLES);
-            return ps.executeQuery();
+
+    public synchronized static void getCategirias(JComboBox cbCategoria) {
+        //Elimina registros previos.
+        cbCategoria.removeAllItems();
+
+        //Agregar primer elemento con id negativo
+        Categorias categorias = Categorias.builder().
+                id(-1).
+                descripcion("Seleccione categoria").build();
+        //Lo agregamos al comboBox.
+        cbCategoria.addItem(categorias);
+
+        try ( PreparedStatement ps = getCnn().prepareStatement(Categorias.SELECT,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+
+            try ( ResultSet rs = ps.executeQuery()) {
+                int i = 0;
+                while (rs.next()) {
+                    categorias = Categorias.builder().
+                            id(rs.getInt("ID")).
+                            descripcion(rs.getString("Descripcion")).build();
+                    cbCategoria.addItem(categorias);
+                    i++;
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
         }
     }
 
@@ -86,13 +139,33 @@ public class SelectMetodos {
      *
      * Metodo actualizado el 17/05/2022.
      *
+     * Metodo actualizado el 24 oct 2022:
+     *
+     * Nota:Se cambió el tipo de resultado que devuelve de un ResultSet a una
+     * clase Usuarios.
+     *
      * @return Retorna un String con el dato de cual es usuario del sistema que
      * ha iniciado sessión actualmente.
      */
-    public synchronized static ResultSet getUsuarioActual() {
-        try {
-            ps = getCnn().prepareStatement(BaseDeDatos.USUARIO_ACTUAL);
-            return ps.executeQuery();
+    public synchronized static Usuarios getUsuarioActual() {
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                BaseDeDatos.USUARIO_ACTUAL,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+
+            try ( ResultSet rs = ps.executeQuery();) {
+                rs.next();
+                Usuarios u = Usuarios.builder().
+                        user_name(rs.getString(1)).
+                        rol(rs.getString(2)).build();
+
+                return u;
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -106,13 +179,29 @@ public class SelectMetodos {
      *
      * @return retorna un conjunto de datos encapsulados en un ResultSet.
      */
-    public synchronized static ResultSet getProvincias() {
-        try {
-            ps = getCnn().prepareStatement(Provincias.SELECT);
-            return ps.executeQuery();
+    public synchronized static void getProvincias(RSComboBox jcbProvincias) {
+        try ( PreparedStatement ps1 = getCnn().prepareStatement(
+                Provincias.SELECT,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+
+            ResultSet rs = ps1.executeQuery();
+            Provincias p;
+            jcbProvincias.removeAllItems();
+
+            try {
+                while (rs.next()) {
+                    p = Provincias.builder().
+                            id(rs.getInt("ID")).
+                            nombre(rs.getString("NOMBRE")).build();
+                    jcbProvincias.addItem(p);
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
         }
     }
 
@@ -126,17 +215,38 @@ public class SelectMetodos {
      *
      * @return retorna un conjunto de datos encapsulados en un ResultSet.
      */
-    public synchronized static ResultSet getMunicipio(int id_provincia) {
-        try {
-            ps = getCnn().prepareStatement(Municipios.SELECT);
+    public synchronized static void getMunicipio(int id_provincia,
+            RSComboBox jcbMunicipios) {
+
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                Municipios.SELECT,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setInt(1, id_provincia);
 
-            return ps.executeQuery();
+            try ( ResultSet rs = ps.executeQuery()) {
+                jcbMunicipios.removeAllItems();
+
+                Municipios m = Municipios.builder().
+                        id(0).
+                        nombre("Ingrese Municipio").build();
+
+                jcbMunicipios.addItem(m);
+
+                while (rs.next()) {
+                    m = Municipios.builder().
+                            id(rs.getInt("id")).
+                            nombre(rs.getString("nombre")).build();
+                    jcbMunicipios.addItem(m);
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            }
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
         }
     }
 
@@ -150,32 +260,57 @@ public class SelectMetodos {
      *
      * @return
      */
-    public synchronized static ResultSet getDistritosMunicipales(int id_municipio) {
-        try {
-            ps = getCnn().prepareStatement(Distritos_municipales.SELECT);
+    public synchronized static void getDistritosMunicipales(int id_municipio,
+            RSComboBox jcbDistritoMunicipal) {
 
-            ps.setInt(1, id_municipio);
-            
-            return ps.executeQuery();
+        try ( PreparedStatement ps1 = getCnn().prepareStatement(
+                Distritos_municipales.SELECT,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
+            ps1.setInt(1, id_municipio);
+
+            try ( ResultSet rs = ps1.executeQuery();) {
+
+                jcbDistritoMunicipal.removeAllItems();
+
+                Distritos_municipales dm = Distritos_municipales.builder().
+                        id(0).
+                        nombre("Inserte Distritos").build();
+
+                jcbDistritoMunicipal.addItem(dm);
+
+                while (rs.next()) {
+                    dm = Distritos_municipales.builder().
+                            id(rs.getInt("id")).
+                            nombre(rs.getString("nombre")).build();
+
+                    jcbDistritoMunicipal.addItem(dm);
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
         }
     }
 
     /**
+     * Metodo que me permite obtener los codigo postales de la republica
+     * dominicana.
      *
      * @param id_provincia
      * @return
      */
     public synchronized static ResultSet getCodigoPostal(int id_provincia) {
-        try {
-            ps = getCnn().prepareStatement(Codigo_Postal.SELECT);
-
-            ps.setInt(1, id_provincia);
-            
-            return ps.executeQuery();
+        try ( PreparedStatement ps1 = getCnn().prepareStatement(
+                Codigo_Postal.SELECT,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+            ps1.setInt(1, id_provincia);
+            return ps1.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -209,19 +344,19 @@ public class SelectMetodos {
      * @return Valor que identifica el turno activo del usuario consultado.
      */
     public synchronized static int idTurnoActivo(String userName) {
-        try {
-            ps = getCnn().prepareStatement(Turnos.SELECT_IDUSUARIO_ESTADO);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Turnos.SELECT_IDUSUARIO_ESTADO)) {
             ps.setString(1, userName.trim().toUpperCase());
 
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
-                return 0;
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                } else {
+                    return 0;
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return -1;
             }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return -1;
@@ -244,13 +379,14 @@ public class SelectMetodos {
      * de la categoria que se le pretende dar.
      */
     public synchronized static boolean existeCategoria(String descripcion) {
-        try {
-            ps = getCnn().prepareStatement(Categorias.SELECT_CATEGORIA_DESCRIPCION);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Categorias.SELECT_CATEGORIA_DESCRIPCION)) {
             ps.setString(1, descripcion);
-
-            rs = ps.executeQuery();
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
@@ -266,8 +402,7 @@ public class SelectMetodos {
      * donde contiene todos los campos de la tabla.
      */
     public synchronized static ResultSet getCategorias() {
-        try {
-            ps = getCnn().prepareStatement(Categorias.SELECT_CATEGORIA);
+        try ( PreparedStatement ps = getCnn().prepareStatement(Categorias.SELECT_CATEGORIA)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -281,11 +416,15 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static boolean existeCategoriaProductos(int idCategoria) {
-        try {
-            ps = getCnn().prepareStatement(Producto.EXISTE_CATEGORIA);
+        try ( PreparedStatement ps = getCnn().prepareStatement(Producto.EXISTE_CATEGORIA)) {
             ps.setInt(1, idCategoria);
-            rs = ps.executeQuery();
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
@@ -300,8 +439,7 @@ public class SelectMetodos {
      * @return Retorna un conjunto de datos de tipo ResultSet.
      */
     public synchronized static ResultSet getCategoriaActivas() {
-        try {
-            ps = getCnn().prepareStatement(Categorias.SELECT_CATEGORIA_ACTIVAS);
+        try ( PreparedStatement ps = getCnn().prepareStatement(Categorias.SELECT_CATEGORIA_ACTIVAS)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -315,13 +453,15 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static int periodoMaquina() {
-        try {
-            ps = getCnn().prepareStatement(BaseDeDatos.PERIODO);
+        try ( PreparedStatement ps = getCnn().prepareStatement(BaseDeDatos.PERIODO)) {
 
-            rs = ps.executeQuery();
-
-            rs.next();
-            return rs.getInt(1);
+            try ( ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return -1;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return -1;
@@ -338,13 +478,17 @@ public class SelectMetodos {
      * no existe registro en la base de datos.
      */
     public synchronized static boolean existeIdMaquina(String idMaquina) {
-        try {
-            ps = getCnn().prepareStatement(BaseDeDatos.EXISTE_REGISTRO);
+        try ( PreparedStatement ps = getCnn().prepareStatement(BaseDeDatos.EXISTE_REGISTRO)) {
 
             ps.setString(1, idMaquina.trim());
 
-            rs = ps.executeQuery();
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
@@ -352,8 +496,7 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getBuscarTemporal(Integer idFactura) {
-        try {
-            ps = getCnn().prepareStatement(DetalleFactura.GET_DETALLE_FACTURA);
+        try ( PreparedStatement ps = getCnn().prepareStatement(DetalleFactura.GET_DETALLE_FACTURA)) {
             ps.setInt(1, idFactura);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -375,15 +518,11 @@ public class SelectMetodos {
      */
     public synchronized static ResultSet buscarProducto(String criterio) {
 
-        try {
-            ps = getCnn().prepareStatement(Producto.BUSCAR_PRODUCTO_ID_DESCRIPCION_CODIGO);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Producto.BUSCAR_PRODUCTO_ID_DESCRIPCION_CODIGO)) {
             ps.setInt(1, Integer.parseInt(criterio));
             ps.setString(2, criterio);
             ps.setString(3, criterio);
-
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -397,81 +536,183 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static boolean existeCliente(String cedula) {
-        try {
-            ps = getCnn().prepareStatement(Clientes.GET_CLIENTE_BY_CEDULA);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                Clientes.GET_CLIENTE_BY_CEDULA,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setString(1, cedula.trim());
-
-            rs = ps.executeQuery();
-
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }
-    
+
     /**
      * Obtenemos los datos basico de un cliente por una consulta por su ID.
-     * 
-     * @param id identificador del cliente del sistema, la cual ayuda obtener 
+     *
+     * @param id identificador del cliente del sistema, la cual ayuda obtener
      * los registros de un usuario en expecifico.
-     * 
-     * @return Retorna un conjunto de datos del tipo resultSet. 
-     */
-    public synchronized static ResultSet getClienteByID(int id) {
-        try {
-            ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_SB_BY_ID);
-            ps.setInt(1, id);
-            return ps.executeQuery();
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
-    
-    /**
-     * Obtenemos el historia de direcciones del cliente, lo cual permite tener
-     * mejor control de la direcciones de los clientes. 
-     * 
-     * @param id identificador del cliente del sistema, la cual ayuda obtener 
-     * los registros de un usuario en expecifico.
-     * 
+     *
      * @return Retorna un conjunto de datos del tipo resultSet.
      */
-    public synchronized static ResultSet getDireccionByID(int id) {
-        try {
-            ps = getCnn().prepareStatement(Direcciones.SELECT_BY_ID);
+    public synchronized static Clientes getClienteByID(int id) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_SB_BY_ID)) {
             ps.setInt(1, id);
-            return ps.executeQuery();
+            Clientes c = null;
+            Generales g = null;
+            try ( ResultSet rs = ps.executeQuery();) {
+                rs.next();
+                g = Generales.builder().
+                        cedula(rs.getString("CEDULA")).
+                        estado_civil(rs.getString("ESTADO_CIVIL").charAt(0)).build();
+
+                c = Clientes.builder().
+                        pNombre(rs.getString("PNOMBRE")).
+                        sNombre(rs.getString("SNOMBRE")).
+                        apellidos(rs.getString("APELLIDOS")).
+                        fecha_nacimiento(rs.getDate("FECHA_NACIMIENTO")).
+                        estado(rs.getBoolean("ESTADO")).
+                        persona(rs.getString("PERSONA").charAt(0)).
+                        sexo(rs.getString("SEXO").charAt(0)).
+                        generales(g).build();
+
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
+            return c;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
 
-    public synchronized static ResultSet getTelefonoByID(int id) {
-        try {
-            ps = getCnn().prepareStatement(ContactosTel.SELECT_BY_ID);
+    /**
+     * Obtenemos el historia de direcciones del cliente, lo cual permite tener
+     * mejor control de la direcciones de los clientes.
+     *
+     * @param id identificador del cliente del sistema, la cual ayuda obtener
+     * los registros de un usuario en expecifico.
+     *
+     * @return Retorna un conjunto de datos del tipo resultSet.
+     */
+    public synchronized static DefaultTableModel getDireccionByID(int id) {
+        String titulosDireccion[] = {
+            "Provincia", "Municipio",
+            "Distrito M.", "Calle y No. Casa", "Fecha"};
+
+        DefaultTableModel dtmDireccion = new DefaultTableModel(null, titulosDireccion);
+
+        Object registroDireccion[] = new Object[titulosDireccion.length];
+
+        try ( PreparedStatement ps = getCnn().prepareStatement(Direcciones.SELECT_BY_ID)) {
             ps.setInt(1, id);
-            return ps.executeQuery();
+            try ( ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    Provincias p = Provincias.builder().
+                            id(rs.getInt("ID_PROVINCIA")).
+                            nombre(rs.getString("PROVINCIA")).build();
+                    registroDireccion[0] = p;
+
+                    Municipios m = Municipios.builder().
+                            id(rs.getInt("ID_MUNICIPIO")).
+                            nombre(rs.getString("MUNICIPIO")).build();
+                    registroDireccion[1] = m;
+
+                    Distritos_municipales d = Distritos_municipales.builder().
+                            id(rs.getInt("ID_DISTRITO_MUNICIPAL")).
+                            nombre(rs.getString("DISTRITO_MUNICIPAL")).build();
+                    registroDireccion[2] = d;
+
+                    registroDireccion[3] = rs.getString("DIRECCION");
+
+                    registroDireccion[4] = rs.getDate("FECHA");
+
+                    dtmDireccion.addRow(registroDireccion);
+                }
+                registroDireccion = new Object[titulosDireccion.length];
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
         }
+        return dtmDireccion;
     }
-    
-    public synchronized static ResultSet getCorreoByID(int id) {
-        try {
-            ps = getCnn().prepareStatement(ContactosEmail.SELECT_BY_ID);
+
+    public synchronized static DefaultTableModel getTelefonoByID(int id) {
+        String titulosTel[] = {"Numero", "Tipo", "Fecha"};
+
+        Object registroTel[] = new Object[titulosTel.length];
+
+        DefaultTableModel dtmTelefono = new DefaultTableModel(null, titulosTel);
+
+        try ( PreparedStatement ps = getCnn().prepareStatement(ContactosTel.SELECT_BY_ID)) {
             ps.setInt(1, id);
-            return ps.executeQuery();
+
+            try ( ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    ContactosTel t = ContactosTel.builder().
+                            id(rs.getInt("ID")).
+                            telefono(rs.getString("TELEFONO")).
+                            tipo(rs.getString("TIPO")).
+                            fecha(rs.getDate("FECHA")).build();
+
+                    registroTel[0] = t;
+                    registroTel[1] = t.getTipo();
+                    registroTel[2] = t.getFecha();
+
+                    dtmTelefono.addRow(registroTel);
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
         }
+        return dtmTelefono;
     }
-    
+
+    public synchronized static DefaultTableModel getCorreoByID(int id) {
+        String titulosCorreo[] = {"Correo", "Fecha"};
+
+        Object registroCorreo[] = new Object[titulosCorreo.length];
+
+        DefaultTableModel dtmCorreo = new DefaultTableModel(null, titulosCorreo);
+
+        try ( PreparedStatement ps = getCnn().prepareStatement(ContactosEmail.SELECT_BY_ID)) {
+            ps.setInt(1, id);
+
+            try ( ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    ContactosEmail c = ContactosEmail.builder().
+                            id(rs.getInt("ID")).
+                            email(rs.getString("EMAIL")).
+                            fecha(rs.getDate("FECHA")).build();
+
+                    registroCorreo[0] = c;
+                    registroCorreo[1] = c.getFecha();
+
+                    dtmCorreo.addRow(registroCorreo);
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            }
+
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return dtmCorreo;
+    }
+
     /**
      * Metodo utilizado para consultar a la base de datos, los roles creado y
      * aquienes fueron asignados esos roles.
@@ -484,21 +725,22 @@ public class SelectMetodos {
      */
     public synchronized static ArrayList<String> comprobandoRol(String userName) {
         ArrayList<String> roles = new ArrayList<>();
-        try {
-            ps = getCnn().prepareStatement(Usuarios.SELECT_ROLES_USUARIOS);
+        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.SELECT_ROLES_USUARIOS)) {
             ps.setString(1, userName.trim().toUpperCase());
-            rs = ps.executeQuery();
-            String aux;
-            while (rs.next()) {
-                aux = rs.getString("ROL");
-                if (aux.equalsIgnoreCase("RDB$ADMIN")) {
-                    aux = "ADMINISTRADOR";
+            try ( ResultSet rs = ps.executeQuery()) {
+                String aux;
+                while (rs.next()) {
+                    aux = rs.getString("ROL");
+                    if (aux.equalsIgnoreCase("RDB$ADMIN")) {
+                        aux = "ADMINISTRADOR";
+                    }
+                    roles.add(aux);
                 }
-                roles.add(aux);
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
             }
-
             return roles;
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -514,15 +756,12 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static boolean existeProducto(String codigo) {
-        try {
-            ps = getCnn().prepareStatement(Producto.EXISTE_PRODUCTO);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Producto.EXISTE_PRODUCTO)) {
             ps.setString(1, codigo);
             ps.setString(2, codigo);
-
-            rs = ps.executeQuery();
-
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
@@ -545,9 +784,7 @@ public class SelectMetodos {
      * usuarios del sistema.
      */
     public synchronized static ResultSet getUsuarios(String userName) {
-        try {
-            ps = getCnn().prepareStatement(Usuarios.GET_USER_BY_USER_NAME);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.GET_USER_BY_USER_NAME)) {
             ps.setString(1, userName);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -558,11 +795,11 @@ public class SelectMetodos {
 
     /**
      * Para obtener las facturas temporales del sistema.
-     * @return 
+     *
+     * @return
      */
     public synchronized static ResultSet getTemporales() {
-        try {
-            ps = getCnn().prepareStatement(Temporales.GET_TEMPORALES);
+        try ( PreparedStatement ps = getCnn().prepareStatement(Temporales.GET_TEMPORALES)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -571,17 +808,15 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getReporteFacturas(String filtro) {
-        try {
-            sql = "SELECT f.idFactura, f.idCliente, (c.nombres||' '||c.apellidos) AS nombreFull, "
-                    + "        f.fecha, d.idLinea, p.idProducto, p.descripcion, "
-                    + "        precio,   d.cantidad, precio * d.cantidad AS Valor "
-                    + "FROM tabla_facturas f "
-                    + "INNER JOIN tabla_clientes c ON f.idCliente = c.idCliente "
-                    + "INNER JOIN detalleFactura d ON f.idFactura = d.idFactura "
-                    + "INNER JOIN tabla_productos p ON p.idproducto = d.idproducto "
-                    + filtro;
-
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT f.idFactura, f.idCliente, (c.nombres||' '||c.apellidos) AS nombreFull, "
+                + "        f.fecha, d.idLinea, p.idProducto, p.descripcion, "
+                + "        precio,   d.cantidad, precio * d.cantidad AS Valor "
+                + "FROM tabla_facturas f "
+                + "INNER JOIN tabla_clientes c ON f.idCliente = c.idCliente "
+                + "INNER JOIN detalleFactura d ON f.idFactura = d.idFactura "
+                + "INNER JOIN tabla_productos p ON p.idproducto = d.idproducto "
+                + filtro;
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -595,15 +830,13 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static ResultSet getCobrosClientesFactura(String idCliente) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.IDFACTURA, CAST(sum(d.CANTIDAD * d.PRECIO) as DECIMAL(15,2)) as Total, "
-                    + "       r.FECHA, r.ESTADO "
-                    + "FROM TABLA_FACTURAS r "
-                    + "JOIN TABLA_DETALLEFACTURA d ON d.IDFACTURA = r.IDFACTURA "
-                    + "WHERE r.IDCLIENTE like ? and r.ESTADO in('c', 'a') "
-                    + "GROUP BY r.IDFACTURA, r.FECHA, r.ESTADO"
-            );
+        sql = "SELECT r.IDFACTURA, CAST(sum(d.CANTIDAD * d.PRECIO) as DECIMAL(15,2)) as Total, "
+                + "       r.FECHA, r.ESTADO "
+                + "FROM TABLA_FACTURAS r "
+                + "JOIN TABLA_DETALLEFACTURA d ON d.IDFACTURA = r.IDFACTURA "
+                + "WHERE r.IDCLIENTE like ? and r.ESTADO in('c', 'a') "
+                + "GROUP BY r.IDFACTURA, r.FECHA, r.ESTADO";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setString(1, idCliente);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -613,16 +846,15 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getDeudaClientes(String estado) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT SUM(r.MONTO), case r.ESTADO "
-                    + "when 'i' then 'Inicial:' "
-                    + "when 'a' then 'Abonado:' "
-                    + "when 'p' then 'Pagado:' "
-                    + "when 'n' then 'Nulado:' "
-                    + "end "
-                    + "FROM GET_SUMA_DEUDA r "
-                    + estado);
+        sql = "SELECT SUM(r.MONTO), case r.ESTADO "
+                + "when 'i' then 'Inicial:' "
+                + "when 'a' then 'Abonado:' "
+                + "when 'p' then 'Pagado:' "
+                + "when 'n' then 'Nulado:' "
+                + "end "
+                + "FROM GET_SUMA_DEUDA r "
+                + estado;
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -631,19 +863,18 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getDeudaClientesEstado(String estado) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.IDDEUDAS, IIF(r.IDCLIENTE = '0', '000-0000000-0', "
-                    + "r.IDCLIENTE) as IDCLIENTE, c.NOMBRES, c.APELLIDOS, "
-                    + "r.CONCEPTO, r.MONTO, r.FECHA, "
-                    + "        (IIF(r.ESTADO = 'i', 'Inicial', "
-                    + "         IIF(r.ESTADO = 'p', 'Pagada', "
-                    + "         IIF(r.ESTADO = 'a', 'Abonada', "
-                    + "         IIF(r.ESTADO = 'n','Nula','No Definida'))))) as ESTADO "
-                    + "FROM TABLA_DEUDAS r "
-                    + "LEFT JOIN TABLA_CLIENTES c ON c.IDCLIENTE LIKE r.IDCLIENTE "
-                    + estado
-                    + "ORDER by 1");
+        sql = "SELECT r.IDDEUDAS, IIF(r.IDCLIENTE = '0', '000-0000000-0', "
+                + "r.IDCLIENTE) as IDCLIENTE, c.NOMBRES, c.APELLIDOS, "
+                + "r.CONCEPTO, r.MONTO, r.FECHA, "
+                + "        (IIF(r.ESTADO = 'i', 'Inicial', "
+                + "         IIF(r.ESTADO = 'p', 'Pagada', "
+                + "         IIF(r.ESTADO = 'a', 'Abonada', "
+                + "         IIF(r.ESTADO = 'n','Nula','No Definida'))))) as ESTADO "
+                + "FROM TABLA_DEUDAS r "
+                + "LEFT JOIN TABLA_CLIENTES c ON c.IDCLIENTE LIKE r.IDCLIENTE "
+                + estado
+                + "ORDER by 1";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -652,14 +883,13 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getDeudaClientes() {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.IDCLIENTE, (c.NOMBRES||' '||c.APELLIDOS) as nombres "
-                    + "FROM TABLA_DEUDAS r "
-                    + "LEFT JOIN TABLA_CLIENTES c"
-                    + "    ON c.IDCLIENTE LIKE r.IDCLIENTE "
-                    + "WHERE r.ESTADO IN('i', 'a') "
-                    + "GROUP BY r.IDCLIENTE, c.NOMBRES, c.APELLIDOS ");
+        sql = "SELECT r.IDCLIENTE, (c.NOMBRES||' '||c.APELLIDOS) as nombres "
+                + "FROM TABLA_DEUDAS r "
+                + "LEFT JOIN TABLA_CLIENTES c"
+                + "    ON c.IDCLIENTE LIKE r.IDCLIENTE "
+                + "WHERE r.ESTADO IN('i', 'a') "
+                + "GROUP BY r.IDCLIENTE, c.NOMBRES, c.APELLIDOS ";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -669,11 +899,11 @@ public class SelectMetodos {
 
     /*Consultas de las facturas*/
     public synchronized static ResultSet getFacturas() {
+        sql = "SELECT idFactura "
+                + "FROM V_facturas "
+                + "order by 1";
         try {
-            ps = getCnn().prepareStatement(
-                    "SELECT idFactura "
-                    + "FROM V_facturas "
-                    + "order by 1");
+            PreparedStatement ps = getCnn().prepareStatement(sql);
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -682,12 +912,11 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getFacturasNombreClientes(int idFactura) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.IDCLIENTE, nombreCliente "
-                    + "FROM TABLA_FACTURAS r "
-                    + "WHERE r.IDFACTURA = ?"
-                    + "order by 1");
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT r.IDCLIENTE, nombreCliente "
+                + "FROM TABLA_FACTURAS r "
+                + "WHERE r.IDFACTURA = ?"
+                + "order by 1")) {
             ps.setInt(1, idFactura);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -697,17 +926,16 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getFacturasDetalladas(String idFactura) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT factura.idFactura, factura.idCliente, nombres||' '||apellidos AS nombreFull, "
-                    + "        fecha, idLinea, (SELECT p.Descripcion "
-                    + "                            FROM TABLA_PRODUCTOS p "
-                    + "                            WHERE p.idProducto = DETALLEFACTURA.IDPRODUCTO ) as Descripcion, "
-                    + "        idProducto, precio, cantidad, precio * cantidad AS Valor "
-                    + "FROM TABLA_FACTURAS "
-                    + "INNER JOIN TABLA_CLIENTES ON factura.idCliente = cliente.idCliente "
-                    + "INNER JOIN TABLA_DETALLEFACTURA ON factura.idFactura = detalleFactura.idFactura "
-                    + "WHERE factura.idFactura = ? ");
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT factura.idFactura, factura.idCliente, nombres||' '||apellidos AS nombreFull, "
+                + "        fecha, idLinea, (SELECT p.Descripcion "
+                + "                            FROM TABLA_PRODUCTOS p "
+                + "                            WHERE p.idProducto = DETALLEFACTURA.IDPRODUCTO ) as Descripcion, "
+                + "        idProducto, precio, cantidad, precio * cantidad AS Valor "
+                + "FROM TABLA_FACTURAS "
+                + "INNER JOIN TABLA_CLIENTES ON factura.idCliente = cliente.idCliente "
+                + "INNER JOIN TABLA_DETALLEFACTURA ON factura.idFactura = detalleFactura.idFactura "
+                + "WHERE factura.idFactura = ? ")) {
             ps.setString(1, idFactura);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -717,16 +945,15 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getFacturasDetalladaPorCliente(String idCliente) {
-        try {
-            sql = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
-                    + "COALESCE(SUM(d.precio * d.cantidad), 0.00) AS Valor "
-                    + "FROM TABLA_FACTURAS f "
-                    + "LEFT JOIN TABLA_CLIENTES c ON f.idCliente = c.idCliente "
-                    + "LEFT JOIN TABLA_DETALLEFACTURA d ON f.idFactura = d.idFactura "
-                    + "WHERE f.idCliente = ? "
-                    + "GROUP BY f.idFactura, f.estado , f.fecha, f.USUARIO "
-                    + "order by 1";
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
+                + "COALESCE(SUM(d.precio * d.cantidad), 0.00) AS Valor "
+                + "FROM TABLA_FACTURAS f "
+                + "LEFT JOIN TABLA_CLIENTES c ON f.idCliente = c.idCliente "
+                + "LEFT JOIN TABLA_DETALLEFACTURA d ON f.idFactura = d.idFactura "
+                + "WHERE f.idCliente = ? "
+                + "GROUP BY f.idFactura, f.estado , f.fecha, f.USUARIO "
+                + "order by 1";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setString(1, idCliente);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -737,16 +964,15 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getFacturasDetalladaPorCliente(
             String idCliente, int idFactura) {
-        try {
-            sql = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
-                    + "COALESCE(SUM(d.precio * d.cantidad), 0.00) AS Valor "
-                    + "FROM TABLA_FACTURAS f "
-                    + "LEFT JOIN TABLA_CLIENTES c ON f.idCliente = c.idCliente "
-                    + "LEFT JOIN TABLA_DETALLEFACTURA d ON f.idFactura = d.idFactura "
-                    + "WHERE f.idCliente = ? and f.idFactura = ? "
-                    + "GROUP BY f.idFactura, f.estado , f.fecha, f.USUARIO "
-                    + "order by 1";
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
+                + "COALESCE(SUM(d.precio * d.cantidad), 0.00) AS Valor "
+                + "FROM TABLA_FACTURAS f "
+                + "LEFT JOIN TABLA_CLIENTES c ON f.idCliente = c.idCliente "
+                + "LEFT JOIN TABLA_DETALLEFACTURA d ON f.idFactura = d.idFactura "
+                + "WHERE f.idCliente = ? and f.idFactura = ? "
+                + "GROUP BY f.idFactura, f.estado , f.fecha, f.USUARIO "
+                + "order by 1";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setString(1, idCliente);
             ps.setInt(2, idFactura);
             return ps.executeQuery();
@@ -757,13 +983,11 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getDeudaCliente(String idCliente) {
-        try {
-            sql = "SELECT r.IDDEUDAS, r.CONCEPTO, r.MONTO, r.FECHA, r.ESTADO "
-                    + "FROM TABLA_DEUDAS r "
-                    + "WHERE r.IDCLIENTE LIKE ? AND r.ESTADO NOT IN('n', 'p')";
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT r.IDDEUDAS, r.CONCEPTO, r.MONTO, r.FECHA, r.ESTADO "
+                + "FROM TABLA_DEUDAS r "
+                + "WHERE r.IDCLIENTE LIKE ? AND r.ESTADO NOT IN('n', 'p')";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setString(1, idCliente);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -772,14 +996,11 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getDeudaClienteExterna(String idDeuda) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.CODIGO, r.FECHA, r.HORA, r.MONTO "
-                    + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
-                    + "WHERE r.IDDEUDA = ?"
-            );
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT r.CODIGO, r.FECHA, r.HORA, r.MONTO "
+                + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
+                + "WHERE r.IDDEUDA = ?")) {
             ps.setString(1, idDeuda);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -789,11 +1010,10 @@ public class SelectMetodos {
 
     //!OJO Metodo para analizarlo
     public synchronized static ResultSet getPagoDeudasExterna(int idDeuda) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.CODIGO, r.MONTO, r.FECHA, r.HORA "
-                    + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
-                    + "WHERE r.IDDEUDA = ?");
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT r.CODIGO, r.MONTO, r.FECHA, r.HORA "
+                + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
+                + "WHERE r.IDDEUDA = ?")) {
             ps.setInt(1, idDeuda);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -804,11 +1024,10 @@ public class SelectMetodos {
 
     //!OJO Metodo para analizarlo
     public synchronized static ResultSet getPagoDeudas(int idFactura) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.IDPAGODEUDA, r.FECHA, r.HORA, r.MONTOPAGO "
-                    + "FROM TABLA_PAGODEUDA r "
-                    + "WHERE r.IDFACTURA = ?");
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT r.IDPAGODEUDA, r.FECHA, r.HORA, r.MONTOPAGO "
+                + "FROM TABLA_PAGODEUDA r "
+                + "WHERE r.IDFACTURA = ?")) {
             ps.setInt(1, idFactura);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -818,17 +1037,14 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getEntradaProducto(int mes, int year) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.FECHAENTRADA, IIF(r.OP = '+', 'Entrada', 'Salida') as operacion, r.IDUSUARIO "
-                    + "FROM TABLA_ENTRADAS_PRUDUCTO r "
-                    + "WHERE EXTRACT(MONTH FROM r.FECHAENTRADA) = ? "
-                    + "and EXTRACT(YEAR FROM r.FECHAENTRADA) = ? "
-                    + "GROUP BY r.FECHAENTRADA,  r.OP, r.IDUSUARIO");
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT r.FECHAENTRADA, IIF(r.OP = '+', 'Entrada', 'Salida') as operacion, r.IDUSUARIO "
+                + "FROM TABLA_ENTRADAS_PRUDUCTO r "
+                + "WHERE EXTRACT(MONTH FROM r.FECHAENTRADA) = ? "
+                + "and EXTRACT(YEAR FROM r.FECHAENTRADA) = ? "
+                + "GROUP BY r.FECHAENTRADA,  r.OP, r.IDUSUARIO")) {
             ps.setInt(1, mes);
             ps.setInt(2, year);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -846,19 +1062,23 @@ public class SelectMetodos {
      * en el parametro.
      */
     public synchronized static int cantidadRegistros(String tabla) {
-        try {//Conseguir con el conteos de las tablas....
-            ps = getCnn().prepareStatement(
-                    "SELECT COALESCE(cantidad, 0) as num "
-                    + "FROM tabla_reccount "
-                    + "WHERE tabla = ?;"
-            );
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT COALESCE(cantidad, 0) as num "
+                + "FROM tabla_reccount "
+                + "WHERE tabla = ?;"
+        )) {//Conseguir con el conteos de las tablas....
             ps.setString(1, tabla);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("num");
-            } else {
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("num");
+                } else {
+                    return 0;
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return 0;
             }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return 0;
@@ -866,103 +1086,72 @@ public class SelectMetodos {
     }
 
     public synchronized static Perfiles getPerfilUsuario(int idPerfil) {
-        try {
-
-            ps = getCnn().prepareStatement(Perfiles.SELECT_ID);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Perfiles.SELECT_ID)) {
             ps.setInt(1, idPerfil);
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
 
-            rs = ps.executeQuery();
+                Perfiles p = Perfiles.builder().
+                        userName(rs.getString("USERNAME")).
+                        rol(rs.getString("ROL")).
+                        CLIENTE_SELECT(rs.getBoolean("CLIENTE_SELECT")).
+                        CLIENTE_INSERT(rs.getBoolean("CLIENTE_INSERT")).
+                        CLIENTE_UPDATE(rs.getBoolean("CLIENTE_UPDATE")).
+                        CLIENTE_DELETE(rs.getBoolean("CLIENTE_DELETE")).
+                        PRODUCTO_SELECT(rs.getBoolean("PRODUCTO_SELECT")).
+                        PRODUCTO_INSERT(rs.getBoolean("PRODUCTO_INSERT")).
+                        PRODUCTO_UPDATE(rs.getBoolean("PRODUCTO_UPDATE")).
+                        PRODUCTO_DELETE(rs.getBoolean("PRODUCTO_DELETE")).
+                        USUARIO_SELECT(rs.getBoolean("USUARIO_SELECT")).
+                        USUARIO_INSERT(rs.getBoolean("USUARIO_INSERT")).
+                        USUARIO_UPDATE(rs.getBoolean("USUARIO_UPDATE")).
+                        USUARIO_DELETE(rs.getBoolean("USUARIO_DELETE")).
+                        USUARIO_CAMBIO_CLAVE(rs.getBoolean("USUARIO_CAMBIO_CLAVE")).
+                        FACTURA_SELECT(rs.getBoolean("FACTURA_SELECT")).
+                        FACTURA_INSERT(rs.getBoolean("FACTURA_INSERT")).
+                        FACTURA_UPDATE(rs.getBoolean("FACTURA_UPDATE")).
+                        FACTURA_DELETE(rs.getBoolean("FACTURA_DELETE")).
+                        REPORTES_SELECT(rs.getBoolean("REPORTES_SELECT")).
+                        INVENTARIOS_SELECT(rs.getBoolean("INVENTARIOS_SELECT")).
+                        TURNO_SELECT(rs.getBoolean("TURNO_SELECT")).
+                        TURNO_INSERT(rs.getBoolean("TURNO_INSERT")).
+                        TURNO_UPDATE(rs.getBoolean("TURNO_UPDATE")).
+                        TURNO_DELETE(rs.getBoolean("TURNO_DELETE")).
+                        DEUDAS_SELECT(rs.getBoolean("DEUDAS_SELECT")).
+                        DEUDAS_INSERT(rs.getBoolean("DEUDAS_INSERT")).
+                        DEUDAS_UPDATE(rs.getBoolean("DEUDAS_UPDATE")).
+                        DEUDAS_DELETE(rs.getBoolean("DEUDAS_DELETE")).build();
 
-            if (!rs.next()) {
-                return null;
+                return p;
             }
-
-            Perfiles p = Perfiles.builder().
-                    userName(rs.getString("USERNAME")).
-                    rol(rs.getString("ROL")).
-                    CLIENTE_SELECT(rs.getBoolean("CLIENTE_SELECT")).
-                    CLIENTE_INSERT(rs.getBoolean("CLIENTE_INSERT")).
-                    CLIENTE_UPDATE(rs.getBoolean("CLIENTE_UPDATE")).
-                    CLIENTE_DELETE(rs.getBoolean("CLIENTE_DELETE")).
-                    PRODUCTO_SELECT(rs.getBoolean("PRODUCTO_SELECT")).
-                    PRODUCTO_INSERT(rs.getBoolean("PRODUCTO_INSERT")).
-                    PRODUCTO_UPDATE(rs.getBoolean("PRODUCTO_UPDATE")).
-                    PRODUCTO_DELETE(rs.getBoolean("PRODUCTO_DELETE")).
-                    USUARIO_SELECT(rs.getBoolean("USUARIO_SELECT")).
-                    USUARIO_INSERT(rs.getBoolean("USUARIO_INSERT")).
-                    USUARIO_UPDATE(rs.getBoolean("USUARIO_UPDATE")).
-                    USUARIO_DELETE(rs.getBoolean("USUARIO_DELETE")).
-                    USUARIO_CAMBIO_CLAVE(rs.getBoolean("USUARIO_CAMBIO_CLAVE")).
-                    FACTURA_SELECT(rs.getBoolean("FACTURA_SELECT")).
-                    FACTURA_INSERT(rs.getBoolean("FACTURA_INSERT")).
-                    FACTURA_UPDATE(rs.getBoolean("FACTURA_UPDATE")).
-                    FACTURA_DELETE(rs.getBoolean("FACTURA_DELETE")).
-                    REPORTES_SELECT(rs.getBoolean("REPORTES_SELECT")).
-                    INVENTARIOS_SELECT(rs.getBoolean("INVENTARIOS_SELECT")).
-                    TURNO_SELECT(rs.getBoolean("TURNO_SELECT")).
-                    TURNO_INSERT(rs.getBoolean("TURNO_INSERT")).
-                    TURNO_UPDATE(rs.getBoolean("TURNO_UPDATE")).
-                    TURNO_DELETE(rs.getBoolean("TURNO_DELETE")).
-                    DEUDAS_SELECT(rs.getBoolean("DEUDAS_SELECT")).
-                    DEUDAS_INSERT(rs.getBoolean("DEUDAS_INSERT")).
-                    DEUDAS_UPDATE(rs.getBoolean("DEUDAS_UPDATE")).
-                    DEUDAS_DELETE(rs.getBoolean("DEUDAS_DELETE")).build();
-
-            return p;
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
 
-    /**
-     *
-     * @param idTurno
-     * @return
-     */
-    public synchronized static Integer getNumFac(int idTurno) {
-        try {
-            ps = getCnn().prepareStatement("EXECUTE PROCEDURE SYSTEM_FACTURA(?)");
-            ps.setInt(1, idTurno);
-
-            if (ps.execute()) {
-                ps = getCnn().prepareStatement("EXECUTE PROCEDURE SYSTEM_FACTURA(?)");
-
-                ps.setInt(1, idTurno);
-
-                rs = ps.executeQuery();
-                if (rs.next()) {
-                    return rs.getInt("S_RESULTADO");
-                } else {
-                    return null;
-                }
-            }
-            return -1;
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return -1;
-        }
-    }
-
     public synchronized static BigDecimal getPrecioProducto(int idProducto) {
 
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT precio "
-                    + "FROM TABLA_ENTRADAS_PRODUCTO "
-                    + "WHERE idProducto = ?");
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT precio "
+                + "FROM TABLA_ENTRADAS_PRODUCTO "
+                + "WHERE idProducto = ?")) {
 
             ps.setInt(1, idProducto);
 
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getBigDecimal("precio");
-            } else {
-                return new BigDecimal(0);
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBigDecimal("precio");
+                } else {
+                    return new BigDecimal(0);
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return new BigDecimal(-1);
             }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return new BigDecimal(-1);
@@ -970,18 +1159,23 @@ public class SelectMetodos {
     }
 
     public synchronized static BigDecimal getDeudaActual(String idCliente) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.DEUDAACTUAL "
-                    + "FROM TABLA_DEUDAS r "
-                    + "WHERE r.IDCLIENTE LIKE ?");
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT r.DEUDAACTUAL "
+                + "FROM TABLA_DEUDAS r "
+                + "WHERE r.IDCLIENTE LIKE ?")) {
+
             ps.setString(1, idCliente);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getBigDecimal("DEUDAACTUAL");
-            } else {
-                return new BigDecimal(0);
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBigDecimal("DEUDAACTUAL");
+                } else {
+                    return new BigDecimal(0);
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return new BigDecimal(-1);
             }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return new BigDecimal(-1);
@@ -989,19 +1183,24 @@ public class SelectMetodos {
     }
 
     public synchronized static int getIdAcceso(int idAcceso) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.IDACCESO "
-                    + "FROM Tabla_ACCESO2 r "
-                    + "WHERE r.IDPERFIL = ?");
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT r.IDACCESO "
+                + "FROM Tabla_ACCESO2 r "
+                + "WHERE r.IDPERFIL = ?")) {
+
             ps.setInt(1, idAcceso);
 
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
-                return 1;
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                } else {
+                    return 1;
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return -1;
             }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return -1;
@@ -1009,17 +1208,22 @@ public class SelectMetodos {
     }
 
     public synchronized static BigDecimal sumaMontoPagoDeudaExterna(int idDeuda) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT SUM(r.MONTO) "
-                    + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
-                    + "WHERE r.IDDEUDA = ?");
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getBigDecimal(1);
-            } else {
-                return new BigDecimal(0);
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT SUM(r.MONTO) "
+                + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
+                + "WHERE r.IDDEUDA = ?")) {
+
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBigDecimal(1);
+                } else {
+                    return new BigDecimal(0);
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return new BigDecimal(-1);
             }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return new BigDecimal(-1);
@@ -1033,56 +1237,64 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static String getCreadorUsuario(String idUsuario) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT creador "
-                    + "FROM get_creador "
-                    + "WHERE TRIM(usuario) like ?;"
-            );
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT creador "
+                + "FROM get_creador "
+                + "WHERE TRIM(usuario) like ?;")) {
+
             ps.setString(1, idUsuario);
 
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getString("creador");
-            } else {
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("creador");
+                } else {
+                    return null;
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
             }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
 
+    /**
+     * Metodo que permite recibir imagenes en bits.
+     *
+     * @param idUsuario
+     * @return
+     */
     public static synchronized ImageIcon getImagen(String idUsuario) {
-        ps = null;
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT imagen "
-                    + "FROM Tabla_Imagenes "
-                    + "WHERE TRIM(idUsuario) like ?");
+
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT imagen "
+                + "FROM Tabla_Imagenes "
+                + "WHERE TRIM(idUsuario) like ?")) {
 
             ps.setString(1, idUsuario);
 
-            rs = ps.executeQuery();
+            try ( ResultSet rs = ps.executeQuery()) {
+                BufferedImage img = null;
 
-            BufferedImage img = null;
+                while (rs.next()) {
+                    Blob blob = rs.getBlob("imagen");
+                    byte[] data = blob.getBytes(1, (int) blob.length());
+                    try {
+                        img = ImageIO.read(new ByteArrayInputStream(data));
+                    } catch (IOException ex) {
 
-            while (rs.next()) {
-                Blob blob = rs.getBlob("imagen");
-                byte[] data = blob.getBytes(1, (int) blob.length());
-                try {
-                    img = ImageIO.read(new ByteArrayInputStream(data));
-                } catch (IOException ex) {
-
-                    LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                        LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                    }
                 }
+
+                rs.close();
+                return new ImageIcon(img);
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
 
-            rs.close();
-
-            return new ImageIcon(img);
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -1090,38 +1302,38 @@ public class SelectMetodos {
     }
 
     public synchronized static String getSexoPaciente(int idPaciente) {
-        try {
-
-            ps = getCnn().prepareStatement(Paciente.GET_SEXO_BY_ID,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(Paciente.GET_SEXO_BY_ID,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setInt(1, idPaciente);
 
-            rs = ps.executeQuery();
-
-            rs.next();
-
-            return rs.getString(1);
+            try ( ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getString(1);
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return "N/A";
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "N/A";
         }
 
     }
-    
-    public synchronized static String getLogo(){
-        try {
-            ps = getCnn().prepareStatement(E_S_SYS.SELECT_LOGO,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-            rs = ps.executeQuery();
 
-            rs.next();
-
-            return rs.getString(1);
+    public synchronized static String getLogo() {
+        try ( PreparedStatement ps = getCnn().prepareStatement(E_S_SYS.SELECT_LOGO,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+            try ( ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getString(1);
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -1129,21 +1341,24 @@ public class SelectMetodos {
     }
 
     public synchronized static int numeroPadres(boolean estado) {
-        try {
-            sql = "SELECT CANTIDAD "
-                    + "FROM V_RECCOUNT "
-                    + "WHERE ESTADO IS ? AND IDPADRE != 0;";
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        sql = "SELECT CANTIDAD "
+                + "FROM V_RECCOUNT "
+                + "WHERE ESTADO IS ? AND IDPADRE != 0;";
 
-            rs = ps.executeQuery();
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setBoolean(1, estado);
 
-            rs.next();
-            return rs.getInt(1);
+            try ( ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -1161,17 +1376,19 @@ public class SelectMetodos {
     public synchronized static boolean existePaciente(String cedula) {
         sql = "SELECT (1) FROM V_PACIENTES WHERE cedula = ?";
 
-        try {
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, cedula);
 
-            rs = ps.executeQuery();
-
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1181,19 +1398,21 @@ public class SelectMetodos {
 
     public synchronized static boolean existePadre(String cedula, boolean estado) {
         sql = "SELECT (1) FROM V_PADRES WHERE cedula = ? and ESTADO IS ?";
-        try {
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, cedula);
             ps.setBoolean(2, estado);
 
-            rs = ps.executeQuery();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
 
-            return rs.next();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
@@ -1208,12 +1427,14 @@ public class SelectMetodos {
     public synchronized boolean existeMensaje(String idUsuario) {
         sql = "el sql";
 
-        try {
-            ps = getCnn().prepareStatement(sql);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
-            rs = ps.executeQuery();
-
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1235,53 +1456,60 @@ public class SelectMetodos {
      * o no "FALSE" un usuario en el sistema.
      */
     public synchronized static boolean existeUsuarioByUserName(String userName) {
-        try {
-            ps = getCnn().prepareStatement(Usuarios.EXISTE_USUARIO_BY_USER_NAME);
+        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.EXISTE_USUARIO_BY_USER_NAME)) {
             ps.setString(1, userName);
-            rs = ps.executeQuery();
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }
-    
+
     /**
-     * 
+     *
      * @param p
-     * @return 
+     * @return
      */
     public synchronized static boolean privilegioCampo(Privilegios p) {
-        try {
-            ps = getCnn().prepareStatement(Privilegios.PERMISO_UPDATE_CAMPO);
-            
-            
-            ps.setString(1, ""+p.getPrivilegio());
+        try ( PreparedStatement ps = getCnn().prepareStatement(Privilegios.PERMISO_UPDATE_CAMPO)) {
+            ps.setString(1, "" + p.getPrivilegio());
             ps.setString(2, p.getNombre_relacion());
             ps.setString(3, p.getNombre_campo());
-            
-            rs = ps.executeQuery();
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }
-    
+
     /**
-     * 
+     *
      * @param p
-     * @return 
+     * @return
      */
     public synchronized static boolean privilegioTabla(Privilegios p) {
-        try {
-            ps = getCnn().prepareStatement(Privilegios.PERMISO_UPDATE_TABLA);
-            
-            ps.setString(1, ""+p.getPrivilegio());
+        try ( PreparedStatement ps = getCnn().prepareStatement(Privilegios.PERMISO_UPDATE_TABLA)) {
+            ps.setString(1, "" + p.getPrivilegio());
             ps.setString(2, p.getNombre_relacion());
-            
-            rs = ps.executeQuery();
-            return rs.next();
+
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
@@ -1290,15 +1518,16 @@ public class SelectMetodos {
 
     public synchronized boolean existeFoto(String loginUsuario) {
         sql = "SELECT (1) FROM FOTO_USUARIO WHERE idUsuario Like ?";
-        try {
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
-            rs = ps.executeQuery();
-
-            return rs.next();
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
@@ -1310,16 +1539,17 @@ public class SelectMetodos {
      */
     public synchronized boolean getControlConsulta(String fecha) {
         sql = "SELECT (1) FROM V_CONTROLCONSULTA WHERE fecha = ?";
-        try {
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setString(1, fecha);
-
-            rs = ps.executeQuery();
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
@@ -1328,19 +1558,19 @@ public class SelectMetodos {
 
     public synchronized int getIdMadrePadre(String cedula) {
         sql = "SELECT IDPADRE FROM V_PADRES WHERE CEDULA LIKE ?";
-        try {
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
-            rs = ps.executeQuery();
             ps.setString(1, cedula);
 
-            if (rs.next()) {
-                return rs.getInt("IDPADRE");
-            } else {
-                return 0;
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("IDPADRE");
+                } else {
+                    return 0;
+                }
             }
 
         } catch (SQLException ex) {
@@ -1352,20 +1582,19 @@ public class SelectMetodos {
     public synchronized static int getIdPaciente(String cedula) {
         sql = "SELECT IDPACIENTE FROM V_PACIENTES WHERE CEDULA LIKE ?";
 
-        try {
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, cedula);
 
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt("IDPACIENTE");
-            } else {
-                return 0;
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("IDPACIENTE");
+                } else {
+                    return 0;
+                }
             }
 
         } catch (SQLException ex) {
@@ -1375,17 +1604,16 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getPacienteActivo(boolean estado) {
-        try {
-            sql = "SELECT IDPACIENTE, IDMADRE, CEDULAMADRE, nombreMadre, IDPADRE, "
-                    + "CEDULAPADRE, nombrePadre, CEDULAPACIENTE, NOMBRES, APELLIDOS, SEXO, "
-                    + "IDTIPOSANGRE, IDARS, COALESCE(NONSS, '') as NONSS, ESTADO "
-                    + "FROM GET_PACIENTES "
-                    + "WHERE Estado IS ?";
+        sql = "SELECT IDPACIENTE, IDMADRE, CEDULAMADRE, nombreMadre, IDPADRE, "
+                + "CEDULAPADRE, nombrePadre, CEDULAPACIENTE, NOMBRES, APELLIDOS, SEXO, "
+                + "IDTIPOSANGRE, IDARS, COALESCE(NONSS, '') as NONSS, ESTADO "
+                + "FROM GET_PACIENTES "
+                + "WHERE Estado IS ?";
 
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setBoolean(1, estado);
 
@@ -1398,20 +1626,19 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getPacienteActivo(String filtro, String fecha,
             int idControlConsulta) {
-        try {
-            sql = "SELECT a.IDPACIENTE, a.CEDULAPACIENTE, a.NOMBRES, a.APELLIDOS, a.SEXO, "
-                    + "a.IDARS, COALESCE(a.NONSS, '') as NONSS "
-                    + "FROM GET_PACIENTES a "
-                    + "WHERE IDPACIENTE not in (SELECT IDPACIENTE"
-                    + "                         FROM V_CONSULTAS C "
-                    + "                         WHERE C.FECHA = ? and "
-                    + "                               C.IDCONTROLCONSULTA = ?) and "
-                    + "a.Estado " + filtro;
+        sql = "SELECT a.IDPACIENTE, a.CEDULAPACIENTE, a.NOMBRES, a.APELLIDOS, a.SEXO, "
+                + "a.IDARS, COALESCE(a.NONSS, '') as NONSS "
+                + "FROM GET_PACIENTES a "
+                + "WHERE IDPACIENTE not in (SELECT IDPACIENTE"
+                + "                         FROM V_CONSULTAS C "
+                + "                         WHERE C.FECHA = ? and "
+                + "                               C.IDCONTROLCONSULTA = ?) and "
+                + "a.Estado " + filtro;
 
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, fecha);
             ps.setInt(2, idControlConsulta);
@@ -1425,21 +1652,20 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getPacienteActivo2(String filtro, String fecha,
             int idControlConsulta) {
-        try {
-            sql = "SELECT p.IDPACIENTE, p.CEDULAPACIENTE, p.NOMBRES, "
-                    + "p.APELLIDOS, p.SEXO, p.IDARS, p.NONSS, p.COVER, p.ESTADO,"
-                    + " c.IDCONSULTA,c.TURNO, c.FECHA "
-                    + "FROM GET_PACIENTES p "
-                    + "RIGHT JOIN V_CONSULTAS c ON c.IDPACIENTE = p.IDPACIENTE "
-                    + "left join V_CONSULTAS_APROVADAS A on A.IDCONSULTA = C.IDCONSULTA "
-                    + "WHERE A.IDCONSULTA is null and "
-                    + "      c.FECHA = ? and  c.IDCONTROLCONSULTA = ? "
-                    + filtro + " order by turno";
+        sql = "SELECT p.IDPACIENTE, p.CEDULAPACIENTE, p.NOMBRES, "
+                + "p.APELLIDOS, p.SEXO, p.IDARS, p.NONSS, p.COVER, p.ESTADO,"
+                + " c.IDCONSULTA,c.TURNO, c.FECHA "
+                + "FROM GET_PACIENTES p "
+                + "RIGHT JOIN V_CONSULTAS c ON c.IDPACIENTE = p.IDPACIENTE "
+                + "left join V_CONSULTAS_APROVADAS A on A.IDCONSULTA = C.IDCONSULTA "
+                + "WHERE A.IDCONSULTA is null and "
+                + "      c.FECHA = ? and  c.IDCONTROLCONSULTA = ? "
+                + filtro + " order by turno";
 
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, fecha);
             ps.setInt(2, idControlConsulta);
@@ -1454,18 +1680,17 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getPacienteActivo3(String filtro, String fecha,
             int idControlConsulta) {
-        try {
-            sql = "SELECT C.IDCONSULTA, C.TURNO, P.CEDULAPACIENTE, "
-                    + "P.NOMBRES, P.APELLIDOS, A.COD_AUTORIZACION, A.COSTO, "
-                    + "A.DESCUENTO, A.TOTALCOSTO "
-                    + "FROM GET_PACIENTES P "
-                    + "right join V_CONSULTAS C on C.IDPACIENTE = P.IDPACIENTE "
-                    + "right join V_CONSULTAS_APROVADAS A on A.IDCONSULTA = C.IDCONSULTA "
-                    + "WHERE C.FECHA = ? and "
-                    + "C.IDCONTROLCONSULTA = ? "
-                    + " order by TURNO";
+        sql = "SELECT C.IDCONSULTA, C.TURNO, P.CEDULAPACIENTE, "
+                + "P.NOMBRES, P.APELLIDOS, A.COD_AUTORIZACION, A.COSTO, "
+                + "A.DESCUENTO, A.TOTALCOSTO "
+                + "FROM GET_PACIENTES P "
+                + "right join V_CONSULTAS C on C.IDPACIENTE = P.IDPACIENTE "
+                + "right join V_CONSULTAS_APROVADAS A on A.IDCONSULTA = C.IDCONSULTA "
+                + "WHERE C.FECHA = ? and "
+                + "C.IDCONTROLCONSULTA = ? "
+                + " order by TURNO";
 
-            ps = getCnn().prepareStatement(sql);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             ps.setString(1, fecha);
             ps.setInt(2, idControlConsulta);
@@ -1478,15 +1703,14 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getAntecedentes(int idPadre) {
-        try {
-            sql = "SELECT IDANTECEDENTE, DESCRIPCION "
-                    + "FROM V_ANTECEDENTES "
-                    + "WHERE IDPACIENTE = ?";
+        sql = "SELECT IDANTECEDENTE, DESCRIPCION "
+                + "FROM V_ANTECEDENTES "
+                + "WHERE IDPACIENTE = ?";
 
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setInt(1, idPadre);
 
@@ -1498,15 +1722,14 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getConsulta(String fecha) {
-        try {
-            sql = "SELECT idConsulta, TURNO, idPaciente, FINAL, NOMBRES, APELLIDOS, IDARS, NONSS "
-                    + "FROM GET_CONSULTAS "
-                    + "WHERE FECHA = ? and ESTADO";
+        sql = "SELECT idConsulta, TURNO, idPaciente, FINAL, NOMBRES, APELLIDOS, IDARS, NONSS "
+                + "FROM GET_CONSULTAS "
+                + "WHERE FECHA = ? and ESTADO";
 
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, fecha);
 
@@ -1518,22 +1741,21 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getGuiaDesarrollo(int idPaciente, boolean cero) {
-        try {
-            //Esto debe de unirsele otras tablas que traega como resultado
-            //que desarrollo a tenido el niño en el tiempo desde el nacimiento
-            sql = "SELECT B.ID_GVD, B.EDAD, B.CARACT_DESARR_EVALUAR, "
-                    + "          COALESCE((SELECT " + (cero ? " a.SI_NO " : " a.FECHA ")
-                    + "                    FROM V_DETALLE_GUIA_VIGIL A "
-                    + "                    WHERE A.IDPACIENTE = ? and "
-                    + "                    A.ID_GVD = B.ID_GVD), "
-                    + (cero ? "false" : "' '") + " ) as RESULTADO "
-                    + "FROM V_GUIA_VIGILANCIA_DESARROLLO B "
-                    + "WHERE b.EDAD " + (cero ? "" : "!") + "= 0";
+        //Esto debe de unirsele otras tablas que traega como resultado
+        //que desarrollo a tenido el niño en el tiempo desde el nacimiento
+        sql = "SELECT B.ID_GVD, B.EDAD, B.CARACT_DESARR_EVALUAR, "
+                + "          COALESCE((SELECT " + (cero ? " a.SI_NO " : " a.FECHA ")
+                + "                    FROM V_DETALLE_GUIA_VIGIL A "
+                + "                    WHERE A.IDPACIENTE = ? and "
+                + "                    A.ID_GVD = B.ID_GVD), "
+                + (cero ? "false" : "' '") + " ) as RESULTADO "
+                + "FROM V_GUIA_VIGILANCIA_DESARROLLO B "
+                + "WHERE b.EDAD " + (cero ? "" : "!") + "= 0";
 
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setInt(1, idPaciente);
 
@@ -1545,18 +1767,14 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getProveedor() {
-        try {
-            sql = "SELECT IDPROVEEDOR, CODIGO_PROVEEDOR, NOMBRE_PROVEEDOR, "
-                    + "TELEFONO_PROVEEDOR, ESTADO "
-                    + "FROM V_PROVEEDORES ";
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        sql = "SELECT IDPROVEEDOR, CODIGO_PROVEEDOR, NOMBRE_PROVEEDOR, "
+                + "TELEFONO_PROVEEDOR, ESTADO "
+                + "FROM V_PROVEEDORES ";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -1564,16 +1782,14 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getMedicamento(boolean estado) {
-        try {
-            sql = "SELECT CODIGO_PROVEEDOR, IDMEDICAMENTO, "
-                    + "          NOMBREMEDICAMENTO, ESTADO "
-                    + "   FROM GET_MEDICAMENTO"
-                    + "   WHERE ESTADO IS ? ORDER BY 1, 3";
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        sql = "SELECT CODIGO_PROVEEDOR, IDMEDICAMENTO, "
+                + "          NOMBREMEDICAMENTO, ESTADO "
+                + "   FROM GET_MEDICAMENTO"
+                + "   WHERE ESTADO IS ? ORDER BY 1, 3";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setBoolean(1, estado);
 
@@ -1587,15 +1803,12 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getMedicamentoFoto(String idMedicamento) {
 
-        try {
-            sql = "SELECT FOTO FROM V_MEDICAMENTOS "
-                    + "WHERE idMedicamento = ?";
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        sql = "SELECT FOTO FROM V_MEDICAMENTOS "
+                + "WHERE idMedicamento = ?";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setString(1, idMedicamento);
             return ps.executeQuery();
 
@@ -1606,22 +1819,17 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getHorario(String idUsuario) {
-        try {
-            sql = "SELECT IDCONTROLCONSULTA, CANTIDADPACIENTE,"
-                    + "          DIA, INICIAL, FINAL "
-                    + "FROM t_controlconsulta "
-                    + "WHERE IDUSUARIO = ? "
-                    + "order by DIA, INICIAL, FINAL";
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        sql = "SELECT IDCONTROLCONSULTA, CANTIDADPACIENTE,"
+                + "          DIA, INICIAL, FINAL "
+                + "FROM t_controlconsulta "
+                + "WHERE IDUSUARIO = ? "
+                + "order by DIA, INICIAL, FINAL";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setString(1, idUsuario);
-
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -1629,14 +1837,12 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getFechaDoctores(String fecha, boolean actual) {
-        try {
-            sql = "SELECT IDCONTROLCONSULTA, loginName, dia, "
-                    + "INICIAL, FINAL, nombreCompleto, CANTIDAD_PACIENTE "
-                    + "FROM GET_controlConsulta "
-                    + "WHERE dia like (SELECT TCNOMBREDIA "
-                    + "                FROM NOMBRE_DIA_CORTO (?)) " + (actual ? " and CURRENT_DATE <= ? ;" : "");
-
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT IDCONTROLCONSULTA, loginName, dia, "
+                + "INICIAL, FINAL, nombreCompleto, CANTIDAD_PACIENTE "
+                + "FROM GET_controlConsulta "
+                + "WHERE dia like (SELECT TCNOMBREDIA "
+                + "                FROM NOMBRE_DIA_CORTO (?)) " + (actual ? " and CURRENT_DATE <= ? ;" : "");
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             ps.setString(1, fecha);
 
@@ -1654,11 +1860,10 @@ public class SelectMetodos {
 
     public synchronized static ResultSet getMedicamentoActivo() {
         sql = "SELECT IDMEDICAMENTO, DESCRIPCION FROM V_MEDICAMENTOS WHERE estado ORDER BY 2";
-        try {
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1672,18 +1877,17 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static ResultSet getPadresActivo(boolean estado) {
-        try {
-            sql = "SELECT IDPADRE, CEDULA, NOMBRES, APELLIDOS, SEXO, "
-                    + "IDTIPOSANGRE, TIPOSANGRE, IDARS, ARS, NONSS, "
-                    + "TELEFONO, MOVIL, CORREO, DIRECCION, CIUDAD, FECHANACIMIENTO, "
-                    + "ESTADO "
-                    + "FROM GET_PADRES "
-                    + "WHERE ESTADO IS ? and idPadre != 0";
+        sql = "SELECT IDPADRE, CEDULA, NOMBRES, APELLIDOS, SEXO, "
+                + "IDTIPOSANGRE, TIPOSANGRE, IDARS, ARS, NONSS, "
+                + "TELEFONO, MOVIL, CORREO, DIRECCION, CIUDAD, FECHANACIMIENTO, "
+                + "ESTADO "
+                + "FROM GET_PADRES "
+                + "WHERE ESTADO IS ? and idPadre != 0";
 
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setBoolean(1, estado);
 
@@ -1695,19 +1899,15 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getPadresActivo(String cedula, String sexo) {
-        try {
-            sql = "SELECT IDPADRE, CEDULA, NOMBRES, APELLIDOS "
-                    + "FROM GET_PADRES "
-                    + "WHERE ESTADO AND CEDULA starting ? AND SEXO LIKE ?;";
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        sql = "SELECT IDPADRE, CEDULA, NOMBRES, APELLIDOS "
+                + "FROM GET_PADRES "
+                + "WHERE ESTADO AND CEDULA starting ? AND SEXO LIKE ?;";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setString(1, cedula);
             ps.setString(2, sexo);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1716,15 +1916,14 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getPadresActivoID(int idPadre) {
-        try {
-            sql = "SELECT NOMBRES, APELLIDOS, ARS, NONSS "
-                    + "FROM GET_PADRES "
-                    + "WHERE IDPADRE = ?";
+        sql = "SELECT NOMBRES, APELLIDOS, ARS, NONSS "
+                + "FROM GET_PADRES "
+                + "WHERE IDPADRE = ?";
 
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setInt(1, idPadre);
 
@@ -1741,12 +1940,10 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static ResultSet getPadresRecuperar(String cedula) {
-        try {
-
-            ps = getCnn().prepareStatement(Padres.RECUPERAR_PADRE,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(Padres.RECUPERAR_PADRE,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, cedula);
 
@@ -1763,14 +1960,11 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static ResultSet getDireccionesByID(int idCliente) {
-        try {
-            ps = getCnn().prepareStatement(Direcciones.SELECT_BY_ID,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Direcciones.SELECT_BY_ID,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setInt(1, idCliente);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1784,17 +1978,12 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static ResultSet getPacienteActivoID(int idPaciente) {
-        try {
-
-            ps = getCnn().prepareStatement(Paciente.GET_PACIENTES,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Paciente.GET_PACIENTES,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setInt(1, idPaciente);
-
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -1814,11 +2003,8 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static ResultSet getTipoSangre() {
-        try {
-            ps = getCnn().prepareStatement(TiposSangres.SELECT);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(TiposSangres.SELECT)) {
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -1826,20 +2012,15 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getMotivo() {
-        try {
-
-            sql = "SELECT IDMCONSULTA, DESCRIPCION, DEFENICION "
-                    + "FROM V_MOTIVOS_CONSULTA "
-                    + "WHERE ESTADO "
-                    + "ORDER BY 1";
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        sql = "SELECT IDMCONSULTA, DESCRIPCION, DEFENICION "
+                + "FROM V_MOTIVOS_CONSULTA "
+                + "WHERE ESTADO "
+                + "ORDER BY 1";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -1847,19 +2028,15 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getDetalleMotivo(int idConsulta, int turno) {
-        try {
-            sql = "SELECT IDMCONSULTA "
-                    + "   FROM V_DETALLEMOTIVOCONSULTA d "
-                    + "   WHERE d.IDCONSULTA = ? and d.TURNO = ?";
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        sql = "SELECT IDMCONSULTA "
+                + "   FROM V_DETALLEMOTIVOCONSULTA d "
+                + "   WHERE d.IDCONSULTA = ? and d.TURNO = ?";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setInt(1, idConsulta);
             ps.setInt(2, turno);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1868,14 +2045,11 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getARS() {
-        try {
-            ps = getCnn().prepareStatement(ARS.SELECT_CANTIDAD,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(ARS.SELECT_CANTIDAD,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -1883,22 +2057,17 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getPCefalico(int idPaciente) {
-        try {
-            sql = "SELECT OUT_FECHANACIMIENTO, "
-                    + "OUT_FECHACONSULTA, "
-                    + "OUT_DEFERENCIAFECHA, "
-                    + "OUT_PC "
-                    + "FROM PRO_PC(?)";
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        sql = "SELECT OUT_FECHANACIMIENTO, "
+                + "OUT_FECHACONSULTA, "
+                + "OUT_DEFERENCIAFECHA, "
+                + "OUT_PC "
+                + "FROM PRO_PC(?)";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setInt(1, idPaciente);
-
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -1906,20 +2075,16 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getPesoKG(int idPaciente) {
-        try {
-            sql = "SELECT OUT_FECHANACIMIENTO, "
-                    + "OUT_FECHACONSULTA, "
-                    + "OUT_DEFERENCIAFECHA, "
-                    + "OUT_PC "
-                    + "FROM PRO_PESO_EDAD(?)";
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        sql = "SELECT OUT_FECHANACIMIENTO, "
+                + "OUT_FECHACONSULTA, "
+                + "OUT_DEFERENCIAFECHA, "
+                + "OUT_PC "
+                + "FROM PRO_PESO_EDAD(?)";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setInt(1, idPaciente);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1928,18 +2093,14 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getLongitudOEstatura(int idPaciente) {
-        try {
-            sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
-                    + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
-                    + "FROM PRO_LONGITUD_ALTURA_EDAD(?)";
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
+                + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
+                + "FROM PRO_LONGITUD_ALTURA_EDAD(?)";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setInt(1, idPaciente);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -1948,15 +2109,14 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getLongitudPeso(int idPaciente) {
-        try {
-            sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
-                    + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
-                    + "FROM PRO_PESO_LONGITUD(?)";
+        sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
+                + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
+                + "FROM PRO_PESO_LONGITUD(?)";
 
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setInt(1, idPaciente);
 
@@ -1968,15 +2128,14 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getAlturaPeso(int idPaciente) {
-        try {
-            sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
-                    + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
-                    + "FROM PRO_PESO_ALTURA(?)";
+        sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
+                + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
+                + "FROM PRO_PESO_ALTURA(?)";
 
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setInt(1, idPaciente);
 
@@ -1994,15 +2153,14 @@ public class SelectMetodos {
      * @return devuelve la lista de seguro que existe en la base de datos
      */
     public synchronized static ResultSet getTipoSeguro() {
-        try {
-            sql = "SELECT ID, DESCRIPCION "
-                    + "FROM V_ARS "
-                    + "WHERE ESTADO";
+        sql = "SELECT ID, DESCRIPCION "
+                + "FROM V_ARS "
+                + "WHERE ESTADO";
 
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -2012,35 +2170,34 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getDatosNacimiento(int id) {
-        try {
-            sql = "SELECT FECHANACIMIENTO, PESONACIMIENTOKG, ALTURA, MC,"
-                    + " CESAREA, TIEMPOGESTACION, PC "
-                    + "FROM V_DATOSNACIMIENTO "
-                    + "WHERE idPaciente = ?";
-
-            ps = getCnn().prepareStatement(sql,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        sql = "SELECT FECHANACIMIENTO, PESONACIMIENTOKG, ALTURA, MC,"
+                + " CESAREA, TIEMPOGESTACION, PC "
+                + "FROM V_DATOSNACIMIENTO "
+                + "WHERE idPaciente = ?";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setInt(1, id);
 
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
 
-    /*S O P H I A  S T U D I O*/
+    /**
+     *
+     * @param buscar
+     * @return
+     */
     public boolean existeEstudiante(String buscar) {
-        try {
-            sql = "SELECT (1) FROM estudiantes WHERE matricula like '"
-                    + buscar + "' or nombres like '" + buscar + "' or apellidos like '"
-                    + buscar + "'";
-            ps = getCnn().prepareStatement(sql);
-            rs = ps.executeQuery();
+        sql = "SELECT (1) FROM estudiantes WHERE matricula like '"
+                + buscar + "' or nombres like '" + buscar + "' or apellidos like '"
+                + buscar + "'";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
             return rs.next();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2048,11 +2205,14 @@ public class SelectMetodos {
         }
     }
 
+    /**
+     *
+     * @param matricula
+     * @return
+     */
     public boolean estadoEstudiante(String matricula) {
-        try {
-            sql = "SELECT (1) FROM estudiantes e WHERE e.matricula = " + matricula + " and e.estado = 1";
-            ps = getCnn().prepareStatement(sql);
-            rs = ps.executeQuery();
+        sql = "SELECT (1) FROM estudiantes e WHERE e.matricula = " + matricula + " and e.estado = 1";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
             return rs.next();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2060,14 +2220,15 @@ public class SelectMetodos {
         }
     }
 
+    /**
+     *
+     * @param cedula
+     * @return
+     */
     public static boolean validarPadreMadre(String cedula) {
-        try {
-            sql = "SELECT 1 FROM PERSONA WHERE documento like ?";
-            ps = getCnn().prepareStatement(sql);
-
+        sql = "SELECT 1 FROM PERSONA WHERE documento like ?";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
             ps.setString(1, cedula);
-
-            rs = ps.executeQuery();
             return rs.next();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2075,11 +2236,15 @@ public class SelectMetodos {
         }
     }
 
+    /**
+     *
+     * @param patch
+     * @return
+     */
     public String getPatch(String patch) {
-        try {
-            sql = "SELECT patch FROM UBICACION_REPORTES WHERE Descripcion LIKE '" + patch + "'";
-            ps = getCnn().prepareStatement(sql);
-            rs = ps.executeQuery();
+        sql = "SELECT patch FROM UBICACION_REPORTES WHERE Descripcion LIKE '" + patch + "'";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+
             if (rs.next()) {
                 return rs.getString("Patch");
             } else {
@@ -2092,9 +2257,8 @@ public class SelectMetodos {
     }
 
     public static ResultSet getPadreMadres() {
-        try {
-            sql = "SELECT * FROM PADREMADRES";
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT * FROM PADREMADRES";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2102,10 +2266,15 @@ public class SelectMetodos {
         }
     }
 
-    public static ResultSet getPadreMadres(String Padre) {
-        try {
-            sql = "SELECT * FROM PADREMADRES WHERE documento LIKE '" + Padre + "'";
-            ps = getCnn().prepareStatement(sql);
+    /**
+     *
+     * @param idPadre
+     * @return
+     */
+    public static ResultSet getPadreMadres(int idPadre) {
+        sql = "SELECT * FROM PADREMADRES WHERE documento LIKE ?";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+            ps.setInt(1, idPadre);
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2114,9 +2283,9 @@ public class SelectMetodos {
     }
 
     public ResultSet getHorario() {
-        try {
-            sql = "SELECT * FROM TANDAS order by 1";
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT * FROM TANDAS order by 1";
+
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2125,14 +2294,13 @@ public class SelectMetodos {
     }
 
     public ResultSet getMensualidad(String matricula, String periodo) {
-        try {
-            sql = "SELECT "
-                    + "m.consecutivo, m.fecha_pago, "
-                    + "m.Estado, m.monto, m.pagado, m.total,"
-                    + " m.fecha_pagado, m.fecha_abono, m.periodo "
-                    + "FROM Mensualidad m WHERE matricula = " + matricula + " and"
-                    + " PERIODO like '" + periodo + "'";
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT "
+                + "m.consecutivo, m.fecha_pago, "
+                + "m.Estado, m.monto, m.pagado, m.total,"
+                + " m.fecha_pagado, m.fecha_abono, m.periodo "
+                + "FROM Mensualidad m WHERE matricula = " + matricula + " and"
+                + " PERIODO like '" + periodo + "'";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2141,39 +2309,38 @@ public class SelectMetodos {
     }
 
     public ResultSet getTandas(String edad) {
-        try {
-            sql = "SELECT t.id_tanda, trim(case lunes "
-                    + "when 1 then 'Lunes '"
-                    + "else trim('')"
-                    + "end||"
-                    + "case martes "
-                    + "when 1 then 'Martes '"
-                    + "else trim('')"
-                    + "end||"
-                    + "case miercoles "
-                    + "when 1 then 'Miercoles '"
-                    + "else trim('')"
-                    + "end||"
-                    + "case jueves "
-                    + "when 1 then 'Jueves '"
-                    + "else trim('')"
-                    + "end||"
-                    + "case viernes "
-                    + "when 1 then 'Viernes '"
-                    + "else trim('')"
-                    + "end||"
-                    + "case sabados "
-                    + "when 1 then 'Sabados '"
-                    + "else trim('')"
-                    + "end||"
-                    + "case domingos "
-                    + "when 1 then 'Domingos '"
-                    + "else trim('')"
-                    + "end)"
-                    + "||' De '||subString(t.Hora_Inicio FROM 1 for 8)"
-                    + "||' Hasta '||subString(t.Hora_Final FROM 1 for 8)"
-                    + "FROM Tandas t WHERE t.edad_minima <= " + edad + " and t.edad_maxima >= " + edad + "";
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT t.id_tanda, trim(case lunes "
+                + "when 1 then 'Lunes '"
+                + "else trim('')"
+                + "end||"
+                + "case martes "
+                + "when 1 then 'Martes '"
+                + "else trim('')"
+                + "end||"
+                + "case miercoles "
+                + "when 1 then 'Miercoles '"
+                + "else trim('')"
+                + "end||"
+                + "case jueves "
+                + "when 1 then 'Jueves '"
+                + "else trim('')"
+                + "end||"
+                + "case viernes "
+                + "when 1 then 'Viernes '"
+                + "else trim('')"
+                + "end||"
+                + "case sabados "
+                + "when 1 then 'Sabados '"
+                + "else trim('')"
+                + "end||"
+                + "case domingos "
+                + "when 1 then 'Domingos '"
+                + "else trim('')"
+                + "end)"
+                + "||' De '||subString(t.Hora_Inicio FROM 1 for 8)"
+                + "||' Hasta '||subString(t.Hora_Final FROM 1 for 8)"
+                + "FROM Tandas t WHERE t.edad_minima <= " + edad + " and t.edad_maxima >= " + edad + "";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
 
@@ -2182,12 +2349,12 @@ public class SelectMetodos {
     }
 
     public ResultSet getTandas(Integer id_Tanda) {
-        try {
-            sql = "SELECT t.cantidad_estudiantes, t.edad_minima, "
-                    + "t.edad_maxima, t.con_edad "
-                    + "FROM Tandas t "
-                    + "WHERE t.id_tanda =" + id_Tanda + " ";
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT t.cantidad_estudiantes, t.edad_minima, "
+                + "t.edad_maxima, t.con_edad "
+                + "FROM Tandas t "
+                + "WHERE t.id_tanda =" + id_Tanda + " ";
+
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2196,9 +2363,8 @@ public class SelectMetodos {
     }
 
     public static ResultSet getUbicaciones() {
-        try {
-            sql = "SELECT * FROM UBICACION_REPORTES";
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT * FROM UBICACION_REPORTES";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2207,25 +2373,24 @@ public class SelectMetodos {
     }
 
     public ResultSet getEstudiante(String matricula) {
-        try {
-            sql
-                    = "SELECT e.MATRICULA, e.CEDULA_PADREMADRE, e.NOMBRES, e.APELLIDOS, "
-                    + "       e.FECHANACIMIENTO, e.FECHAINGRESO, e.ESTADO, e.PERIODO_ACTUAL, "
-                    + "       (SELECt trim(case lunes when 1 then 'Lunes ' else trim('') end || "
-                    + "                    case martes when 1 then 'Martes ' else trim('') end || "
-                    + "                    case miercoles when 1 then 'Miercoles ' else trim('') end || "
-                    + "                    case jueves when 1 then 'Jueves ' else trim('') end || "
-                    + "                    case viernes when 1 then 'Viernes ' else trim('') end || "
-                    + "                    case sabados when 1 then 'Sabados ' else trim('') end || "
-                    + "                    case domingos when 1 then 'Domingos ' else trim('') end) ||' De '|| substring(HORA_INICIO FROM 1 for 8) ||' '||' Hasta '||substring(HORA_FINAL FROM 1 for 8) "
-                    + "        FROM Tandas t  "
-                    + "        WHERE t.ID_Tanda like e.ID_tanda) as dias, "
-                    + "        (SELECT p.NOMBRES||' '||p.APELLIDOS "
-                    + "         FROM PADREMADRES p "
-                    + "         WHERE p.DOCUMENTO like e.CEDULA_PADREMADRE) as NombrePadre, ID_tanda "
-                    + "FROM estudiantes e "
-                    + "WHERE e.MATRICULA = '" + matricula + "'";
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT e.MATRICULA, e.CEDULA_PADREMADRE, e.NOMBRES, e.APELLIDOS, "
+                + "       e.FECHANACIMIENTO, e.FECHAINGRESO, e.ESTADO, e.PERIODO_ACTUAL, "
+                + "       (SELECt trim(case lunes when 1 then 'Lunes ' else trim('') end || "
+                + "                    case martes when 1 then 'Martes ' else trim('') end || "
+                + "                    case miercoles when 1 then 'Miercoles ' else trim('') end || "
+                + "                    case jueves when 1 then 'Jueves ' else trim('') end || "
+                + "                    case viernes when 1 then 'Viernes ' else trim('') end || "
+                + "                    case sabados when 1 then 'Sabados ' else trim('') end || "
+                + "                    case domingos when 1 then 'Domingos ' else trim('') end) ||' De '|| substring(HORA_INICIO FROM 1 for 8) ||' '||' Hasta '||substring(HORA_FINAL FROM 1 for 8) "
+                + "        FROM Tandas t  "
+                + "        WHERE t.ID_Tanda like e.ID_tanda) as dias, "
+                + "        (SELECT p.NOMBRES||' '||p.APELLIDOS "
+                + "         FROM PADREMADRES p "
+                + "         WHERE p.DOCUMENTO like e.CEDULA_PADREMADRE) as NombrePadre, ID_tanda "
+                + "FROM estudiantes e "
+                + "WHERE e.MATRICULA = '" + matricula + "'";
+
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2256,8 +2421,7 @@ public class SelectMetodos {
                 sql = sql + "WHERE estado order by 1 ";
         }
 
-        try {
-            ps = getCnn().prepareStatement(sql);
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             if (tipo != 0) {
                 ps.setString(1, criterio);
             }
@@ -2289,29 +2453,26 @@ public class SelectMetodos {
      */
     public synchronized static Producto getProducto(int id) {
         sql = "SELECT r.ID, r.IDCATEGORIA, r.DESC_CATEGORIA, r.IMAGEN_CATEGORIA, r.CODIGO, "
-                + "     r.DESCRIPCION, r.IMAGEN_TEXTO, r.NOTA, r.FECHA_CREACION, r.ESTADO, "
+                + "     r.DESCRIPCION, r.IMAGEN_TEXTO, r.NOTA, r.FECHA_CREACION, r.ESTADO "
                 + "FROM GET_PRODUCTOS r "
                 + "WHERE r.ID = ?";
-        try {
-            ps = getCnn().prepareStatement(sql);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setInt(1, id);
-
-            rs = ps.executeQuery();
-
             Producto miProducto = null;
-            if (rs.next()) {
-                miProducto = Producto.builder().
-                        id(rs.getInt("id")).
-                        idCategoria(rs.getInt("idcategoria")).
-                        desc_categoria(rs.getString("DESC_CATEGORIA")).
-                        imagen_categoria(rs.getString("IMAGEN_CATEGORIA")).
-                        codigo(rs.getString("codigo")).
-                        descripcion(rs.getString("descripcion")).
-                        ImagenTexto(rs.getString("IMAGEN_TEXTO")).
-                        nota(rs.getString("nota")).
-                        FechaCreacion(rs.getDate("fecha_Creacion")).
-                        estado(rs.getBoolean("estado")).build();
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    miProducto = Producto.builder().
+                            id(rs.getInt("id")).
+                            idCategoria(rs.getInt("idcategoria")).
+                            desc_categoria(rs.getString("DESC_CATEGORIA")).
+                            imagen_categoria(rs.getString("IMAGEN_CATEGORIA")).
+                            codigo(rs.getString("codigo")).
+                            descripcion(rs.getString("descripcion")).
+                            ImagenTexto(rs.getString("IMAGEN_TEXTO")).
+                            nota(rs.getString("nota")).
+                            FechaCreacion(rs.getDate("fecha_Creacion")).
+                            estado(rs.getBoolean("estado")).build();
+                }
             }
             return miProducto;
         } catch (SQLException ex) {
@@ -2331,19 +2492,34 @@ public class SelectMetodos {
      * @return resuelve un conjunto de datos de la tabla de los productos del
      * sistema.
      */
-    public synchronized static ResultSet getProductos() {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.ID, r.IDCATEGORIA, r.DESC_CATEGORIA, r.IMAGEN_CATEGORIA, r.CODIGO, "
-                    + "     r.DESCRIPCION, r.IMAGEN_TEXTO, r.NOTA, r.FECHA_CREACION, r.ESTADO, "
-                    + "     r.IDUSUARIO, r.ROL "
-                    + "FROM GET_PRODUCTOS r "
-            );
-            return ps.executeQuery();
+    public synchronized static List<Producto> getProductos() {
+        List<Producto> listaProducto = new ArrayList<Producto>();
+        Producto producto;
+        try ( PreparedStatement ps = getCnn().prepareStatement(Producto.SELECT)) {
+
+            try ( ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    producto = Producto.builder().
+                            id(rs.getInt("ID")).
+                            descripcion(rs.getString("DESCRIPCION")).
+                            idCategoria(rs.getInt("IDCATEGORIA")).
+                            desc_categoria(rs.getString("DESC_CATEGORIA")).
+                            codigo(rs.getString("CODIGO")).
+                            FechaCreacion(rs.getDate("FECHA_CREACION")).
+                            nota(rs.getString("NOTA")).
+                            estado(rs.getBoolean("ESTADO")).build();
+
+                    listaProducto.add(producto);
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
+        return listaProducto;
     }
 
     /**
@@ -2354,13 +2530,11 @@ public class SelectMetodos {
      */
     public synchronized static ResultSet getClientesFiltrados(String criterio,
             String filtro) {
-        try {
-            sql = "SELECT r.IDCLIENTE, r.NOMBRES, r.APELLIDOS, D.MONTO "
-                    + "FROM Tabla_Clientes r "
-                    + "INNER JOIN TABLA_DEUDAS D ON r.IDCLIENTE like D.IDCLIENTE "
-                    + filtro;
-
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT r.IDCLIENTE, r.NOMBRES, r.APELLIDOS, D.MONTO "
+                + "FROM Tabla_Clientes r "
+                + "INNER JOIN TABLA_DEUDAS D ON r.IDCLIENTE like D.IDCLIENTE "
+                + filtro;
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             if (criterio != null) {
                 ps.setString(1, criterio);
@@ -2382,11 +2556,8 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static ResultSet getClientesCombo() {
-        try {
-            ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_ESTADO_SB);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_ESTADO_SB)) {
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -2394,12 +2565,10 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getClientesCobros() {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT r.IDCLIENTE, (r.NOMBRES||' '||r.APELLIDOS) as nombre "
-                    + "FROM TABLA_CLIENTES r "
-                    + "WHERE r.DEUDAACTUAL > 0");
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT r.IDCLIENTE, (r.NOMBRES||' '||r.APELLIDOS) as nombre "
+                + "FROM TABLA_CLIENTES r "
+                + "WHERE r.DEUDAACTUAL > 0")) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2408,14 +2577,11 @@ public class SelectMetodos {
     }
 
     public static synchronized ResultSet getClientes(String idCliente) {
-        try {
-            sql = "SELECT idCliente, c.nombres ||' '||c.apellidos as NombreCompleto "
-                    + "FROM v_clientes c "
-                    + "WHERE c.idcliente = ?";
-
-            ps = getCnn().prepareStatement(sql);
+        sql = "SELECT idCliente, c.nombres ||' '||c.apellidos as NombreCompleto "
+                + "FROM v_clientes c "
+                + "WHERE c.idcliente = ?";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setString(1, idCliente);
-
             return ps.executeQuery(sql);
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2428,13 +2594,74 @@ public class SelectMetodos {
      * @return Devuelve todos los datos realacionado con los clientes en la base
      * de datos.
      */
-    public static synchronized ResultSet getClientesTablaSB() {
-        try {
-            ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_SB);
-            return ps.executeQuery();
+    public static synchronized DefaultTableModel getClientesTablaSB() {
+        String titulos[] = {"Cedulas", "Persona", "Primer Nombre", "Segundo Nombre",
+            "Apellidos", "Sexo", "Fecha nacimiento", "Fecha Ingreso", "Estado"};
+
+        try ( PreparedStatement ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_SB,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+
+            Object registro[] = new Object[titulos.length];
+            DefaultTableModel dtmClientes = new DefaultTableModel(null, titulos);
+
+            try ( ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    Generales g = Generales.builder().
+                            cedula(rs.getString("cedula")).build();
+
+                    Clientes p = Clientes.builder().
+                            id_persona(rs.getInt("id")).
+                            generales(g).build();
+                    registro[0] = p;
+                    registro[1] = rs.getString("persona").equalsIgnoreCase("j") ? "JURÍDICA" : "FÍSICA";
+                    registro[2] = rs.getString("pnombre");
+                    registro[3] = rs.getString("snombre");
+                    registro[4] = rs.getString("apellidos");
+                    registro[5] = rs.getString("sexo").equalsIgnoreCase("M") ? "MASCULINO" : "FEMENINO";
+                    registro[6] = Utilidades.formatDate(rs.getDate("fecha_nacimiento"), "dd/MM/yyyy");
+                    registro[7] = Utilidades.formatDate(rs.getDate("fecha_Ingreso"), "dd/MM/yyyy");
+                    registro[8] = rs.getBoolean("Estado");
+                    dtmClientes.addRow(registro);
+                }
+
+                return dtmClientes;
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
+        }
+    }
+
+    public static synchronized void getClientesTablaSBCombo(JComboBox<Clientes> cmbCliente) {
+
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                Clientes.GET_CLIENTES_SB_COMBO,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+
+            try ( ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    cmbCliente.addItem(Clientes.builder().
+                            id_persona(rs.getInt("id")).
+                            pNombre(rs.getString("pnombre")).
+                            sNombre(rs.getString("snombre")).
+                            apellidos(rs.getString("apellidos")).build());
+
+                }
+
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            }
+
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
@@ -2448,19 +2675,15 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static String modificarDeuda(int idDeuda, String op) {
-        try {
-            ps = getCnn().prepareStatement(
-                    "SELECT S_SALIDA "
-                    + "FROM SP_UPDATE_DEUDA_ESTADO(?,?)");
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT S_SALIDA "
+                + "FROM SP_UPDATE_DEUDA_ESTADO(?,?)")) {
             ps.setInt(1, idDeuda);
             ps.setString(2, op);
-
-            rs = ps.executeQuery();
-            rs.next();
-
-            return rs.getString("S_SALIDA");
-
+            try ( ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getString("S_SALIDA");
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error a ejecutar Operacion";
@@ -2476,10 +2699,7 @@ public class SelectMetodos {
     public synchronized static ResultSet getProductoById(Integer idProducto,
             String codigo) {
 
-        try {
-
-            ps = getCnn().prepareStatement(Producto.SELECT);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Producto.SELECT_CODIGO_ID)) {
             ps.setString(1, codigo);
 
             if (idProducto == null) {
@@ -2502,26 +2722,25 @@ public class SelectMetodos {
      */
     public synchronized static ResultSet getCajerosActivos() {
         //Para que sirve este metodo...
-        try {
-            ps = getCnn().prepareStatement(Usuarios.GET_SELECT_USUARIOS_ACTIVOS);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.GET_SELECT_USUARIOS_ACTIVOS)) {
             return ps.executeQuery();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
 
+    /**
+     *
+     * @param estado
+     * @return
+     */
     public synchronized static ResultSet getUsuario(boolean estado) {
-        try {
-            ps = getCnn().prepareStatement(Usuarios.GET_SELECT_USUARIOS,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.GET_SELECT_USUARIOS,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setBoolean(1, estado);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2530,11 +2749,10 @@ public class SelectMetodos {
     }
 
     public synchronized static ResultSet getUsuarioDoctor() {
-        try {
-            ps = getCnn().prepareStatement(Usuarios.GET_SELECT_DOCTORES,
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY,
-                    ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.GET_SELECT_DOCTORES,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             return ps.executeQuery();
 
@@ -2550,15 +2768,14 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static boolean delega(String idUsuario) {
-
-        try {
-            ps = getCnn().prepareStatement(Usuarios.DELEGA);
-
+        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.DELEGA)) {
             ps.setString(1, idUsuario);
-
-            rs = ps.executeQuery();
-
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
@@ -2571,8 +2788,7 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static ResultSet getUsuariosActivo() {
-        try {
-            ps = getCnn().prepareStatement("");
+        try ( PreparedStatement ps = getCnn().prepareStatement("")) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -2580,16 +2796,13 @@ public class SelectMetodos {
         }
     }
 
-    
-
     /**
      * Se esta utilizando para llenar la tabla de usuarios
      *
      * @return
      */
     public synchronized static ResultSet getUsuarios() {
-        try {
-            ps = getCnn().prepareStatement(Usuarios.SELECT);
+        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.SELECT)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

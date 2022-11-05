@@ -11,6 +11,12 @@ public class BaseDeDatos {
             + "TRIM(CURRENT_TRANSACTION) "
             + "FROM RDB$DATABASE";
 
+    /**
+     * Esta variable se esta utilizando para obtener el rol y el usuario que se
+     * loguean en el sistema.
+     * 
+     * Fecha de revision: 24 oct 2022
+     */
     public static String USUARIO_ACTUAL
             = "SELECT TRIM(CURRENT_USER), TRIM(CURRENT_ROLE) "
             + "FROM RDB$DATABASE";
