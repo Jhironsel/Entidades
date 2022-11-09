@@ -10,10 +10,14 @@ import lombok.experimental.SuperBuilder;
 public class E_S_SYS {
 
     private final int ID_E_S_SYS;
+    private final String nombre;
+    private final String telefono;
     private final Date FCHI;
     private final Date FCHA;
     private final Date FCHV;
     private final String IDMAC;
+    private final String direccion;
+    private final String mensaje_footer;
     private final File fileLogo;
     private final String LOGO;
 

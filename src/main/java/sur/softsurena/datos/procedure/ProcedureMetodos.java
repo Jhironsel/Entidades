@@ -217,21 +217,7 @@ public class ProcedureMetodos {
         }
     }
 
-    //    Procedimiento comienzo
-    public synchronized static boolean pagoCumplido(int idFactura) {
-        sql = "EXECUTE PROCEDURE Cajero_PagoCumplido (?)";
-
-        try {
-            cs = getCnn().prepareCall(sql);
-
-            cs.setInt(1, idFactura);
-
-            return cs.execute();
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-        }
-        return false;
-    }
+    
 
     /**
      * Metodo utilizado para modificar los usuarios del sistema con el rol

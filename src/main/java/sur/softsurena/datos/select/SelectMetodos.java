@@ -1327,7 +1327,7 @@ public class SelectMetodos {
         try ( PreparedStatement ps = getCnn().prepareStatement(E_S_SYS.SELECT_LOGO,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             try ( ResultSet rs = ps.executeQuery()) {
                 rs.next();
                 return rs.getString(1);

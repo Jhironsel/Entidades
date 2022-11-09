@@ -22,6 +22,28 @@ public class Tandas {
             + "SABADOS, DOMINGOS, CANTIDAD_ESTUDIANTES, EDAD_MINIMA, "
             + "EDAD_MAXIMA, CON_EDAD,ESTADO) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    /**
+     * Campo que permite actualizar todo el contenido de una tanda en el sistema.
+     */
+    public static String UPDATE 
+            = "update V_TANDAS set "
+                + "ANNO_INICIAL = ?, "
+                + "ANNO_FINAL = ?, "
+                + "HORA_INICIO = ?, "
+                + "HORA_FINAL = ?, "
+                + "LUNES = ?, "
+                + "MARTES = ?, "
+                + "MIERCOLES = ?, "
+                + "JUEVES = ?, "
+                + "VIERNES = ?, "
+                + "SABADOS = ?, "
+                + "DOMINGOS = ?, "
+                + "CANTIDAD_ESTUDIANTES = ?, "
+                + "EDAD_MINIMA = ?, "
+                + "EDAD_MAXIMA = ?, "
+                + "CON_EDAD = ?, "
+                + "ESTADO = ? "
+                + "where (ID_TANDA = ?) ";
 
     private final Integer id_tanda;
     private final Date anno_inicial;

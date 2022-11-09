@@ -13,5 +13,13 @@ public class Padres extends Personas {
             + "FECHANACIMIENTO "
             + "FROM V_PADRES "
             + "WHERE CEDULA = ? AND ESTADO IS FALSE;";
+    
+    
+    public static String CAMBIAR_ESTADO
+            ="UPDATE V_Padres "
+                    + "SET "
+                    + "    ESTADO = FALSE "
+                    + "WHERE "
+                    + "    CEDULA = ?";
 
 }
