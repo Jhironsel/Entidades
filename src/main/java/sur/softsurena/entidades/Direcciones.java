@@ -20,8 +20,13 @@ public class Direcciones {
     private final int id_municipio;
     private final int id_distrito_municipal;
     private final int id_codigo_postal;
+    //La accion podrá ser i Insertar, a actualizar o b borrar
+    private final char accion;
     private final String direccion;
     private final Date fecha;
+    
+    public final static String[] TITULOS_DIRECCION = {"Provincia", "Municipio", 
+        "Distrito M.", "Calle y No. Casa", "Fecha"};
 
     /**
      * Consulta utilizada para obtener la direccion de una persona en
@@ -43,14 +48,14 @@ public class Direcciones {
             + "VALUES (?, ?, ?, ?, ?, ?);";
 
     public static String UPDATE
-            = "UPDATE V_DIRECCIONES a \n"
-            + "SET \n"
-            + "     a.ID_PROVINCIA = ?, \n"
-            + "     a.ID_MUNICIPIO = ?, \n"
-            + "     a.ID_DISTRITO_MUNICIPAL = ?, \n"
-            + "     a.ID_CODIGO_POSTAL = ?, \n"
-            + "     a.DIRECCION = ? \n"
-            + "WHERE \n"
+            = "UPDATE V_DIRECCIONES a  "
+            + "SET  "
+            + "     a.ID_PROVINCIA = ?,  "
+            + "     a.ID_MUNICIPIO = ?,  "
+            + "     a.ID_DISTRITO_MUNICIPAL = ?,  "
+            + "     a.ID_CODIGO_POSTAL = ?,  "
+            + "     a.DIRECCION = ?  "
+            + "WHERE "
             + "     a.ID = ?";
     
 

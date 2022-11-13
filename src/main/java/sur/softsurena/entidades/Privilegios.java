@@ -57,23 +57,23 @@ public class Privilegios {
     public static char PRIVILEGIO_REFERENCE = 'R' ;
 
     public static String SELECT
-            = "SELECT r.USER_NAME, r.CEDENTE, r.PRIVILEGIO, \n"
-            + "     r.OPCION_PERMISO, r.NOMBRE_RELACION, \n"
-            + "     r.NOMBRE_CAMPO, r.TIPO_USUARIO, \n"
-            + "     r.TIPO_OBJECTO \n"
-            + "FROM GET_PRIVILEGIOS r \n";
+            = "SELECT r.USER_NAME, r.CEDENTE, r.PRIVILEGIO, "
+            + "     r.OPCION_PERMISO, r.NOMBRE_RELACION, "
+            + "     r.NOMBRE_CAMPO, r.TIPO_USUARIO, "
+            + "     r.TIPO_OBJECTO "
+            + "FROM GET_PRIVILEGIOS r ";
 
     public static String PERMISO_UPDATE_TABLA
             = "SELECT (1) "
-            + "FROM GET_PRIVILEGIOS r \n" 
-            + "WHERE (TRIM(r.USER_NAME) LIKE TRIM(CURRENT_USER) OR \n"
-            + "      TRIM(r.USER_NAME) LIKE TRIM(CURRENT_ROLE)) AND \n"
-            + "      TRIM(r.PRIVILEGIO) LIKE TRIM(?) AND \n"
+            + "FROM GET_PRIVILEGIOS r " 
+            + "WHERE (TRIM(r.USER_NAME) LIKE TRIM(CURRENT_USER) OR "
+            + "      TRIM(r.USER_NAME) LIKE TRIM(CURRENT_ROLE)) AND "
+            + "      TRIM(r.PRIVILEGIO) LIKE TRIM(?) AND "
             + "      TRIM(r.NOMBRE_RELACION) LIKE TRIM(?) ";
     
     public static String PERMISO_UPDATE_CAMPO
             = PERMISO_UPDATE_TABLA 
-            + "      AND TRIM(r.NOMBRE_CAMPO) LIKE TRIM(?); \n";
+            + "      AND TRIM(r.NOMBRE_CAMPO) LIKE TRIM(?); ";
     
     public static String GET_ROLES
             = "SELECT r.ROL FROM GET_ROLES r";

@@ -10,8 +10,12 @@ public class ContactosEmail {
     
     private final Integer id;
     private final int id_persona;
+    //La accion podrá ser i Insertar, a actualizar o b borrar
+    private final char accion;
     private final String email;
     private final Date fecha;
+    
+    public static final String[] TITULOS_CORREO = {"Correo", "Fecha"};
 
     public final static String SELECT
             = "SELECT a.ID, a.IDPERSONA, a.EMAIL "

@@ -176,7 +176,7 @@ public class InsertMetodos {
      * @return
      */
     public synchronized static Resultados agregarCliente(Clientes c,
-            ContactosTel[] ct, ContactosEmail[] ce) {
+            List<ContactosTel> ct, List<ContactosEmail> ce) {
         Resultados r;
         try {
             ps = getCnn().prepareStatement(Clientes.INSERT);
@@ -244,7 +244,7 @@ public class InsertMetodos {
      * @param contactos
      * @return
      */
-    public static boolean agregarContactosTel(int id, ContactosTel[] contactos) {
+    public static boolean agregarContactosTel(int id, List<ContactosTel> contactos) {
         try {
             ps = getCnn().prepareStatement(ContactosTel.INSERT);
 
@@ -263,7 +263,7 @@ public class InsertMetodos {
         return false;
     }
 
-    public static boolean agregarDirecciones(int id, Direcciones[] direcciones) {
+    public static boolean agregarDirecciones(int id, List<Direcciones> direcciones) {
         try {
             ps = getCnn().prepareStatement(Direcciones.INSERT);
 
@@ -290,7 +290,7 @@ public class InsertMetodos {
      * @param contactos
      * @return
      */
-    public static boolean agregarContactosEmail(int id, ContactosEmail[] contactos) {
+    public static boolean agregarContactosEmail(int id, List<ContactosEmail> contactos) {
         try {
             ps = getCnn().prepareStatement(ContactosEmail.INSERT);
 

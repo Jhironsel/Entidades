@@ -3,11 +3,11 @@ package sur.softsurena.datos.update;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.codec.binary.Base64;
@@ -34,18 +34,32 @@ public class UpdateMetodos {
 
     private static final Logger LOG = Logger.getLogger(UpdateMetodos.class.getName());
     private static String sql;
+    
+    private static void rollBack() {
+        try {
+            getCnn().rollback();
+        } catch (SQLException ex1) {
+            LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+        }
+    }
 
     /**
      * Metodo que permite modificar a los clientes del sistema de facturacion.
      *
-     * @param c
-     * @param cc
-     * @return
+     * @param c Este objeto se almacenan los numeros de contactos telefonicos.
+     * 
+     * @param cc En este objeto se almacenan los correos electronicos del 
+     * cliente.
+     * 
+     * @return retorna un objecto de la clase resultado los cuales se envian lo
+     * que es el mensaje, id y la cantidad de registro afetados. 
      */
     public synchronized static Resultados modificarCliente(Clientes c,
-            ContactosTel[] ct, ContactosEmail[] ce) {
+            List<ContactosTel> ct, List<ContactosEmail> ce) {
+
         Resultados r;
         try ( PreparedStatement ps = getCnn().prepareStatement(Clientes.UPDATE)) {
+
             ps.setInt(1, c.getId_persona());
             ps.setString(2, String.valueOf(c.getPersona()));
             ps.setString(3, c.getGenerales().getCedula());
@@ -106,7 +120,7 @@ public class UpdateMetodos {
      * @param contactos
      * @return
      */
-    public static boolean modificarContactosTel(int id, ContactosTel[] contactos) {
+    public static boolean modificarContactosTel(int id, List<ContactosTel> contactos) {
         try ( PreparedStatement ps = getCnn().prepareStatement(ContactosTel.UPDATE)) {
 
             for (ContactosTel c : contactos) {
@@ -124,8 +138,11 @@ public class UpdateMetodos {
         return false;
     }
 
-    public static boolean modificarDirecciones(int id, Direcciones[] direcciones) {
+    public static boolean modificarDirecciones(int id, List<Direcciones> direcciones) {
+
         try ( PreparedStatement ps = getCnn().prepareStatement(Direcciones.UPDATE)) {
+
+            getCnn().setAutoCommit(false);
 
             for (Direcciones d : direcciones) {
                 ps.setInt(1, d.getId_provincia());
@@ -136,10 +153,15 @@ public class UpdateMetodos {
                 ps.setInt(6, id);
                 ps.addBatch();
             }
+
             ps.executeBatch();
+
+            getCnn().commit();
+
             return true;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            rollBack();
         }
         return false;
     }
@@ -150,7 +172,7 @@ public class UpdateMetodos {
      * @param contactos
      * @return
      */
-    public static boolean modificarContactosEmail(int id, ContactosEmail[] contactos) {
+    public static boolean modificarContactosEmail(int id, List<ContactosEmail> contactos) {
         try ( PreparedStatement ps = getCnn().prepareStatement(ContactosEmail.UPDATE)) {
 
             for (ContactosEmail c : contactos) {
@@ -265,8 +287,7 @@ public class UpdateMetodos {
      * @return
      */
     public synchronized static String modificarProducto(Producto p) {
-        try (PreparedStatement ps = getCnn().prepareStatement(Producto.UPDATE)){
-            
+        try ( PreparedStatement ps = getCnn().prepareStatement(Producto.UPDATE)) {
 
             ps.setInt(1, p.getIdCategoria());
             ps.setString(2, p.getCodigo());
@@ -286,7 +307,7 @@ public class UpdateMetodos {
 
     public synchronized static String modificarPaciente(Paciente p) {
         try ( CallableStatement ps = getCnn().prepareCall(
-                Paciente.UPDATE, 
+                Paciente.UPDATE,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_UPDATABLE,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
@@ -308,7 +329,7 @@ public class UpdateMetodos {
             ps.setBoolean(14, p.getAsegurado().getEstado());
 
             ps.executeUpdate();
-            
+
             return "Paciente modificado correctamente";
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

@@ -3,6 +3,7 @@ package sur.softsurena.entidades;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComboBox;
@@ -19,21 +20,21 @@ public abstract class Personas {
     public static String INSERT
             ="SELECT p.V_ID FROM SP_INSERT_PERSONA (?, ?, ?, ?, ?, ?, ?) p;";
     
-    private final int id_persona;//1
-    private final char persona;//2 Este campo es para saber si es F Fisica o J Juridica la persona
-    private final String pNombre;//3
-    private final String sNombre;//4
-    private final String apellidos;//5
-    private final char sexo;//6
-    private final Date fecha_nacimiento;//7
-    private final Date fecha_ingreso;//8
-    private final Date fecha_hora_ultima_update;//9
-    private final Boolean estado;//10
-    private final String user_name;//11
-    private final String rol;//12
+    private final int id_persona;
+    private final char persona;
+    private final String pNombre;
+    private final String sNombre;
+    private final String apellidos;
+    private final char sexo;
+    private final Date fecha_nacimiento;
+    private final Date fecha_ingreso;
+    private final Date fecha_hora_ultima_update;
+    private final Boolean estado;
+    private final String user_name;
+    private final String rol;
     
     private final Asegurados asegurado;
-    private final Direcciones[] direccion;
+    private final List<Direcciones> direccion;
     private final Generales generales;
 
     public static void llenarPersona(JComboBox jcbPersona) {
@@ -98,6 +99,10 @@ public abstract class Personas {
 
     }
 
+    /**
+     * @deprecated 
+     * @param jcbTipoSangre 
+     */
     public static void llenarTipoSangre(JComboBox jcbTipoSangre) {
         TiposSangres ts;
         ResultSet rts = SelectMetodos.getTipoSangre();

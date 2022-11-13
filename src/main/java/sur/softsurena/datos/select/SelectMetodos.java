@@ -42,6 +42,9 @@ import sur.softsurena.entidades.TiposSangres;
 import sur.softsurena.entidades.Turnos;
 import sur.softsurena.entidades.Usuarios;
 import sur.softsurena.utilidades.Utilidades;
+import static sur.softsurena.entidades.ContactosEmail.TITULOS_CORREO;
+import static sur.softsurena.entidades.ContactosTel.TITULOS_TELEFONO;
+import static sur.softsurena.entidades.Direcciones.TITULOS_DIRECCION;
 
 public class SelectMetodos {
 
@@ -604,13 +607,9 @@ public class SelectMetodos {
      * @return Retorna un conjunto de datos del tipo resultSet.
      */
     public synchronized static DefaultTableModel getDireccionByID(int id) {
-        String titulosDireccion[] = {
-            "Provincia", "Municipio",
-            "Distrito M.", "Calle y No. Casa", "Fecha"};
+        DefaultTableModel dtmDireccion = new DefaultTableModel(null, TITULOS_DIRECCION);
 
-        DefaultTableModel dtmDireccion = new DefaultTableModel(null, titulosDireccion);
-
-        Object registroDireccion[] = new Object[titulosDireccion.length];
+        Object registroDireccion[] = new Object[TITULOS_DIRECCION.length];
 
         try ( PreparedStatement ps = getCnn().prepareStatement(Direcciones.SELECT_BY_ID)) {
             ps.setInt(1, id);
@@ -637,7 +636,6 @@ public class SelectMetodos {
 
                     dtmDireccion.addRow(registroDireccion);
                 }
-                registroDireccion = new Object[titulosDireccion.length];
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
@@ -648,15 +646,12 @@ public class SelectMetodos {
     }
 
     public synchronized static DefaultTableModel getTelefonoByID(int id) {
-        String titulosTel[] = {"Numero", "Tipo", "Fecha"};
+        Object registroTel[] = new Object[TITULOS_TELEFONO.length];
 
-        Object registroTel[] = new Object[titulosTel.length];
-
-        DefaultTableModel dtmTelefono = new DefaultTableModel(null, titulosTel);
+        DefaultTableModel dtmTelefono = new DefaultTableModel(null, TITULOS_TELEFONO);
 
         try ( PreparedStatement ps = getCnn().prepareStatement(ContactosTel.SELECT_BY_ID)) {
             ps.setInt(1, id);
-
             try ( ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     ContactosTel t = ContactosTel.builder().
@@ -674,7 +669,6 @@ public class SelectMetodos {
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -682,11 +676,9 @@ public class SelectMetodos {
     }
 
     public synchronized static DefaultTableModel getCorreoByID(int id) {
-        String titulosCorreo[] = {"Correo", "Fecha"};
+        Object registroCorreo[] = new Object[TITULOS_CORREO.length];
 
-        Object registroCorreo[] = new Object[titulosCorreo.length];
-
-        DefaultTableModel dtmCorreo = new DefaultTableModel(null, titulosCorreo);
+        DefaultTableModel dtmCorreo = new DefaultTableModel(null, TITULOS_CORREO);
 
         try ( PreparedStatement ps = getCnn().prepareStatement(ContactosEmail.SELECT_BY_ID)) {
             ps.setInt(1, id);
@@ -706,7 +698,6 @@ public class SelectMetodos {
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -1499,7 +1490,12 @@ public class SelectMetodos {
      * @return
      */
     public synchronized static boolean privilegioTabla(Privilegios p) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(Privilegios.PERMISO_UPDATE_TABLA)) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                Privilegios.PERMISO_UPDATE_TABLA, 
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+            
             ps.setString(1, "" + p.getPrivilegio());
             ps.setString(2, p.getNombre_relacion());
 
