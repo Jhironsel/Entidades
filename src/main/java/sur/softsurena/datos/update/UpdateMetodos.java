@@ -145,12 +145,11 @@ public class UpdateMetodos {
             getCnn().setAutoCommit(false);
 
             for (Direcciones d : direcciones) {
-                ps.setInt(1, d.getId_provincia());
-                ps.setInt(2, d.getId_municipio());
-                ps.setInt(3, d.getId_distrito_municipal());
-                ps.setInt(4, d.getId_codigo_postal());
-                ps.setString(5, d.getDireccion());
-                ps.setInt(6, id);
+                ps.setInt(1, d.getProvincia().getId());
+                ps.setInt(2, d.getMunicipio().getId());
+                ps.setInt(3, d.getDistrito_municipal().getId());
+                ps.setString(4, d.getDireccion());
+                ps.setInt(5, id);
                 ps.addBatch();
             }
 

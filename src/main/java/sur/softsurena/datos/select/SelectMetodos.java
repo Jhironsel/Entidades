@@ -138,7 +138,11 @@ public class SelectMetodos {
     }
 
     /**
-     * Metodo para consultar cual es el usuario actual del sistema.
+     * Nitido. Metodo para consultar cual es el usuario actual del sistema.
+     *
+     * Una vez iniciada la session del usuario en el sistema, hacemos una
+     * consulta a la base de datos, que nos devuelve el usuario y el rol de
+     * este.
      *
      * Metodo actualizado el 17/05/2022.
      *
@@ -155,20 +159,16 @@ public class SelectMetodos {
                 BaseDeDatos.USUARIO_ACTUAL,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             try ( ResultSet rs = ps.executeQuery();) {
                 rs.next();
-                Usuarios u = Usuarios.builder().
+                return Usuarios.builder().
                         user_name(rs.getString(1)).
                         rol(rs.getString(2)).build();
-
-                return u;
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
             }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -533,27 +533,37 @@ public class SelectMetodos {
     }
 
     /**
-     * Metodo revisado y actualizado el 26 de abril 2022.
+     * Metodo utilizado para saber si existe un cliente registrado por una
+     * cedula de identidad en el sistema.
      *
-     * @param cedula
-     * @return
+     * Metodo revisado y actualizado el 26 de abril 2022. Metodo revisado y
+     * actualizado el 23 de noviembre 2022.
+     *
+     *
+     * @param cedula cedula del cliente utilizada para consultar la base de
+     * datos.
+     *
+     * @return devuelve el id del cliente si existe la cedula registrada y -1
+     * si no se encuentra la cedula en el sistema.
      */
-    public synchronized static boolean existeCliente(String cedula) {
+    public synchronized static Integer existeCliente(String cedula) {
         try ( PreparedStatement ps = getCnn().prepareStatement(
-                Clientes.GET_CLIENTE_BY_CEDULA,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                Clientes.GET_ID_CLIENTE_BY_CEDULA,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+
             ps.setString(1, cedula.trim());
+
             try ( ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+                return rs.getInt("ID");
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return false;
+                return null;
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return false;
+            return null;
         }
     }
 
@@ -567,9 +577,12 @@ public class SelectMetodos {
      */
     public synchronized static Clientes getClienteByID(int id) {
         try ( PreparedStatement ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_SB_BY_ID)) {
+
             ps.setInt(1, id);
+
             Clientes c = null;
             Generales g = null;
+
             try ( ResultSet rs = ps.executeQuery();) {
                 rs.next();
                 g = Generales.builder().
@@ -601,40 +614,40 @@ public class SelectMetodos {
      * Obtenemos el historia de direcciones del cliente, lo cual permite tener
      * mejor control de la direcciones de los clientes.
      *
-     * @param id identificador del cliente del sistema, la cual ayuda obtener
-     * los registros de un usuario en expecifico.
+     * @param id_persona identificador del cliente del sistema, la cual ayuda
+     * obtener los registros de un usuario en expecifico.
      *
      * @return Retorna un conjunto de datos del tipo resultSet.
      */
-    public synchronized static DefaultTableModel getDireccionByID(int id) {
-        DefaultTableModel dtmDireccion = new DefaultTableModel(null, TITULOS_DIRECCION);
-
-        Object registroDireccion[] = new Object[TITULOS_DIRECCION.length];
+    public synchronized static List<Direcciones> getDireccionByID(int id_persona) {
+        List<Direcciones> direcciones = new ArrayList<>();
 
         try ( PreparedStatement ps = getCnn().prepareStatement(Direcciones.SELECT_BY_ID)) {
-            ps.setInt(1, id);
+            ps.setInt(1, id_persona);
             try ( ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
+
                     Provincias p = Provincias.builder().
                             id(rs.getInt("ID_PROVINCIA")).
                             nombre(rs.getString("PROVINCIA")).build();
-                    registroDireccion[0] = p;
 
                     Municipios m = Municipios.builder().
                             id(rs.getInt("ID_MUNICIPIO")).
                             nombre(rs.getString("MUNICIPIO")).build();
-                    registroDireccion[1] = m;
 
                     Distritos_municipales d = Distritos_municipales.builder().
                             id(rs.getInt("ID_DISTRITO_MUNICIPAL")).
                             nombre(rs.getString("DISTRITO_MUNICIPAL")).build();
-                    registroDireccion[2] = d;
 
-                    registroDireccion[3] = rs.getString("DIRECCION");
+                    Direcciones dd = Direcciones.builder().
+                            id(rs.getInt("ID")).
+                            provincia(p).
+                            municipio(m).
+                            distrito_municipal(d).
+                            direccion(rs.getString("DIRECCION")).
+                            fecha(rs.getDate("FECHA")).build();
 
-                    registroDireccion[4] = rs.getDate("FECHA");
-
-                    dtmDireccion.addRow(registroDireccion);
+                    direcciones.add(dd);
                 }
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -642,7 +655,7 @@ public class SelectMetodos {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
-        return dtmDireccion;
+        return direcciones;
     }
 
     public synchronized static DefaultTableModel getTelefonoByID(int id) {
@@ -716,7 +729,11 @@ public class SelectMetodos {
      */
     public synchronized static ArrayList<String> comprobandoRol(String userName) {
         ArrayList<String> roles = new ArrayList<>();
-        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.SELECT_ROLES_USUARIOS)) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                Usuarios.SELECT_ROLES_USUARIOS,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setString(1, userName.trim().toUpperCase());
             try ( ResultSet rs = ps.executeQuery()) {
                 String aux;
@@ -774,10 +791,27 @@ public class SelectMetodos {
      * parametro, si se le pasa all recibi un conjunto de datos de todos los
      * usuarios del sistema.
      */
-    public synchronized static ResultSet getUsuarios(String userName) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.GET_USER_BY_USER_NAME)) {
+    public synchronized static Usuarios getUsuario(String userName) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                Usuarios.GET_USER_BY_USER_NAME,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setString(1, userName);
-            return ps.executeQuery();
+            try ( ResultSet rs = ps.executeQuery();) {
+                rs.next();
+                return Usuarios.builder().
+                        user_name(rs.getString("O_USER_NAME")).
+                        pNombre(rs.getString("O_PRIMER_NOMBRE")).
+                        sNombre(rs.getString("O_SEGUNDO_NOMBRE")).
+                        apellidos(rs.getString("O_APELLIDOS")).
+                        estado(rs.getBoolean("O_ESTADO_ACTIVO")).
+                        administrador(rs.getBoolean("O_ADMINISTRADOR")).
+                        descripcion(rs.getString("O_DESCRIPCION")).build();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -1491,11 +1525,11 @@ public class SelectMetodos {
      */
     public synchronized static boolean privilegioTabla(Privilegios p) {
         try ( PreparedStatement ps = getCnn().prepareStatement(
-                Privilegios.PERMISO_UPDATE_TABLA, 
+                Privilegios.PERMISO_UPDATE_TABLA,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-            
+
             ps.setString(1, "" + p.getPrivilegio());
             ps.setString(2, p.getNombre_relacion());
 
@@ -1998,9 +2032,28 @@ public class SelectMetodos {
      *
      * @return
      */
-    public synchronized static ResultSet getTipoSangre() {
-        try ( PreparedStatement ps = getCnn().prepareStatement(TiposSangres.SELECT)) {
-            return ps.executeQuery();
+    public synchronized static List<TiposSangres> getTipoSangre() {
+        List<TiposSangres> tiposSangresList = new ArrayList<>();
+        TiposSangres tiposSangres = null;
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                TiposSangres.SELECT,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+
+            try ( ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    tiposSangres = TiposSangres.builder().
+                            id(rs.getInt("ID")).
+                            descripcion(rs.getString("DESCRIPCION")).build();
+
+                    tiposSangresList.add(tiposSangres);
+                }
+                return tiposSangresList;
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -2572,19 +2625,6 @@ public class SelectMetodos {
         }
     }
 
-    public static synchronized ResultSet getClientes(String idCliente) {
-        sql = "SELECT idCliente, c.nombres ||' '||c.apellidos as NombreCompleto "
-                + "FROM v_clientes c "
-                + "WHERE c.idcliente = ?";
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            ps.setString(1, idCliente);
-            return ps.executeQuery(sql);
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
-
     /**
      *
      * @return Devuelve todos los datos realacionado con los clientes en la base
@@ -2594,7 +2634,8 @@ public class SelectMetodos {
         String titulos[] = {"Cedulas", "Persona", "Primer Nombre", "Segundo Nombre",
             "Apellidos", "Sexo", "Fecha nacimiento", "Fecha Ingreso", "Estado"};
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(Clientes.GET_CLIENTES_SB,
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                Clientes.GET_CLIENTES_SB,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -2638,9 +2679,9 @@ public class SelectMetodos {
 
         try ( PreparedStatement ps = getCnn().prepareStatement(
                 Clientes.GET_CLIENTES_SB_COMBO,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             try ( ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
@@ -2731,53 +2772,55 @@ public class SelectMetodos {
      * @param estado
      * @return
      */
-    public synchronized static ResultSet getUsuario(boolean estado) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.GET_SELECT_USUARIOS,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-            ps.setBoolean(1, estado);
-            return ps.executeQuery();
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
-
-    public synchronized static ResultSet getUsuarioDoctor() {
-        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.GET_SELECT_DOCTORES,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-
-            return ps.executeQuery();
-
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
-
+//    public synchronized static ResultSet getUsuario(boolean estado) {
+//        try ( PreparedStatement ps = getCnn().prepareStatement(
+//                Usuarios.GET_SELECT_USUARIOS,
+//                ResultSet.TYPE_SCROLL_INSENSITIVE,
+//                ResultSet.CONCUR_READ_ONLY,
+//                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+//            ps.setBoolean(1, estado);
+//            return ps.executeQuery();
+//        } catch (SQLException ex) {
+//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+//            return null;
+//        }
+//    }
+    /**
+     *
+     * @return
+     */
+//    public synchronized static ResultSet getUsuarioDoctor() {
+//        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.GET_SELECT_DOCTORES,
+//                ResultSet.TYPE_SCROLL_INSENSITIVE,
+//                ResultSet.CONCUR_READ_ONLY,
+//                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+//
+//            return ps.executeQuery();
+//
+//        } catch (SQLException ex) {
+//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+//            return null;
+//        }
+//    }
     /**
      *
      * @param idUsuario
      * @return
      */
-    public synchronized static boolean delega(String idUsuario) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.DELEGA)) {
-            ps.setString(1, idUsuario);
-            try ( ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return false;
-            }
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return false;
-        }
-    }
-
+//    public synchronized static boolean delega(String idUsuario) {
+//        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.DELEGA)) {
+//            ps.setString(1, idUsuario);
+//            try ( ResultSet rs = ps.executeQuery()) {
+//                return rs.next();
+//            } catch (SQLException ex) {
+//                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+//                return false;
+//            }
+//        } catch (SQLException ex) {
+//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+//            return false;
+//        }
+//    }
     /**
      * Se está utilizando para llenar los comboBox de los usuarios activos.
      *
@@ -2793,13 +2836,35 @@ public class SelectMetodos {
     }
 
     /**
-     * Se esta utilizando para llenar la tabla de usuarios
+     * Se esta utilizando para llenar la tabla de usuarios.
      *
      * @return
      */
-    public synchronized static ResultSet getUsuarios() {
-        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.SELECT)) {
-            return ps.executeQuery();
+    public synchronized static List<Usuarios> getUsuarios() {
+        List<Usuarios> usuarios = new ArrayList<>();
+        Usuarios u;
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                Usuarios.SELECT,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+            try ( ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    u = Usuarios.builder().
+                            pNombre((rs.getString("PNOMBRE") == null ? "" : rs.getString("PNOMBRE"))).
+                            sNombre((rs.getString("SNOMBRE") == null ? "" : rs.getString("SNOMBRE"))).
+                            apellidos((rs.getString("APELLIDOS") == null ? "" : rs.getString("APELLIDOS"))).
+                            administrador(rs.getBoolean("ADMINISTRADOR")).
+                            estado(rs.getBoolean("ESTADO")).
+                            user_name(rs.getString("USER_NAME")).
+                            descripcion(rs.getString("DESCRIPCION")).build();
+                    usuarios.add(u);
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
+            return usuarios;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;

@@ -269,11 +269,10 @@ public class InsertMetodos {
 
             for (Direcciones d : direcciones) {
                 ps.setInt(1, id);
-                ps.setInt(2, d.getId_provincia());
-                ps.setInt(3, d.getId_municipio());
-                ps.setInt(4, d.getId_distrito_municipal());
-                ps.setInt(5, d.getId_codigo_postal());
-                ps.setString(6, d.getDireccion());
+                ps.setInt(2, d.getProvincia().getId());
+                ps.setInt(3, d.getMunicipio().getId());
+                ps.setInt(4, d.getDistrito_municipal().getId());
+                ps.setString(5, d.getDireccion());
                 ps.addBatch();
             }
             ps.executeBatch();

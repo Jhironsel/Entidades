@@ -1,11 +1,7 @@
 package sur.softsurena.entidades;
 
 import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JComboBox;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -15,11 +11,9 @@ import sur.softsurena.datos.select.SelectMetodos;
 @SuperBuilder
 public abstract class Personas {
 
-    private static final Logger LOG = Logger.getLogger(Personas.class.getName());
-    
     public static String INSERT
-            ="SELECT p.V_ID FROM SP_INSERT_PERSONA (?, ?, ?, ?, ?, ?, ?) p;";
-    
+            = "SELECT p.V_ID FROM SP_INSERT_PERSONA (?, ?, ?, ?, ?, ?, ?) p;";
+
     private final int id_persona;
     private final char persona;
     private final String pNombre;
@@ -32,29 +26,39 @@ public abstract class Personas {
     private final Boolean estado;
     private final String user_name;
     private final String rol;
-    
+
+    private final Generales generales;
     private final Asegurados asegurado;
     private final List<Direcciones> direccion;
-    private final Generales generales;
+    private final List<ContactosEmail> contactosEmail;
+    private final List<ContactosTel> contactosTel;
 
+    /**
+     * 
+     * @param jcbPersona 
+     */
     public static void llenarPersona(JComboBox jcbPersona) {
-        
+
         jcbPersona.removeAllItems();
-        
+
         TipoPersona tp = TipoPersona.builder().
                 abreviatura('X').persona("Tipo de persona").build();
         jcbPersona.addItem(tp);
-        
+
         tp = TipoPersona.builder().
                 abreviatura('F').persona("FÍSICA").build();
         jcbPersona.addItem(tp);
-        
+
         tp = TipoPersona.builder().
                 abreviatura('J').persona("JURÍDICA").build();
         jcbPersona.addItem(tp);
 
     }
 
+    /**
+     * 
+     * @param jcbSexo 
+     */
     public static void llenarSexo(JComboBox jcbSexo) {
         jcbSexo.removeAllItems();
         Sexo s = Sexo.builder().abreviatura('X').sexo("Seleccione sexo").build();
@@ -65,6 +69,10 @@ public abstract class Personas {
         jcbSexo.addItem(s);
     }
 
+    /**
+     * 
+     * @param jcbEstadoCivil 
+     */
     public static void llenarEstadoCivil(JComboBox jcbEstadoCivil) {
         jcbEstadoCivil.removeAllItems();
         EstadoCivil ec = EstadoCivil.builder().
@@ -100,29 +108,27 @@ public abstract class Personas {
     }
 
     /**
-     * @deprecated 
-     * @param jcbTipoSangre 
+     * Metodo que permite llenar los comboBox sobre los tipos de sangre que se
+     * utilizan en los sistema de pacientes.
+     *
+     * @param jcbTipoSangre
      */
     public static void llenarTipoSangre(JComboBox jcbTipoSangre) {
-        TiposSangres ts;
-        ResultSet rts = SelectMetodos.getTipoSangre();
+
+        List<TiposSangres> tiposSangresList = SelectMetodos.getTipoSangre();
         jcbTipoSangre.removeAllItems();
-        try {
-            while (rts.next()) {
-                ts = TiposSangres.builder().
-                        id(rts.getInt("ID")).
-                        descripcion(rts.getString("DESCRIPCION")).build();
-                jcbTipoSangre.addItem(ts);
-            }
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-        }
+
+        tiposSangresList.stream().forEach(tsl -> {
+            TiposSangres ts = TiposSangres.builder().
+                    id(tsl.getId()).
+                    descripcion(tsl.getDescripcion()).build();
+            jcbTipoSangre.addItem(ts);
+
+        });
     }
 
     @Override
     public String toString() {
-        return pNombre + (sNombre.isBlank()
-                || sNombre.isEmpty()
-                || sNombre == null ? "" : " " + sNombre) + " " + apellidos;
+        return pNombre + (sNombre.isBlank() || sNombre.isEmpty() || sNombre == null ? "" : " " + sNombre) + " " + apellidos;
     }
 }

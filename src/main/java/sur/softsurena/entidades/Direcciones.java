@@ -15,13 +15,13 @@ import sur.softsurena.datos.select.SelectMetodos;
 public class Direcciones {
 
     private static final Logger LOG = Logger.getLogger(Direcciones.class.getName());
+    private final int id;
     private final int id_persona;
-    private final int id_provincia;
-    private final int id_municipio;
-    private final int id_distrito_municipal;
-    private final int id_codigo_postal;
-    //La accion podrá ser i Insertar, a actualizar o b borrar
     private final char accion;
+    private final Provincias provincia;
+    private final Municipios municipio;
+    private final Distritos_municipales distrito_municipal;
+    private final Codigo_Postal codigo_postal;
     private final String direccion;
     private final Date fecha;
     
@@ -45,7 +45,7 @@ public class Direcciones {
     public static String INSERT
             = "INSERT INTO V_DIRECCIONES (ID_PERSONA, ID_PROVINCIA, ID_MUNICIPIO, "
             + "     ID_DISTRITO_MUNICIPAL, ID_CODIGO_POSTAL, DIRECCION) "
-            + "VALUES (?, ?, ?, ?, ?, ?);";
+            + "VALUES (?, ?, ?, ?, 0, ?);";
 
     public static String UPDATE
             = "UPDATE V_DIRECCIONES a  "
@@ -53,7 +53,6 @@ public class Direcciones {
             + "     a.ID_PROVINCIA = ?,  "
             + "     a.ID_MUNICIPIO = ?,  "
             + "     a.ID_DISTRITO_MUNICIPAL = ?,  "
-            + "     a.ID_CODIGO_POSTAL = ?,  "
             + "     a.DIRECCION = ?  "
             + "WHERE "
             + "     a.ID = ?";
@@ -87,5 +86,10 @@ public class Direcciones {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
+    }
+    
+    @Override
+    public String toString() {
+        return direccion;
     }
 }

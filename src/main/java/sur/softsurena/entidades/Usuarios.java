@@ -23,8 +23,40 @@ public class Usuarios extends Personas {
      * 
      */
     public final static String GET_USER_BY_USER_NAME
-            = "SELECT p.O_USER_NAME, p.O_PRIMER_NOMBRE, p.O_SEGUNDO_NOMBRE, p.O_APELLIDOS, "
-            + "     p.O_ESTADO_ACTIVO, p.O_ADMINISTRADOR, p.O_TAG_NOMBRE, p.O_TAG_VALOR "
+            = "SELECT TRIM(p.O_USER_NAME) AS O_USER_NAME, "
+            + "TRIM(p.O_PRIMER_NOMBRE) AS O_PRIMER_NOMBRE, "
+            + "TRIM(p.O_SEGUNDO_NOMBRE) AS O_SEGUNDO_NOMBRE, "
+            + "TRIM(p.O_APELLIDOS) AS O_APELLIDOS, "
+            + "p.O_ESTADO_ACTIVO, p.O_ADMINISTRADOR, p.O_DESCRIPCION "
+            + "FROM SP_SELECT_USUARIOS_TAGS (?) p;";
+    
+    /**
+     * Este Query es utilizado para obtener Inf. de los usuarios del sistema.
+     * Actualizado: 15 Sep 2022.
+     */
+    public static String SELECT
+            = "SELECT TRIM(u.SEC$USER_NAME) AS USER_NAME, "
+            + "     TRIM(u.SEC$FIRST_NAME) AS PNOMBRE, "
+            + "     TRIM(u.SEC$MIDDLE_NAME) AS SNOMBRE, "
+            + "     TRIM(u.SEC$LAST_NAME) AS APELLIDOS, "
+            + "     u.SEC$ACTIVE AS ESTADO, "
+            + "     u.SEC$ADMIN AS ADMINISTRADOR, "
+            + "     TRIM(u.SEC$DESCRIPTION) AS DESCRIPCION "
+            + "FROM SEC$USERS u";
+    
+    /**
+     * Query que me permite comprobar si un usuario existe en el sistema.
+     */
+    public final static String EXISTE_USUARIO_BY_USER_NAME
+            = "SELECT DISTINCT(1) "
+            + "FROM SP_SELECT_USUARIOS_TAGS ('all') p "
+            + "WHERE TRIM(p.O_USER_NAME) LIKE TRIM(UPPER(?))";
+    
+    /**
+     * Query que me trae todas las tags de un usuario en especifico. 
+     */
+    public final static String GET_USER_BY_USER_NAME_TAG
+            = "SELECT p.O_TAG_NOMBRE, p.O_TAG_VALOR "
             + "FROM SP_SELECT_USUARIOS_TAGS (?) p;";
 
     /**
@@ -34,61 +66,7 @@ public class Usuarios extends Personas {
             = "SELECT r.IDUSUARIO, r.FECHA, r.HORA "
             + "FROM GET_USUARIO_ACTIVO r";
 
-    /**
-     *
-     */
-    public static String GET_SELECT_USUARIOS
-            = "SELECT LOGINUSER, P_NOMBRE, S_NOMBRE, APELLIDOS, Movil,"
-            + "TELEFONO, Correo, Especialidad, rol, sq, SuperUsuario, "
-            + "ESTADO "
-            + "FROM GET_USUARIOS "
-            + "WHERE ESTADO IS ?";
-
-    /**
-     *
-     */
-    public static String GET_SELECT_DOCTORES
-            = "SELECT LOGINUSER, P_NOMBRE, S_NOMBRE, APELLIDOS "
-            + "FROM GET_USUARIOS "
-            + "WHERE ESTADO and rol like 'DOCTOR'";
-
-    /**
-     *
-     */
-    public final static String EXISTE_USUARIO_BY_USER_NAME
-            = "SELECT DISTINCT(1) "
-            + "FROM SP_SELECT_USUARIOS_TAGS ('all') p "
-            + "WHERE TRIM(p.O_USER_NAME) LIKE TRIM(UPPER(?))";
-
-    /**
-     *
-     */
-    public static String SELECT_ROLES_USUARIOS
-            = "SELECT r.ROL "
-            + "FROM GET_USER_ROLES r "
-            + "WHERE UPPER(TRIM(r.USER_NAME)) LIKE UPPER(TRIM(?))";
-
-    /**
-     *
-     */
-    public static String DELEGA
-            = "SELECT (1) "
-            + "FROM GET_usuarios u "
-            + "WHERE trim(u.idusuario) = upper(trim(?)) and "
-            + "u.autorizado";
-
-    /**
-     * Este Query es utilizado para obtener Inf. de los usuarios del sistema.
-     * Actualizado: 15 Sep 2022.
-     */
-    public static String SELECT
-            = "SELECT TRIM(u.SEC$USER_NAME) AS USER_NAME, \n"
-            + "     TRIM(u.SEC$FIRST_NAME) AS PNOMBRE, \n"
-            + "     TRIM(u.SEC$MIDDLE_NAME) AS SNOMBRE, \n"
-            + "     TRIM(u.SEC$LAST_NAME) AS APELLIDOS, \n"
-            + "     u.SEC$ACTIVE AS ESTADO, u.SEC$ADMIN AS ADMINISTRADOR, \n"
-            + "     TRIM(u.SEC$DESCRIPTION) AS DESCRIPCION \n"
-            + "FROM SEC$USERS u";
+    
 
     /**
      * OJO! Revisar este caso, puede ser que el usuario se le asista cambiar su
@@ -110,6 +88,8 @@ public class Usuarios extends Personas {
      */
     public static String DELETE_ROL
             = "REVOKE ? FROM ? GRANTED BY ?";
+    
+    public static String SELECT_ROLES_USUARIOS = "SELECT ROL FROM GET_ROL WHERE USER_NAME LIKE ?";
 
     private final String clave;
     private final String descripcion;
