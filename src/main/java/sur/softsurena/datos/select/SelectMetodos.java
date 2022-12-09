@@ -44,7 +44,6 @@ import sur.softsurena.entidades.Usuarios;
 import sur.softsurena.utilidades.Utilidades;
 import static sur.softsurena.entidades.ContactosEmail.TITULOS_CORREO;
 import static sur.softsurena.entidades.ContactosTel.TITULOS_TELEFONO;
-import static sur.softsurena.entidades.Direcciones.TITULOS_DIRECCION;
 
 public class SelectMetodos {
 
