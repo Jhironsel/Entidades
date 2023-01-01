@@ -7,7 +7,14 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Getter
 public class Asegurados extends Personas{
-    private final Integer id;
     @NonNull private final int id_ars;
     @NonNull private final String no_nss;
+    @NonNull private final Boolean estado;
+
+    @Override
+    public String toString() {
+        return no_nss;
+    }
+    
+    
 }

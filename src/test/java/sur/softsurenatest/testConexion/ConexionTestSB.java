@@ -10,10 +10,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import sur.softsurena.conexion.Conexion;
-import sur.softsurena.datos.delete.DeleteMetodos;
-import sur.softsurena.datos.insert.InsertMetodos;
 import sur.softsurena.entidades.Categorias;
-import sur.softsurena.entidades.Producto;
+import static sur.softsurena.entidades.Categorias.agregarCategoria;
+import static sur.softsurena.entidades.Categorias.borrarCategoria;
+import sur.softsurena.entidades.Productos;
+import static sur.softsurena.entidades.Productos.agregarProducto;
+import static sur.softsurena.entidades.Productos.borrarProductoPorCodigo;
 import sur.softsurena.entidades.Resultados;
 
 public class ConexionTestSB {
@@ -68,7 +70,7 @@ public class ConexionTestSB {
 
     //Metodos Insert
     @Test
-    public void agregarProducto() {
+    public void agregarProducto2() {
 
         int returnVal = chooser.showOpenDialog(null);
 
@@ -76,7 +78,7 @@ public class ConexionTestSB {
             return;
         }
 
-        Producto p = Producto.builder().
+        Productos p = Productos.builder().
                 idCategoria(1).
                 codigo("1234").
                 descripcion("Producto de prueba").
@@ -85,7 +87,7 @@ public class ConexionTestSB {
                 estado(Boolean.TRUE).
                 build();
 
-        Resultados r = InsertMetodos.agregarProducto(p);
+        Resultados r = agregarProducto(p);
 
         idProducto = r.getId();
 
@@ -95,13 +97,13 @@ public class ConexionTestSB {
     }
 
     @Test
-    public void agregarCategoria() {
+    public void agregarCategoriaTest() {
         Categorias c = Categorias.builder().
                 descripcion("Categoria de prueba").
                 pathImage(chooser.getSelectedFile()).
                 estado(Boolean.TRUE).build();
 
-        Resultados r = InsertMetodos.agregarCategoria(c);
+        Resultados r = agregarCategoria(c);
         idCategoria = r.getId();
 
         Assert.assertEquals(
@@ -112,14 +114,14 @@ public class ConexionTestSB {
     //Metodos Delete
     @Test
     public void borrarProducto() {
-        String resultado = DeleteMetodos.borrarProductoPorCodigo("1234");
+        String resultado = borrarProductoPorCodigo("1234");
 
         Assert.assertEquals("Producto Borrado Correctamente.", resultado);
     }
 
     @Test
-    public void borrarCategoria() {
-        String resultado = DeleteMetodos.borrarCategoria(idCategoria);
+    public void borrarCategoriaTest() {
+        String resultado = borrarCategoria(idCategoria);
 
         Assert.assertEquals("Categoria Borrado Correctamente.", resultado);
     }

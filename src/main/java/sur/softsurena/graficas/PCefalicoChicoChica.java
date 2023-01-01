@@ -22,11 +22,12 @@ import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import static sur.softsurena.datos.select.SelectMetodos.*;
+import static sur.softsurena.entidades.Datos_nacimiento.getPCefalico;
+import static sur.softsurena.entidades.Paciente.getSexoPaciente;
 
 public class PCefalicoChicoChica {
 
-    private String sexo;
+    private final String sexo;
     private Float SD3Neg;
     private Float SD2Neg;
     private Float SD1Neg;
@@ -34,8 +35,8 @@ public class PCefalicoChicoChica {
     private Float SD1;
     private Float SD2;
     private Float SD3;
-    private int tamanoFigura;
-    private int idPaciente;
+    private final int tamanoFigura;
+    private final int idPaciente;
 
     public PCefalicoChicoChica(int idPaciente, int tamanoFigura) {
         sexo = getSexoPaciente(idPaciente);
@@ -72,13 +73,13 @@ public class PCefalicoChicoChica {
                     localXYSeries6.add(f1, Float.parseFloat(str.substring(103, 109).trim()));//SD2
                     localXYSeries7.add(f1, Float.parseFloat(str.substring(113, 117).trim()));//SD3
                     if (f1 == 36) {
-                        SD3Neg = Float.parseFloat(str.substring(52, 59).trim());
-                        SD2Neg = Float.parseFloat(str.substring(63, 69).trim());
-                        SD1Neg = Float.parseFloat(str.substring(73, 79).trim());
-                        SD0 = Float.parseFloat(str.substring(83, 89).trim());
-                        SD1 = Float.parseFloat(str.substring(93, 99).trim());
-                        SD2 = Float.parseFloat(str.substring(103, 109).trim());
-                        SD3 = Float.parseFloat(str.substring(113, 117).trim());
+                        SD3Neg = Float.valueOf(str.substring(52, 59).trim());
+                        SD2Neg = Float.valueOf(str.substring(63, 69).trim());
+                        SD1Neg = Float.valueOf(str.substring(73, 79).trim());
+                        SD0 = Float.valueOf(str.substring(83, 89).trim());
+                        SD1 = Float.valueOf(str.substring(93, 99).trim());
+                        SD2 = Float.valueOf(str.substring(103, 109).trim());
+                        SD3 = Float.valueOf(str.substring(113, 117).trim());
                     }
                 }
             }

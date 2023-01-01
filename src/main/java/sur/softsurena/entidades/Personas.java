@@ -5,13 +5,13 @@ import java.util.List;
 import javax.swing.JComboBox;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import sur.softsurena.datos.select.SelectMetodos;
+import static sur.softsurena.entidades.TiposSangres.getTipoSangre;
 
 @Getter
 @SuperBuilder
 public abstract class Personas {
 
-    public static String INSERT
+    private static String INSERT
             = "SELECT p.V_ID FROM SP_INSERT_PERSONA (?, ?, ?, ?, ?, ?, ?) p;";
 
     private final int id_persona;
@@ -52,7 +52,6 @@ public abstract class Personas {
         tp = TipoPersona.builder().
                 abreviatura('J').persona("JURÍDICA").build();
         jcbPersona.addItem(tp);
-
     }
 
     /**
@@ -104,7 +103,6 @@ public abstract class Personas {
                 abreviatura('U').
                 estadoCivil("Unión Libre").build();
         jcbEstadoCivil.addItem(ec);
-
     }
 
     /**
@@ -115,7 +113,7 @@ public abstract class Personas {
      */
     public static void llenarTipoSangre(JComboBox jcbTipoSangre) {
 
-        List<TiposSangres> tiposSangresList = SelectMetodos.getTipoSangre();
+        List<TiposSangres> tiposSangresList = getTipoSangre();
         jcbTipoSangre.removeAllItems();
 
         tiposSangresList.stream().forEach(tsl -> {

@@ -1,79 +1,141 @@
 package sur.softsurena.entidades;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+import static sur.softsurena.conexion.Conexion.getCnn;
+
+@SuperBuilder
+@Getter
 public class Datos_nacimiento {
 
-    private int idPaciente;
-    private String fecha;
-    private String pesoNacimiento;
-    private String altura;
-    private String PC;
-    private boolean cesarea;
-    private String tiempoGestacion;
+    private static final Logger LOG = Logger.getLogger(Datos_nacimiento.class.getName());
 
-    public Datos_nacimiento(int idPaciente, String fecha, String pesoNacimiento,
-            String altura, boolean cesarea, String tiempoGestacion, String PC) {
-        this.idPaciente = idPaciente;
-        this.fecha = fecha;
-        this.pesoNacimiento = pesoNacimiento;
-        this.altura = altura;
-        this.cesarea = cesarea;
-        this.tiempoGestacion = tiempoGestacion;
-        this.PC = PC;
+    private final int idPaciente;
+    private final String fecha;
+    private final String pesoNacimiento;
+    private final String altura;
+    private final String PC;
+    private final boolean cesarea;
+    private final String tiempoGestacion;
+
+    public synchronized String agregarDatosNacimiento(Datos_nacimiento dato) {
+        final String sql = "UPDATE OR INSERT INTO V_DATOSNACIMIENTO "
+                + "(IDPACIENTE, FECHANACIMIENTO, PESONACIMIENTOKG, ALTURA, "
+                + "CESAREA, TIEMPOGESTACION, PC) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?);";
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+
+            ps.setInt(1, dato.getIdPaciente());
+            ps.setString(2, dato.getFecha());
+            ps.setString(3, dato.getPesoNacimiento());
+            ps.setString(4, dato.getAltura());
+            ps.setBoolean(5, dato.isCesarea());
+            ps.setString(6, dato.getTiempoGestacion());
+            ps.setString(7, dato.getPC());
+
+            ps.executeUpdate();
+
+            return "Datos guardado correctamente";
+
+        } catch (SQLException ex) {
+            //Instalar Logger
+            return "Error al insertar datos de Nacimiento de: " + dato.getIdPaciente();
+        }
     }
 
-    public int getIdPaciente() {
-        return idPaciente;
+    public synchronized static ResultSet getAlturaPeso(int idPaciente) {
+        final String sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
+                + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
+                + "FROM PRO_PESO_ALTURA(?)";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+
+            ps.setInt(1, idPaciente);
+
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
     }
 
-    public void setIdPaciente(int idPaciente) {
-        this.idPaciente = idPaciente;
+    public synchronized static ResultSet getPCefalico(int idPaciente) {
+        final String sql = "SELECT OUT_FECHANACIMIENTO, "
+                + "OUT_FECHACONSULTA, "
+                + "OUT_DEFERENCIAFECHA, "
+                + "OUT_PC "
+                + "FROM PRO_PC(?)";
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+            ps.setInt(1, idPaciente);
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
     }
 
-    public String getFecha() {
-        return fecha;
+    public synchronized static ResultSet getPesoKG(int idPaciente) {
+        final String sql = "SELECT OUT_FECHANACIMIENTO, "
+                + "OUT_FECHACONSULTA, "
+                + "OUT_DEFERENCIAFECHA, "
+                + "OUT_PC "
+                + "FROM PRO_PESO_EDAD(?)";
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+            ps.setInt(1, idPaciente);
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
     }
 
-    public void setFecha(String fecha) {
-        this.fecha = fecha;
+    public synchronized static ResultSet getLongitudOEstatura(int idPaciente) {
+        final String sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
+                + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
+                + "FROM PRO_LONGITUD_ALTURA_EDAD(?)";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+            ps.setInt(1, idPaciente);
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
     }
 
-    public String getPesoNacimiento() {
-        return pesoNacimiento;
-    }
+    public synchronized static ResultSet getLongitudPeso(int idPaciente) {
+        final String sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
+                + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
+                + "FROM PRO_PESO_LONGITUD(?)";
 
-    public void setPesoNacimiento(String pesoNacimiento) {
-        this.pesoNacimiento = pesoNacimiento;
-    }
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
-    public String getAltura() {
-        return "" + (Double.parseDouble(altura) / 100);
-    }
+            ps.setInt(1, idPaciente);
 
-    public void setAltura(String altura) {
-        this.altura = altura;
-    }
-
-    public boolean isCesarea() {
-        return cesarea;
-    }
-
-    public void setCesarea(boolean cesarea) {
-        this.cesarea = cesarea;
-    }
-
-    public String getTiempoGestacion() {
-        return tiempoGestacion;
-    }
-
-    public void setTiempoGestacion(String tiempoGestacion) {
-        this.tiempoGestacion = tiempoGestacion;
-    }
-
-    public String getPC() {
-        return PC;
-    }
-
-    public void setPC(String PC) {
-        this.PC = PC;
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
     }
 }

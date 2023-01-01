@@ -22,7 +22,8 @@ import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import static sur.softsurena.datos.select.SelectMetodos.*;
+import static sur.softsurena.entidades.Datos_nacimiento.getAlturaPeso;
+import static sur.softsurena.entidades.Paciente.getSexoPaciente;
 
 public class PesoParaEstatura {
     private final String sexo;
@@ -72,13 +73,13 @@ public class PesoParaEstatura {
                     localXYSeries6.add(f1, Float.parseFloat(str.substring(107, 113).trim()));//SD2
                     localXYSeries7.add(f1, Float.parseFloat(str.substring(115, 119).trim()));//SD3
                     if (f1 == 120.0) {
-                        SD3Neg = Float.parseFloat(str.substring(58, 64).trim())  ;
-                        SD2Neg = Float.parseFloat(str.substring(69, 75).trim())  ;
-                        SD1Neg = Float.parseFloat(str.substring(80, 86).trim())  ;
-                        SD0 =    Float.parseFloat(str.substring(91, 97).trim())  ;
-                        SD1 =    Float.parseFloat(str.substring(99, 105).trim()) ;
-                        SD2 =    Float.parseFloat(str.substring(107, 113).trim());
-                        SD3 =    Float.parseFloat(str.substring(115, 119).trim());
+                        SD3Neg = Float.valueOf(str.substring(58, 64).trim())  ;
+                        SD2Neg = Float.valueOf(str.substring(69, 75).trim())  ;
+                        SD1Neg = Float.valueOf(str.substring(80, 86).trim())  ;
+                        SD0 =    Float.valueOf(str.substring(91, 97).trim())  ;
+                        SD1 =    Float.valueOf(str.substring(99, 105).trim()) ;
+                        SD2 =    Float.valueOf(str.substring(107, 113).trim());
+                        SD3 =    Float.valueOf(str.substring(115, 119).trim());
                     }
                 }
 

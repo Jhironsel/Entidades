@@ -12,6 +12,7 @@ import lombok.NonNull;
 public class Conexion {
 
     private static final Logger LOG = Logger.getLogger(Conexion.class.getName());
+    
     private static Connection cnn;
     private static String user, clave, role, pathBaeDatos, dominio, puerto; 
 
@@ -81,20 +82,4 @@ public class Conexion {
      * Conexión.
      */
     private Conexion() {}
-
-    /**
-     * Metodo utilizado para cerrar la conexión a la base de datos del sistema.
-     */
-    public synchronized static void cerrarConexion() {
-        if (getCnn() == null) {
-            return;
-        }
-
-        try {
-            getCnn().close();
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-        }
-    }
-
 }

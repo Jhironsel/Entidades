@@ -1,11 +1,19 @@
 package sur.softsurena.entidades;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import static sur.softsurena.conexion.Conexion.getCnn;
 
 @SuperBuilder
 @Getter
 public class Privilegios {
+
+    private static final Logger LOG = Logger.getLogger(Privilegios.class.getName());
 
     private final String user_name;
     private final char privilegio;
@@ -77,7 +85,76 @@ public class Privilegios {
     
     public static String GET_ROLES
             = "SELECT r.ROL FROM GET_ROLES r";
+    
+    /**
+     * Es el metodo que nos devuelve los Roles del sistema, los cuales son asig-
+     * nados a los usuarios.
+     *
+     * @return
+     */
+    public synchronized static ResultSet getRoles() {
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                GET_ROLES,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
+    
+    /**
+     *
+     * @param p
+     * @return
+     */
+    public synchronized static boolean privilegioTabla(Privilegios p) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(
+                Privilegios.PERMISO_UPDATE_TABLA,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
+            ps.setString(1, "" + p.getPrivilegio());
+            ps.setString(2, p.getNombre_relacion());
+
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
+
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return false;
+        }
+    }
+
+    /**
+     *
+     * @param p
+     * @return
+     */
+    public synchronized static boolean privilegioCampo(Privilegios p) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(Privilegios.PERMISO_UPDATE_CAMPO)) {
+            ps.setString(1, "" + p.getPrivilegio());
+            ps.setString(2, p.getNombre_relacion());
+            ps.setString(3, p.getNombre_campo());
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return false;
+        }
+    }
+    
     @Override
     public String toString() {
         return nombre_campo;

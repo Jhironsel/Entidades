@@ -23,7 +23,8 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
-import static sur.softsurena.datos.select.SelectMetodos.*;
+import static sur.softsurena.entidades.Datos_nacimiento.getLongitudOEstatura;
+import static sur.softsurena.entidades.Paciente.getSexoPaciente;
 
 public class LongitudAlturaParaEdadNino0a5anno {
 
@@ -74,13 +75,13 @@ public class LongitudAlturaParaEdadNino0a5anno {
                     localXYSeries6.add(f1, Float.parseFloat(str.substring(113, 121).trim()));//SD2
                     localXYSeries7.add(f1, Float.parseFloat(str.substring(123, 129).trim()));//SD3
                     if (f1 == 60) {
-                        SD3Neg = Float.parseFloat(str.substring(58, 63).trim());
-                        SD2Neg = Float.parseFloat(str.substring(69, 75).trim());
-                        SD1Neg = Float.parseFloat(str.substring(80, 88).trim());
-                        SD0 = Float.parseFloat(str.substring(90, 98).trim());
-                        SD1 = Float.parseFloat(str.substring(102, 110).trim());
-                        SD2 = Float.parseFloat(str.substring(113, 121).trim());
-                        SD3 = Float.parseFloat(str.substring(123, 129).trim());
+                        SD3Neg = Float.valueOf(str.substring(58, 63).trim());
+                        SD2Neg = Float.valueOf(str.substring(69, 75).trim());
+                        SD1Neg = Float.valueOf(str.substring(80, 88).trim());
+                        SD0 = Float.valueOf(str.substring(90, 98).trim());
+                        SD1 = Float.valueOf(str.substring(102, 110).trim());
+                        SD2 = Float.valueOf(str.substring(113, 121).trim());
+                        SD3 = Float.valueOf(str.substring(123, 129).trim());
                     }
                 }
             }

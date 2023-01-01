@@ -10,10 +10,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import sur.softsurena.conexion.Conexion;
-import sur.softsurena.datos.insert.InsertMetodos;
 import sur.softsurena.entidades.Asegurados;
 import sur.softsurena.entidades.Generales;
 import sur.softsurena.entidades.Paciente;
+import static sur.softsurena.entidades.Paciente.agregarPaciente;
 
 public class ConexionTestN2Care {
 
@@ -65,7 +65,7 @@ public class ConexionTestN2Care {
     }
 
     @Test
-    public void agregarPaciente() {
+    public void agregarPaciente2() {
         Generales g = Generales.builder().
                 cedula("012-0089344-9").
                 id_tipo_sangre(3).build();
@@ -87,7 +87,7 @@ public class ConexionTestN2Care {
                                         getTimeInMillis())).
                 estado(Boolean.TRUE).build();
 
-        String resp = InsertMetodos.agregarPaciente(p);
+        String resp = agregarPaciente(p);
 
         Assert.assertEquals(
                 "Error al insertar un paciente.",

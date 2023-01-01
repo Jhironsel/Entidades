@@ -16,6 +16,9 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -39,18 +42,17 @@ import sur.softsurena.entidades.Render_CheckBox;
 import sur.softsurena.metodos.Imagenes;
 
 public class Utilidades {
-//    public static final Logger LOGGER = Logger.getLogger(Utilidades.class.getName());
-//    static {
-//        try {
-//            boolean append = true;
-//            FileHandler fh = new FileHandler(System.getProperty("user.dir") +"/TestLog.log", append);
-//            //fh.setFormatter(new XMLFormatter());
-//            fh.setFormatter(new SimpleFormatter());
-//            LOGGER.addHandler(fh);
-//        } catch (IOException e) {
-//            System.out.print(e.getLocalizedMessage());
-//        }
-//    }
+    public static final Logger LOGGER = Logger.getLogger(Utilidades.class.getName());
+    static {
+        try {
+            FileHandler fh = new FileHandler(new File("/TestLog.log").getPath(), true);
+            //fh.setFormatter(new XMLFormatter());
+            fh.setFormatter(new SimpleFormatter());
+            LOGGER.addHandler(fh);
+        } catch (IOException e) {
+            System.out.print(e.getLocalizedMessage());
+        }
+    }
 
     /**
      * No se está utilizando...
