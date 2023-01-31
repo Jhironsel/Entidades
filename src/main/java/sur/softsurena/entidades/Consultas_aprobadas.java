@@ -22,12 +22,15 @@ public class Consultas_aprobadas {
     private final String usuario;
     private final BigDecimal totalCosto;
 
-    private static final String INSERT
-            = "INSERT INTO V_CONSULTAS_APROBADAS (ID, COD_AUTORIZACION, COSTO, DESCUENTO) "
-            + "VALUES (?, ?, ?, ?);";
+    
     
     public synchronized static String agregarConsultaVerificada(Consultas_aprobadas ca) {
+        final String INSERT
+            = "INSERT INTO V_CONSULTAS_APROBADAS (ID, COD_AUTORIZACION, COSTO, DESCUENTO) "
+            + "VALUES (?, ?, ?, ?);";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(INSERT)){
+            
             ps.setInt(1, ca.getId());
             ps.setString(2, ca.getCodAutorizacion());
             ps.setBigDecimal(3, ca.getCosto());

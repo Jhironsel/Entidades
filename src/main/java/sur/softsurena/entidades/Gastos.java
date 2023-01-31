@@ -19,20 +19,27 @@ public class Gastos {
     private final int id_turno;
     private final String descripcion;
     private final BigDecimal monto;
+    
+    public static final String ERROR_AL_REGISTRAR_EL_GASTO = "Error al registrar el gasto.";
+    public static final String GASTO_REGISTRADOS_CORRECTAMENTE = "Gasto registrados correctamente.";
 
-    public synchronized static boolean agregarGastosPorTurno(Gastos gasto) {
+    public synchronized static String agregarGastosPorTurno(Gastos gasto) {
         
         final String sql = "EXECUTE PROCEDURE CAJERO_GASTOS (?, ?, ?)";
+        
         try(CallableStatement cs = getCnn().prepareCall(sql)) {
             
             cs.setInt(1, gasto.getId_turno());
             cs.setString(2, gasto.getDescripcion());
             cs.setBigDecimal(3, gasto.getMonto());
-
-            return cs.execute();
+            
+            cs.execute();
+            
+            return GASTO_REGISTRADOS_CORRECTAMENTE;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return false;
+            return ERROR_AL_REGISTRAR_EL_GASTO;
         }
     }
+    
 }

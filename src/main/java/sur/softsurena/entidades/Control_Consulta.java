@@ -25,16 +25,17 @@ public class Control_Consulta {
     private final Boolean estado;
 
     /**
-     * 
-     */
-    public final static String DELETE 
-            = "DELETE FROM V_CONTROL_CONSULTA WHERE id = ?";
-    /**
+     * Metodo utilizado para eliminar los controles de consultas programadas 
+     * previamente. 
      * 
      * @param idControlConsulta
+     * 
      * @return 
      */
     public synchronized static String borrarControlConsulta(int idControlConsulta) {
+        final String DELETE 
+            = "DELETE FROM V_CONTROL_CONSULTA WHERE id = ?";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(DELETE);){
             
             ps.setInt(1, idControlConsulta);
@@ -47,18 +48,16 @@ public class Control_Consulta {
         }
     }
     
-    /**
-     * 
-     */
-    private final static String INSERT
-            = "insert into CONTROLCONSULTA (IDUSUARIO, CANTIDADPACIENTE, DIA, INICIAL, FINAL) "
-                    + "values (?, ?, ?, ?, ?)";
+    
     /**
      * 
      * @param cc
      * @return 
      */
     public synchronized static String agregarControlConsulta(Control_Consulta cc) {
+        final String INSERT
+            = "insert into CONTROLCONSULTA (IDUSUARIO, CANTIDADPACIENTE, DIA, INICIAL, FINAL) "
+                    + "values (?, ?, ?, ?, ?)";
         
         try (PreparedStatement ps = getCnn().prepareStatement(INSERT)){
             ps.setInt(1, cc.getId());
@@ -75,6 +74,11 @@ public class Control_Consulta {
         }
     }
     
+    /**
+     * 
+     * @param miCC
+     * @return 
+     */
     public synchronized String modificarControlConsulta(Control_Consulta miCC) {
         final String sql = 
                 "UPDATE V_CONTROL_CONSULTA SET "
@@ -112,6 +116,7 @@ public class Control_Consulta {
                 + "FROM GET_controlConsulta "
                 + "WHERE dia like (SELECT TCNOMBREDIA "
                 + "                FROM NOMBRE_DIA_CORTO (?)) " + (actual ? " and CURRENT_DATE <= ? ;" : "");
+        
         try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             ps.setString(1, fecha);
@@ -134,6 +139,7 @@ public class Control_Consulta {
                 + "FROM t_controlconsulta "
                 + "WHERE IDUSUARIO = ? "
                 + "order by DIA, INICIAL, FINAL";
+        
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,

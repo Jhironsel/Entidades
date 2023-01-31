@@ -1,4 +1,9 @@
 package sur.softsurena.entidades;
+/**
+ * Esta clase es utilizada para dar colores a las fuentes de la salida por 
+ * consola.
+ * @author jhironsel
+ */
 public class Colores {
  //Reset
   public static final String ANSI_RESET = "\u001B[0m";

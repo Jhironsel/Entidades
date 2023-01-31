@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -21,7 +22,7 @@ import sur.softsurena.utilidades.Utilidades;
 public class Medicamentos {
 
     private static final Logger LOG = Logger.getLogger(Medicamentos.class.getName());
-    
+
     private final int id;
     private final int id_proveedor;
     private final String descripcion;
@@ -71,28 +72,42 @@ public class Medicamentos {
         }
         return "Error al modificar Medicamento...";
     }
-    
-    public synchronized static ResultSet getMedicamentoActivo() {
-        final String sql = "SELECT IDMEDICAMENTO, DESCRIPCION "
-                + "FROM V_MEDICAMENTOS "
+
+    public synchronized static List<Medicamentos> getMedicamentoActivo() {
+        final String sql = "SELECT ID, DESCRIPCION "
+                + "FROM V_PRODUCTOS "
                 + "WHERE estado ORDER BY 2";
         
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        List<Medicamentos> medicamentoList = null;
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-            return ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery();) {
+                while(rs.next()){
+                    medicamentoList.add(Medicamentos.builder().
+                            id(rs.getInt("ID")).
+                            descripcion(rs.getString("DESCRIPCION")).
+                            build());
+                    
+                }
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
+            return medicamentoList;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
-    
+
     public synchronized static ResultSet getMedicamentoFoto(String idMedicamento) {
 
         final String sql = "SELECT FOTO FROM V_MEDICAMENTOS "
                 + "WHERE idMedicamento = ?";
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -104,13 +119,13 @@ public class Medicamentos {
             return null;
         }
     }
-    
+
     public synchronized static ResultSet getMedicamento(boolean estado) {
         final String sql = "SELECT CODIGO_PROVEEDOR, IDMEDICAMENTO, "
                 + "          NOMBREMEDICAMENTO, ESTADO "
                 + "   FROM GET_MEDICAMENTO"
                 + "   WHERE ESTADO IS ? ORDER BY 1, 3";
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {

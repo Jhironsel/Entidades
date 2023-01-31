@@ -28,9 +28,9 @@ public class Productos {
     private final String codigo;
     private final String descripcion;
     private final File pathImagen;
-    private final String ImagenTexto;
+    private final String imagenProducto;
     private final String nota;
-    private final Date FechaCreacion;
+    private final Date fechaCreacion;
     private final Boolean estado;
     private final String idUsuario;
     private final String rol;
@@ -66,7 +66,6 @@ public class Productos {
         }
     }
 
-
     /**
      * Metodo que permite recuperar las propiedades de los productos del
      * sistema. devolviendo asi un resulset con todos estos productos.
@@ -79,15 +78,15 @@ public class Productos {
      * sistema.
      */
     public synchronized static List<Productos> getProductos() {
-        List<Productos> listaProducto = new ArrayList<Productos>();
-        
+        List<Productos> listaProducto = new ArrayList<>();
+
         Productos producto;
-        
+
         final String SELECT
-            = "SELECT r.ID, r.CODIGO, r.ID_CATEGORIA, r.DESC_CATEGORIA, "
-            + "     r.DESCRIPCION,  r.NOTA, r.FECHA_CREACION, r.ESTADO "
-            + "FROM GET_PRODUCTOS r";
-        
+                = "SELECT r.ID, r.CODIGO, r.ID_CATEGORIA, r.DESC_CATEGORIA, "
+                + "     r.DESCRIPCION,  r.NOTA, r.FECHA_CREACION, r.ESTADO "
+                + "FROM GET_PRODUCTOS r";
+
         try (PreparedStatement ps = getCnn().prepareStatement(SELECT)) {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
@@ -97,7 +96,7 @@ public class Productos {
                             idCategoria(rs.getInt("ID_CATEGORIA")).
                             desc_categoria(rs.getString("DESC_CATEGORIA")).
                             codigo(rs.getString("CODIGO")).
-                            FechaCreacion(rs.getDate("FECHA_CREACION")).
+                            fechaCreacion(rs.getDate("FECHA_CREACION")).
                             nota(rs.getString("NOTA")).
                             estado(rs.getBoolean("ESTADO")).build();
 
@@ -116,44 +115,22 @@ public class Productos {
 
     /**
      * Metodo utilizado para eliminar los productos del sistema, este solo
-     * necesita de su ID para localizarlo en la tabla de PRODUCTOS.
+     * necesita de su ID o codigo de barra para localizarlo en la vista de 
+     * V_PRODUCTOS.
      *
-     * @param id identificador del registro en la tabla de PRODUCTOS
+     * @param IDCodigo Identificador o codigo del Producto en la vista de 
+     * V_PRODUCTOS.
+     * 
      *
      * @return Devuelve un mensaje que indica como resultado de la acción.
      */
-    public synchronized static String borrarProductoPorID(int id) {
+    public synchronized static String borrarProductoPorID_Codigo(String IDCodigo) {
         final String DELETE
-                = "DELETE FROM V_PRODUCTOS WHERE id = ? ";
+                = "DELETE FROM V_PRODUCTOS WHERE id = ? OR codigo = ?;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(DELETE)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-            return "Producto Borrado Correctamente.";
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Ocurrio un error al intentar borrar el Producto...";
-        }
-    }
-
-    /**
-     * Metodo utilizado para eliminar los productos del sistema, este solo
-     * necesita de su CODIGO para localizarlo en la tabla de PRODUCTOS.
-     *
-     * @param codigo codigo del Producto o codigo de barra del producto.
-     *
-     * @return Devuelve un mensaje que indica como resultado de la acción.
-     */
-    public synchronized static String borrarProductoPorCodigo(String codigo) {
-        final String DELETE_PRODUCTO_CODIGO
-                = "DELETE FROM V_PRODUCTOS WHERE codigo = ? ";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                DELETE_PRODUCTO_CODIGO,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            ps.setString(1, codigo);
+            ps.setString(1, IDCodigo);
+            ps.setString(2, IDCodigo);
             ps.executeUpdate();
             return "Producto Borrado Correctamente.";
         } catch (SQLException ex) {
@@ -221,8 +198,8 @@ public class Productos {
      *
      * Metodo actualizado el dia 23 de abril, segun la vista productos.
      *
-     * @param El obj p perteneciente a la clase Producto, define los productos
-     * del sistema.
+     * @param p perteneciente a la clase Producto, define los productos del 
+     * sistema.
      * @return
      */
     public synchronized static String modificarProducto(Productos p) {
@@ -317,20 +294,17 @@ public class Productos {
      */
     public synchronized static ResultSet getProductoById(Integer idProducto,
             String codigo) {
-
         final String SELECT_CODIGO_ID
-            = "select id, codigo, descripcion, estado, image, "
-            + "idCategoria, Cantidad "
-            + "from v_Productos "
-            + "where codigo = ? or IDPRODUCTO = ?";
-        
+                = "select id, codigo, descripcion, estado, image, "
+                + "idCategoria, Cantidad "
+                + "from v_Productos "
+                + "where codigo = ? or IDPRODUCTO = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(SELECT_CODIGO_ID)) {
-            ps.setString(1, codigo);
 
+            ps.setString(1, codigo);
             if (idProducto == null) {
                 idProducto = 0;
             }
-
             ps.setInt(2, idProducto);
 
             return ps.executeQuery();
@@ -362,9 +336,10 @@ public class Productos {
      */
     public synchronized static Productos getProducto(int id) {
         final String sql
-                = "SELECT r.ID, r.IDCATEGORIA, r.DESC_CATEGORIA, r.IMAGEN_CATEGORIA, r.CODIGO, "
-                + "     r.DESCRIPCION, r.IMAGEN_TEXTO, r.NOTA, r.FECHA_CREACION, r.ESTADO "
-                + "FROM GET_PRODUCTOS r "
+                = "SELECT r.ID, r.ID_CATEGORIA, r.DESC_CATEGORIA, "
+                + "     r.IMAGEN_CATEGORIA, r.CODIGO, r.DESCRIPCION, "
+                + "     r.IMAGEN_PRODUCTO, r.NOTA, r.FECHA_CREACION, r.ESTADO "
+                + "FROM GET_PRODUCTOS r"
                 + "WHERE r.ID = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -372,16 +347,16 @@ public class Productos {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     miProducto = Productos.builder().
-                            id(rs.getInt("id")).
-                            idCategoria(rs.getInt("idcategoria")).
+                            id(rs.getInt("ID")).
+                            idCategoria(rs.getInt("ID_CATEGORIA")).
                             desc_categoria(rs.getString("DESC_CATEGORIA")).
                             imagen_categoria(rs.getString("IMAGEN_CATEGORIA")).
-                            codigo(rs.getString("codigo")).
-                            descripcion(rs.getString("descripcion")).
-                            ImagenTexto(rs.getString("IMAGEN_TEXTO")).
-                            nota(rs.getString("nota")).
-                            FechaCreacion(rs.getDate("fecha_Creacion")).
-                            estado(rs.getBoolean("estado")).build();
+                            codigo(rs.getString("CODIGO")).
+                            descripcion(rs.getString("DESCRIPCION")).
+                            imagenProducto(rs.getString("IMAGEN_PRODUCTO")).
+                            nota(rs.getString("NOTA")).
+                            fechaCreacion(rs.getDate("FECHA_CREACION")).
+                            estado(rs.getBoolean("ESTADO")).build();
                 }
             }
             return miProducto;
@@ -390,13 +365,13 @@ public class Productos {
             return null;
         }
     }
-    
+
     public synchronized static ResultSet getProductosCriterios(int tipo,
             String criterio, boolean image) {
-        
+
         String sql = "SELECT p.IdProducto, p.Descripcion, p.Codigo " + (image ? ", image " : "")
                 + "FROM TABLA_PRODUCTOS p ";
-        
+
         switch (tipo) {
             case 1:
                 sql = sql + "WHERE p.Codigo CONTAINING ? and estado order by 1";
@@ -416,7 +391,7 @@ public class Productos {
                 sql = sql + "WHERE estado order by 1 ";
         }
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             if (tipo != 0) {
                 ps.setString(1, criterio);
             }
@@ -428,20 +403,20 @@ public class Productos {
     }
 
     /**
-     * 
+     *
      * @param idProducto
-     * @return 
+     * @return
      */
     public synchronized static BigDecimal getPrecioProducto(int idProducto) {
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(
+        try (PreparedStatement ps = getCnn().prepareStatement(
                 "SELECT precio "
                 + "FROM TABLA_ENTRADAS_PRODUCTO "
                 + "WHERE idProducto = ?")) {
 
             ps.setInt(1, idProducto);
 
-            try ( ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getBigDecimal("precio");
                 } else {
@@ -457,8 +432,7 @@ public class Productos {
             return new BigDecimal(-1);
         }
     }
-    
-    
+
     @Override
     public String toString() {
         return descripcion;

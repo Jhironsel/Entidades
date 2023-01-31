@@ -2,6 +2,9 @@ package sur.softsurena.utilidades;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -24,6 +27,7 @@ import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -109,8 +113,6 @@ public class Utilidades {
         try {
             OutputStream ouputStream = new FileOutputStream(filePath);
 
-            DefaultJasperReportsContext.getInstance();
-
             JasperPrintManager printManager
                     = JasperPrintManager.getInstance(
                             DefaultJasperReportsContext.getInstance());
@@ -144,10 +146,8 @@ public class Utilidades {
      * @param name
      */
     public static void copyFileUsingFileChannels(String source, String name) {
-        try {
-            InputStream in = new FileInputStream(source);
-            OutputStream out = new FileOutputStream("imagenes/" + name);
-
+        try(InputStream in = new FileInputStream(source);
+                OutputStream out = new FileOutputStream("imagenes/" + name);) {
             byte[] buf = new byte[1024];
             int len;
 
@@ -155,9 +155,6 @@ public class Utilidades {
                 //out.flush();
                 out.write(buf, 0, len);
             }
-
-            in.close();
-            out.close();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
         }
@@ -169,9 +166,9 @@ public class Utilidades {
      * @param cadena
      * @return
      */
-    public static boolean isNumerc(String cadena) {
+    public static boolean isNumeric(String cadena) {
         try {
-            Integer.parseInt(cadena);
+            Integer.valueOf(cadena);
             return true;
         } catch (NumberFormatException nfe) {
             return false;
@@ -184,9 +181,9 @@ public class Utilidades {
      * @param cadena
      * @return
      */
-    public static boolean isNumercFloat(String cadena) {
+    public static boolean isNumericFloat(String cadena) {
         try {
-            Float.parseFloat(cadena.replace("$", "").replace(" ", ""));
+            Float.valueOf(cadena.replace("$", "").replace(" ", ""));
             return true;
         } catch (NumberFormatException nfe) {
             return false;
@@ -331,7 +328,7 @@ public class Utilidades {
 
         if (data == null) {
             Imagenes img = new Imagenes();
-            return img.getIcono("Sin_imagen 64 x 64.png");
+            return (ImageIcon) img.getIcono("Sin_imagen 64 x 64.png");
         }
 
         BufferedImage img = null;
@@ -407,8 +404,9 @@ public class Utilidades {
      * @param fecha
      * @return
      */
-    public static Date stringToDate(String fecha) {
-        SimpleDateFormat formatoDelTexto = new SimpleDateFormat("dd-MM-yyyy");
+    public static Date stringToDate(String fecha, String formato) {
+        //Posibles formato: "yyyy-MM-dd" "dd-MM-yyyy"
+        SimpleDateFormat formatoDelTexto = new SimpleDateFormat(formato);
         Date aux = null;
         try {
             aux = formatoDelTexto.parse(fecha);
@@ -417,20 +415,6 @@ public class Utilidades {
         return aux;
     }
 
-    /**
-     *
-     * @param fecha
-     * @return
-     */
-    public static Date stringToDate2(String fecha) {
-        SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyy-MM-dd");
-        Date aux = null;
-        try {
-            aux = formatoDelTexto.parse(fecha);
-        } catch (Exception ex) {
-        }
-        return aux;
-    }
 
     /**
      *
@@ -533,4 +517,36 @@ public class Utilidades {
 
     }
 
+    
+    /**
+     * Por el momento no se le está dando uso a este metodo, pero es utilizado
+     * para limitar los caracteres de un campos de texto, será util en otros 
+     * momento.
+     * 
+     * Puede ser util para un JtextField o cualquier otro. 
+     * 
+     * @param limite
+     * @param txt
+     * @return 
+     */
+    private KeyListener limitarCaracteres(final int limite, final JFormattedTextField txt) {
+
+        KeyListener keyListener = new KeyAdapter() {
+            private int suma = 0;
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                suma = suma + 1;
+                if (suma == limite) {
+                    e.consume();
+                    JOptionPane.showMessageDialog(null, "El limte se caracteres es " + suma + "\n" + txt.getText());
+
+                }
+            }
+        };
+
+        return keyListener;
+    }
+    
+    
 }

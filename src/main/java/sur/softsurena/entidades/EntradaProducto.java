@@ -16,7 +16,7 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 public class EntradaProducto {
 
     private static final Logger LOG = Logger.getLogger(EntradaProducto.class.getName());
-    
+
     private final Integer id;
     private final Integer idProvedor; //Identificador del proveedor
     private final String cod_factura; //Encabezado de la factura.
@@ -28,9 +28,6 @@ public class EntradaProducto {
     private final String idUsuairo;
     private final String rol;
 
-    private final static String INSERT_SP
-            = "EXECUTE PROCEDURE SP_INSERT_ENTRADA_PRODUCTOS (?, ?, ?, ?, ?, ?);";
-    
     /**
      * Agregar entrada de producto a la base de datos en la tabla de entrada de
      * productos.
@@ -42,7 +39,10 @@ public class EntradaProducto {
      * @return Devuelve un valor booleano que indica si el registro fue exitoso.
      */
     public synchronized static boolean agregarProductoEntrada(EntradaProducto e) {
-        try(PreparedStatement ps = getCnn().prepareStatement(EntradaProducto.INSERT_SP)) {
+        final String INSERT_SP
+                = "EXECUTE PROCEDURE SP_INSERT_ENTRADA_PRODUCTOS (?, ?, ?, ?, ?, ?);";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(INSERT_SP)) {
             ps.setInt(1, e.getIdProvedor());
             ps.setString(2, e.getCod_factura());
             ps.setInt(3, e.getLinea());
@@ -56,27 +56,26 @@ public class EntradaProducto {
             return false;
         }
     }
-    
-    private static final String INSERT
-            = "INSERT INTO ENTRADAS_PRODUCTO (IDENTRADA_PRODUCTO, CONCEPTO, "
-                    + "IDPRODUCTO, ENTRADA, OP, IDUSUARIO, NUMERO)"
-                    + "VALUES (?, ?, ?, ?, '-', ?, ? );";
-    
+
     /**
-     * 
+     *
      * @param IDENTRADA_PRODUCTO
      * @param numero
      * @param cencepto
      * @param idProducto
      * @param entrada
      * @param idUsuario
-     * @return 
+     * @return
      */
     public boolean agregarProductoSalida(int IDENTRADA_PRODUCTO, int numero,
             String cencepto, String idProducto, double entrada, String idUsuario) {
-        
-        
-        try (PreparedStatement ps = getCnn().prepareStatement(INSERT)){
+
+        final String INSERT
+                = "INSERT INTO ENTRADAS_PRODUCTO (IDENTRADA_PRODUCTO, CONCEPTO, "
+                + "IDPRODUCTO, ENTRADA, OP, IDUSUARIO, NUMERO)"
+                + "VALUES (?, ?, ?, ?, '-', ?, ? );";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(INSERT)) {
 
             ps.executeUpdate();
             return true;
@@ -85,21 +84,26 @@ public class EntradaProducto {
             return false;
         }
     }
-    
+
     /**
-     * 
+     *
      * @param mes
      * @param year
-     * @return 
+     * @return
      */
     public synchronized static ResultSet getEntradaProducto(int mes, int year) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(
-                "SELECT r.FECHAENTRADA, IIF(r.OP = '+', 'Entrada', 'Salida') as operacion, "
+        final String sql 
+                = "SELECT r.FECHAENTRADA, IIF(r.OP = '+', 'Entrada', 'Salida') as operacion, "
                 + "r.IDUSUARIO "
                 + "FROM TABLA_ENTRADAS_PRUDUCTO r "
                 + "WHERE EXTRACT(MONTH FROM r.FECHAENTRADA) = ? "
                 + "and EXTRACT(YEAR FROM r.FECHAENTRADA) = ? "
-                + "GROUP BY r.FECHAENTRADA,  r.OP, r.IDUSUARIO")) {
+                + "GROUP BY r.FECHAENTRADA,  r.OP, r.IDUSUARIO";
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql, 
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setInt(1, mes);
             ps.setInt(2, year);
             return ps.executeQuery();

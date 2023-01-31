@@ -29,16 +29,13 @@ public class Direcciones {
     private final String direccion;
     private final Date fecha;
 
+    /**
+     * Es un campo de clase que se está compartiendo con el formulario
+     * frmClientes. Dicho valores representan la headers de las columnas de las
+     * tablas de direcciones del cliente.
+     */
     public final static String[] TITULOS_DIRECCION = {"Provincia", "Municipio",
         "Distrito M.", "Calle y No. Casa", "Fecha"};
-
-    /**
-     * Permite agregar la direccion de una persona al sistema.
-     */
-    public static String INSERT
-            = "INSERT INTO V_DIRECCIONES (ID_PERSONA, ID_PROVINCIA, ID_MUNICIPIO, "
-            + "     ID_DISTRITO_MUNICIPAL, ID_CODIGO_POSTAL, DIRECCION) "
-            + "VALUES (?, ?, ?, ?, 0, ?);";
 
     public static String UPDATE
             = "UPDATE V_DIRECCIONES a  "
@@ -80,7 +77,25 @@ public class Direcciones {
         }
     }
 
+    /**
+     * Metodo utilizado para agregar una lista de direcciones de cliente al 
+     * sistema.
+     * 
+     * @param id Identificador de la persona a la que se le va almacenar una 
+     *           direccion. 
+     * @param direcciones Listado de direcciones de una persona. 
+     * 
+     * @return Devuelve true si la operacion fue exitosa, false caso contrario.
+     */
     public static boolean agregarDirecciones(int id, List<Direcciones> direcciones) {
+        /**
+         * Permite agregar la direccion de una persona al sistema.
+         */
+        final String INSERT
+                = "INSERT INTO V_DIRECCIONES (ID_PERSONA, ID_PROVINCIA, ID_MUNICIPIO, "
+                + "     ID_DISTRITO_MUNICIPAL, ID_CODIGO_POSTAL, DIRECCION) "
+                + "VALUES (?, ?, ?, ?, 0, ?);";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(INSERT)) {
             for (Direcciones d : direcciones) {
                 ps.setInt(1, id);
@@ -137,8 +152,9 @@ public class Direcciones {
      * @param id_persona identificador del cliente del sistema, la cual ayuda
      * obtener los registros de un usuario en expecifico.
      *
-     * Consulta utilizada para obtener la direccion de una persona en particular.
-     * 
+     * Consulta utilizada para obtener la direccion de una persona en
+     * particular.
+     *
      * @return Retorna un conjunto de datos del tipo resultSet.
      */
     public synchronized static List<Direcciones> getDireccionByID(int id_persona) {

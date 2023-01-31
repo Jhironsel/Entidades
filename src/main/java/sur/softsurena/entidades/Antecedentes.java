@@ -24,13 +24,10 @@ public class Antecedentes extends Personas {
     private String UserName;
     private String Rol;
 
-    /**
-     *
-     */
-    public static final String DELETE
-            = "DELETE FROM V_ANTECEDENTES WHERE ID = ?";
-
     public synchronized static String borrarAntecedente(int idAntecedente) {
+        final String DELETE
+            = "DELETE FROM V_ANTECEDENTES WHERE ID = ?";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(
                 DELETE,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -46,21 +43,25 @@ public class Antecedentes extends Personas {
     }
 
     /**
-     * Permite agregar registro de los antecendentes de los paciente, solo debe
-     * pasarse el ID_CONSULTA.
-     */
-    private static final String INSERT
-            = "INSERT INTO V_ANTECEDENTES (ID_CONSULTA, DESCRIPCION) VALUES (?, ?)";
-
-    /**
      * Metodo que permite agregar los antecendentes de los pacientes del
      * sistema.
+     * 
+     * Los antecedentes son aquellos que el paciente a tenido antes de la 
+     * consulta programada.
      *
-     * @param id
-     * @param antecedente
-     * @return
+     * @param id Identificador de la consulta, dicha consulta ya contiene el id 
+     *          Del paciente.
+     * 
+     * @param antecedente Es una pequeña descripcion del antecendete que el 
+     *      paciente padeció antes de la consulta.
+     * 
+     * @return retorna una cadena o mensaje con la accion realizada por el 
+     * sistema.
      */
     public synchronized static String agregarAntecedente(int id, String antecedente) {
+        final String INSERT
+            = "INSERT INTO V_ANTECEDENTES (ID_CONSULTA, DESCRIPCION) VALUES (?, ?)";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(
                 INSERT,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -78,17 +79,20 @@ public class Antecedentes extends Personas {
         }
     }
 
-    private static final String UPDATE
-            = "UPDATE V_ANTECEDENTES SET DESCRIPCION = ? WHERE ID = ?";
-
     /**
+     * Metodo que permite actualizar los antecendente de un paciente. Se utiliza
+     * el identificador del antecedente para ser actualizado. 
      * 
-     * @param idAntecedente
+     * @param idAntecedente 
      * @param descrpcion
      * @return 
      */
     public synchronized String modificarAntecedente(int idAntecedente,
             String descrpcion) {
+        
+        final String UPDATE
+            = "UPDATE V_ANTECEDENTES SET DESCRIPCION = ? WHERE ID = ?";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
 
             ps.setString(1, descrpcion);

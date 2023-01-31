@@ -1,7 +1,7 @@
 package sur.softsurena.utilidades;
 
 import java.awt.GridBagConstraints;
-import java.io.Console;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -25,7 +25,7 @@ public class ButtonJTabbedPane extends JPanel {
         B = new JButton();
         B.setPreferredSize(new java.awt.Dimension(10, 10));
         Imagenes i = new Imagenes();
-        B.setIcon(i.getIcono("Cerrar 24 x 25.png"));
+        B.setIcon((Icon) i.getIcono("Cerrar 24 x 25.png"));
         //Listener para cierre de tabs con acceso estatico al `JTabbedPane`
         //el elemento jtp debe ser un objeto statico de la clase que lo implementa. 
         B.addActionListener(e -> jtp.removeTabAt(jtp.indexOfTab(title)));

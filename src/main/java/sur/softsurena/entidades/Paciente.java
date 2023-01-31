@@ -1,14 +1,19 @@
 package sur.softsurena.entidades;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
+import static sur.softsurena.utilidades.Utilidades.LOGGER;
 
 @Getter
 @SuperBuilder
@@ -16,18 +21,40 @@ public class Paciente extends Personas {
 
     private static final Logger LOG = Logger.getLogger(Paciente.class.getName());
 
+    static {
+        try {
+            FileHandler fh = new FileHandler(new File("/Logs/Paciente.log").getPath(), true);
+            //fh.setFormatter(new XMLFormatter());
+            fh.setFormatter(new SimpleFormatter());
+            LOGGER.addHandler(fh);
+        } catch (IOException e) {
+            System.out.print(e.getLocalizedMessage());
+        }
+    }
+
     private final int idPadre;
     private final int idMadre;
+
+    public static final String ERROR_AL_MODIFICAR_CLIENTE = "Error al modificar cliente...";
+    public static final String PACIENTE_MODIFICADO_CORRECTAMENTE = "Paciente modificado correctamente";
+
+    public static final String ERROR_AL_INSERTAR_PACIENTE = "Error al insertar paciente.";
+    public static final String PACIENTE_AGREGADO_CORRECTAMENTE = "Paciente agregado correctamente.";
+
+    public static final String ERROR_AL_BORRAR_PACIENTE = "Error al borrar paciente.";
+    public static final String PACIENTE_BORRADO_CORRECTAMENTE = "Paciente borrado correctamente";
 
     /**
      *
      * @param p
      * @return
      */
-    public synchronized static String modificarPaciente(Paciente p) {
+    public synchronized static Resultados modificarPaciente(Paciente p) {
         final String UPDATE
-                = "EXECUTE PROCEDURE SP_UPDATE_PACIENTE (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-
+                = "EXECUTE PROCEDURE SP_UPDATE_PACIENTE (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        
+        Resultados r;
+        
         try (CallableStatement ps = getCnn().prepareCall(
                 UPDATE,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -49,22 +76,31 @@ public class Paciente extends Personas {
             ps.setBoolean(13, p.getEstado());
             ps.setBoolean(14, p.getAsegurado().getEstado());
 
-            ps.executeUpdate();
+            int cantidad = ps.executeUpdate();
+            
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje(PACIENTE_MODIFICADO_CORRECTAMENTE).
+                    cantidad(cantidad).build();
 
-            return "Paciente modificado correctamente";
+            return r;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al modificar cliente...";
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje(ERROR_AL_MODIFICAR_CLIENTE).
+                    cantidad(-1).build();
+            return r;
         }
     }
-
-    
 
     /**
      * Metodo que permite agregar un paciente al sisteme. Primer metodo
      * testeado.
      *
-     * nota: Metodo actualizado 22 Junio del 2022.
+     * nota: 
+     * Proceso de agregar paciente revizado y actualizado el 22 abril 2022.
+     * Metodo actualizado 22 Junio del 2022.
      *
      * @Test agregarPaciente(), metodo de la prueba del funcionamiento.
      *
@@ -74,65 +110,93 @@ public class Paciente extends Personas {
      * @return Retorna un mensaje que indica si el registro fue completado o no.
      *
      */
-    public synchronized static String agregarPaciente(Paciente p) {
-        /*Proceso de agregar paciente revizado y actualizado el 22 abril 2022*/
+    
+    public synchronized static Resultados agregarPaciente(Paciente p) {
+        //Query procedimental para agregar un paciente y devolver su ID.
         final String INSERT
-                = "SELECT p.V_ID "
-                + "FROM SP_INSERT_PACIENTE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) p;";
+                = "SELECT V_ID " 
+                + "FROM SP_INSERT_PACIENTE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(INSERT)) {
+        //Variables de resultado lista para devolver un error.
+        Resultados r = Resultados.builder().
+                id(-1).
+                mensaje(ERROR_AL_INSERTAR_PACIENTE).
+                cantidad(-1).build();
+
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                INSERT, 
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setInt(1, p.getIdPadre());
             ps.setInt(2, p.getIdMadre());
-            ps.setString(3, p.getGenerales().getCedula().trim());
-            ps.setString(4, p.getPNombre().trim());
-            ps.setString(5, p.getSNombre().trim());
-            ps.setString(6, p.getApellidos().trim());
-            ps.setString(7, "" + p.getSexo());
-            ps.setDate(8, p.getFecha_nacimiento());
-            ps.setInt(9, p.getGenerales().getId_tipo_sangre());
-            ps.setInt(10, p.getAsegurado().getId_ars());
-            ps.setString(11, p.getAsegurado().getNo_nss().trim());
+            ps.setInt(3, p.getAsegurado().getId_ars());
+            ps.setString(4, p.getAsegurado().getNo_nss().trim());
+            ps.setString(5, p.getGenerales().getCedula().trim());
+            ps.setString(6, p.getPNombre().trim());
+            ps.setString(7, p.getSNombre().trim());
+            ps.setString(8, p.getApellidos().trim());
+            ps.setString(9, "" + p.getSexo());
+            ps.setDate(10, p.getFecha_nacimiento());
+            ps.setInt(11, p.getGenerales().getId_tipo_sangre());
             ps.setBoolean(12, p.getEstado());
 
-            ps.executeQuery();
             /*Me quedo con la duda que si un paciente necesita numero de contacto
             Ya que los padres si deberian de tenerlo*/
+            try (ResultSet rs = ps.executeQuery();) {
+                rs.next();
+                r = Resultados.builder().
+                        id(rs.getInt("V_ID")).
+                        mensaje(PACIENTE_AGREGADO_CORRECTAMENTE).
+                        cantidad(-1).build();
+                
+                return r;
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return r;
+            }
 
-            return "Paciente agregado correctamente";
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al insertar paciente...";
+            return r;
         }
     }
 
     /**
      * Metodos que permiten borrar registros de la base de datos.
      */
-    public synchronized static String borrarPaciente(String cedula) {
+    public synchronized static Resultados borrarPaciente(int id) {
 
-        final String sql = "UPDATE V_PACIENTES "
-                + "SET "
-                + "    ESTADO = FALSE "
-                + "WHERE "
-                + "    CEDULA = ?";
-
+        final String sql = "DELETE FROM V_PACIENTES WHERE ID = ?";
+        Resultados r;
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
-            ps.setString(1, cedula);
+            ps.setInt(1, id);
 
-            ps.executeUpdate();
-            return "Paciente borrado correctamente";
+            int cantidad = ps.executeUpdate();
+            
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje(PACIENTE_BORRADO_CORRECTAMENTE).
+                    cantidad(cantidad).build();
+            
+            return r;
+            
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al borrar paciente...";
+            r = Resultados.builder().
+                    id(-1).
+                    mensaje(ERROR_AL_BORRAR_PACIENTE).
+                    cantidad(-1).build();
+            return r;
         }
     }
 
     /**
-     * 
+     *
      * @param idPaciente
-     * @return 
+     * @return
      */
     public synchronized static String getSexoPaciente(int idPaciente) {
         final String GET_SEXO_BY_ID
@@ -192,7 +256,7 @@ public class Paciente extends Personas {
             return false;
         }
     }
-    
+
     /**
      *
      * @param idPaciente
@@ -200,13 +264,13 @@ public class Paciente extends Personas {
      */
     public synchronized static ResultSet getPacienteActivoID(int idPaciente) {
         final String GET_PACIENTES
-            = "SELECT r.ID, r.ID_MADRE, r.ID_PADRE, r.ID_ARS, r.NONSS, r.ID_TIPO_SANGRE, "
-            + "     r.CEDULA, r.PNOMBRE, r.SNOMBRE, r.APELLIDOS, r.SEXO, r.FECHA_NACIMIENTO, "
-            + "     r.FECHA_INGRESO, r.FECHA_HORA_ULTIMO_UPDATE, r.ESTADO, r.ID_USUARIO "
-            + "FROM GET_PACIENTES r "
-            + "WHERE IDPACIENTE = ?";
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(GET_PACIENTES,
+                = "SELECT r.ID, r.ID_MADRE, r.ID_PADRE, r.ID_ARS, r.NONSS, r.ID_TIPO_SANGRE, "
+                + "     r.CEDULA, r.PNOMBRE, r.SNOMBRE, r.APELLIDOS, r.SEXO, r.FECHA_NACIMIENTO, "
+                + "     r.FECHA_INGRESO, r.FECHA_HORA_ULTIMO_UPDATE, r.ESTADO, r.ID_USUARIO "
+                + "FROM GET_PACIENTES r "
+                + "WHERE IDPACIENTE = ?";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(GET_PACIENTES,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -223,7 +287,7 @@ public class Paciente extends Personas {
                 + " CESAREA, TIEMPOGESTACION, PC "
                 + "FROM V_DATOSNACIMIENTO "
                 + "WHERE idPaciente = ?";
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -236,18 +300,18 @@ public class Paciente extends Personas {
             return null;
         }
     }
-    
+
     public synchronized static int getIdPaciente(String cedula) {
         final String sql = "SELECT IDPACIENTE FROM V_PACIENTES WHERE CEDULA LIKE ?";
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, cedula);
 
-            try ( ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("IDPACIENTE");
                 } else {
@@ -268,7 +332,7 @@ public class Paciente extends Personas {
                 + "FROM GET_PACIENTES "
                 + "WHERE Estado IS ?";
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -293,7 +357,7 @@ public class Paciente extends Personas {
                 + "                               C.IDCONTROLCONSULTA = ?) and "
                 + "a.Estado " + filtro;
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -320,7 +384,7 @@ public class Paciente extends Personas {
                 + "      c.FECHA = ? and  c.IDCONTROLCONSULTA = ? "
                 + filtro + " order by turno";
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -348,7 +412,7 @@ public class Paciente extends Personas {
                 + "C.IDCONTROLCONSULTA = ? "
                 + " order by TURNO";
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             ps.setString(1, fecha);
             ps.setInt(2, idControlConsulta);
@@ -359,8 +423,7 @@ public class Paciente extends Personas {
             return null;
         }
     }
-    
-    
+
     @Override
     public String toString() {
         return super.toString();

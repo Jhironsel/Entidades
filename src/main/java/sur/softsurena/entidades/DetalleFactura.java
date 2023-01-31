@@ -25,18 +25,6 @@ public class DetalleFactura {
     private final BigDecimal cantidad;
     private final BigDecimal total;
 
-    public static String INSERT_DETALLE_FACTURA
-            = "INSERT INTO V_D_FACTURAS (ID_FACTURA, ID_LINEA, ID_PRODUCTO, "
-            + "     PRECIO, CANTIDAD) "
-            + "VALUES (?, ?, ?, ?, ?);";
-
-    public static String GET_DETALLE_FACTURA
-            = "SELECT r.ID_FACTURA, r.ID_LINEA, r.ID_PRODUCTO, r.DESCRIPCION, r.PRECIO, "
-            + "     r.CANTIDAD, r.TOTAL "
-            + "FROM GET_D_FACTURAS r"
-            + "WHERE ID_FACTURA = ? "
-            + "ORDER BY 1 2;";
-
     /**
      * Metodo utilizado para agregar los datos de los detalle de la factura del
      * sistema.
@@ -56,7 +44,12 @@ public class DetalleFactura {
      */
     public static synchronized Integer agregarDetalleFactura(Facturas f) {
         List<DetalleFactura> d = f.getDetalleFactura();
-        try (PreparedStatement ps = getCnn().prepareStatement(DetalleFactura.INSERT_DETALLE_FACTURA)) {
+        final String INSERT_DETALLE_FACTURA
+            = "INSERT INTO V_D_FACTURAS (ID_FACTURA, ID_LINEA, ID_PRODUCTO, "
+            + "     PRECIO, CANTIDAD) "
+            + "VALUES (?, ?, ?, ?, ?);";
+        
+        try (PreparedStatement ps = getCnn().prepareStatement(INSERT_DETALLE_FACTURA)) {
             for (Iterator<DetalleFactura> i = d.iterator(); i.hasNext();) {
                 DetalleFactura next = i.next();
 
@@ -84,7 +77,14 @@ public class DetalleFactura {
      * @return
      */
     public synchronized static ResultSet getBuscarTemporal(Integer idFactura) {
-        try (PreparedStatement ps = getCnn().prepareStatement(DetalleFactura.GET_DETALLE_FACTURA)) {
+        final String GET_DETALLE_FACTURA
+            = "SELECT r.ID_FACTURA, r.ID_LINEA, r.ID_PRODUCTO, r.DESCRIPCION, r.PRECIO, "
+            + "     r.CANTIDAD, r.TOTAL "
+            + "FROM GET_D_FACTURAS r"
+            + "WHERE ID_FACTURA = ? "
+            + "ORDER BY 1 2;";
+        
+        try (PreparedStatement ps = getCnn().prepareStatement(GET_DETALLE_FACTURA)) {
             ps.setInt(1, idFactura);
             return ps.executeQuery();
         } catch (SQLException ex) {

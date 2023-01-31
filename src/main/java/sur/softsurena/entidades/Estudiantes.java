@@ -72,6 +72,11 @@ public class Estudiantes extends Personas {
         }
     }
 
+    /**
+     *
+     * @param matricula
+     * @return
+     */
     public ResultSet getEstudiante(String matricula) {
         final String sql
                 = " SELECT e.MATRICULA, e.CEDULA_PADREMADRE, e.NOMBRES, e.APELLIDOS, "
@@ -89,9 +94,10 @@ public class Estudiantes extends Personas {
                 + "             FROM PADREMADRES p "
                 + "             WHERE p.DOCUMENTO like e.CEDULA_PADREMADRE) as NombrePadre, ID_tanda "
                 + " FROM estudiantes e "
-                + " WHERE e.MATRICULA = '" + matricula + "'";
+                + " WHERE e.MATRICULA = ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+            ps.setString(1, matricula);
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -99,12 +105,18 @@ public class Estudiantes extends Personas {
         }
     }
 
+    /**
+     * @
+     * @param e
+     * @return
+     */
     public String modificarEstudiante(Estudiantes e) {
         /*Metodo para modificar los estudiante del sistema de ballet
         Actualizado el 23 de abril del 2022.
          */
         final String sql = "EXECUTE PROCEDURE SP_UPDATE_ESTUDIANTE (?, ?, ?, ?, ?, ?, ?,"
                 + " ?, ?, ?, ?);";
+
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             ps.setInt(1, e.getId_persona());
@@ -127,58 +139,80 @@ public class Estudiantes extends Personas {
     }
 
     public String inscribirEstudiante(Inscripcion i) {
-        /**/
+
         final String sql = "";
+
         try (CallableStatement cs = getCnn().prepareCall(sql)) {
 
             cs.executeUpdate();
             return "Alumno Inscripto...";
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return ex.getMessage();
+            return "Error al inscribir estudiante.";
         }
     }
 
-    public void pPagoMensualidad(String idUsuario, String pago,
-            String matricula, String fechaPago) {
-        
+    /**
+     *
+     * @param idUsuario
+     * @param pago
+     * @param matricula
+     * @param fechaPago
+     */
+    public void pPagoMensualidad(String idUsuario, String pago, String matricula,
+            String fechaPago) {
+
         final String sql = "EXECUTE PROCEDURE P_PAGO_MENSUALIDAD(" + idUsuario + ","
-            +pago + "," + matricula + ",'" + fechaPago + "')";
-        
-        try (CallableStatement cs = getCnn().prepareCall(sql)){
-            
+                + pago + "," + matricula + ",'" + fechaPago + "')";
+
+        try (CallableStatement cs = getCnn().prepareCall(sql)) {
+
             cs.execute(sql);
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
-    
+
+    /**
+     *
+     * @param matricula
+     * @param periodo
+     * @return
+     */
     public ResultSet getMensualidad(String matricula, String periodo) {
-        final String sql = 
-                "SELECT m.consecutivo, m.fecha_pago, m.Estado, m.monto, m.pagado, m.total,"
+        final String sql
+                = "SELECT m.consecutivo, m.fecha_pago, m.Estado, m.monto, m.pagado, m.total,"
                 + " m.fecha_pagado, m.fecha_abono, m.periodo "
                 + "FROM Mensualidad m "
                 + "WHERE matricula = " + matricula + " and PERIODO like '" + periodo + "'";
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
-    
+
     /**
-     *
-     * @param buscar
-     * @return
+     * Metodo utilizado para verificar si un estudiante esta registrado en la BD
+     * con la matricula proporcionada. 
+     * 
+     * @param matricula Matricula del estudiante.
+     * 
+     * @return Devuelve un valor booleando indicando si el estudiante con la 
+     * matricula proporcionada está registrado en el sistema. 
      */
-    public boolean existeEstudiante(String buscar) {
-        final String sql = "SELECT (1) FROM estudiantes WHERE matricula like '"
-                + buscar + "' or nombres like '" + buscar + "' or apellidos like '"
-                + buscar + "'";
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
-            return rs.next();
+    public static boolean existeEstudiante(String matricula) {
+        final String sql = "SELECT (1) FROM PERSONAS_ESTUDIANTES_ATR WHERE MATRICULA LIKE '%?'";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql);) {
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
@@ -186,14 +220,27 @@ public class Estudiantes extends Personas {
     }
 
     /**
-     *
-     * @param matricula
-     * @return
+     * Metodo utilizado para verificar que un estudiante con el estado activo se
+     * encuentra en el sistema. 
+     * 
+     * @param matricula Matricula del estudiante.
+     * 
+     * @return Devuelve un valor booleando indicando si el estudiante con la 
+     * matricula proporcionada está registrado en el sistema y que su estado sea
+     * activo. 
      */
-    public boolean estadoEstudiante(String matricula) {
-        final String sql = "SELECT (1) FROM estudiantes e WHERE e.matricula = " + matricula + " and e.estado = 1";
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
-            return rs.next();
+    public static boolean estadoEstudiante(String matricula) {
+        final String sql = "SELECT ID, MATRICULA, ESTADO "
+                + "FROM PERSONAS_ESTUDIANTES_ATR "
+                + "WHERE MATRICULA LIKE '%?' AND ESTADO";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql);) {
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return false;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;

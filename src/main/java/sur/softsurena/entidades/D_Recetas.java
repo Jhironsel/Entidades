@@ -22,19 +22,18 @@ public class D_Recetas {
     private final BigDecimal cantidad;
     private final String detalleDosis;
     
-    /**
-     * 
-     */
-    private static final String INSERT 
-            ="insert into V_DETALLERECETAS (IDRECETAS, LINEA, "
-                    + "ID_MEDICAMENTO, CANTIDAD, D_DOSIS) "
-                    + "values (?, ?, ?, ?, ?)";
     
     /**
      * 
      * @param dr 
      */
     public synchronized static void agregarRecetaDetalle(List<D_Recetas> dr) {
+        
+        final String INSERT 
+            ="insert into V_DETALLERECETAS (IDRECETAS, LINEA, "
+                    + "ID_MEDICAMENTO, CANTIDAD, D_DOSIS) "
+                    + "values (?, ?, ?, ?, ?)";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(INSERT)){
             dr.stream().forEach(x -> {
                 try {

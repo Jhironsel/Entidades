@@ -18,6 +18,13 @@ public class ContactosTel {
 
     private static final Logger LOG = Logger.getLogger(ContactosTel.class.getName());
     
+    /**
+     * Es una variable compartida con el formulario de frmClientes, la cual 
+     * define lo encabezado de columnas de las tablas de telefonos. 
+     * 
+     */
+    public static final String[] TITULOS_TELEFONO = {"Numero", "Tipo", "Fecha"};
+    
     private final Integer id;
     private final int id_persona;
     //La accion podrá ser i Insertar, a actualizar o b borrar
@@ -26,12 +33,7 @@ public class ContactosTel {
     private final String tipo;
     private final Date fecha;
     
-    public final static String[] TITULOS_TELEFONO = {"Numero", "Tipo", "Fecha"};
     
-    public final static String SELECT
-            = "SELECT a.ID, a.IDPERSONA, a.TELEFONO "
-            + "FROM V_CONTACTS_TEL a ";
-
     public final static String SELECT_BY_ID
             = "SELECT a.ID, a.TELEFONO, a.TIPO, a.FECHA "
             + "FROM V_CONTACTS_TEL a  "

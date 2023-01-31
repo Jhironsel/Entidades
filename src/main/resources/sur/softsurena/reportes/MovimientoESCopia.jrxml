@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MovimientoES" language="groovy" pageWidth="210" pageHeight="297" whenNoDataType="NoDataSection" columnWidth="190" leftMargin="10" rightMargin="10" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="ff36089e-933c-44b5-aee5-73ffee111334">
+	<property name="ireport.zoom" value="3.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="fecha" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="rutaLogo" class="java.lang.String">
+		<defaultValueExpression><![CDATA["/images/Sin_imagen 64 x 64.png"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="nombreEmpresa" class="java.lang.String">
+		<defaultValueExpression><![CDATA[SoftSurena]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT *
+FROM REPORTE_MOVIMIENTOES ($P{fecha});]]>
+	</queryString>
+	<field name="R_OP" class="java.lang.String"/>
+	<field name="R_FECHAENTRADA" class="java.sql.Date"/>
+	<field name="R_HORA" class="java.sql.Time"/>
+	<field name="R_ENTRADA" class="java.math.BigDecimal"/>
+	<field name="R_DESCRIPCION" class="java.lang.String"/>
+	<field name="R_IDUSUARIO" class="java.lang.String"/>
+	<field name="R_CONCEPTOORNUMEROFACTURA" class="java.lang.String"/>
+	<group name="Operador">
+		<groupExpression><![CDATA[$F{R_OP}]]></groupExpression>
+		<groupHeader>
+			<band height="12">
+				<line>
+					<reportElement x="1" y="10" width="189" height="1" uuid="38ba4238-9c97-4984-825b-7f8795b4c567"/>
+				</line>
+				<textField>
+					<reportElement x="0" y="2" width="190" height="8" isRemoveLineWhenBlank="true" uuid="207dbc92-0fcd-4c69-a44c-98806343cd82"/>
+					<textElement>
+						<font fontName="FreeMono" size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($F{R_OP}.equals("+") ? "Entrada" : "Salida")]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<title>
+		<band height="50">
+			<image hAlign="Center" onErrorType="Blank">
+				<reportElement x="0" y="0" width="58" height="48" isRemoveLineWhenBlank="true" uuid="cbaa4862-a1df-4704-a8ce-f77fdabcd174"/>
+				<imageExpression><![CDATA[$P{rutaLogo}]]></imageExpression>
+			</image>
+			<textField isStretchWithOverflow="true" evaluationTime="Auto" isBlankWhenNull="false">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="58" y="0" width="132" height="48" isRemoveLineWhenBlank="true" uuid="259c2bf5-7e36-4fd4-addb-6af8d38fd99d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{nombreEmpresa}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="14" splitType="Stretch">
+			<staticText>
+				<reportElement x="21" y="0" width="57" height="10" uuid="5650572c-30c5-499b-bb63-2ffcfc299195"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha-Hora:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="78" y="0" width="60" height="10" uuid="1e3134cf-ea05-47ae-80b1-fe2457097516"/>
+				<textElement>
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField pattern="h.mm.ss a">
+				<reportElement x="138" y="0" width="52" height="10" uuid="7da67ca3-8efc-49d3-b026-1413d36481d4"/>
+				<textElement>
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="11" width="190" height="1" uuid="076c664a-7c74-405c-97f9-7af9d306d976"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="25">
+			<staticText>
+				<reportElement x="0" y="0" width="78" height="8" uuid="68c01259-2c75-4a0e-af86-d82f4a5965a6"/>
+				<textElement>
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="78" y="0" width="60" height="8" uuid="12a9f0a5-f974-4e89-87b9-7ef1f1f2543d"/>
+				<textElement>
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Hora]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="8" width="138" height="8" uuid="4e1a71aa-f9be-46b3-8330-944c11875499"/>
+				<textElement>
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Producto]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="138" y="8" width="52" height="8" uuid="db6cf864-a310-4d3f-89c5-a9db72f2a2e8"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Entrada]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="16" width="190" height="8" uuid="5d2af17d-0c62-4679-b4f9-616b803ac88f"/>
+				<textElement>
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ Concepto o Numero de la Factura]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="26" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="78" height="8" uuid="cce2b1a3-be92-42b2-9417-cfb60fa1d7b1"/>
+				<textElement>
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{R_FECHAENTRADA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="78" y="0" width="60" height="8" uuid="964222a4-b698-4f29-98c7-c3c4768fb7d4"/>
+				<textElement>
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{R_HORA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="8" width="138" height="8" uuid="a96f3fa7-6294-4aa8-aded-7d1a3fe4f7e2"/>
+				<textElement>
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{R_DESCRIPCION}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="138" y="8" width="52" height="8" uuid="fe3b468b-ee2d-4a46-b2a1-b6a14db4ca11"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{R_ENTRADA}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="0" y="17" width="190" height="8" uuid="061dc84d-e744-43fd-a829-e730f94886e5"/>
+				<textElement>
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{R_CONCEPTOORNUMEROFACTURA}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="24">
+			<staticText>
+				<reportElement x="1" y="4" width="189" height="11" uuid="0eb77e68-0548-4909-a297-b9179d389523"/>
+				<textElement textAlignment="Center" verticalAlignment="Top"/>
+				<text><![CDATA[Fin]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

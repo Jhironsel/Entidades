@@ -29,62 +29,6 @@ public class Categorias implements Comparable {
     private final Boolean estado;
     private final String idUsuario;
 
-    
-
-    public final static String UPDATE
-            = "UPDATE V_CATEGORIAS a "
-            + "SET "
-            + "     a.DESCRIPCION = ?, "
-            + "     a.IMAGEN_TEXTO = ?, "
-            + "     a.ESTADO = ? "
-            + "WHERE "
-            + "     a.ID = ?";
-
-    public final static String DELETE
-            = "DELETE FROM V_CATEGORIAS a "
-            + "WHERE "
-            + "     a.ID = ?";
-
-    /**
-     * Consulta que solo nos trae el Identificador y la descripcion de la
-     * CATEGORIA.
-     */
-    public final static String SELECT
-            = "SELECT r.ID, r.DESCRIPCION "
-            + "FROM V_CATEGORIAS r";
-
-    /**
-     * Esta consulta nos trae todas las caterias registrada en el sistema.
-     * Incluyendo los campos de la imagen y estado.
-     */
-    public final static String SELECT_CATEGORIA
-            = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO, r.ESTADO,"
-            + "FROM V_CATEGORIAS r "
-            + "ORDER BY 1";
-
-    /**
-     * Esta consulta nos trae aquellas CATEGORIAS que se encuentra asignado a un
-     * producto solamente.
-     */
-    public final static String SELECT_CATEGORIA_ACTIVAS
-            = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO "
-            + "FROM GET_CATEGORIA_ACTIVAS r";
-
-    public final static String SELECT_CATEGORIA_ESTADO
-            = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO, r.ESTADO,"
-            + "FROM V_CATEGORIAS r "
-            + "WHERE r.ESTADO IS ?"
-            + "ORDER BY 1";
-
-    public final static String SELECT_ALL_CATEGORIA
-            = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO, r.FECHA_CREACION, "
-            + "     r.ESTADO, r.IDUSUARIO "
-            + "FROM V_CATEGORIAS r";
-
-    
-    public final static String INSERT
-            = "SELECT p.V_ID "
-            + "FROM SP_INSERT_CATEGORIAS (?, ?, ?) p;";
     /**
      * Agregar las categorias de los productos a la base de datos en la tabla
      * Categoria.
@@ -108,6 +52,11 @@ public class Categorias implements Comparable {
      */
     public synchronized static Resultados agregarCategoria(Categorias c) {
         Resultados r;
+        
+        final String INSERT
+            = "SELECT p.V_ID "
+            + "FROM SP_INSERT_CATEGORIAS (?, ?, ?) p;";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(
                 INSERT,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -155,6 +104,14 @@ public class Categorias implements Comparable {
      *
      */
     public synchronized static String modificarCategoria(Categorias c) {
+        final String UPDATE
+                = "UPDATE V_CATEGORIAS a "
+                + "SET "
+                + "     a.DESCRIPCION = ?, "
+                + "     a.IMAGEN_TEXTO = ?, "
+                + "     a.ESTADO = ? "
+                + "WHERE "
+                + "     a.ID = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 UPDATE,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -181,10 +138,14 @@ public class Categorias implements Comparable {
      * Actualizado el 17/05/2022. Actualizado el 05/06/2022. Nota: se le agrega
      * la cantidad de registros afectos al mensaje.
      *
-     * @param id Es el identificador del registro de la categorias.
+     * @param idCategoria Es el identificador del registro de la categorias.
+     *
      * @return Devuelve un mensaje de la acción realizada.
      */
     public static String borrarCategoria(int idCategoria) {
+        final String DELETE
+                = "DELETE FROM V_CATEGORIAS WHERE ID = ?;";
+
         try (PreparedStatement ps = getCnn().prepareStatement(DELETE)) {
 
             ps.setInt(1, idCategoria);
@@ -199,8 +160,13 @@ public class Categorias implements Comparable {
     }
 
     /**
+     * Metodo utilizado para llenar los comboBox de las categorias de productos
+     * del sistema, solo nos trae el Identificador y la descripcion de todas las
+     * CATEGORIA del sistema.
      *
-     * @param cbCategoria
+     * @param cbCategoria es un jComboBox que es rellenado con todas la
+     * categoria de producto registrado en el sistema.
+     *
      */
     public synchronized static void getCategirias(JComboBox cbCategoria) {
         //Elimina registros previos.
@@ -210,8 +176,13 @@ public class Categorias implements Comparable {
         Categorias categorias = Categorias.builder().
                 id(-1).
                 descripcion("Seleccione categoria").build();
+
         //Lo agregamos al comboBox.
         cbCategoria.addItem(categorias);
+
+        final String SELECT
+                = "SELECT r.ID, r.DESCRIPCION "
+                + "FROM V_CATEGORIAS r";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
@@ -239,12 +210,22 @@ public class Categorias implements Comparable {
     /**
      * Metodo utilizado para obtener todas las categorias del sistema.
      *
+     * Esta consulta nos trae todas las categorias registrada en el sistema.
+     * Incluyendo los campos de la imagen y estado.
+     *
      * Metodo creado 11 Julio 2022.
+     *
      *
      * @return Devuelve un conjunto de datos de la tabla Categoria del sistema,
      * donde contiene todos los campos de la tabla.
      */
     public synchronized static List<Categorias> getCategorias() {
+
+        final String SELECT_CATEGORIA = 
+                "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO, r.ESTADO,"
+                + "FROM V_CATEGORIAS r "
+                + "ORDER BY 1";
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT_CATEGORIA,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -282,6 +263,14 @@ public class Categorias implements Comparable {
      * @return Retorna un conjunto de datos de tipo ResultSet.
      */
     public synchronized static List<Categorias> getCategoriaActivas() {
+        /**
+         * Esta consulta nos trae aquellas CATEGORIAS que se encuentra asignado
+         * a un producto solamente.
+         */
+        final String SELECT_CATEGORIA_ACTIVAS
+                = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO "
+                + "FROM GET_CATEGORIA_ACTIVAS r";
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT_CATEGORIA_ACTIVAS,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -289,13 +278,13 @@ public class Categorias implements Comparable {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             List<Categorias> categoriasList = new ArrayList<>();
-                        
+
             try (ResultSet rs = ps.executeQuery();) {
                 categoriasList.add(Categorias.builder().
                         id(rs.getInt("ID")).
                         descripcion(rs.getString("DESCRIPCION")).
                         image_texto(rs.getString("IMAGEN_TEXTO")).build());
-                
+
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
@@ -306,13 +295,10 @@ public class Categorias implements Comparable {
             return null;
         }
     }
-    
-    public final static String SELECT_CATEGORIA_DESCRIPCION
-            = "SELECT (1) FROM V_CATEGORIAS WHERE descripcion like ?";
-    
+
     /**
      * Metodo que permite investigar si existe una descripcion de una categoria
-     * ya existen.
+     * ya existente.
      *
      * Metodo actualizado, 06 julio 2022.: Se le aplicó una restructuración
      * completa al metodo llevando el sql a la clase categoria.
@@ -324,10 +310,13 @@ public class Categorias implements Comparable {
      * @return Retorna un valor boolean indicando si existe o no la descripcion
      * de la categoria que se le pretende dar.
      */
-    public synchronized static boolean existeCategoria(String descripcion) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(SELECT_CATEGORIA_DESCRIPCION)) {
+    public synchronized static Boolean existeCategoria(String descripcion) {
+        final String SELECT_CATEGORIA_DESCRIPCION
+            = "SELECT (1) FROM V_CATEGORIAS WHERE descripcion like ?";
+        
+        try (PreparedStatement ps = getCnn().prepareStatement(SELECT_CATEGORIA_DESCRIPCION)) {
             ps.setString(1, descripcion);
-            try ( ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);

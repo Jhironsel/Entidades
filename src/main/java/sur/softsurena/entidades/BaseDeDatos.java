@@ -74,7 +74,7 @@ public class BaseDeDatos {
      */
     public synchronized static int periodoMaquina() {
         final String PERIODO
-                = "SELECT r.D FROM V_TIME_LIC r";
+                = "SELECT r.DIAS_RESTANTES FROM V_TIME_LIC r";
 
         try (PreparedStatement ps = getCnn().prepareStatement(PERIODO)) {
 

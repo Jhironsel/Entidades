@@ -15,14 +15,10 @@ public class Codigo_Postal {
 
     private static final Logger LOG = Logger.getLogger(Codigo_Postal.class.getName());
     
-    private int id;
-    private int idProvincia;
-    private String localidad;
-    private int codigo_postal;
-
-    public static String SELECT
-            = "SELECT r.ID, r.IDPROVINCIA, r.LOCALIDAD, r.CODIGO_POSTAL "
-            + "FROM V_CODIGOS_POSTALES r WHERE r.IDPROVINCIA = ?;";
+    private final int id;
+    private final int idProvincia;
+    private final String localidad;
+    private final int codigo_postal;
 
     /**
      * Metodo que me permite obtener los codigo postales de la republica
@@ -32,6 +28,10 @@ public class Codigo_Postal {
      * @return
      */
     public synchronized static ResultSet getCodigoPostal(int id_provincia) {
+        final String SELECT
+            = "SELECT r.ID, r.IDPROVINCIA, r.LOCALIDAD, r.CODIGO_POSTAL "
+            + "FROM V_CODIGOS_POSTALES r WHERE r.IDPROVINCIA = ?;";
+        
         try ( PreparedStatement ps1 = getCnn().prepareStatement(
                 SELECT,
                 ResultSet.TYPE_FORWARD_ONLY,

@@ -94,6 +94,7 @@ public class Deudas extends Personas {
                 + "    ON c.IDCLIENTE LIKE r.IDCLIENTE "
                 + "WHERE r.ESTADO IN('i', 'a') "
                 + "GROUP BY r.IDCLIENTE, c.NOMBRES, c.APELLIDOS ";
+        
         try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -111,9 +112,10 @@ public class Deudas extends Personas {
      * @return
      */
     public synchronized static String modificarDeuda(int idDeuda, String op) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(
-                "SELECT S_SALIDA "
-                + "FROM SP_UPDATE_DEUDA_ESTADO(?,?)")) {
+        final String sql = "SELECT S_SALIDA "
+                + "FROM SP_UPDATE_DEUDA_ESTADO(?,?)";
+        
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setInt(1, idDeuda);
             ps.setString(2, op);
             try ( ResultSet rs = ps.executeQuery()) {
@@ -216,10 +218,10 @@ public class Deudas extends Personas {
      * @return 
      */
     public synchronized static ResultSet getDeudaClienteExterna(String idDeuda) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(
-                "SELECT r.CODIGO, r.FECHA, r.HORA, r.MONTO "
+        final String sql = "SELECT r.CODIGO, r.FECHA, r.HORA, r.MONTO "
                 + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
-                + "WHERE r.IDDEUDA = ?")) {
+                + "WHERE r.IDDEUDA = ?";
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setString(1, idDeuda);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -235,11 +237,14 @@ public class Deudas extends Personas {
      */
     //!OJO Metodo para analizarlo
     public synchronized static ResultSet getPagoDeudasExterna(int idDeuda) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(
-                "SELECT r.CODIGO, r.MONTO, r.FECHA, r.HORA "
+        final String sql = "SELECT r.CODIGO, r.MONTO, r.FECHA, r.HORA "
                 + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
-                + "WHERE r.IDDEUDA = ?")) {
+                + "WHERE r.IDDEUDA = ?";
+        
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+            
             ps.setInt(1, idDeuda);
+            
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -254,11 +259,14 @@ public class Deudas extends Personas {
      */
     //!OJO Metodo para analizarlo
     public synchronized static ResultSet getPagoDeudas(int idFactura) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(
-                "SELECT r.IDPAGODEUDA, r.FECHA, r.HORA, r.MONTOPAGO "
+        final String sql = "SELECT r.IDPAGODEUDA, r.FECHA, r.HORA, r.MONTOPAGO "
                 + "FROM TABLA_PAGODEUDA r "
-                + "WHERE r.IDFACTURA = ?")) {
+                + "WHERE r.IDFACTURA = ?";
+        
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+            
             ps.setInt(1, idFactura);
+            
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -272,10 +280,11 @@ public class Deudas extends Personas {
      * @return 
      */
     public synchronized static BigDecimal getDeudaActual(String idCliente) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(
-                "SELECT r.DEUDAACTUAL "
+        final String sql = "SELECT r.DEUDAACTUAL "
                 + "FROM TABLA_DEUDAS r "
-                + "WHERE r.IDCLIENTE LIKE ?")) {
+                + "WHERE r.IDCLIENTE LIKE ?";
+        
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             ps.setString(1, idCliente);
             try ( ResultSet rs = ps.executeQuery()) {
@@ -296,10 +305,11 @@ public class Deudas extends Personas {
     }
     
     public synchronized static BigDecimal sumaMontoPagoDeudaExterna(int idDeuda) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(
-                "SELECT SUM(r.MONTO) "
+        final String sql = "SELECT SUM(r.MONTO) "
                 + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
-                + "WHERE r.IDDEUDA = ?")) {
+                + "WHERE r.IDDEUDA = ?";
+        
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             try ( ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Cuadre" pageWidth="210" pageHeight="297" columnWidth="170" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<parameter name="Fecha_Inicial" class="java.util.Date">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+	</parameter>
+	<parameter name="Cajero" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$F{factura_idUsuario}]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     detalleFactura.`idFactura` AS detalleFactura_idFactura,
+     detalleFactura.`idProducto` AS detalleFactura_idProducto,
+     detalleFactura.`descripcion` AS detalleFactura_descripcion,
+     detalleFactura.`precio` AS detalleFactura_precio,
+     detalleFactura.`cantidad` AS detalleFactura_cantidad,
+     detalleFactura.`idLinea` AS detalleFactura_idLinea,
+     factura.`idFactura` AS factura_idFactura,
+     factura.`idCliente` AS factura_idCliente,
+     factura.`fecha` AS factura_fecha,
+     factura.`idUsuario` AS factura_idUsuario,
+     clientes.`idCliente` AS clientes_idCliente,
+     clientes.`idTipo` AS clientes_idTipo,
+     clientes.`nombres` AS clientes_nombres,
+     clientes.`apellidos` AS clientes_apellidos,
+     clientes.`direccion` AS clientes_direccion,
+     clientes.`telefono` AS clientes_telefono,
+     clientes.`idCiudad` AS clientes_idCiudad,
+     clientes.`fechaNacimiento` AS clientes_fechaNacimiento,
+     clientes.`fechaIngreso` AS clientes_fechaIngreso,
+     clientes.`credito` AS clientes_credito,
+     clientes.`deudaActual` AS clientes_deudaActual
+FROM
+     	`factura` factura INNER JOIN `clientes` clientes ON factura.`idCliente` = clientes.`idCliente`
+     	INNER JOIN `detalleFactura` detalleFactura ON factura.`idFactura` = detalleFactura.`idFactura`
+WHERE 
+	factura.fecha >= $P{Fecha_Inicial} and factura.idUsuario = $P{Cajero}]]>
+	</queryString>
+	<field name="detalleFactura_idFactura" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="detalleFactura_idProducto" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="detalleFactura_descripcion" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="detalleFactura_precio" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="detalleFactura_cantidad" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="detalleFactura_idLinea" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="factura_idFactura" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="factura_idCliente" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="factura_fecha" class="java.sql.Date">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="factura_idUsuario" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clientes_idCliente" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clientes_idTipo" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clientes_nombres" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clientes_apellidos" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clientes_direccion" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clientes_telefono" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clientes_idCiudad" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clientes_fechaNacimiento" class="java.sql.Date">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clientes_fechaIngreso" class="java.sql.Date">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clientes_credito" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clientes_deudaActual" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<variable name="SumaTotal" class="java.lang.Float">
+		<variableExpression><![CDATA[new Float($F{detalleFactura_precio}.doubleValue() * $F{detalleFactura_cantidad}.doubleValue())]]></variableExpression>
+	</variable>
+	<variable name="SumaTotal2" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$V{SumaTotal}]]></variableExpression>
+	</variable>
+	<variable name="NumeroFactura" class="java.lang.Integer" incrementType="Group" incrementGroup="factura_idFactura" calculation="Count">
+		<variableExpression><![CDATA[$F{factura_idFactura}]]></variableExpression>
+	</variable>
+	<group name="factura_idFactura">
+		<groupExpression><![CDATA[$F{factura_idFactura}]]></groupExpression>
+		<groupHeader>
+			<band splitType="Stretch"/>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="29" splitType="Stretch">
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="170" height="27"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="Rachana" size="14" isBold="true" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[Cuadre de Caja]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="24" splitType="Stretch">
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement x="24" y="11" width="58" height="10"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$P{Fecha_Inicial}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="11" width="24" height="10"/>
+				<textElement textAlignment="Left">
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[Fecha :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="24" height="10"/>
+				<textElement textAlignment="Left">
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[Cajero:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="24" y="0" width="37" height="10"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{Cajero}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="1" y="1" width="70" height="10"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Total de Facturas]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="13" width="170" height="1"/>
+			</line>
+			<staticText>
+				<reportElement x="85" y="1" width="64" height="10"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Total Facturado]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="15" splitType="Stretch">
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="85" y="0" width="70" height="10"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Float"><![CDATA[$V{SumaTotal2}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="13" y="0" width="22" height="10"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{NumeroFactura}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

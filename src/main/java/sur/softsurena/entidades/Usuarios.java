@@ -18,55 +18,42 @@ public class Usuarios extends Personas {
 
     private static final Logger LOG = Logger.getLogger(Usuarios.class.getName());
 
-    /**
-     * Query que permite agregar usuarios al sistema.
-     */
-    public static final String INSERT
-            = "EXECUTE PROCEDURE SP_INSERT_USUARIOS(?,?,?,?,?,?,?,?)";
-
-    /**
-     * Procedimiento que se encarga de actualizar a los usuarios del sistema.
-     */
-    public static final String UPDATE
-            = "EXECUTE PROCEDURE SP_UPDATE_USUARIOS(?,?,?,?,?,?,?,?)";
+    
 
     /**
      * Query que me trae todas las tags de un usuario en especifico.
      */
-    public final static String GET_USER_BY_USER_NAME_TAG
+    final String GET_USER_BY_USER_NAME_TAG
             = "SELECT p.O_TAG_NOMBRE, p.O_TAG_VALOR "
             + "FROM SP_SELECT_USUARIOS_TAGS (?) p;";
 
     /**
      * Este campo permite cambiar la contraseña a cualquier usuario.
      */
-    public static String CAMBIAR_CLAVE_USER_NAME
-            = "ALTER USER ? PASSWORD ?";
+    
 
-    public static String SELECT_ROLES_USUARIOS = "SELECT ROL FROM GET_ROL WHERE USER_NAME LIKE ?";
-
+    
     private final String clave;
     private final String descripcion;
     private final Boolean administrador;
 
-    /**
-     * OJO! Revisar este caso, puede ser que el usuario se le asista cambiar su
-     * clave en este caso necesitamos pasar el nombre del usuario.
-     */
-    public static String CAMBIAR_CLAVE
-            = "ALTER USER CURRENT_USER PASSWORD ?";
 
     /**
-     * Metodo que permite el cambio de contraseña de los usuario del sistema.
+     * Metodo que permite el cambio de contraseña de un usuario en el sistema.
+     * 
+     * Este metodo evita que un usuario le cambie la contraseña a otro usuario.
      *
      * Metodo revisado el 24 de abril 2022. Metodo actualizado el 19 05 2022,
      * Nota, se cambia la posicion del parametro, primero usuario y luego la
      * clave.
-     *
-     * @param clave
-     * @param usuario
+     * 
+     * @param clave Es la clave del usuario actual que permite la actualizacion
+     * de su clave. 
      */
     public synchronized static boolean cambioClave(String clave) {
+        final String CAMBIAR_CLAVE
+            = "ALTER USER CURRENT_USER PASSWORD ?";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(CAMBIAR_CLAVE);) {
             ps.setString(1, clave);
 
@@ -77,7 +64,32 @@ public class Usuarios extends Personas {
             return false;
         }
     }
+    
+    /**
+     * Metodo que permite que los usuarios del sistema actualicen la contraseña
+     * de otro usuario de otro sistema. 
+     * 
+     * @param userName
+     * @param clave
+     * @return 
+     */
+    public synchronized static boolean cambioClaveUsuario(String userName, String clave) {
+        final String CAMBIAR_CLAVE_USER_NAME
+            = "ALTER USER ? PASSWORD ?";
+        
+        try (PreparedStatement ps = getCnn().prepareStatement(CAMBIAR_CLAVE_USER_NAME);) {
+            ps.setString(1, userName);
+            ps.setString(2, clave);
 
+            return ps.execute();
+
+        } catch (SQLException ex) {
+            //Instalar Logger
+            return false;
+        }
+    }
+    
+    
     /**
      * Para matener la mejor integridad de los datos los usuario se desactivan
      * del sistema.
@@ -106,17 +118,18 @@ public class Usuarios extends Personas {
      * Deberia de crearse un store procedure que permita eliminar Usuarios, ya
      * que debemos conservar los registros de los usuarios que hayan hechos
      * cambios en la base de datos.
-     */
-    public static String DELETE_ROL
-            = "REVOKE ? FROM ? GRANTED BY ?";
-
-    /**
-     *
+     * 
      * @param idUsuario
+     * 
      * @param rol
-     * @return
+     * 
+     * @return Retorna un mensaje que indica si la accion fue realizada 
+     * correctamente. 
      */
     public synchronized static String borrarUsuario(String idUsuario, String rol) {
+        final String DELETE_ROL
+            = "REVOKE ? FROM ? GRANTED BY ?";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(DELETE_ROL);) {
             ps.setString(1, rol);
             ps.setString(2, idUsuario);
@@ -390,8 +403,12 @@ public class Usuarios extends Personas {
      */
     public synchronized static ArrayList<String> comprobandoRol(String userName) {
         ArrayList<String> roles = new ArrayList<>();
+        
+        final String SELECT_ROLES_USUARIOS 
+            = "SELECT ROL FROM GET_ROL WHERE USER_NAME LIKE ?";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(
-                Usuarios.SELECT_ROLES_USUARIOS,
+                SELECT_ROLES_USUARIOS,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {

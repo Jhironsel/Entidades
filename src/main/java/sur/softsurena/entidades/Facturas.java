@@ -21,21 +21,19 @@ public class Facturas {
     private final Integer id;
     private final HeaderFactura headerFactura;
     private final List<DetalleFactura> detalleFactura;
-
-    public final static String INSERT_FACTURA
-            = "INSERT INTO V_FACTURAS (id_Cliente, id_Turno, efectivo, cambio, "
-            + "estado_factura, nombreTemp) "
-            + "values (?, ?, ?, ?, ?, ?);";
-
+    
     /**
      * Consulta que nos permite obtener los ID de las facturas.
+     * 
+     * 
+     * 
+     * @return 
      */
-    public final static String SELECT_ID_FACTURAS
-            = "SELECT ID FROM V_FACTURAS ORDER BY 1";
-
-    /*Consultas de las facturas*/
     public synchronized static List<Facturas> getFacturas() {
-
+        
+        final String SELECT_ID_FACTURAS
+            = "SELECT ID FROM V_FACTURAS ORDER BY 1";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(SELECT_ID_FACTURAS);) {
             List<Facturas> facturasList = new ArrayList<>();
             
@@ -57,11 +55,6 @@ public class Facturas {
         }
     }
     
-    /**
-     * 
-     */
-    public final static String DELETE
-            = "DELETE FROM V_FACTURAS where id = ?";
     
     /**
      * Metodo que elimina las facturas del sistema por el identificador 
@@ -75,6 +68,10 @@ public class Facturas {
      * @return Devuelve un mensaje de la acción
      */
     public synchronized static String borrarFactura(int id) {
+        
+        final String DELETE
+            = "DELETE FROM V_FACTURAS where id = ?";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(DELETE)){
             ps.setInt(1, id);
             int r = ps.executeUpdate();
@@ -97,7 +94,12 @@ public class Facturas {
      * true y false si hubo un error.
      */
     public synchronized static Integer agregarFacturaNombre(Facturas f) {
-
+        
+        final String INSERT_FACTURA
+            = "INSERT INTO V_FACTURAS (id_Cliente, id_Turno, efectivo, cambio, "
+            + "estado_factura, nombreTemp) "
+            + "values (?, ?, ?, ?, ?, ?);";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(INSERT_FACTURA)) {
             
             ps.setInt(1, f.getHeaderFactura().getIdCliente());

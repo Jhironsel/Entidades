@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="factura" language="groovy" pageWidth="190" pageHeight="297" whenNoDataType="NoDataSection" columnWidth="178" leftMargin="5" rightMargin="7" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="49847925-fad1-4a52-97a4-d67f215c04a1">
+	<property name="ireport.zoom" value="3.7974983358324272"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="183"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="sistemaDeBebida3"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="332"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="663"/>
+	<parameter name="idFactura" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="idTurno" class="java.lang.String"/>
+	<parameter name="nombreCliente" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="montoFactura" class="java.lang.Double">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select f.IDFACTURA, 
+			sum(d.CANTIDAD * d.PRECIO) as Total, 
+			f.FECHA as fechaFactura,
+        	f.ESTADO, p.IDPAGODEUDA, 
+        	p.FECHA as fechaMontoPago,
+        	p.HORA, 
+        	p.MONTOPAGO,
+        	REPLACE (o.RUTA, '|', '<BR>') as nombreEmpresa,
+        	REPLACE (o2.RUTA||'<BR>'||o3.RUTA, '|', '<BR>') as direccionEmpresa,
+        	o4.RUTA as MensajeTickes,
+        	o5.Ruta as rutalogo, 
+        	CURRENT_USER as Usuario
+from TABLA_FACTURAS f
+    left join TABLA_PAGODEUDA p on p.IDFACTURA = f.IDFACTURA
+    left join TABLA_DETALLEFACTURA d on d.IDFACTURA = f.IDFACTURA
+    join TABLA_OPCION o on o.OPCION like 'nombreEmpresa'
+    join TABLA_OPCION o2 on o2.OPCION like 'direccionEmpresa'
+    join TABLA_OPCION o3 on o3.OPCION like 'telefonoEmpresa'
+    join TABLA_OPCION o4 on o4.OPCION like 'MensajeTickes'
+    join TABLA_OPCION o5 on o5.OPCION like 'logo'
+where f.IDFACTURA = $P{idFactura}
+group by f.IDFACTURA, f.FECHA, f.ESTADO, p.IDPAGODEUDA, p.FECHA, p.HORA, p.MONTOPAGO, o.Ruta, o2.Ruta, o3.Ruta, o4.Ruta, o5.Ruta, Usuario]]>
+	</queryString>
+	<field name="IDFACTURA" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="IDFACTURA"/>
+		<property name="com.jaspersoft.studio.field.label" value="IDFACTURA"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLA_FACTURAS"/>
+	</field>
+	<field name="TOTAL" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="SUM"/>
+		<property name="com.jaspersoft.studio.field.label" value="TOTAL"/>
+	</field>
+	<field name="FECHAFACTURA" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.name" value="FECHA"/>
+		<property name="com.jaspersoft.studio.field.label" value="FECHAFACTURA"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLA_FACTURAS"/>
+	</field>
+	<field name="ESTADO" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="ESTADO"/>
+		<property name="com.jaspersoft.studio.field.label" value="ESTADO"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLA_FACTURAS"/>
+	</field>
+	<field name="IDPAGODEUDA" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="IDPAGODEUDA"/>
+		<property name="com.jaspersoft.studio.field.label" value="IDPAGODEUDA"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLA_PAGODEUDA"/>
+	</field>
+	<field name="FECHAMONTOPAGO" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.name" value="FECHA"/>
+		<property name="com.jaspersoft.studio.field.label" value="FECHAMONTOPAGO"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLA_PAGODEUDA"/>
+	</field>
+	<field name="HORA" class="java.sql.Time">
+		<property name="com.jaspersoft.studio.field.name" value="HORA"/>
+		<property name="com.jaspersoft.studio.field.label" value="HORA"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLA_PAGODEUDA"/>
+	</field>
+	<field name="MONTOPAGO" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="MONTOPAGO"/>
+		<property name="com.jaspersoft.studio.field.label" value="MONTOPAGO"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLA_PAGODEUDA"/>
+	</field>
+	<field name="NOMBREEMPRESA" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="REPLACE"/>
+		<property name="com.jaspersoft.studio.field.label" value="NOMBREEMPRESA"/>
+	</field>
+	<field name="DIRECCIONEMPRESA" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="REPLACE"/>
+		<property name="com.jaspersoft.studio.field.label" value="DIRECCIONEMPRESA"/>
+	</field>
+	<field name="MENSAJETICKES" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="RUTA"/>
+		<property name="com.jaspersoft.studio.field.label" value="MENSAJETICKES"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLA_OPCION"/>
+	</field>
+	<field name="RUTALOGO" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="RUTA"/>
+		<property name="com.jaspersoft.studio.field.label" value="RUTALOGO"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLA_OPCION"/>
+	</field>
+	<field name="USUARIO" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="USER"/>
+		<property name="com.jaspersoft.studio.field.label" value="USUARIO"/>
+	</field>
+	<variable name="TOTAL_1" class="java.math.BigDecimal" resetType="Page" calculation="Sum">
+		<variableExpression><![CDATA[$F{TOTAL}]]></variableExpression>
+	</variable>
+	<variable name="MONTOPAGO_1" class="java.lang.Double" resetType="Page" calculation="Sum">
+		<variableExpression><![CDATA[$F{MONTOPAGO}]]></variableExpression>
+	</variable>
+	<variable name="montoDeuda" class="java.lang.Double"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="61" splitType="Stretch">
+			<image hAlign="Center" onErrorType="Blank">
+				<reportElement x="0" y="0" width="57" height="48" isRemoveLineWhenBlank="true" uuid="30a754ff-bcf0-42b4-abe8-30ad9120de84"/>
+				<imageExpression><![CDATA[$F{RUTALOGO}]]></imageExpression>
+			</image>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="48" width="177" height="10" isRemoveLineWhenBlank="true" uuid="c6ee4f5d-5ea6-45fc-9521-64856b6e65ff"/>
+				<textElement textAlignment="Center" markup="html">
+					<font fontName="FreeMono" size="8" isStrikeThrough="false"/>
+					<paragraph lineSpacing="1_1_2"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DIRECCIONEMPRESA}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" evaluationTime="Auto" isBlankWhenNull="false">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="58" y="0" width="119" height="48" isRemoveLineWhenBlank="true" uuid="0e9daa16-948a-410a-b8bd-4df6e13a3e41"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{NOMBREEMPRESA}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="62" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="10" width="57" height="10" uuid="66c2a9e3-bf7d-4e47-90af-8e5154761b05"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Factura n°:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="30" width="57" height="10" uuid="84bc313d-7f53-4aad-80ab-d4117e94e268"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cajero:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="40" width="57" height="10" uuid="bc69393c-9dea-4123-b0cd-dc0cfdc2b9db"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Condición:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="57" height="10" uuid="2f7db9f7-df39-421b-962c-f5fe27810a28"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha-Hora:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="20" width="57" height="10" uuid="1c576f33-be2b-4d0f-b205-6a690d08ee46"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nombre Cli:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="50" width="57" height="10" uuid="a19c4c20-8cc8-411d-972d-27c77b02fb94"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Turno:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="57" y="50" width="120" height="10" uuid="6a6b3368-cf2c-4a49-bf56-2a3a9eba899e"/>
+				<textElement>
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{idTurno}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="57" y="10" width="120" height="10" uuid="bc523375-27f7-4c59-ba08-cb6beba052ef"/>
+				<textElement>
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{IDFACTURA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="57" y="20" width="120" height="10" uuid="10528672-88df-478b-8d7c-ea5460ac7b07"/>
+				<textElement>
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{nombreCliente}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="57" y="0" width="56" height="10" uuid="578007d3-281a-4284-8db6-41c6aa4c77e0"/>
+				<textElement textAlignment="Left">
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField pattern="h:mm a">
+				<reportElement x="115" y="0" width="62" height="10" uuid="a9e64f9b-dac9-4f99-95f1-2a977ee1c19e"/>
+				<textElement textAlignment="Left">
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="57" y="40" width="120" height="10" uuid="4f04d2ea-16b5-49ad-955b-23069a096fdd"/>
+				<textElement>
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{ESTADO}.equals("a") ? "Abono":"Pagado")]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="57" y="30" width="120" height="10" uuid="cccb920a-5b2f-4da9-a2f3-6c577c56e524"/>
+				<textElement>
+					<font fontName="freemono" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{USUARIO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="13" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="10" width="177" height="1" uuid="c54915ca-9c9c-481c-9847-f0f87d4638fe"/>
+			</line>
+			<staticText>
+				<reportElement x="0" y="0" width="25" height="10" uuid="83b3a8df-f160-4002-8153-d083ff018434"/>
+				<textElement textAlignment="Center">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No°]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="25" y="0" width="42" height="10" uuid="6c109f0d-f1d5-4d8b-a41a-2675b8a9a294"/>
+				<textElement textAlignment="Center">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="69" y="0" width="44" height="10" uuid="b05c4c70-9684-4ce8-9a84-0b6740f504de"/>
+				<textElement textAlignment="Center">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[HORA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="115" y="0" width="62" height="10" uuid="82b940e0-02ee-4115-8ee3-29d196f33535"/>
+				<textElement textAlignment="Center">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MONTO]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Prevent">
+			<line>
+				<reportElement x="0" y="11" width="177" height="1" uuid="11c95aa1-ba96-4abb-b49e-042f53685168"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement x="0" y="0" width="25" height="10" uuid="127d9e06-d811-4504-8cc1-49179389239a"/>
+				<textElement textAlignment="Center">
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yy">
+				<reportElement x="25" y="0" width="42" height="10" uuid="79cd2cac-0004-48fb-adb9-843387267738"/>
+				<textElement textAlignment="Center">
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FECHAMONTOPAGO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="h:mm a">
+				<reportElement x="69" y="0" width="44" height="10" uuid="80750c53-10c1-497a-8413-19383f3ac740"/>
+				<textElement textAlignment="Center">
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{HORA}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="115" y="0" width="62" height="10" uuid="2bd85a35-abc8-4239-ad0f-5a827e43bfa8"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{MONTOPAGO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="46">
+			<staticText>
+				<reportElement x="29" y="21" width="72" height="10" uuid="b520ea93-a7f6-47c2-b21f-4ca644d0cf65"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Monto Deuda:]]></text>
+			</staticText>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="33" width="177" height="10" isPrintWhenDetailOverflows="true" uuid="a2708319-61b6-495c-acdc-3498f8d20f85"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="FreeMono" size="8" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{MENSAJETICKES}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="29" y="11" width="72" height="10" uuid="2636a879-d14f-4de7-b88e-a1f9a3d40aba"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Monto Pagado:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="101" y="11" width="76" height="10" uuid="4b59c4fb-f04b-4649-86fa-0af2f96988dd"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{MONTOPAGO_1}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="18" y="1" width="83" height="10" uuid="0a15b7b2-3a5a-4dc2-aff2-912ab98a5658"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Monto Factura:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="101" y="1" width="76" height="10" uuid="079971e7-77d0-4a5c-a9f4-fc3e7fdabf98"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{montoFactura}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="101" y="21" width="76" height="10" uuid="6b623cd6-564d-4aac-b3f6-702c851aa9fe"/>
+				<textElement textAlignment="Right">
+					<font fontName="FreeMono" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new Double($P{montoFactura}.doubleValue() - $V{MONTOPAGO_1}.doubleValue())]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

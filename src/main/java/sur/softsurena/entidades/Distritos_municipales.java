@@ -15,13 +15,11 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 public class Distritos_municipales {
 
     private static final Logger LOG = Logger.getLogger(Distritos_municipales.class.getName());
-    
+
     private final int id;
     private final String nombre;
     private final int idMunicipio;
 
-    private final static String SELECT 
-            = "SELECT r.ID, r.NOMBRE FROM V_DISTRITOS_MUNICIPALES r WHERE r.IDMUNICIPIO = ? ";    
     /**
      * Metodo que me trae un conjunto de datos de los Distritos Municipales del
      * pais.
@@ -35,7 +33,12 @@ public class Distritos_municipales {
     public synchronized static void getDistritosMunicipales(int id_municipio,
             RSComboBox jcbDistritoMunicipal) {
 
-        try ( PreparedStatement ps1 = getCnn().prepareStatement(
+        final String SELECT
+                = "SELECT r.ID, r.NOMBRE "
+                + "FROM V_DISTRITOS_MUNICIPALES r "
+                + "WHERE r.IDMUNICIPIO = ? ";
+
+        try (PreparedStatement ps1 = getCnn().prepareStatement(
                 SELECT,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
@@ -43,7 +46,7 @@ public class Distritos_municipales {
 
             ps1.setInt(1, id_municipio);
 
-            try ( ResultSet rs = ps1.executeQuery();) {
+            try (ResultSet rs = ps1.executeQuery();) {
 
                 jcbDistritoMunicipal.removeAllItems();
 
@@ -67,7 +70,7 @@ public class Distritos_municipales {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
-    
+
     @Override
     public String toString() {
         return nombre;

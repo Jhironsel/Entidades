@@ -5,6 +5,11 @@ import java.awt.FontFormatException;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * El objetivo de esta clase es utilizar la para cargas las fuentes 
+ * seleccionada.
+ * @author jhironsel
+ */
 public class CustomFont {
 
     private Font font = null;

@@ -5,8 +5,8 @@ import java.text.SimpleDateFormat;
 
 public class FechaHora {
 
-    private Date curDate;
-    private SimpleDateFormat dateFormat;
+    private final Date curDate;
+    private final SimpleDateFormat dateFormat;
     private SimpleDateFormat dateFormat1;
 
     public FechaHora() {
