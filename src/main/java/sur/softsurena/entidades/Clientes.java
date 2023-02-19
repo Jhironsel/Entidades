@@ -3,6 +3,7 @@ package sur.softsurena.entidades;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,17 +25,15 @@ import sur.softsurena.utilidades.Utilidades;
 public class Clientes extends Personas {
 
     private static final Logger LOG = Logger.getLogger(Clientes.class.getName());
-    
+
     public static final String CLIENTE__AGREGADO__CORRECTAMENTE = "Cliente Agregado Correctamente";
     public static final String ERROR_AL_INSERTAR__CLIENTE = "Error al insertar Cliente.";
-    
+
     public static final String CLIENTE_NO_PUEDE_SER_BORRADO = "Cliente no puede ser borrado.";
     public static final String CLIENTE_BORRADO_CORRECTAMENTE = "Cliente borrado correctamente.";
-    
+
     public static final String ERROR_AL__MODIFICAR__CLIENTE = "Error al Modificar Cliente.";
     public static final String CLIENTE__MODIFICADO__CORRECTAMENTE = "Cliente Modificado Correctamente.";
-    
-    
 
     /**
      * Metodos utilizado para agregar los clientes en el sistema, el cual es
@@ -121,7 +120,7 @@ public class Clientes extends Personas {
             return r;
         }
     }
-    
+
     /**
      * Metodo que permite modificar a los clientes del sistema de facturacion.
      *
@@ -211,46 +210,63 @@ public class Clientes extends Personas {
      */
     public synchronized static Resultados borrarCliente(int idCliente,
             boolean estado) {
-        Resultados r;//Resultados obtenidos del metodos.
-
         final String DELETE = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_SB (?, ?);";
-
+        
         try (PreparedStatement ps = getCnn().prepareStatement(DELETE)) {
-            
+
             ps.setInt(1, idCliente);
             ps.setBoolean(2, estado);
 
             int c = ps.executeUpdate();//Cantidad de registros afectados.
 
-            r = Resultados.builder().
+            return Resultados.builder().
                     id(-1).
                     mensaje(CLIENTE_BORRADO_CORRECTAMENTE).
                     cantidad(c).build();
-
-            return r;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            r = Resultados.builder().
+            return Resultados.builder().
                     id(-1).
                     mensaje(CLIENTE_NO_PUEDE_SER_BORRADO).
                     cantidad(-1).build();
-            return r;
         }
     }
 
     /**
      * Metodo utilizado para llevar los comboBox del componente clientes.
-     * 
+     *
      * Nota: este metodo no deberia devolver un resultset.
-     * 
-     * @return 
+     *
+     * @return
      */
-    public synchronized static ResultSet getClientesCombo() {
+    public synchronized static List<Clientes> getClientesCombo() {
         final String GET_CLIENTES_ESTADO_SB
-                = "SELECT r.ID, r.CEDULA, r.ESTADO FROM GET_CLIENTES_ESTADO_SB r";
+                = "SELECT ID, CEDULA, PNOMBRE, SNOMBRE, APELLIDOS, ESTADO\n"
+                + "FROM GET_CLIENTES_SB \n"
+                + "WHERE ESTADO";
+
+        List<Clientes> clienteList = new ArrayList<>();
 
         try (PreparedStatement ps = getCnn().prepareStatement(GET_CLIENTES_ESTADO_SB)) {
-            return ps.executeQuery();
+
+            try (ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    clienteList.add(
+                            Clientes.builder().
+                                    id_persona(rs.getInt("ID")).
+                                    generales(Generales.builder().cedula(rs.getString("CEDULA")).build()).
+                                    pNombre(rs.getString("PNOMBRE")).
+                                    sNombre(rs.getString("SNOMBRE")).
+                                    apellidos(rs.getString("APELLIDOS"))
+                                    .build()
+                    );
+                }
+
+                return clienteList;
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -260,9 +276,9 @@ public class Clientes extends Personas {
     /**
      * Metodo utilizado para saber si existe un cliente registrado por una
      * cedula de identidad en el sistema.
-     * 
+     *
      * La vista GET_CLIENTES_ESTADO_SB contiene los campos necesario para hacer
-     * la validaciones de los clientes. 
+     * la validaciones de los clientes.
      *
      * Metodo revisado y actualizado el 26 de abril 2022. Metodo revisado y
      * actualizado el 23 de noviembre 2022.
@@ -274,11 +290,9 @@ public class Clientes extends Personas {
      * no se encuentra la cedula en el sistema.
      */
     public synchronized static Integer existeCliente(String cedula) {
-        LOG.log(Level.INFO, "Cedula del cliente recibida: {0}", cedula);
-        
         final String GET_ID_CLIENTE_BY_CEDULA
-                = "SELECT COALESCE(ID, -1) AS ID "
-                + "FROM GET_CLIENTES_ESTADO_SB "
+                = "SELECT COALESCE(ID_PERSONA, -1) AS ID "
+                + "FROM V_GENERALES  "
                 + "WHERE TRIM(CEDULA) LIKE TRIM(?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -416,10 +430,10 @@ public class Clientes extends Personas {
     public synchronized static Clientes getClienteByID(int id) {
 
         final String GET_CLIENTES_SB_BY_ID
-                = "SELECT r.ID, r.CEDULA, r.PERSONA, r.PNOMBRE, r.SNOMBRE, r.APELLIDOS, r.SEXO, "
-                + "     r.FECHA_NACIMIENTO, r.ESTADO_CIVIL, r.FECHA_INGRESO, r.ESTADO "
-                + "FROM GET_CLIENTES_SB r "
-                + "WHERE r.ID = ?";
+                = "SELECT ID, CEDULA, PERSONA, PNOMBRE, SNOMBRE, APELLIDOS, SEXO, "
+                + "     FECHA_NACIMIENTO, ESTADO_CIVIL, FECHA_INGRESO, ESTADO "
+                + "FROM GET_PERSONAS_ID "
+                + "WHERE ID = ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(GET_CLIENTES_SB_BY_ID)) {
 
@@ -428,9 +442,8 @@ public class Clientes extends Personas {
             Clientes c = null;
 
             try (ResultSet rs = ps.executeQuery();) {
-                rs.next();
-
-                c = Clientes.builder().
+                while(rs.next()){
+                    c = Clientes.builder().
                         pNombre(rs.getString("PNOMBRE")).
                         sNombre(rs.getString("SNOMBRE")).
                         apellidos(rs.getString("APELLIDOS")).
@@ -439,8 +452,9 @@ public class Clientes extends Personas {
                         persona(rs.getString("PERSONA").charAt(0)).
                         sexo(rs.getString("SEXO").charAt(0)).
                         generales(Generales.builder().
-                        cedula(rs.getString("CEDULA")).
-                        estado_civil(rs.getString("ESTADO_CIVIL").charAt(0)).build()).build();
+                                cedula(rs.getString("CEDULA")).
+                                estado_civil(rs.getString("ESTADO_CIVIL").charAt(0)).build()).build();
+                }
 
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);

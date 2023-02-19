@@ -91,7 +91,7 @@ public class ContactosEmail {
     public synchronized static DefaultTableModel getCorreoByID(int id) {
         final String SELECT_BY_ID
             = "SELECT a.ID, a.EMAIL, a.FECHA "
-            + "FROM V_CONTACTS_EMAIL a "
+            + "FROM V_CONTACTOS_EMAIL a "
             + "WHERE "
             + "   a.ID_PERSONA = ?; ";
         

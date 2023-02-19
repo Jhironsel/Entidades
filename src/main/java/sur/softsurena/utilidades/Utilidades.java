@@ -315,6 +315,7 @@ public class Utilidades {
 
         return "Foto NO Insertada";
     }
+    
 
     /**
      * Metodo utilizado para decodificar una cadena de string en base64 aun
@@ -326,21 +327,18 @@ public class Utilidades {
     public synchronized static ImageIcon imagenDecode64(String imagen64) {
         byte[] data = Base64.decodeBase64(imagen64);
 
-        if (data == null) {
-            Imagenes img = new Imagenes();
+        Imagenes img = new Imagenes();
+        if (data == null || data.length <= 1) {
             return (ImageIcon) img.getIcono("Sin_imagen 64 x 64.png");
         }
 
-        BufferedImage img = null;
 
         try {
-            img = ImageIO.read(new ByteArrayInputStream(data));
+            return new ImageIcon(ImageIO.read(new ByteArrayInputStream(data)));
         } catch (IOException ex) {
             //Instalar Logger
+            return (ImageIcon) img.getIcono("Sin_imagen 64 x 64.png");
         }
-
-        return new ImageIcon(img);
-
     }
 
     /**
@@ -529,7 +527,7 @@ public class Utilidades {
      * @param txt
      * @return 
      */
-    private KeyListener limitarCaracteres(final int limite, final JFormattedTextField txt) {
+    public static KeyListener limitarCaracteres(final int limite, final JFormattedTextField txt) {
 
         KeyListener keyListener = new KeyAdapter() {
             private int suma = 0;
@@ -548,5 +546,26 @@ public class Utilidades {
         return keyListener;
     }
     
+    public static void teclas(java.awt.event.KeyEvent evt) {
+        char caracter = evt.getKeyChar();
+        if (caracter == '.') {
+            return;
+        }
+        if (caracter == ',') {
+            return;
+        }
+        if (caracter == 'R') {
+            return;
+        }
+        if (caracter == 'D') {
+            return;
+        }
+        if (caracter == '$') {
+            return;
+        }
+        if (caracter < '0' || (caracter > '9')) {
+            evt.consume();
+        }
+    }
     
 }

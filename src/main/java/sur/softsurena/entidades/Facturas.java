@@ -97,8 +97,8 @@ public class Facturas {
         
         final String INSERT_FACTURA
             = "INSERT INTO V_FACTURAS (id_Cliente, id_Turno, efectivo, cambio, "
-            + "estado_factura, nombreTemp) "
-            + "values (?, ?, ?, ?, ?, ?);";
+            + "estado_factura) "
+            + "values (?, ?, ?, ?, ?);";
         
         try (PreparedStatement ps = getCnn().prepareStatement(INSERT_FACTURA)) {
             
@@ -107,7 +107,6 @@ public class Facturas {
             ps.setBigDecimal(3, f.getHeaderFactura().getEfectivo());
             ps.setBigDecimal(4, f.getHeaderFactura().getCambio());
             ps.setString(5, String.valueOf(f.getHeaderFactura().getEstado()));
-            ps.setString(6, f.getHeaderFactura().getNombreTemp());
 
             Integer cantidad = ps.executeUpdate();
 
@@ -137,8 +136,7 @@ public class Facturas {
                 + "    a.ID_CLIENTE = ?, "
                 + "    a.EFECTIVO = ?, "
                 + "    a.CAMBIO = ?, "
-                + "    a.ESTADO = ?, "
-                + "    a.NOMBRETEMP = ? "
+                + "    a.ESTADO = ? "
                 + "WHERE "
                 + "    a.ID = ?";
         try ( PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
@@ -146,8 +144,7 @@ public class Facturas {
             ps.setInt(1, f.getHeaderFactura().getIdCliente());
             ps.setBigDecimal(2, f.getHeaderFactura().getEfectivo());
             ps.setBigDecimal(3, f.getHeaderFactura().getCambio());
-            ps.setString(4, "" + f.getHeaderFactura().getEstado());
-            ps.setString(5, f.getHeaderFactura().getNombreTemp());
+            ps.setString(4, ""+f.getHeaderFactura().getEstado());
             ps.setInt(5, f.getId());
 
             ps.executeUpdate();

@@ -34,11 +34,7 @@ public class ContactosTel {
     private final Date fecha;
     
     
-    public final static String SELECT_BY_ID
-            = "SELECT a.ID, a.TELEFONO, a.TIPO, a.FECHA "
-            + "FROM V_CONTACTS_TEL a  "
-            + "WHERE "
-            + "     a.ID_PERSONA = ?";
+    
 
     public final static String DELETE
             = "DELETE FROM V_CONTACTS_TEL a "
@@ -46,8 +42,6 @@ public class ContactosTel {
             + "     a.ID = ? ";
     
     
-    private static String INSERT
-            = "INSERT INTO V_CONTACTS_TEL (ID_PERSONA, TELEFONO, TIPO) VALUES(?,?,?);";
     /**
      * Metodo para agregar numeros telefonicos de las personas del sistema.
      *
@@ -56,6 +50,9 @@ public class ContactosTel {
      * @return
      */
     public static boolean agregarContactosTel(int id, List<ContactosTel> contactos) {
+        final String INSERT
+            = "INSERT INTO V_CONTACTS_TEL (ID_PERSONA, TELEFONO, TIPO) VALUES(?,?,?);";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(INSERT)){
             for (ContactosTel c : contactos) {
                 ps.setInt(1, id);
@@ -72,13 +69,7 @@ public class ContactosTel {
         return false;
     }
     
-    private final static String UPDATE
-            = "UPDATE V_CONTACTS_TEL a "
-            + "SET "
-            + "     a.TELEFONO = ?, "
-            + "     a.TIPO = ? "
-            + "WHERE "
-            + "     a.ID = ?";
+    
     /**
      * Metodo para agregar numeros telefonicos de las personas del sistema.
      *
@@ -87,7 +78,15 @@ public class ContactosTel {
      * @return
      */
     public static boolean modificarContactosTel(int id, List<ContactosTel> contactos) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(ContactosTel.UPDATE)) {
+        final String UPDATE
+            = "UPDATE V_CONTACTS_TEL a "
+            + "SET "
+            + "     a.TELEFONO = ?, "
+            + "     a.TIPO = ? "
+            + "WHERE "
+            + "     a.ID = ?";
+        
+        try ( PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
             for (ContactosTel c : contactos) {
                 ps.setString(1, c.getTelefono());
                 ps.setString(2, c.getTipo());
@@ -109,6 +108,12 @@ public class ContactosTel {
      * @return 
      */
     public synchronized static DefaultTableModel getTelefonoByID(int id) {
+        final String SELECT_BY_ID
+            = "SELECT a.ID, a.TELEFONO, a.TIPO, a.FECHA "
+            + "FROM V_CONTACTOS_TEL a  "
+            + "WHERE "
+            + "     a.ID_PERSONA = ?";
+        
         Object registroTel[] = new Object[TITULOS_TELEFONO.length];
 
         DefaultTableModel dtmTelefono = new DefaultTableModel(null, TITULOS_TELEFONO);

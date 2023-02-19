@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import org.firebirdsql.jdbc.FBBlob;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.utilidades.Utilidades;
 
@@ -22,9 +23,7 @@ public class Productos {
     private static final Logger LOG = Logger.getLogger(Productos.class.getName());
 
     private final Integer id;
-    private final int idCategoria;
-    private final String desc_categoria;
-    private final String imagen_categoria;
+    private final Categorias categoria;
     private final String codigo;
     private final String descripcion;
     private final File pathImagen;
@@ -32,7 +31,7 @@ public class Productos {
     private final String nota;
     private final Date fechaCreacion;
     private final Boolean estado;
-    private final String idUsuario;
+    private final String userName;
     private final String rol;
 
     /**
@@ -46,20 +45,38 @@ public class Productos {
      * espeficicada.
      *
      */
-    public synchronized static ResultSet buscarProducto(String criterio) {
-        final String BUSCAR_PRODUCTO_ID_DESCRIPCION_CODIGO
-                = "SELECT r.ID, r.CODIGO, r.DESCRIPCION "
-                + "FROM V_PRODUCTOS r "
-                + "WHERE r.ID = ? OR r.CODIGO LIKE ?% OR r.DESCRIPCION LIKE ?%";
+    public static List<Productos> buscarProducto(String criterio) {
+        final String sql
+                = "SELECT ID, CODIGO, DESCRIPCION "
+                + "FROM V_PRODUCTOS "
+                + "WHERE ID = ? OR "
+                + "      CODIGO STARTING WITH ? OR "
+                + "      DESCRIPCION STARTING WITH ?";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                BUSCAR_PRODUCTO_ID_DESCRIPCION_CODIGO)) {
+        List<Productos> productosList = new ArrayList<>();
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             ps.setInt(1, Integer.parseInt(criterio));
             ps.setString(2, criterio);
             ps.setString(3, criterio);
 
-            return ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    productosList.add(
+                            Productos.builder().
+                                    id(rs.getInt("ID")).
+                                    codigo(rs.getString("CODIGO")).
+                                    descripcion(rs.getString("DESCRIPCION")).build());
+                }
+                
+                return productosList;
+                
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -80,8 +97,6 @@ public class Productos {
     public synchronized static List<Productos> getProductos() {
         List<Productos> listaProducto = new ArrayList<>();
 
-        Productos producto;
-
         final String SELECT
                 = "SELECT r.ID, r.CODIGO, r.ID_CATEGORIA, r.DESC_CATEGORIA, "
                 + "     r.DESCRIPCION,  r.NOTA, r.FECHA_CREACION, r.ESTADO "
@@ -90,18 +105,24 @@ public class Productos {
         try (PreparedStatement ps = getCnn().prepareStatement(SELECT)) {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    producto = Productos.builder().
+                    listaProducto.add(Productos.
+                            builder().
                             id(rs.getInt("ID")).
                             descripcion(rs.getString("DESCRIPCION")).
-                            idCategoria(rs.getInt("ID_CATEGORIA")).
-                            desc_categoria(rs.getString("DESC_CATEGORIA")).
+                            categoria(Categorias.
+                                    builder().
+                                    id_categoria(rs.getInt("ID_CATEGORIA")).
+                                    descripcion(rs.getString("DESC_CATEGORIA")).
+                                    build()).
                             codigo(rs.getString("CODIGO")).
-                            fechaCreacion(rs.getDate("FECHA_CREACION")).
                             nota(rs.getString("NOTA")).
-                            estado(rs.getBoolean("ESTADO")).build();
-
-                    listaProducto.add(producto);
+                            fechaCreacion(rs.getDate("FECHA_CREACION")).
+                            estado(rs.getBoolean("ESTADO")).
+                            build());
                 }
+                
+                return listaProducto;
+                
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
@@ -110,27 +131,24 @@ public class Productos {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
-        return listaProducto;
     }
 
     /**
      * Metodo utilizado para eliminar los productos del sistema, este solo
-     * necesita de su ID o codigo de barra para localizarlo en la vista de 
+     * necesita de su ID o codigo de barra para localizarlo en la vista de
      * V_PRODUCTOS.
      *
-     * @param IDCodigo Identificador o codigo del Producto en la vista de 
-     * V_PRODUCTOS.
-     * 
+     * @param ID Identificador o codigo del Producto en la vista de V_PRODUCTOS.
+     *
      *
      * @return Devuelve un mensaje que indica como resultado de la acción.
      */
-    public synchronized static String borrarProductoPorID_Codigo(String IDCodigo) {
+    public synchronized static String borrarProductoPorID_Codigo(Integer ID) {
         final String DELETE
-                = "DELETE FROM V_PRODUCTOS WHERE id = ? OR codigo = ?;";
+                = "DELETE FROM V_PRODUCTOS WHERE id = ?;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(DELETE)) {
-            ps.setString(1, IDCodigo);
-            ps.setString(2, IDCodigo);
+            ps.setInt(1, ID);
             ps.executeUpdate();
             return "Producto Borrado Correctamente.";
         } catch (SQLException ex) {
@@ -167,10 +185,10 @@ public class Productos {
                 + "VALUES (?, ?, ?, ?, ?, ? );";
 
         try (PreparedStatement ps = getCnn().prepareStatement(INSERT)) {
-            ps.setInt(1, p.getIdCategoria());
+            ps.setInt(1, p.getCategoria().getId_categoria());
             ps.setString(2, p.getCodigo());
             ps.setString(3, p.getDescripcion());
-            ps.setString(4, Utilidades.imagenEncode64(p.getPathImagen()));
+            ps.setString(4, p.getImagenProducto());
             ps.setString(5, p.getNota());
             ps.setBoolean(6, p.getEstado());
 
@@ -182,7 +200,7 @@ public class Productos {
                     cantidad(-1).build();
 
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage());
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             r = Resultados.builder().
                     id(-1).
                     mensaje("Error al Insertar Producto.").
@@ -194,33 +212,33 @@ public class Productos {
     /**
      * Metodo que permite modificar los productos del sistema como a la
      * categoria a la que pertenece el producto, su codigo de barra, la
-     * descripcion, la imagen de este, la nota del producto y su estado.
+     * descripcion, la imagen de este, la nota del producto y su estado.Metodo actualizado el dia 23 de abril, segun la vista productos.
      *
-     * Metodo actualizado el dia 23 de abril, segun la vista productos.
      *
-     * @param p perteneciente a la clase Producto, define los productos del 
+     * @param id es el identificador del producto en la base de datos. 
+     * @param p perteneciente a la clase Producto, define los productos del
      * sistema.
      * @return
      */
-    public synchronized static String modificarProducto(Productos p) {
+    public synchronized static String modificarProducto(int id, Productos p) {
         final String UPDATE
                 = "update V_PRODUCTOS set "
-                + "idCategoria = ?, "
-                + "codigo = ?, "
-                + "descripcion = ?, "
-                + "imagen_texto = ?, "
-                + "nota = ?, "
-                + "estado = ? "
+                    + "id_Categoria = ?, "
+                    + "codigo = ?, "
+                    + "descripcion = ?, "
+                    + "imagen_texto = ?, "
+                    + "nota = ?, "
+                    + "estado = ? "
                 + "where id = ?; ";
         try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
 
-            ps.setInt(1, p.getIdCategoria());
+            ps.setInt(1, p.getCategoria().getId_categoria());
             ps.setString(2, p.getCodigo());
             ps.setString(3, p.getDescripcion());
-            ps.setString(4, Utilidades.imagenEncode64(p.getPathImagen()));
+            ps.setString(4, p.getImagenProducto());
             ps.setString(5, p.getNota());
             ps.setBoolean(6, p.getEstado());
-            ps.setInt(7, p.getId());
+            ps.setInt(7, id);
 
             ps.executeUpdate();
             return "Producto Modificado Correctamente";
@@ -258,20 +276,23 @@ public class Productos {
      * Metodo que verifica la existencia de un producto por su codigo de barra o
      * descripción. Metodo actualizado el 26 de abril 2022
      *
-     * @param codigo este valor representa el valor del codigo de barra del
+     * @param criterio este valor representa el valor del codigo de barra del
      * producto o nombre de 25 caracteres.
      * @return
      */
-    public synchronized static boolean existeProducto(String codigo) {
+    public synchronized static boolean existeProducto(String criterio) {
         final String EXISTE_PRODUCTO
                 = "SELECT (1) "
-                + "FROM v_productos "
-                + "WHERE codigo = ? or descripcion starting ?";
+                + "FROM RDB$DATABASE "
+                + "WHERE EXISTS(SELECT (1) "
+                + "             FROM v_productos "
+                + "             WHERE codigo LIKE ? or "
+                + "                    descripcion LIKE ?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(EXISTE_PRODUCTO)) {
 
-            ps.setString(1, codigo);
-            ps.setString(2, codigo);
+            ps.setString(1, criterio);
+            ps.setString(2, criterio);
 
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
@@ -339,18 +360,20 @@ public class Productos {
                 = "SELECT r.ID, r.ID_CATEGORIA, r.DESC_CATEGORIA, "
                 + "     r.IMAGEN_CATEGORIA, r.CODIGO, r.DESCRIPCION, "
                 + "     r.IMAGEN_PRODUCTO, r.NOTA, r.FECHA_CREACION, r.ESTADO "
-                + "FROM GET_PRODUCTOS r"
+                + "FROM GET_PRODUCTOS r "
                 + "WHERE r.ID = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setInt(1, id);
-            Productos miProducto = null;
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    miProducto = Productos.builder().
+                    return Productos.builder().
                             id(rs.getInt("ID")).
-                            idCategoria(rs.getInt("ID_CATEGORIA")).
-                            desc_categoria(rs.getString("DESC_CATEGORIA")).
-                            imagen_categoria(rs.getString("IMAGEN_CATEGORIA")).
+                            categoria(Categorias.
+                                    builder().
+                                    id_categoria(rs.getInt("ID_CATEGORIA")).
+                                    descripcion(rs.getString("DESC_CATEGORIA")).
+                                    image_texto(rs.getString("IMAGEN_CATEGORIA")).
+                                    build()).
                             codigo(rs.getString("CODIGO")).
                             descripcion(rs.getString("DESCRIPCION")).
                             imagenProducto(rs.getString("IMAGEN_PRODUCTO")).
@@ -359,11 +382,12 @@ public class Productos {
                             estado(rs.getBoolean("ESTADO")).build();
                 }
             }
-            return miProducto;
+            
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
+        return null;
     }
 
     public synchronized static ResultSet getProductosCriterios(int tipo,

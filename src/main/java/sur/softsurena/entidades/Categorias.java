@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComboBox;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
@@ -21,7 +22,7 @@ public class Categorias implements Comparable {
 
     private static final Logger LOG = Logger.getLogger(Categorias.class.getName());
 
-    private final Integer id;
+    private final Integer id_categoria;
     private final String descripcion;
     private final File pathImage;
     private final String image_texto;
@@ -52,11 +53,11 @@ public class Categorias implements Comparable {
      */
     public synchronized static Resultados agregarCategoria(Categorias c) {
         Resultados r;
-        
+
         final String INSERT
-            = "SELECT p.V_ID "
-            + "FROM SP_INSERT_CATEGORIAS (?, ?, ?) p;";
-        
+                = "SELECT p.V_ID "
+                + "FROM SP_INSERT_CATEGORIAS (?, ?, ?) p;";
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 INSERT,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -120,7 +121,7 @@ public class Categorias implements Comparable {
 
             ps.setString(1, c.getDescripcion());
             ps.setString(2, Utilidades.imagenEncode64(c.getPathImage()));
-            ps.setInt(3, c.getId());
+            ps.setInt(3, c.getId_categoria());
 
             ps.executeUpdate();
             return "Se modificó la categoria correctamente.";
@@ -164,40 +165,40 @@ public class Categorias implements Comparable {
      * del sistema, solo nos trae el Identificador y la descripcion de todas las
      * CATEGORIA del sistema.
      *
-     * @param cbCategoria es un jComboBox que es rellenado con todas la
+     * @param cbCategorias es un jComboBox que es rellenado con todas la
      * categoria de producto registrado en el sistema.
      *
      */
-    public synchronized static void getCategirias(JComboBox cbCategoria) {
+    public synchronized static void getCategirias(JComboBox cbCategorias) {
         //Elimina registros previos.
-        cbCategoria.removeAllItems();
+        cbCategorias.removeAllItems();
 
         //Agregar primer elemento con id negativo
-        Categorias categorias = Categorias.builder().
-                id(-1).
-                descripcion("Seleccione categoria").build();
-
         //Lo agregamos al comboBox.
-        cbCategoria.addItem(categorias);
+        cbCategorias.addItem(Categorias.
+                builder().
+                id_categoria(-1).
+                descripcion("Seleccione categoria").
+                build()
+        );
 
         final String SELECT
-                = "SELECT r.ID, r.DESCRIPCION "
-                + "FROM V_CATEGORIAS r";
+                = "SELECT ID, DESCRIPCION, FECHA_CREACION FROM V_CATEGORIAS WHERE ESTADO";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             try (ResultSet rs = ps.executeQuery()) {
-                int i = 0;
                 while (rs.next()) {
-                    categorias = Categorias.builder().
-                            id(rs.getInt("ID")).
-                            descripcion(rs.getString("Descripcion")).build();
-                    cbCategoria.addItem(categorias);
-                    i++;
+                    cbCategorias.addItem(Categorias.builder().
+                            id_categoria(rs.getInt("ID")).
+                            descripcion(rs.getString("Descripcion")).
+                            fecha_creacion(rs.getDate("FECHA_CREACION")).
+                            build()
+                    );
                 }
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -206,6 +207,13 @@ public class Categorias implements Comparable {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
+    
+    /*
+        
+    
+    
+    
+    */
 
     /**
      * Metodo utilizado para obtener todas las categorias del sistema.
@@ -221,8 +229,8 @@ public class Categorias implements Comparable {
      */
     public synchronized static List<Categorias> getCategorias() {
 
-        final String SELECT_CATEGORIA = 
-                "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO, r.ESTADO,"
+        final String SELECT_CATEGORIA
+                = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO, r.ESTADO "
                 + "FROM V_CATEGORIAS r "
                 + "ORDER BY 1";
 
@@ -237,7 +245,7 @@ public class Categorias implements Comparable {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     cat = Categorias.builder().
-                            id(rs.getInt("ID")).
+                            id_categoria(rs.getInt("ID")).
                             descripcion(rs.getString("DESCRIPCION")).
                             image_texto(rs.getString("IMAGEN_TEXTO")).
                             estado(rs.getBoolean("ESTADO")).build();
@@ -260,7 +268,7 @@ public class Categorias implements Comparable {
      * estan activas y con un producto que está activo y enlazado a una
      * categoria.
      *
-     * @return Retorna un conjunto de datos de tipo ResultSet.
+     * @return Retorna un listado de datos de tipo List.
      */
     public synchronized static List<Categorias> getCategoriaActivas() {
         /**
@@ -271,19 +279,21 @@ public class Categorias implements Comparable {
                 = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO "
                 + "FROM GET_CATEGORIA_ACTIVAS r";
 
+        List<Categorias> categoriasList = new ArrayList<>();
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT_CATEGORIA_ACTIVAS,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
-            List<Categorias> categoriasList = new ArrayList<>();
-
             try (ResultSet rs = ps.executeQuery();) {
-                categoriasList.add(Categorias.builder().
-                        id(rs.getInt("ID")).
-                        descripcion(rs.getString("DESCRIPCION")).
-                        image_texto(rs.getString("IMAGEN_TEXTO")).build());
+                while (rs.next()) {
+                    categoriasList.add(Categorias.builder().
+                            id_categoria(rs.getInt("ID")).
+                            descripcion(rs.getString("DESCRIPCION")).
+                            image_texto(rs.getString("IMAGEN_TEXTO")).build());
+                }
 
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -312,8 +322,8 @@ public class Categorias implements Comparable {
      */
     public synchronized static Boolean existeCategoria(String descripcion) {
         final String SELECT_CATEGORIA_DESCRIPCION
-            = "SELECT (1) FROM V_CATEGORIAS WHERE descripcion like ?";
-        
+                = "SELECT (1) FROM V_CATEGORIAS WHERE descripcion like ?";
+
         try (PreparedStatement ps = getCnn().prepareStatement(SELECT_CATEGORIA_DESCRIPCION)) {
             ps.setString(1, descripcion);
             try (ResultSet rs = ps.executeQuery()) {
@@ -337,7 +347,7 @@ public class Categorias implements Comparable {
     public int compareTo(Object o) {
         Categorias c = (Categorias) o;
 
-        return this.id.compareTo(c.id);
+        return this.id_categoria.compareTo(c.id_categoria);
     }
 
 }

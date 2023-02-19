@@ -17,6 +17,5 @@ public class HeaderFactura{
     private final Time hora;
     private final char estado;
     private final String userName;
-    private final String nombreTemp;
     private final Boolean credito;
 }

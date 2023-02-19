@@ -127,6 +127,12 @@ public abstract class Personas {
 
     @Override
     public String toString() {
-        return pNombre + (sNombre.isBlank() || sNombre.isEmpty() || sNombre == null ? "" : " " + sNombre) + " " + apellidos;
+        StringBuilder nombre = new StringBuilder();
+        nombre.append(pNombre).
+                append(" ").
+                append((sNombre.isBlank() ? "":sNombre)).
+                append(" ").
+                append(apellidos);
+        return nombre.toString();
     }
 }

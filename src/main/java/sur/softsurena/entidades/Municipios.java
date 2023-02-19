@@ -16,9 +16,6 @@ public class Municipios {
 
     private static final Logger LOG = Logger.getLogger(Municipios.class.getName());
     
-    private static String SELECT 
-            = "SELECT ID, NOMBRE FROM V_MUNICIPIOS WHERE IDPROVINCIA = ?";
-    
     private final int id;
     private final String nombre;
     private final int idProvincia;
@@ -35,7 +32,10 @@ public class Municipios {
      */
     public synchronized static void getMunicipio(int id_provincia,
             RSComboBox jcbMunicipios) {
-
+        
+        final String SELECT 
+            = "SELECT ID, NOMBRE FROM V_MUNICIPIOS WHERE IDPROVINCIA = ?";
+        
         try ( PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
                 ResultSet.TYPE_FORWARD_ONLY,

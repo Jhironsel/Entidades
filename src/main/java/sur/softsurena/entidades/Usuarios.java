@@ -15,45 +15,42 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 @Getter
 @SuperBuilder
 public class Usuarios extends Personas {
+    
+    /*
+        Tenemos una vista y un procedimiento que muestran casi lo mismo... 
+        
+        La lista V_USUARIOS no se está utilizando.... y es casi igual que el
+        procedimiento SP_SELECT_USUARIOS_TAGS, este se utiliza en 3 linea de 
+        codigo. 
+    */
 
     private static final Logger LOG = Logger.getLogger(Usuarios.class.getName());
-
-    
 
     /**
      * Query que me trae todas las tags de un usuario en especifico.
      */
-    final String GET_USER_BY_USER_NAME_TAG
-            = "SELECT p.O_TAG_NOMBRE, p.O_TAG_VALOR "
-            + "FROM SP_SELECT_USUARIOS_TAGS (?) p;";
-
-    /**
-     * Este campo permite cambiar la contraseña a cualquier usuario.
-     */
     
 
-    
     private final String clave;
     private final String descripcion;
     private final Boolean administrador;
 
-
     /**
      * Metodo que permite el cambio de contraseña de un usuario en el sistema.
-     * 
+     *
      * Este metodo evita que un usuario le cambie la contraseña a otro usuario.
      *
      * Metodo revisado el 24 de abril 2022. Metodo actualizado el 19 05 2022,
      * Nota, se cambia la posicion del parametro, primero usuario y luego la
      * clave.
-     * 
+     *
      * @param clave Es la clave del usuario actual que permite la actualizacion
-     * de su clave. 
+     * de su clave.
      */
     public synchronized static boolean cambioClave(String clave) {
         final String CAMBIAR_CLAVE
-            = "ALTER USER CURRENT_USER PASSWORD ?";
-        
+                = "ALTER USER CURRENT_USER PASSWORD ?";
+
         try (PreparedStatement ps = getCnn().prepareStatement(CAMBIAR_CLAVE);) {
             ps.setString(1, clave);
 
@@ -64,19 +61,19 @@ public class Usuarios extends Personas {
             return false;
         }
     }
-    
+
     /**
      * Metodo que permite que los usuarios del sistema actualicen la contraseña
-     * de otro usuario de otro sistema. 
-     * 
+     * de otro usuario de otro sistema.
+     *
      * @param userName
      * @param clave
-     * @return 
+     * @return
      */
     public synchronized static boolean cambioClaveUsuario(String userName, String clave) {
         final String CAMBIAR_CLAVE_USER_NAME
-            = "ALTER USER ? PASSWORD ?";
-        
+                = "ALTER USER ? PASSWORD ?";
+
         try (PreparedStatement ps = getCnn().prepareStatement(CAMBIAR_CLAVE_USER_NAME);) {
             ps.setString(1, userName);
             ps.setString(2, clave);
@@ -88,8 +85,7 @@ public class Usuarios extends Personas {
             return false;
         }
     }
-    
-    
+
     /**
      * Para matener la mejor integridad de los datos los usuario se desactivan
      * del sistema.
@@ -118,18 +114,18 @@ public class Usuarios extends Personas {
      * Deberia de crearse un store procedure que permita eliminar Usuarios, ya
      * que debemos conservar los registros de los usuarios que hayan hechos
      * cambios en la base de datos.
-     * 
+     *
      * @param idUsuario
-     * 
+     *
      * @param rol
-     * 
-     * @return Retorna un mensaje que indica si la accion fue realizada 
-     * correctamente. 
+     *
+     * @return Retorna un mensaje que indica si la accion fue realizada
+     * correctamente.
      */
     public synchronized static String borrarUsuario(String idUsuario, String rol) {
         final String DELETE_ROL
-            = "REVOKE ? FROM ? GRANTED BY ?";
-        
+                = "REVOKE ? FROM ? GRANTED BY ?";
+
         try (PreparedStatement ps = getCnn().prepareStatement(DELETE_ROL);) {
             ps.setString(1, rol);
             ps.setString(2, idUsuario);
@@ -151,15 +147,13 @@ public class Usuarios extends Personas {
             return "Ocurrio un error al intentar borrar el Usuario.";
         }
     }
+
     /**
      * Esta variable se esta utilizando para obtener el rol y el usuario que se
      * loguean en el sistema.
      *
      * Fecha de revision: 24 oct 2022
      */
-    public static String USUARIO_ACTUAL
-            = "SELECT TRIM(CURRENT_USER), TRIM(CURRENT_ROLE) "
-            + "FROM RDB$DATABASE";
 
     /**
      * Nitido. Metodo para consultar cual es el usuario actual del sistema.
@@ -179,14 +173,20 @@ public class Usuarios extends Personas {
      * ha iniciado sessión actualmente.
      */
     public synchronized static Usuarios getUsuarioActual() {
+        final String sql
+                = "SELECT TRIM(CURRENT_USER) AS USUARIO, TRIM(CURRENT_ROLE) AS ROLE FROM RDB$DATABASE";
+
         try (PreparedStatement ps = getCnn().prepareStatement(
-                USUARIO_ACTUAL, ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY, ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
                 return Usuarios.builder().
-                        user_name(rs.getString(1)).
-                        rol(rs.getString(2)).build();
+                        user_name(rs.getString("USUARIO")).
+                        rol(rs.getString("ROLE")).
+                        build();
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
@@ -198,26 +198,16 @@ public class Usuarios extends Personas {
     }
 
     /**
-     * Consulta que nos permite tener el nombre de usuario, primer nombre,
-     * segundo nombre, apellidos, estado del usuario, si es administrador y una
-     * breve descripcion del usuario que se haya registrado.
-     *
-     */
-    public final static String GET_USER_BY_USER_NAME
-            = "SELECT TRIM(p.O_USER_NAME) AS O_USER_NAME, "
-            + "TRIM(p.O_PRIMER_NOMBRE) AS O_PRIMER_NOMBRE, "
-            + "TRIM(p.O_SEGUNDO_NOMBRE) AS O_SEGUNDO_NOMBRE, "
-            + "TRIM(p.O_APELLIDOS) AS O_APELLIDOS, "
-            + "p.O_ESTADO_ACTIVO, p.O_ADMINISTRADOR, p.O_DESCRIPCION "
-            + "FROM SP_SELECT_USUARIOS_TAGS (?) p;";
-
-    /**
      * Metodo para llamar a los usuarios del sistema, este ejecuta un
      * procedimiento almacenado que realizar el SELECT complejo en la BD.
      *
      * Actualizado 09 Julio 2022, se agregar el campo estatico de la clase
      * Usuario el cual contiene el SQL de la consulta de este metodo.
      *
+     * Consulta que nos permite tener el nombre de usuario, primer nombre,
+     * segundo nombre, apellidos, estado del usuario, si es administrador y una
+     * breve descripcion del usuario que se haya registrado.
+     * 
      * @param userName Es el identificador que utiliza el usuario para iniciar
      * session en el sistema, este campo tambien puede recibir un string con el
      * valor all para obtener todos los usuarios del sistema.
@@ -227,6 +217,14 @@ public class Usuarios extends Personas {
      * usuarios del sistema.
      */
     public synchronized static Usuarios getUsuario(String userName) {
+        final String GET_USER_BY_USER_NAME
+            = "SELECT TRIM(p.O_USER_NAME) AS O_USER_NAME, "
+            + "TRIM(p.O_PRIMER_NOMBRE) AS O_PRIMER_NOMBRE, "
+            + "TRIM(p.O_SEGUNDO_NOMBRE) AS O_SEGUNDO_NOMBRE, "
+            + "TRIM(p.O_APELLIDOS) AS O_APELLIDOS, "
+            + "p.O_ESTADO_ACTIVO, p.O_ADMINISTRADOR, p.O_DESCRIPCION "
+            + "FROM SP_SELECT_USUARIOS_TAGS (?) p;";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(
                 GET_USER_BY_USER_NAME,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -294,6 +292,7 @@ public class Usuarios extends Personas {
      * @return
      */
     public synchronized static ResultSet getUsuariosActivo() {
+
         try (PreparedStatement ps = getCnn().prepareStatement("")) {
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -329,7 +328,7 @@ public class Usuarios extends Personas {
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
+
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     u = Usuarios.builder().
@@ -374,24 +373,6 @@ public class Usuarios extends Personas {
 //    }
     
     /**
-     *
-     * @return
-     */
-    public synchronized static ResultSet getCajerosActivos() {
-        //Para que sirve este metodo...
-        final String GET_SELECT_USUARIOS_ACTIVOS
-            = "SELECT r.IDUSUARIO, r.FECHA, r.HORA "
-            + "FROM GET_USUARIO_ACTIVO r";
-        
-        try (PreparedStatement ps = getCnn().prepareStatement(GET_SELECT_USUARIOS_ACTIVOS)) {
-            return ps.executeQuery();
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
-
-    /**
      * Metodo utilizado para consultar a la base de datos, los roles creado y
      * aquienes fueron asignados esos roles.
      *
@@ -403,10 +384,10 @@ public class Usuarios extends Personas {
      */
     public synchronized static ArrayList<String> comprobandoRol(String userName) {
         ArrayList<String> roles = new ArrayList<>();
-        
-        final String SELECT_ROLES_USUARIOS 
-            = "SELECT ROL FROM GET_ROL WHERE USER_NAME LIKE ?";
-        
+
+        final String SELECT_ROLES_USUARIOS
+                = "SELECT ROL FROM GET_ROL WHERE USER_NAME LIKE ?";
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT_ROLES_USUARIOS,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
