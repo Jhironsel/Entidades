@@ -21,6 +21,8 @@ import sur.softsurena.utilidades.Utilidades;
 public class Categorias implements Comparable {
 
     private static final Logger LOG = Logger.getLogger(Categorias.class.getName());
+    
+    private static final String CATEGORIA__BORRADO__CORRECTAMENTE = "Categoria Borrado Correctamente.";
 
     private final Integer id_categoria;
     private final String descripcion;
@@ -143,7 +145,7 @@ public class Categorias implements Comparable {
      *
      * @return Devuelve un mensaje de la acción realizada.
      */
-    public static String borrarCategoria(int idCategoria) {
+    public static Resultados borrarCategoria(int idCategoria) {
         final String DELETE
                 = "DELETE FROM V_CATEGORIAS WHERE ID = ?;";
 
@@ -153,12 +155,19 @@ public class Categorias implements Comparable {
 
             int cant = ps.executeUpdate();
 
-            return "Categoria Borrado Correctamente.";
+            return Resultados.builder().
+                    mensaje(CATEGORIA__BORRADO__CORRECTAMENTE).
+                    cantidad(cant).
+                    build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Ocurrio un error al intentar borrar la Categoria...";
+            return Resultados.builder().
+                    mensaje("Ocurrio un error al intentar borrar la Categoria...").
+                    cantidad(-1).
+                    build();
         }
     }
+    
 
     /**
      * Metodo utilizado para llenar los comboBox de las categorias de productos
@@ -230,8 +239,8 @@ public class Categorias implements Comparable {
     public synchronized static List<Categorias> getCategorias() {
 
         final String SELECT_CATEGORIA
-                = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO, r.ESTADO "
-                + "FROM V_CATEGORIAS r "
+                = "SELECT ID, DESCRIPCION, IMAGEN_TEXTO, FECHA_CREACION, ESTADO "
+                + "FROM V_CATEGORIAS "
                 + "ORDER BY 1";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -248,7 +257,9 @@ public class Categorias implements Comparable {
                             id_categoria(rs.getInt("ID")).
                             descripcion(rs.getString("DESCRIPCION")).
                             image_texto(rs.getString("IMAGEN_TEXTO")).
-                            estado(rs.getBoolean("ESTADO")).build();
+                            estado(rs.getBoolean("ESTADO")).
+                            fecha_creacion(rs.getDate("FECHA_CREACION"))
+                            .build();
 
                     categorias.add(cat);
                 }

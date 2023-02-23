@@ -329,7 +329,7 @@ public class Utilidades {
 
         Imagenes img = new Imagenes();
         if (data == null || data.length <= 1) {
-            return (ImageIcon) img.getIcono("Sin_imagen 64 x 64.png");
+            return (ImageIcon) img.getIcono("NoImageTransp 96 x 96.png");
         }
 
 
@@ -337,7 +337,7 @@ public class Utilidades {
             return new ImageIcon(ImageIO.read(new ByteArrayInputStream(data)));
         } catch (IOException ex) {
             //Instalar Logger
-            return (ImageIcon) img.getIcono("Sin_imagen 64 x 64.png");
+            return (ImageIcon) img.getIcono("NoImageTransp 96 x 96.png");
         }
     }
 
