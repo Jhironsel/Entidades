@@ -6,8 +6,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
+//import javafx.application.Platform;
+//import javafx.scene.control.Alert;
 import lombok.NonNull;
 
 public class Conexion {
@@ -21,7 +21,7 @@ public class Conexion {
     private static final String VALIDACIONES_DEL_SISTEMA = "Validaciones del sistema";
 
     //Variables Publicas
-    public static Alert alerta;
+//    public static Alert alerta;
     public static final String NO_ES_POSIBLE_CONECTARSE_AL_SERVIDOR = "No es posible conectarse al servidor: ";
     public static final String USUARIO_NO_IDENTIFICADO = "Usuario no identificado";
     public static final String LIBRERIA_DEL_DRIVER_NO_ENCONTRADA = "Libreria no encontrada";
@@ -49,13 +49,9 @@ public class Conexion {
      * @return Devuelve una instancia de la clase conexion. La cual inicializa
      * las variables para la conexion a la base de datos.
      */
-    public static Conexion getInstance(
-            @NonNull String user,
-            @NonNull String clave,
-            @NonNull String role,
-            @NonNull String pathBaseDatos,
-            @NonNull String dominio,
-            @NonNull String puerto) {
+    public static Conexion getInstance(@NonNull String user, @NonNull String clave,
+            @NonNull String role, @NonNull String pathBaseDatos,
+            @NonNull String dominio, @NonNull String puerto) {
         Conexion.user = user;
         Conexion.clave = clave;
         Conexion.role = role;
@@ -77,21 +73,20 @@ public class Conexion {
     }
 
     private static class ConexionHolder {
-
         private static final Conexion INSTANCE = new Conexion();
     }
 
     private Conexion() {
-        try {
-            Platform.startup(() -> {
-                Conexion.alerta = new Alert(Alert.AlertType.NONE);
-                Conexion.alerta.setHeaderText(null);
-                Conexion.alerta.setTitle(VALIDACIONES_DEL_SISTEMA);
-                Conexion.alerta.setContentText(USUARIO_LOGEADO);
-            });
-        } catch (java.lang.IllegalStateException e) {
-            LOG.log(Level.INFO, "Variables alerta inicializada");
-        }
+//        try {
+//            Platform.startup(() -> {
+//                Conexion.alerta = new Alert(Alert.AlertType.NONE);
+//                Conexion.alerta.setHeaderText(null);
+//                Conexion.alerta.setTitle(VALIDACIONES_DEL_SISTEMA);
+//                Conexion.alerta.setContentText(USUARIO_LOGEADO);
+//            });
+//        } catch (java.lang.IllegalStateException e) {
+//            LOG.log(Level.INFO, "Variables alerta inicializada");
+//        }
 
     }
 
@@ -116,13 +111,13 @@ public class Conexion {
             setCnn(DriverManager.getConnection(urlDB.toString(), properties));
         } catch (ClassNotFoundException ex) {
 
-            Platform.runLater(() -> {
-                Conexion.alerta = new Alert(Alert.AlertType.ERROR);
-                Conexion.alerta.setHeaderText(null);
-                Conexion.alerta.setTitle(VALIDACIONES_DEL_SISTEMA);
-                Conexion.alerta.setContentText(LIBRERIA_DEL_DRIVER_NO_ENCONTRADA);
-                Conexion.alerta.show();
-            });
+//            Platform.runLater(() -> {
+//                Conexion.alerta = new Alert(Alert.AlertType.ERROR);
+//                Conexion.alerta.setHeaderText(null);
+//                Conexion.alerta.setTitle(VALIDACIONES_DEL_SISTEMA);
+//                Conexion.alerta.setContentText(LIBRERIA_DEL_DRIVER_NO_ENCONTRADA);
+//                Conexion.alerta.show();
+//            });
 
             LOG.log(Level.SEVERE, LIBRERIA_DEL_DRIVER_NO_ENCONTRADA, ex);
 
@@ -131,13 +126,13 @@ public class Conexion {
 
             if (ex.getMessage().contains("password")) {
 
-                Platform.runLater(() -> {
-                    Conexion.alerta = new Alert(Alert.AlertType.INFORMATION);
-                    Conexion.alerta.setHeaderText(null);
-                    Conexion.alerta.setTitle(VALIDACIONES_DEL_SISTEMA);
-                    Conexion.alerta.setContentText(USUARIO_NO_IDENTIFICADO);
-                    Conexion.alerta.show();
-                });
+//                Platform.runLater(() -> {
+//                    Conexion.alerta = new Alert(Alert.AlertType.INFORMATION);
+//                    Conexion.alerta.setHeaderText(null);
+//                    Conexion.alerta.setTitle(VALIDACIONES_DEL_SISTEMA);
+//                    Conexion.alerta.setContentText(USUARIO_NO_IDENTIFICADO);
+//                    Conexion.alerta.show();
+//                });
                 LOG.log(Level.INFO, USUARIO_NO_IDENTIFICADO, ex);
                 return false;
             }
@@ -149,13 +144,13 @@ public class Conexion {
                 mensaje.append(NO_ES_POSIBLE_CONECTARSE_AL_SERVIDOR)
                         .append(urlDB);
 
-                Platform.runLater(() -> {
-                    Conexion.alerta = new Alert(Alert.AlertType.ERROR);
-                    Conexion.alerta.setHeaderText(null);
-                    Conexion.alerta.setTitle(VALIDACIONES_DEL_SISTEMA);
-                    Conexion.alerta.setContentText(mensaje.toString());
-                    Conexion.alerta.show();
-                });
+//                Platform.runLater(() -> {
+//                    Conexion.alerta = new Alert(Alert.AlertType.ERROR);
+//                    Conexion.alerta.setHeaderText(null);
+//                    Conexion.alerta.setTitle(VALIDACIONES_DEL_SISTEMA);
+//                    Conexion.alerta.setContentText(mensaje.toString());
+//                    Conexion.alerta.show();
+//                });
 
                 LOG.log(Level.INFO, mensaje.toString(), ex);
 

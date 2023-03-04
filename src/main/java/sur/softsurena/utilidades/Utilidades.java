@@ -462,6 +462,14 @@ public class Utilidades {
         }
     }
 
+    /**
+     * Este metodo nos permite administrar el ancho de las columnas de las 
+     * tablas, pudiendo asi tener el alcho de las columnas.
+     * Deberia de ejecutar luego de insertar, actualizar o borrar un registro.
+     * 
+     * @param table Es el componente JTable que va a modicarse su ancho 
+     * automaticamente.
+     */
     public static void repararColumnaTable(JTable table) {
         //Se obtiene el modelo de la columna
         TableColumnModel columnModel = table.getColumnModel();

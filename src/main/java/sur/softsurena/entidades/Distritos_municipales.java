@@ -1,9 +1,10 @@
 package sur.softsurena.entidades;
 
-import RSMaterialComponent.RSComboBox;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
@@ -30,13 +31,13 @@ public class Distritos_municipales {
      *
      * @return
      */
-    public synchronized static void getDistritosMunicipales(int id_municipio,
-            RSComboBox jcbDistritoMunicipal) {
-
+    public synchronized static List<Distritos_municipales> getDistritosMunicipales(int id_municipio) {
         final String SELECT
-                = "SELECT r.ID, r.NOMBRE "
-                + "FROM V_DISTRITOS_MUNICIPALES r "
-                + "WHERE r.IDMUNICIPIO = ? ";
+                = "SELECT ID, NOMBRE "
+                + "FROM V_DISTRITOS_MUNICIPALES "
+                + "WHERE IDMUNICIPIO = ?  OR ID = 0 ORDER BY 1";
+        
+        List<Distritos_municipales> distritos_municipaleses_list = new ArrayList<>();
 
         try (PreparedStatement ps1 = getCnn().prepareStatement(
                 SELECT,
@@ -47,21 +48,12 @@ public class Distritos_municipales {
             ps1.setInt(1, id_municipio);
 
             try (ResultSet rs = ps1.executeQuery();) {
-
-                jcbDistritoMunicipal.removeAllItems();
-
-                Distritos_municipales dm = Distritos_municipales.builder().
-                        id(0).
-                        nombre("Inserte Distritos").build();
-
-                jcbDistritoMunicipal.addItem(dm);
-
                 while (rs.next()) {
-                    dm = Distritos_municipales.builder().
+                    distritos_municipaleses_list.add(
+                            Distritos_municipales.builder().
                             id(rs.getInt("id")).
-                            nombre(rs.getString("nombre")).build();
-
-                    jcbDistritoMunicipal.addItem(dm);
+                            nombre(rs.getString("nombre")).build()
+                    );
                 }
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -69,6 +61,7 @@ public class Distritos_municipales {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
+        return distritos_municipaleses_list;
     }
 
     @Override

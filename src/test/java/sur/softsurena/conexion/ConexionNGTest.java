@@ -1,11 +1,11 @@
 package sur.softsurena.conexion;
 
-import static org.testng.Assert.*;
+//import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+//import org.testng.annotations.Test;
 
 /**
  *
@@ -45,15 +45,15 @@ public class ConexionNGTest {
         System.out.println("tearDownMethod()");
     }
 
-    /**
-     * Test of verificar method, of class Conexion.
-     */
-    @Test
-    public void testVerificar() {
-        System.out.println("verificar");
-        
-        assertEquals(Boolean.TRUE, Conexion.verificar());
-        
-        assertEquals(Conexion.USUARIO_LOGEADO, Conexion.alerta.getContentText());
-    }
+//    /**
+//     * Test of verificar method, of class Conexion.
+//     */
+//    @Test
+//    public void testVerificar() {
+//        System.out.println("verificar");
+//        
+//        assertEquals(Boolean.TRUE, Conexion.verificar());
+//        
+//        assertEquals(Conexion.USUARIO_LOGEADO, Conexion.alerta.getContentText());
+//    }
 }

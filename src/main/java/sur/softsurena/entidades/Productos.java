@@ -69,9 +69,9 @@ public class Productos {
                                     codigo(rs.getString("CODIGO")).
                                     descripcion(rs.getString("DESCRIPCION")).build());
                 }
-                
+
                 return productosList;
-                
+
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
@@ -120,9 +120,9 @@ public class Productos {
                             estado(rs.getBoolean("ESTADO")).
                             build());
                 }
-                
+
                 return listaProducto;
-                
+
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
@@ -212,10 +212,11 @@ public class Productos {
     /**
      * Metodo que permite modificar los productos del sistema como a la
      * categoria a la que pertenece el producto, su codigo de barra, la
-     * descripcion, la imagen de este, la nota del producto y su estado.Metodo actualizado el dia 23 de abril, segun la vista productos.
+     * descripcion, la imagen de este, la nota del producto y su estado.Metodo
+     * actualizado el dia 23 de abril, segun la vista productos.
      *
      *
-     * @param id es el identificador del producto en la base de datos. 
+     * @param id es el identificador del producto en la base de datos.
      * @param p perteneciente a la clase Producto, define los productos del
      * sistema.
      * @return
@@ -223,12 +224,12 @@ public class Productos {
     public synchronized static String modificarProducto(int id, Productos p) {
         final String UPDATE
                 = "update V_PRODUCTOS set "
-                    + "id_Categoria = ?, "
-                    + "codigo = ?, "
-                    + "descripcion = ?, "
-                    + "imagen_texto = ?, "
-                    + "nota = ?, "
-                    + "estado = ? "
+                + "id_Categoria = ?, "
+                + "codigo = ?, "
+                + "descripcion = ?, "
+                + "imagen_texto = ?, "
+                + "nota = ?, "
+                + "estado = ? "
                 + "where id = ?; ";
         try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
 
@@ -382,7 +383,7 @@ public class Productos {
                             estado(rs.getBoolean("ESTADO")).build();
                 }
             }
-            
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -455,6 +456,42 @@ public class Productos {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return new BigDecimal(-1);
         }
+    }
+
+    public static String generarProducto() {
+        StringBuilder telefonoMovil = new StringBuilder();
+
+        int num1 = (int) (Math.random() * 10);
+        int num2 = (int) (Math.random() * 10);
+        int num3 = (int) (Math.random() * 10);
+        int num4 = (int) (Math.random() * 10);
+
+        telefonoMovil.
+                append("Producto de prueba ").
+                append(num1).
+                append(num2).
+                append(num3).
+                append(num4);
+
+        return telefonoMovil.toString();
+    }
+    
+    public static String generarCodigoBarra() {
+        StringBuilder telefonoMovil = new StringBuilder();
+
+        int num1 = (int) (Math.random() * 10);
+        int num2 = (int) (Math.random() * 10);
+        int num3 = (int) (Math.random() * 10);
+        int num4 = (int) (Math.random() * 10);
+
+        telefonoMovil.
+                append("CODE_BAR_TEST").
+                append(num1).
+                append(num2).
+                append(num3).
+                append(num4);
+
+        return telefonoMovil.toString();
     }
 
     @Override

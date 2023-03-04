@@ -1,9 +1,10 @@
 package sur.softsurena.entidades;
 
-import RSMaterialComponent.RSComboBox;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
@@ -15,15 +16,11 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 public class Provincias {
 
     private static final Logger LOG = Logger.getLogger(Provincias.class.getName());
-    
+
     private final int id;
-//    private final int id_provincias;
     private final String nombre;
     private final String zona;
-    
-    public final static String SELECT
-            = "SELECT ID, NOMBRE FROM V_PROVINCIAS r";
-    
+
     /**
      * Metodo que me trae un conjunto de datos de las provincias del pais.
      *
@@ -31,23 +28,26 @@ public class Provincias {
      *
      * @return retorna un conjunto de datos encapsulados en un ResultSet.
      */
-    public synchronized static void getProvincias(RSComboBox jcbProvincias) {
-        try ( PreparedStatement ps1 = getCnn().prepareStatement(
+    public synchronized static List<Provincias> getProvincias() {
+        final String SELECT
+            = "SELECT ID, NOMBRE FROM V_PROVINCIAS r";
+        
+        List<Provincias> provinciaList = new ArrayList<>();
+        
+        try (PreparedStatement ps1 = getCnn().prepareStatement(
                 SELECT,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
-            ResultSet rs = ps1.executeQuery();
-            Provincias p;
-            jcbProvincias.removeAllItems();
 
-            try {
+            try (ResultSet rs = ps1.executeQuery();) {
                 while (rs.next()) {
-                    p = Provincias.builder().
-                            id(rs.getInt("ID")).
-                            nombre(rs.getString("NOMBRE")).build();
-                    jcbProvincias.addItem(p);
+                    provinciaList.add(
+                            Provincias.builder().
+                                    id(rs.getInt("ID")).
+                                    nombre(rs.getString("NOMBRE")).build()
+                    );
                 }
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -55,10 +55,11 @@ public class Provincias {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
+        return provinciaList;
     }
 
     @Override
     public String toString() {
         return nombre;
-    }    
+    }
 }

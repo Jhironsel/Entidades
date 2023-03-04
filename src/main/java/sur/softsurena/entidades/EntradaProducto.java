@@ -38,7 +38,7 @@ public class EntradaProducto {
      *
      * @return Devuelve un valor booleano que indica si el registro fue exitoso.
      */
-    public synchronized static boolean agregarProductoEntrada(EntradaProducto e) {
+    public static boolean agregarProductoEntrada(EntradaProducto e) {
         final String INSERT_SP
                 = "EXECUTE PROCEDURE SP_INSERT_ENTRADA_PRODUCTOS (?, ?, ?, ?, ?, ?);";
 

@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,20 +18,20 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 public class ContactosEmail {
 
     private static final Logger LOG = Logger.getLogger(ContactosEmail.class.getName());
-    
+
     /**
      * Es una variable utilizada en el formulario de frmClientes, la cual define
-     * las columnas de la tabla de dicho modulo. 
+     * las columnas de la tabla de dicho modulo.
      */
     public static final String[] TITULOS_CORREO = {"Correo", "Fecha"};
-    
+
     private final Integer id;
     private final int id_persona;
     //La accion podrá ser i Insertar, a actualizar o b borrar
     private final char accion;
     private final String email;
     private final Date fecha;
-    
+
     /**
      *
      * @param id
@@ -39,10 +40,10 @@ public class ContactosEmail {
      */
     public static boolean agregarContactosEmail(int id, List<ContactosEmail> contactos) {
         final String INSERT
-            = "INSERT INTO V_CONTACTS_EMAIL (ID_PERSONA, EMAIL) "
-            + "VALUES (?, ?);";
-        
-        try (PreparedStatement ps = getCnn().prepareStatement(INSERT)){
+                = "INSERT INTO V_CONTACTOS_EMAIL (ID_PERSONA, EMAIL) "
+                + "VALUES (?, ?);";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(INSERT)) {
             for (ContactosEmail c : contactos) {
                 ps.setInt(1, id);
                 ps.setString(2, c.getEmail());
@@ -56,7 +57,7 @@ public class ContactosEmail {
         }
         return false;
     }
-    
+
     /**
      *
      * @param id
@@ -65,13 +66,13 @@ public class ContactosEmail {
      */
     public static boolean modificarContactosEmail(int id, List<ContactosEmail> contactos) {
         final String UPDATE
-            = "UPDATE V_CONTACTS_EMAIL a "
-            + "SET "
-            + "   a.EMAIL = ? "
-            + "WHERE "
-            + "     a.ID = ?";
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
+                = "UPDATE V_CONTACTOS_EMAIL a "
+                + "SET "
+                + "   a.EMAIL = ? "
+                + "WHERE "
+                + "     a.ID = ?";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
 
             for (ContactosEmail c : contactos) {
                 ps.setString(1, c.getEmail());
@@ -86,33 +87,26 @@ public class ContactosEmail {
         }
         return false;
     }
-    
-    
-    public synchronized static DefaultTableModel getCorreoByID(int id) {
+
+    public synchronized static List<ContactosEmail> getCorreoByID(int id) {
         final String SELECT_BY_ID
-            = "SELECT a.ID, a.EMAIL, a.FECHA "
-            + "FROM V_CONTACTOS_EMAIL a "
-            + "WHERE "
-            + "   a.ID_PERSONA = ?; ";
-        
-        Object registroCorreo[] = new Object[TITULOS_CORREO.length];
-
-        DefaultTableModel dtmCorreo = new DefaultTableModel(null, TITULOS_CORREO);
-
-        try ( PreparedStatement ps = getCnn().prepareStatement(SELECT_BY_ID)) {
+                = "SELECT ID, EMAIL, FECHA "
+                + "FROM V_CONTACTOS_EMAIL  "
+                + "WHERE "
+                + "   ID_PERSONA = ?; ";
+        List<ContactosEmail> contactosEmailList = new ArrayList<>();
+        try (PreparedStatement ps = getCnn().prepareStatement(SELECT_BY_ID)) {
             ps.setInt(1, id);
-
-            try ( ResultSet rs = ps.executeQuery();) {
+            try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    ContactosEmail c = ContactosEmail.builder().
-                            id(rs.getInt("ID")).
-                            email(rs.getString("EMAIL")).
-                            fecha(rs.getDate("FECHA")).build();
-
-                    registroCorreo[0] = c;
-                    registroCorreo[1] = c.getFecha();
-
-                    dtmCorreo.addRow(registroCorreo);
+                    contactosEmailList.add(
+                            ContactosEmail.
+                                    builder().
+                                    id(rs.getInt("ID")).
+                                    email(rs.getString("EMAIL")).
+                                    fecha(rs.getDate("FECHA")).
+                                    build()
+                    );
                 }
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -120,9 +114,9 @@ public class ContactosEmail {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
-        return dtmCorreo;
+        return contactosEmailList;
     }
-    
+
     @Override
     public String toString() {
         return email;

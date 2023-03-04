@@ -22,7 +22,9 @@ public class Categorias implements Comparable {
 
     private static final Logger LOG = Logger.getLogger(Categorias.class.getName());
     
+    private static final String CATEGORIA_AGREGADA_CON_EXITO = "Categoria agregada con exito.";
     private static final String CATEGORIA__BORRADO__CORRECTAMENTE = "Categoria Borrado Correctamente.";
+    private static final String ERROR_AL_INSERTAR_CATEGORIA = "Error al insertar categoria.";
 
     private final Integer id_categoria;
     private final String descripcion;
@@ -54,8 +56,6 @@ public class Categorias implements Comparable {
      * o no.
      */
     public synchronized static Resultados agregarCategoria(Categorias c) {
-        Resultados r;
-
         final String INSERT
                 = "SELECT p.V_ID "
                 + "FROM SP_INSERT_CATEGORIAS (?, ?, ?) p;";
@@ -71,26 +71,26 @@ public class Categorias implements Comparable {
 
             try (ResultSet resultSet = ps.executeQuery();) {
                 resultSet.next();
-                r = Resultados.builder().
+                return Resultados.builder().
                         id(resultSet.getInt(1)).
-                        mensaje("Categoria agregada con exito.").cantidad(-1).build();
+                        mensaje(CATEGORIA_AGREGADA_CON_EXITO).cantidad(-1).build();
             } catch (SQLException ex) {
-                r = Resultados.builder().
-                        id(-1).
-                        mensaje("Error al insertar categoria.").
-                        cantidad(-1).build();
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return Resultados.builder().
+                        id(-1).
+                        mensaje(ERROR_AL_INSERTAR_CATEGORIA).
+                        cantidad(-1).build();
             }
         } catch (SQLException ex) {
-            r = Resultados.builder().
-                    id(-1).
-                    mensaje("Error al insertar categoria.").
-                    cantidad(-1).build();
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return Resultados.builder().
+                    id(-1).
+                    mensaje(ERROR_AL_INSERTAR_CATEGORIA).
+                    cantidad(-1).build();
         }
-        return r;
     }
+    
+    
 
     /**
      * Este metodo es utilizado para modificar las categorias de los productos.
@@ -174,22 +174,11 @@ public class Categorias implements Comparable {
      * del sistema, solo nos trae el Identificador y la descripcion de todas las
      * CATEGORIA del sistema.
      *
-     * @param cbCategorias es un jComboBox que es rellenado con todas la
-     * categoria de producto registrado en el sistema.
+     * @return Devuelve una lista de categoria donde el estado es TRUE.
      *
      */
-    public synchronized static void getCategirias(JComboBox cbCategorias) {
-        //Elimina registros previos.
-        cbCategorias.removeAllItems();
-
-        //Agregar primer elemento con id negativo
-        //Lo agregamos al comboBox.
-        cbCategorias.addItem(Categorias.
-                builder().
-                id_categoria(-1).
-                descripcion("Seleccione categoria").
-                build()
-        );
+    public synchronized static List<Categorias> getCategirias() {
+        List<Categorias> categoriaList = new ArrayList<>();
 
         final String SELECT
                 = "SELECT ID, DESCRIPCION, FECHA_CREACION FROM V_CATEGORIAS WHERE ESTADO";
@@ -202,11 +191,13 @@ public class Categorias implements Comparable {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    cbCategorias.addItem(Categorias.builder().
-                            id_categoria(rs.getInt("ID")).
-                            descripcion(rs.getString("Descripcion")).
-                            fecha_creacion(rs.getDate("FECHA_CREACION")).
-                            build()
+                    categoriaList.add(
+                            Categorias.
+                                    builder().
+                                    id_categoria(rs.getInt("ID")).
+                                    descripcion(rs.getString("Descripcion")).
+                                    fecha_creacion(rs.getDate("FECHA_CREACION")).
+                                    build()
                     );
                 }
             } catch (SQLException ex) {
@@ -215,14 +206,8 @@ public class Categorias implements Comparable {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
+        return categoriaList;
     }
-    
-    /*
-        
-    
-    
-    
-    */
 
     /**
      * Metodo utilizado para obtener todas las categorias del sistema.

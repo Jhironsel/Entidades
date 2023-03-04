@@ -20,8 +20,6 @@ public class TiposSangres {
     private final int id;
     private final String descripcion;
 
-    
-
     /**
      * Metodo utilizado para llenar los JCombox del sistema.
      *
@@ -35,27 +33,25 @@ public class TiposSangres {
      * @return
      */
     public synchronized static List<TiposSangres> getTipoSangre() {
-        
         List<TiposSangres> tiposSangresList = new ArrayList<>();
-        
-        TiposSangres tiposSangres = null;
-        
         final String SELECT
-            = "SELECT ID, DESCRIPCION FROM V_TIPOS_SANGRE order by 1";
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(
+                = "SELECT ID, DESCRIPCION "
+                + "FROM V_TIPOS_SANGRE "
+                + "WHERE ID >= 0 "
+                + "ORDER BY 1";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
-            try ( ResultSet rs = ps.executeQuery();) {
+            try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    tiposSangres = TiposSangres.builder().
-                            id(rs.getInt("ID")).
-                            descripcion(rs.getString("DESCRIPCION")).build();
-
-                    tiposSangresList.add(tiposSangres);
+                    tiposSangresList.add(
+                            TiposSangres.builder().
+                                    id(rs.getInt("ID")).
+                                    descripcion(rs.getString("DESCRIPCION")).build()
+                    );
                 }
                 return tiposSangresList;
             } catch (SQLException ex) {
@@ -67,10 +63,7 @@ public class TiposSangres {
             return null;
         }
     }
-    
-    
-    
-    
+
     @Override
     public String toString() {
         return descripcion;
