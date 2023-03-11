@@ -66,25 +66,6 @@ public class Privilegios {
      */
     public static char PRIVILEGIO_REFERENCE = 'R';
 
-    public static String SELECT
-            = "SELECT r.USER_NAME, r.CEDENTE, r.PRIVILEGIO, "
-            + "     r.OPCION_PERMISO, r.NOMBRE_RELACION, "
-            + "     r.NOMBRE_CAMPO, r.TIPO_USUARIO, "
-            + "     r.TIPO_OBJECTO "
-            + "FROM GET_PRIVILEGIOS r ";
-
-    public static String PERMISO_UPDATE_TABLA
-            = "SELECT (1) "
-            + "FROM GET_PRIVILEGIOS r "
-            + "WHERE (TRIM(r.USER_NAME) LIKE TRIM(CURRENT_USER) OR "
-            + "      TRIM(r.USER_NAME) LIKE TRIM(CURRENT_ROLE)) AND "
-            + "      TRIM(r.PRIVILEGIO) LIKE TRIM(?) AND "
-            + "      TRIM(r.NOMBRE_RELACION) LIKE TRIM(?) ";
-
-    public static String PERMISO_UPDATE_CAMPO
-            = PERMISO_UPDATE_TABLA
-            + "      AND TRIM(r.NOMBRE_CAMPO) LIKE TRIM(?); ";
-
     /**
      * Es el metodo que nos devuelve los Roles del sistema, los cuales son asig-
      * nados a los usuarios.
@@ -129,8 +110,16 @@ public class Privilegios {
      * @return
      */
     public synchronized static boolean privilegioTabla(Privilegios p) {
+        final String PERMISO_UPDATE_TABLA
+            = "SELECT (1) "
+            + "FROM GET_PRIVILEGIOS "
+            + "WHERE (TRIM(USER_NAME) LIKE TRIM(CURRENT_USER) OR "
+            + "      TRIM(USER_NAME) LIKE TRIM(CURRENT_ROLE)) AND "
+            + "      TRIM(PRIVILEGIO) LIKE TRIM(?) AND "
+            + "      TRIM(NOMBRE_RELACION) LIKE TRIM(?) ";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(
-                Privilegios.PERMISO_UPDATE_TABLA,
+                PERMISO_UPDATE_TABLA,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -157,7 +146,15 @@ public class Privilegios {
      * @return
      */
     public synchronized static boolean privilegioCampo(Privilegios p) {
-        try (PreparedStatement ps = getCnn().prepareStatement(Privilegios.PERMISO_UPDATE_CAMPO)) {
+        final String PERMISO_UPDATE_CAMPO
+            = "SELECT (1) "
+            + "FROM GET_PRIVILEGIOS "
+            + "WHERE (TRIM(USER_NAME) LIKE TRIM(CURRENT_USER) OR "
+            + "      TRIM(USER_NAME) LIKE TRIM(CURRENT_ROLE)) AND "
+            + "      TRIM(PRIVILEGIO) LIKE TRIM(?) AND "
+            + "      TRIM(NOMBRE_RELACION) LIKE TRIM(?) "
+            + "      AND TRIM(NOMBRE_CAMPO) LIKE TRIM(?); ";
+        try (PreparedStatement ps = getCnn().prepareStatement(PERMISO_UPDATE_CAMPO)) {
             ps.setString(1, "" + p.getPrivilegio());
             ps.setString(2, p.getNombre_relacion());
             ps.setString(3, p.getNombre_campo());

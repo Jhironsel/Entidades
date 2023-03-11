@@ -26,6 +26,8 @@ public class Direcciones {
     private final Codigo_Postal codigo_postal;
     private final String direccion;
     private final Date fecha;
+    private final Boolean estado;
+    private final Boolean por_defecto;
 
     /**
      * Metodo utilizado para agregar una lista de direcciones de cliente al
@@ -132,7 +134,8 @@ public class Direcciones {
         final String SELECT_BY_ID
                 = "SELECT ID, ID_PERSONA, ID_PROVINCIA, PROVINCIA, ID_MUNICIPIO, "
                 + "     MUNICIPIO, ID_DISTRITO_MUNICIPAL, DISTRITO_MUNICIPAL, "
-                + "     ID_CODIGO_POSTAL, CODIGO_POSTAL, DIRECCION, FECHA "
+                + "     ID_CODIGO_POSTAL, CODIGO_POSTAL, DIRECCION, FECHA, "
+                + "     ESTADO, POR_DEFECTO "
                 + "FROM GET_DIRECCION_BY_ID  "
                 + "WHERE ID_PERSONA = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(SELECT_BY_ID)) {
@@ -140,7 +143,8 @@ public class Direcciones {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     direcciones.add(
-                            Direcciones.builder().
+                            Direcciones.
+                                    builder().
                                     id(rs.getInt("ID")).
                                     provincia(
                                             Provincias.builder().
@@ -160,6 +164,8 @@ public class Direcciones {
                                     ).
                                     direccion(rs.getString("DIRECCION")).
                                     fecha(rs.getDate("FECHA")).
+                                    estado(rs.getBoolean("ESTADO")).
+                                    por_defecto(rs.getBoolean("POR_DEFECTO")).
                                     build()
                     );
                 }

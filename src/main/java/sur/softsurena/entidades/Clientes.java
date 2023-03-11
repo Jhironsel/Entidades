@@ -130,29 +130,45 @@ public class Clientes extends Personas {
     /**
      * Metodo que permite modificar a los clientes del sistema de facturacion.
      *
-     * @param c Este objeto se almacenan los numeros de contactos telefonicos.
+     * @param cliente Este objeto se almacenan los numeros de contactos telefonicos.
      *
      * @return retorna un objecto de la clase resultado los cuales se envian lo
      * que es el mensaje, id y la cantidad de registro afetados.
      */
-    public synchronized static Resultados modificarCliente(Clientes c) {
+    public synchronized static Resultados modificarCliente(Clientes cliente) {
         final String UPDATE
                 = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE_SB(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
-            ps.setInt(1, c.getId_persona());
-            ps.setString(2, String.valueOf(c.getPersona()));
-            ps.setString(3, c.getGenerales().getCedula());
-            ps.setString(4, c.getPNombre());
-            ps.setString(5, c.getSNombre());
-            ps.setString(6, c.getApellidos());
-            ps.setString(7, String.valueOf(c.getSexo()));
-            ps.setDate(8, c.getFecha_nacimiento());
-            ps.setBoolean(9, c.getEstado());
-            ps.setString(10, String.valueOf(c.getGenerales().getEstado_civil()));
+            //Atributos del cliente
+            ps.setInt(1, cliente.getId_persona());
+            ps.setString(2, String.valueOf(cliente.getPersona()));
+            ps.setString(3, cliente.getGenerales().getCedula());
+            ps.setString(4, cliente.getPNombre());
+            ps.setString(5, cliente.getSNombre());
+            ps.setString(6, cliente.getApellidos());
+            ps.setString(7, String.valueOf(cliente.getSexo()));
+            ps.setDate(8, cliente.getFecha_nacimiento());
+            ps.setBoolean(9, cliente.getEstado());
+            ps.setString(10, String.valueOf(cliente.getGenerales().getEstado_civil()));
+            
+            cliente.getDireccion().stream().forEach(clienteList ->{
+                
+            });
+            
+            cliente.getContactosEmail().stream().forEach(correoList ->{
+            
+            });
+            
+            cliente.getContactosTel().stream().forEach(telefonoList ->{
+            
+            });
+            
+            //Cantidad de registros afectados.
             int cant = ps.executeUpdate();
+            
             return Resultados.
                     builder().
-                    id(c.getId_persona()).
+                    id(cliente.getId_persona()).
                     mensaje(CLIENTE__MODIFICADO__CORRECTAMENTE).
                     cantidad(cant).
                     build();
@@ -308,7 +324,7 @@ public class Clientes extends Personas {
                 sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     clienteList.add(
@@ -390,19 +406,14 @@ public class Clientes extends Personas {
      * @return Retorna un conjunto de datos del tipo resultSet.
      */
     public synchronized static Clientes getClienteByID(int id) {
-
         final String sql
                 = "SELECT ID, CEDULA, PERSONA, PNOMBRE, SNOMBRE, APELLIDOS, SEXO, "
                 + "     FECHA_NACIMIENTO, ESTADO_CIVIL, FECHA_INGRESO, ESTADO "
                 + "FROM GET_PERSONAS_ID "
                 + "WHERE ID = ?";
-
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-
             ps.setInt(1, id);
-
             Clientes c = null;
-
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     c = Clientes.builder().
@@ -410,12 +421,16 @@ public class Clientes extends Personas {
                             sNombre(rs.getString("SNOMBRE")).
                             apellidos(rs.getString("APELLIDOS")).
                             fecha_nacimiento(rs.getDate("FECHA_NACIMIENTO")).
+                            fecha_ingreso(rs.getDate("FECHA_INGRESO")).
                             estado(rs.getBoolean("ESTADO")).
                             persona(rs.getString("PERSONA").charAt(0)).
                             sexo(rs.getString("SEXO").charAt(0)).
-                            generales(Generales.builder().
+                            generales(
+                                    Generales.builder().
                                     cedula(rs.getString("CEDULA")).
-                                    estado_civil(rs.getString("ESTADO_CIVIL").charAt(0)).build()).build();
+                                    estado_civil(rs.getString("ESTADO_CIVIL").charAt(0)).
+                                            build()).
+                            build();
                 }
 
             } catch (SQLException ex) {

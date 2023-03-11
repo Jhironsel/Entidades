@@ -496,8 +496,8 @@ public class Utilidades {
 
             //Se establece una condicion para no sobrepasar el valor de 300
             //Esto es Opcional
-            if (width > 300) {
-                width = 300;
+            if (width > 400) {
+                width = 400;
             }
 
             //Se establece el ancho de la columna
@@ -517,7 +517,7 @@ public class Utilidades {
      */
     public static void columnasCheckBox(JTable tblTabla, int[] indexColumna) {
         for (int i = 0; i < indexColumna.length; i++) {
-            tblTabla.getColumnModel().getColumn(indexColumna[i]).setCellEditor(new Celda_CheckBox());
+            //tblTabla.getColumnModel().getColumn(indexColumna[i]).setCellEditor(new Celda_CheckBox());
             tblTabla.getColumnModel().getColumn(indexColumna[i]).setCellRenderer(new Render_CheckBox());
         }
 

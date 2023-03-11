@@ -96,6 +96,11 @@
             <artifactId>RojeruSan.lib2</artifactId>
             <version>1</version>
         </dependency>
+        <dependency>
+            <groupId>sur.softsurena</groupId>
+            <artifactId>RojeruSan.full_9.6</artifactId>
+            <version>1</version>
+        </dependency>
     </dependencies>
     <name>entidades</name>
     <description>En este proyecto guardo todas las entidades de mis programas.</description>

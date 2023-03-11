@@ -12,9 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import org.firebirdsql.jdbc.FBBlob;
 import static sur.softsurena.conexion.Conexion.getCnn;
-import sur.softsurena.utilidades.Utilidades;
 
 @SuperBuilder
 @Getter
