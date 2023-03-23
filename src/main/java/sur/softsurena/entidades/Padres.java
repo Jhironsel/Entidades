@@ -57,8 +57,8 @@ public class Padres extends Personas {
             ps.setString(2, p.getAsegurado().getNo_nss());
             ps.setInt(3, p.getGenerales().getId_tipo_sangre());
             ps.setString(4, p.getGenerales().getCedula());
-            ps.setString(5, p.getPNombre());
-            ps.setString(6, p.getSNombre());
+            ps.setString(5, p.getPnombre());
+            ps.setString(6, p.getSnombre());
             ps.setString(7, p.getApellidos());
             ps.setString(8, "" + p.getSexo());
             ps.setDate(9, p.getFecha_nacimiento());
@@ -103,8 +103,8 @@ public class Padres extends Personas {
             ps.setString(3, p.getAsegurado().getNo_nss());
             ps.setInt(4, p.getGenerales().getId_tipo_sangre());
             ps.setString(5, p.getGenerales().getCedula());
-            ps.setString(6, p.getPNombre());
-            ps.setString(7, p.getSNombre());
+            ps.setString(6, p.getPnombre());
+            ps.setString(7, p.getSnombre());
             ps.setString(8, p.getApellidos());
             ps.setString(9, "" + p.getSexo());
             ps.setDate(10, p.getFecha_nacimiento());

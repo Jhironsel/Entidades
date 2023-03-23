@@ -235,8 +235,8 @@ public class Usuarios extends Personas {
                 rs.next();
                 return Usuarios.builder().
                         user_name(rs.getString("O_USER_NAME")).
-                        pNombre(rs.getString("O_PRIMER_NOMBRE")).
-                        sNombre(rs.getString("O_SEGUNDO_NOMBRE")).
+                        pnombre(rs.getString("O_PRIMER_NOMBRE")).
+                        snombre(rs.getString("O_SEGUNDO_NOMBRE")).
                         apellidos(rs.getString("O_APELLIDOS")).
                         estado(rs.getBoolean("O_ESTADO_ACTIVO")).
                         administrador(rs.getBoolean("O_ADMINISTRADOR")).
@@ -332,8 +332,8 @@ public class Usuarios extends Personas {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     u = Usuarios.builder().
-                            pNombre((rs.getString("PNOMBRE") == null ? "" : rs.getString("PNOMBRE"))).
-                            sNombre((rs.getString("SNOMBRE") == null ? "" : rs.getString("SNOMBRE"))).
+                            pnombre((rs.getString("PNOMBRE") == null ? "" : rs.getString("PNOMBRE"))).
+                            snombre((rs.getString("SNOMBRE") == null ? "" : rs.getString("SNOMBRE"))).
                             apellidos((rs.getString("APELLIDOS") == null ? "" : rs.getString("APELLIDOS"))).
                             administrador(rs.getBoolean("ADMINISTRADOR")).
                             estado(rs.getBoolean("ESTADO")).
@@ -427,8 +427,8 @@ public class Usuarios extends Personas {
         try (CallableStatement cs = getCnn().prepareCall(sql)) {
             cs.setString(1, u.getUser_name());
             cs.setString(2, u.getClave());
-            cs.setString(3, u.getPNombre());
-            cs.setString(4, u.getSNombre());
+            cs.setString(3, u.getPnombre());
+            cs.setString(4, u.getSnombre());
             cs.setString(5, u.getApellidos());
             cs.setBoolean(6, u.getEstado());
             cs.setBoolean(7, u.getAdministrador());

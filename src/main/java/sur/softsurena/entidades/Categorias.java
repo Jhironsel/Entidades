@@ -1,6 +1,7 @@
 package sur.softsurena.entidades;
 
 import java.io.File;
+import java.sql.CallableStatement;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JComboBox;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
@@ -21,7 +20,7 @@ import sur.softsurena.utilidades.Utilidades;
 public class Categorias implements Comparable {
 
     private static final Logger LOG = Logger.getLogger(Categorias.class.getName());
-    
+
     private static final String CATEGORIA_AGREGADA_CON_EXITO = "Categoria agregada con exito.";
     private static final String CATEGORIA__BORRADO__CORRECTAMENTE = "Categoria Borrado Correctamente.";
     private static final String ERROR_AL_INSERTAR_CATEGORIA = "Error al insertar categoria.";
@@ -57,30 +56,26 @@ public class Categorias implements Comparable {
      */
     public synchronized static Resultados agregarCategoria(Categorias c) {
         final String INSERT
-                = "SELECT p.V_ID "
-                + "FROM SP_INSERT_CATEGORIAS (?, ?, ?) p;";
+                = "EXECUTE PROCEDURE SP_INSERT_CATEGORIAS(?,?,?)";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(
+        try (CallableStatement cs = getCnn().prepareCall(
                 INSERT,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_UPDATABLE,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            ps.setString(1, c.getDescripcion());
-            ps.setString(2, Utilidades.imagenEncode64(c.getPathImage()));
-            ps.setBoolean(3, c.getEstado());
+            
+            cs.setString(1, c.getDescripcion());
+            cs.setString(2, Utilidades.imagenEncode64(c.getPathImage()));
+            cs.setBoolean(3, c.getEstado());
+            
+            int cantidad = cs.executeUpdate();
+            
+            return Resultados.builder().
+                    id(-1).
+                    mensaje(CATEGORIA_AGREGADA_CON_EXITO).
+                    cantidad(cantidad).
+                    build();
 
-            try (ResultSet resultSet = ps.executeQuery();) {
-                resultSet.next();
-                return Resultados.builder().
-                        id(resultSet.getInt(1)).
-                        mensaje(CATEGORIA_AGREGADA_CON_EXITO).cantidad(-1).build();
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return Resultados.builder().
-                        id(-1).
-                        mensaje(ERROR_AL_INSERTAR_CATEGORIA).
-                        cantidad(-1).build();
-            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return Resultados.builder().
@@ -89,8 +84,6 @@ public class Categorias implements Comparable {
                     cantidad(-1).build();
         }
     }
-    
-    
 
     /**
      * Este metodo es utilizado para modificar las categorias de los productos.
@@ -167,7 +160,6 @@ public class Categorias implements Comparable {
                     build();
         }
     }
-    
 
     /**
      * Metodo utilizado para llenar los comboBox de las categorias de productos

@@ -71,8 +71,8 @@ public class PacienteIT {
 
         Paciente pInsertar = Paciente.builder().
                 idPadre(0).idMadre(0).asegurado(a).generales(g).
-                pNombre("Ciliosther").sNombre("").apellidos("Diaz Liriano").
-                sexo('F').
+                pnombre("Ciliosther").snombre("").apellidos("Diaz Liriano").
+                sexo("F").
                 estado(Boolean.TRUE).
                 fecha_nacimiento(Utilidades.javaDateToSqlDate(new Date())).build();
 
@@ -93,8 +93,8 @@ public class PacienteIT {
         
         Paciente pUpdate = Paciente.builder().id_persona(idPaciente).
                 idPadre(0).idMadre(0).asegurado(a).generales(g).
-                pNombre("Michael").sNombre("").apellidos("Orozco").
-                sexo('M').
+                pnombre("Michael").snombre("").apellidos("Orozco").
+                sexo("M").
                 estado(Boolean.TRUE).
                 fecha_nacimiento(Utilidades.javaDateToSqlDate(new Date())).build();
 

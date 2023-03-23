@@ -37,8 +37,8 @@ public class Cajeros extends Usuarios{
                     cajerosList.add(Cajeros.builder().
                             user_name(rs.getString("USER_NAME")).
                             rol(rs.getString("ROL")).
-                            pNombre(rs.getString("PNOMBRE")).
-                            sNombre(rs.getString("SNOMBRE")).
+                            pnombre(rs.getString("PNOMBRE")).
+                            snombre(rs.getString("SNOMBRE")).
                             apellidos(rs.getString("APELLIDOS")).
                             estado(rs.getBoolean("ESTADO")).
                             descripcion(rs.getString("DESCRIPCION")).build());
@@ -73,8 +73,8 @@ public class Cajeros extends Usuarios{
                     cajerosList.add(Cajeros.builder().
                             user_name(rs.getString("USER_NAME")).
                             rol(rs.getString("ROL")).
-                            pNombre(rs.getString("PNOMBRE")).
-                            sNombre(rs.getString("SNOMBRE")).
+                            pnombre(rs.getString("PNOMBRE")).
+                            snombre(rs.getString("SNOMBRE")).
                             apellidos(rs.getString("APELLIDOS")).
                             estado(rs.getBoolean("ESTADO")).
                             descripcion(rs.getString("DESCRIPCION")).build());

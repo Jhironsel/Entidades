@@ -125,7 +125,6 @@ public class Conexion {
         } catch (SQLException ex) {
 
             if (ex.getMessage().contains("password")) {
-
 //                Platform.runLater(() -> {
 //                    Conexion.alerta = new Alert(Alert.AlertType.INFORMATION);
 //                    Conexion.alerta.setHeaderText(null);
@@ -133,7 +132,7 @@ public class Conexion {
 //                    Conexion.alerta.setContentText(USUARIO_NO_IDENTIFICADO);
 //                    Conexion.alerta.show();
 //                });
-                LOG.log(Level.INFO, USUARIO_NO_IDENTIFICADO, ex);
+                LOG.log(Level.INFO, USUARIO_NO_IDENTIFICADO);
                 return false;
             }
 
@@ -153,7 +152,6 @@ public class Conexion {
 //                });
 
                 LOG.log(Level.INFO, mensaje.toString(), ex);
-
                 return false;
             }
 

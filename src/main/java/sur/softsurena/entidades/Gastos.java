@@ -2,6 +2,7 @@ package sur.softsurena.entidades;
 
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +28,11 @@ public class Gastos {
         
         final String sql = "EXECUTE PROCEDURE CAJERO_GASTOS (?, ?, ?)";
         
-        try(CallableStatement cs = getCnn().prepareCall(sql)) {
+        try(CallableStatement cs = getCnn().prepareCall(
+                sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             
             cs.setInt(1, gasto.getId_turno());
             cs.setString(2, gasto.getDescripcion());

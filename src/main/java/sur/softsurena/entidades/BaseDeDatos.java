@@ -26,7 +26,7 @@ public class BaseDeDatos {
                 PATH_BASE_DATOS,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             try (ResultSet rs1 = ps1.executeQuery()) {
                 rs1.next();
@@ -58,7 +58,7 @@ public class BaseDeDatos {
                 METADATOS,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             return ps1.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -141,7 +141,12 @@ public class BaseDeDatos {
 
         final String sql = "EXECUTE PROCEDURE SYSTEM_SET_LICENCIA (?, ?, ?, ?)";
 
-        try (CallableStatement cs = getCnn().prepareCall(sql)) {
+        try (CallableStatement cs = getCnn().prepareCall(
+                sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             cs.setDate(1, fecha);
             cs.setString(2, idMaquina);
             cs.setString(3, clave1);

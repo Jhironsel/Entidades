@@ -222,12 +222,12 @@ public class Productos {
     public synchronized static String modificarProducto(int id, Productos p) {
         final String UPDATE
                 = "update V_PRODUCTOS set "
-                + "id_Categoria = ?, "
-                + "codigo = ?, "
-                + "descripcion = ?, "
-                + "imagen_texto = ?, "
-                + "nota = ?, "
-                + "estado = ? "
+                + "     id_Categoria = ?, "
+                + "     codigo = ?, "
+                + "     descripcion = ?, "
+                + "     imagen_texto = ?, "
+                + "     nota = ?, "
+                + "     estado = ? "
                 + "where id = ?; ";
         try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
 
@@ -284,7 +284,7 @@ public class Productos {
                 = "SELECT (1) "
                 + "FROM RDB$DATABASE "
                 + "WHERE EXISTS(SELECT (1) "
-                + "             FROM v_productos "
+                + "             FROM V_PRODUCTOS "
                 + "             WHERE codigo LIKE ? or "
                 + "                    descripcion LIKE ?);";
 

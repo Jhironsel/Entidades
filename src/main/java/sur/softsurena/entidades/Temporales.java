@@ -45,8 +45,8 @@ public class Temporales extends Personas {
                                     id(rs.getInt("ID_FACTURA")).
                                     id_persona(rs.getInt("ID_CLIENTE")).
                                     nombreTemporal(rs.getString("NOMBRE_TEMP")).
-                                    pNombre(rs.getString("PNOMBRE")).
-                                    sNombre(rs.getString("SNOMBRE")).
+                                    pnombre(rs.getString("PNOMBRE")).
+                                    snombre(rs.getString("SNOMBRE")).
                                     apellidos("APELLIDOS").
                                     headerFactura(HeaderFactura.builder().
                                             idTurno(rs.getInt("ID_TURNO")).

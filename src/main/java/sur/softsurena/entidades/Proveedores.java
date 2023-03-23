@@ -34,8 +34,8 @@ public class Proveedores extends Personas {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)){
 
             ps.setString(1, p.getCodigoProveedor());
-            ps.setString(2, p.getPNombre());
-            ps.setString(2, p.getSNombre());
+            ps.setString(2, p.getPnombre());
+            ps.setString(2, p.getSnombre());
             ps.setBoolean(4, p.getEstado());
 
             ps.executeUpdate();
@@ -65,8 +65,8 @@ public class Proveedores extends Personas {
             ps.setInt(1, p.getId_persona());
             ps.setString(2, p.getCodigoProveedor());
             ps.setString(3, p.getPersona()+"");
-            ps.setString(4, p.getPNombre());
-            ps.setString(5, p.getSNombre());
+            ps.setString(4, p.getPnombre());
+            ps.setString(5, p.getSnombre());
             ps.setString(6, p.getApellidos());
             ps.setString(7, p.getSexo()+"");
             ps.setDate(8, p.getFecha_nacimiento());

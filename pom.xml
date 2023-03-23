@@ -9,6 +9,12 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
+    <parent>
+        <groupId>sur.softsurena</groupId>
+        <artifactId>sistemasPom</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../../sistemasPom/pom.xml</relativePath>
+    </parent>
 <!--    <build>
         <plugins>
             <plugin>
@@ -22,53 +28,6 @@
         </plugins>
     </build>-->
     <dependencies>
-        <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports</artifactId>
-            <version>6.19.1</version>
-            <type>jar</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.firebirdsql.jdbc</groupId>
-            <artifactId>jaybird</artifactId>
-            <version>4.0.9.java11</version>
-            <type>jar</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.26</version>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.15</version>
-            <type>jar</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>1.5.3</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>6.8.1</version>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.toedter</groupId>
-            <artifactId>jcalendar</artifactId>
-            <version>1.4</version>
-            <type>jar</type>
-        </dependency>
 <!--        
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -79,12 +38,7 @@
         
         
         
-        <dependency>
-            <groupId>sur.softsurena</groupId>
-            <artifactId>imagenes</artifactId>
-            <version>2</version>
-            <type>jar</type>
-        </dependency>
+        
         
         <dependency>
             <groupId>sur.softsurena</groupId>
@@ -101,6 +55,7 @@
             <artifactId>RojeruSan.full_9.6</artifactId>
             <version>1</version>
         </dependency>
+        
     </dependencies>
     <name>entidades</name>
     <description>En este proyecto guardo todas las entidades de mis programas.</description>

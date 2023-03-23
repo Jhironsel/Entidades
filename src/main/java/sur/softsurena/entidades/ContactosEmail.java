@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.table.DefaultTableModel;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
@@ -18,12 +17,6 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 public class ContactosEmail {
 
     private static final Logger LOG = Logger.getLogger(ContactosEmail.class.getName());
-
-    /**
-     * Es una variable utilizada en el formulario de frmClientes, la cual define
-     * las columnas de la tabla de dicho modulo.
-     */
-    public static final String[] TITULOS_CORREO = {"Correo", "Fecha"};
 
     private final Integer id;
     private final int id_persona;

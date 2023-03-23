@@ -11,10 +11,10 @@ public abstract class Personas {
 
     private final int id_persona;
     private final char persona;
-    private final String pNombre;
-    private final String sNombre;
+    private final String pnombre;
+    private final String snombre;
     private final String apellidos;
-    private final char sexo;
+    private final String sexo;
     private final Date fecha_nacimiento;
     private final Date fecha_ingreso;
     private final Date fecha_hora_ultima_update;
@@ -34,9 +34,9 @@ public abstract class Personas {
     @Override
     public String toString() {
         StringBuilder nombre = new StringBuilder();
-        nombre.append(pNombre).
+        nombre.append(pnombre).
                 append(" ").
-                append((sNombre.isBlank() ? "" : sNombre)).
+                append((snombre.isBlank() ? "" : snombre)).
                 append(" ").
                 append(apellidos);
         return nombre.toString();

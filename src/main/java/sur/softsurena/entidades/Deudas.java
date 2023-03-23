@@ -64,8 +64,8 @@ public class Deudas extends Personas {
                         monto(rs.getBigDecimal("MONTO")).
                         fecha(rs.getDate("FECHA")).
                         hora(rs.getTime("HORA")).
-                        pNombre(rs.getString("P_NOMBRE")).
-                        sNombre(rs.getString("S_NOMBRE")).
+                        pnombre(rs.getString("P_NOMBRE")).
+                        snombre(rs.getString("S_NOMBRE")).
                         apellidos(rs.getString("APELLIDOS")).
                         generales(Generales.builder().cedula(rs.getString("CEDULA")).build()).build());
                 }

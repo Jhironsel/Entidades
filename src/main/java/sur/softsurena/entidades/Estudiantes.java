@@ -1,7 +1,6 @@
 package sur.softsurena.entidades;
 
 import java.sql.CallableStatement;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,8 +44,8 @@ public class Estudiantes extends Personas {
             cs.setString(2, e.getAsegurado().getNo_nss());
             cs.setInt(3, e.getGenerales().getId_tipo_sangre());
             cs.setString(4, e.getGenerales().getCedula());
-            cs.setString(5, e.getPNombre());
-            cs.setString(6, e.getSNombre());
+            cs.setString(5, e.getPnombre());
+            cs.setString(6, e.getSnombre());
             cs.setString(7, e.getApellidos());
             cs.setString(8, "" + e.getSexo());
             cs.setDate(9, e.getGenerales().getFecha_nacimiento());
@@ -124,8 +123,8 @@ public class Estudiantes extends Personas {
             ps.setInt(3, e.getIdMadre());
             ps.setInt(4, e.getIdTutor());
             ps.setInt(5, e.getJcb_parentesco());
-            ps.setString(6, e.getPNombre());
-            ps.setString(7, e.getSNombre());
+            ps.setString(6, e.getPnombre());
+            ps.setString(7, e.getSnombre());
             ps.setString(8, e.getApellidos());
             ps.setString(9, "" + e.getSexo());
             ps.setDate(10, e.getFecha_nacimiento());
