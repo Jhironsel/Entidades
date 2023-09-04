@@ -14,7 +14,6 @@ import javax.swing.JOptionPane;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
-import sur.softsurena.formularios.frmLogin;
 
 @SuperBuilder
 @Getter
@@ -67,14 +66,7 @@ public class Bingo {
     }
     
     public static void main(String[] args) {
-        frmLogin login = new frmLogin();
         
-        login.setLocationRelativeTo(null);
-        login.setVisible(true);
-        
-        if(Bingo.generarCarton(300)){
-            JOptionPane.showMessageDialog(null, "Trabajo realiado");
-        }
     }
     
     private static Boolean generarCarton(int cantidad){

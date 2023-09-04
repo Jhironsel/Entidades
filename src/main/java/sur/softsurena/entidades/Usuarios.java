@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
@@ -25,15 +26,14 @@ public class Usuarios extends Personas {
     */
 
     private static final Logger LOG = Logger.getLogger(Usuarios.class.getName());
-
-    /**
-     * Query que me trae todas las tags de un usuario en especifico.
-     */
-    
+    private static final String USUARIO_BORRADO_CORRECTAMENTE = "Usuario borrado correctamente.";
+    private static final String ERROR_AL_BORRAR_USUARIO = "Error al borrar usuario.";
 
     private final String clave;
     private final String descripcion;
     private final Boolean administrador;
+    private final List<Roles> roles;
+    private final List<Etiquetas> etiquetas;
 
     /**
      * Metodo que permite el cambio de contraseña de un usuario en el sistema.
@@ -51,7 +51,7 @@ public class Usuarios extends Personas {
         final String CAMBIAR_CLAVE
                 = "ALTER USER CURRENT_USER PASSWORD ?";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(CAMBIAR_CLAVE);) {
+        try (PreparedStatement ps = getCnn().prepareStatement(CAMBIAR_CLAVE)) {
             ps.setString(1, clave);
 
             return ps.execute();
@@ -93,58 +93,57 @@ public class Usuarios extends Personas {
      * Metodo revisado 24 abril 2022.
      *
      * @param loginName
-     * @param estado
      * @return
      */
-    public synchronized static String borrarUsuario(String loginName,
-            boolean estado) {
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                "ALTER USER ? SET " + (estado ? "ACTIVE" : "INACTIVE"));) {
+    public synchronized static String borrarUsuario(String loginName) {
+        
+        final String sql = "EXECUTE PROCEDURE SP_DELETE_USUARIO (?);";
+        
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setString(1, loginName);
             ps.executeUpdate();
-            return "Usuario " + (estado ? "Activado" : "borrado")
-                    + " correctamente";
+            return USUARIO_BORRADO_CORRECTAMENTE;
         } catch (SQLException ex) {
-            //Instalar Logger
-            return "Error al borrar usuario...";
+            LOG.log(Level.SEVERE, ERROR_AL_BORRAR_USUARIO, ex);
+            if(ex.getMessage().contains("E_CAJERO_TURNO_ACTIVO")){
+                JOptionPane.showMessageDialog(
+                        null, 
+                        "Cajero cuenta con un turno activo.", 
+                        "Error...", 
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+            return ERROR_AL_BORRAR_USUARIO;
         }
     }
-
+    
     /**
-     * Deberia de crearse un store procedure que permita eliminar Usuarios, ya
-     * que debemos conservar los registros de los usuarios que hayan hechos
-     * cambios en la base de datos.
+     * Este metodo debe ser investigado pues no fue documentado.
      *
      * @param idUsuario
-     *
-     * @param rol
-     *
-     * @return Retorna un mensaje que indica si la accion fue realizada
-     * correctamente.
+     * @return
      */
-    public synchronized static String borrarUsuario(String idUsuario, String rol) {
-        final String DELETE_ROL
-                = "REVOKE ? FROM ? GRANTED BY ?";
+    public synchronized static String getCreadorUsuario(String idUsuario) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                "SELECT creador "
+                + "FROM get_creador "
+                + "WHERE TRIM(usuario) like ?;")) {
 
-        try (PreparedStatement ps = getCnn().prepareStatement(DELETE_ROL);) {
-            ps.setString(1, rol);
-            ps.setString(2, idUsuario);
-            ps.setString(3, getCreadorUsuario(idUsuario));
+            ps.setString(1, idUsuario);
 
-            ps.executeUpdate();
-
-            try (PreparedStatement ps2 = getCnn().prepareStatement("DROP USER ?");) {
-                ps2.setString(1, idUsuario);
-                ps2.executeUpdate();
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("creador");
+                } else {
+                    return null;
+                }
             } catch (SQLException ex) {
-                //Instalar Logger
-                return "Ocurrio un error al intentar borrar el Usuario.";
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
             }
-
-            return "Usuario borrado correctamente";
         } catch (SQLException ex) {
-            //Instalar Logger
-            return "Ocurrio un error al intentar borrar el Usuario.";
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
         }
     }
 
@@ -174,7 +173,8 @@ public class Usuarios extends Personas {
      */
     public synchronized static Usuarios getUsuarioActual() {
         final String sql
-                = "SELECT TRIM(CURRENT_USER) AS USUARIO, TRIM(CURRENT_ROLE) AS ROLE FROM RDB$DATABASE";
+                = "SELECT TRIM(CURRENT_USER) USUARIO, TRIM(CURRENT_ROLE) ROLE "
+                + "FROM RDB$DATABASE";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -252,56 +252,6 @@ public class Usuarios extends Personas {
     }
 
     /**
-     *
-     * @param estado
-     * @return
-     */
-//    public synchronized static ResultSet getUsuario(boolean estado) {
-//        try ( PreparedStatement ps = getCnn().prepareStatement(
-//                Usuarios.GET_SELECT_USUARIOS,
-//                ResultSet.TYPE_SCROLL_INSENSITIVE,
-//                ResultSet.CONCUR_READ_ONLY,
-//                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-//            ps.setBoolean(1, estado);
-//            return ps.executeQuery();
-//        } catch (SQLException ex) {
-//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-//            return null;
-//        }
-//    }
-    /**
-     *
-     * @return
-     */
-//    public synchronized static ResultSet getUsuarioDoctor() {
-//        try ( PreparedStatement ps = getCnn().prepareStatement(Usuarios.GET_SELECT_DOCTORES,
-//                ResultSet.TYPE_SCROLL_INSENSITIVE,
-//                ResultSet.CONCUR_READ_ONLY,
-//                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-//
-//            return ps.executeQuery();
-//
-//        } catch (SQLException ex) {
-//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-//            return null;
-//        }
-//    }
-    /**
-     * Se está utilizando para llenar los comboBox de los usuarios activos.
-     *
-     * @return
-     */
-    public synchronized static ResultSet getUsuariosActivo() {
-
-        try (PreparedStatement ps = getCnn().prepareStatement("")) {
-            return ps.executeQuery();
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
-
-    /**
      * Se esta utilizando para llenar la tabla de usuarios.
      *
      * Este Query es utilizado para obtener Inf. de los usuarios del sistema.
@@ -352,68 +302,7 @@ public class Usuarios extends Personas {
         }
     }
 
-    /**
-     *
-     * @param idUsuario
-     * @return
-     */
-//    public synchronized static boolean delega(String idUsuario) {
-//        try ( PreparedStatement ps = getCnn().prepareStatement(DELEGA)) {
-//            ps.setString(1, idUsuario);
-//            try ( ResultSet rs = ps.executeQuery()) {
-//                return rs.next();
-//            } catch (SQLException ex) {
-//                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-//                return false;
-//            }
-//        } catch (SQLException ex) {
-//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-//            return false;
-//        }
-//    }
     
-    /**
-     * Metodo utilizado para consultar a la base de datos, los roles creado y
-     * aquienes fueron asignados esos roles.
-     *
-     * Metodo Actualizado el 18/05/2022.
-     *
-     * @param userName Identificador del usuario en el sistema.
-     *
-     * @return Devuelve una lista array de los roles por usuario del sistema.
-     */
-    public synchronized static ArrayList<String> comprobandoRol(String userName) {
-        ArrayList<String> roles = new ArrayList<>();
-
-        final String SELECT_ROLES_USUARIOS
-                = "SELECT ROL FROM GET_ROL WHERE USER_NAME LIKE ?";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                SELECT_ROLES_USUARIOS,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            ps.setString(1, userName.trim().toUpperCase());
-            try (ResultSet rs = ps.executeQuery()) {
-                String aux;
-                while (rs.next()) {
-                    aux = rs.getString("ROL");
-                    if (aux.equalsIgnoreCase("RDB$ADMIN")) {
-                        aux = "ADMINISTRADOR";
-                    }
-                    roles.add(aux);
-                }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
-            return roles;
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
-
     /**
      * Metodo utilizado para modificar los usuarios del sistema con el rol
      * doctor, el cual permite agregar al registro su Exequatur y Especialidad.
@@ -423,8 +312,21 @@ public class Usuarios extends Personas {
      * @param u Un objeto de la case Usuario.
      * @return Devuelve un mensaje que indica si la actualizacion fue exitosa.
      */
-    public static synchronized String agregarModificarUsuario(Usuarios u, String sql) {
-        try (CallableStatement cs = getCnn().prepareCall(sql)) {
+    public static synchronized String agregarModificarUsuario(Usuarios u, boolean sql) {
+        /**
+         * Query que permite agregar usuarios al sistema.
+         */
+        final String INSERT
+                = "EXECUTE PROCEDURE SP_INSERT_USUARIO(?,?,?,?,?,?,?,?)";
+
+        /**
+         * Procedimiento que se encarga de actualizar a los usuarios del
+         * sistema.
+         */
+        final String UPDATE
+                = "EXECUTE PROCEDURE SP_UPDATE_USUARIO(?,?,?,?,?,?,?,?)";
+        
+        try (CallableStatement cs = getCnn().prepareCall(sql ? INSERT: UPDATE)) {
             cs.setString(1, u.getUser_name());
             cs.setString(2, u.getClave());
             cs.setString(3, u.getPnombre());
@@ -440,36 +342,6 @@ public class Usuarios extends Personas {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al Modificar Usuario...";
-        }
-    }
-
-    /**
-     * Este metodo debe ser investigado pues no fue documentado.
-     *
-     * @param idUsuario
-     * @return
-     */
-    public synchronized static String getCreadorUsuario(String idUsuario) {
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                "SELECT creador "
-                + "FROM get_creador "
-                + "WHERE TRIM(usuario) like ?;")) {
-
-            ps.setString(1, idUsuario);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("creador");
-                } else {
-                    return null;
-                }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
         }
     }
 
@@ -493,7 +365,7 @@ public class Usuarios extends Personas {
         final String EXISTE_USUARIO_BY_USER_NAME
                 = "SELECT DISTINCT(1) "
                 + "FROM SP_SELECT_USUARIOS_TAGS ('all') p "
-                + "WHERE TRIM(p.O_USER_NAME) LIKE TRIM(UPPER(?))";
+                + "WHERE TRIM(p.O_USER_NAME) STARTING WITH TRIM(UPPER(?))";
         try (PreparedStatement ps = getCnn().prepareStatement(EXISTE_USUARIO_BY_USER_NAME)) {
             ps.setString(1, userName);
             try (ResultSet rs = ps.executeQuery()) {

@@ -2,14 +2,11 @@ package sur.softsurena.entidades;
 
 import java.sql.SQLException;
 import java.util.Date;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.testng.Assert.assertEquals;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
-import sur.softsurena.entidades.*;
 import sur.softsurena.utilidades.Utilidades;
 
 /**
@@ -24,33 +21,21 @@ public class PacienteIT {
 
     @BeforeClass
     public static void setUpClass() {
-        System.out.println("setUpClass()");
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-        System.out.println("tearDownClass()");
-    }
-
-    @Before
-    public void setUp() {
-        System.out.println("setUp()");
         final String user = "jhironsel";
         final String clave = "123uasd";
-        final String role = "RDB$ADMIN";
         final String pathBaseDatos = "/home/jhironsel/BaseDatos/BaseDeDatos3.fdb";
         final String dominio = "localhost";
         final String puerto = "3050";
-        Conexion.getInstance(user, clave, role, pathBaseDatos, dominio, puerto)
+        Conexion.getInstance(user, clave, pathBaseDatos, dominio, puerto)
                 .verificar();
     }
 
-    @After
-    public void tearDown() throws SQLException {
-        System.out.println("tearDown()");
+    @AfterClass
+    public static void tearDownClass() throws SQLException {
         Conexion.getCnn().close();
         Conexion.setCnn(null);
     }
+
     
 
     /**

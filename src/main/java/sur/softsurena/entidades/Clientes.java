@@ -41,18 +41,6 @@ public class Clientes extends Personas {
     private final String masculino;
     private final String femenino;
 
-    public String getMasculino() {
-        System.out.println("Masculina: " + masculino);
-        System.out.println("Sexo masculino: " + super.getSexo());
-        return super.getSexo().equals("Masculino") ? "checked" : "";
-    }
-
-    public String getFemenino() {
-        System.out.println("Femenino: " + femenino);
-        System.out.println("Sexo femenino: " + super.getSexo());
-        return super.getSexo().equals("Femenino") ? "checked" : "";
-    }
-
     /**
      * Metodos utilizado para agregar los clientes en el sistema, el cual es
      * utilizado para agregar los contactos de este.
@@ -64,8 +52,8 @@ public class Clientes extends Personas {
      * objecto puede mostrar el identificador del cliente, el mensaje de la
      * operacion y la cantidad de registros afectados.
      */
-    public synchronized static Resultados agregarCliente(Clientes c) {
-        Resultados r;
+    public synchronized static Resultados<Object> agregarCliente(Clientes c) {
+        Resultados<Object> r;
 
         final String INSERT
                 = "SELECT V_ID FROM SP_INSERT_CLIENTE_SB (?, ?, ?, ?, ?, ?, ?, ?, ?);";
@@ -83,9 +71,9 @@ public class Clientes extends Personas {
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
 
-                int id = rs.getInt(1);
+                int id_persona = rs.getInt(1);
 
-                if (!agregarContactosTel(id, c.getContactosTel())) {
+                if (!agregarContactosTel(id_persona, c.getContactosTel())) {
                     r = Resultados.builder().
                             id(-1).
                             mensaje("Error al agregar contactos telefonico del cliente.").
@@ -93,7 +81,7 @@ public class Clientes extends Personas {
                     return r;
                 }
 
-                if (!agregarContactosEmail(id, c.getContactosEmail())) {
+                if (!agregarContactosEmail(id_persona, c.getContactosEmail())) {
                     r = Resultados.builder().
                             id(-1).
                             mensaje("Error al agregar contactos correos electronicos del cliente.").
@@ -101,7 +89,7 @@ public class Clientes extends Personas {
                     return r;
                 }
 
-                if (!agregarDirecciones(id, c.getDireccion())) {
+                if (!agregarDirecciones(id_persona, c.getDirecciones())) {
                     r = Resultados.builder().
                             id(-1).
                             mensaje("Error al agregar direcciones del cliente").
@@ -110,9 +98,10 @@ public class Clientes extends Personas {
                 }
 
                 r = Resultados.builder().
-                        id(-1).
+                        id(id_persona).
                         mensaje(CLIENTE__AGREGADO__CORRECTAMENTE).
-                        cantidad(-1).build();
+                        cantidad(-1).
+                        build();
 
                 return r;
             } catch (SQLException ex) {
@@ -134,6 +123,11 @@ public class Clientes extends Personas {
         }
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     */
     public static boolean agregarClienteById(int id) {
         final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_PERSONA_CLIENTES_ID(?)";
@@ -151,58 +145,29 @@ public class Clientes extends Personas {
     }
 
     /**
-     * Metodo que permite modificar a los clientes del sistema de facturacion.
+     * Este metodo es utilizado en una aplicacion web llamado Control de
+     * Clientes.
      *
-     * @param cliente Este objeto se almacenan los numeros de contactos
-     * telefonicos.
-     *
-     * @return retorna un objecto de la clase resultado los cuales se envian lo
-     * que es el mensaje, id y la cantidad de registro afetados.
+     * @return
      */
-    public synchronized static Resultados modificarCliente(Clientes cliente) {
-        final String UPDATE
-                = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE_SB(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-        try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
-            //Atributos del cliente
-            ps.setInt(1, cliente.getId_persona());
-            ps.setString(2, String.valueOf(cliente.getPersona()));
-            ps.setString(3, cliente.getGenerales().getCedula());
-            ps.setString(4, cliente.getPnombre());
-            ps.setString(5, cliente.getSnombre());
-            ps.setString(6, cliente.getApellidos());
-            ps.setString(7, String.valueOf(cliente.getSexo()));
-            ps.setDate(8, cliente.getFecha_nacimiento());
-            ps.setBoolean(9, cliente.getEstado());
-            ps.setString(10, String.valueOf(cliente.getGenerales().getEstado_civil()));
-
-            cliente.getDireccion().stream().forEach(clienteList -> {
-
-            });
-
-            cliente.getContactosEmail().stream().forEach(correoList -> {
-
-            });
-
-            cliente.getContactosTel().stream().forEach(telefonoList -> {
-
-            });
-
-            //Cantidad de registros afectados.
-            int cant = ps.executeUpdate();
-
-            return Resultados.
-                    builder().
-                    id(cliente.getId_persona()).
-                    mensaje(CLIENTE__MODIFICADO__CORRECTAMENTE).
-                    cantidad(cant).
-                    build();
+    public static boolean agregarClienteCC(Clientes cliente) {
+        final String sql
+                = "EXECUTE PROCEDURE SP_INSERT_CLIENTE_CC(?,?,?,?,?,?)";
+        try (CallableStatement cs = getCnn().prepareCall(
+                sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+            cs.setString(1, cliente.getPnombre());
+            cs.setString(2, cliente.getSnombre());
+            cs.setString(3, cliente.getApellidos());
+            cs.setString(4, cliente.getSexo());
+            cs.setString(5, cliente.getCorreo());
+            cs.setBigDecimal(6, cliente.getSaldo());
+            return cs.execute();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados.builder().
-                    id(-1).
-                    mensaje(ERROR_AL__MODIFICAR__CLIENTE).
-                    cantidad(-1).
-                    build();
+            LOG.log(Level.SEVERE, "Error al insertar id del clliente.", ex);
+            return false;
         }
     }
 
@@ -235,6 +200,62 @@ public class Clientes extends Personas {
                     id(-1).
                     mensaje(CLIENTE_NO_PUEDE_SER_BORRADO).
                     cantidad(-1).build();
+        }
+    }
+
+    /**
+     * Metodo que permite modificar a los clientes del sistema de facturacion.
+     *
+     * @param cliente Este objeto se almacenan los numeros de contactos
+     * telefonicos.
+     *
+     * @return retorna un objecto de la clase resultado los cuales se envian lo
+     * que es el mensaje, id y la cantidad de registro afetados.
+     */
+    public synchronized static Resultados<Object> modificarCliente(Clientes cliente) {
+        final String UPDATE
+                = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE_SB(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
+            //Atributos del cliente
+            ps.setInt(1, cliente.getId_persona());
+            ps.setString(2, String.valueOf(cliente.getPersona()));
+            ps.setString(3, cliente.getGenerales().getCedula());
+            ps.setString(4, cliente.getPnombre());
+            ps.setString(5, cliente.getSnombre());
+            ps.setString(6, cliente.getApellidos());
+            ps.setString(7, String.valueOf(cliente.getSexo()));
+            ps.setDate(8, cliente.getFecha_nacimiento());
+            ps.setBoolean(9, cliente.getEstado());
+            ps.setString(10, String.valueOf(cliente.getGenerales().getEstado_civil()));
+
+            cliente.getDirecciones().stream().forEach(clienteList -> {
+                
+            });
+
+            cliente.getContactosEmail().stream().forEach(correoList -> {
+
+            });
+
+            cliente.getContactosTel().stream().forEach(telefonoList -> {
+
+            });
+
+            //Cantidad de registros afectados.
+            int cant = ps.executeUpdate();
+
+            return Resultados.
+                    builder().
+                    id(cliente.getId_persona()).
+                    mensaje(CLIENTE__MODIFICADO__CORRECTAMENTE).
+                    cantidad(cant).
+                    build();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return Resultados.builder().
+                    id(-1).
+                    mensaje(ERROR_AL__MODIFICAR__CLIENTE).
+                    cantidad(-1).
+                    build();
         }
     }
 
@@ -342,7 +363,7 @@ public class Clientes extends Personas {
         final String sql
                 = "SELECT ID, CEDULA, PERSONA, PNOMBRE, SNOMBRE, APELLIDOS, "
                 + "     SEXO, FECHA_NACIMIENTO, FECHA_INGRESO, ESTADO "
-                + "FROM GET_CLIENTES_SB; ";
+                + "FROM SP_SELECT_GET_CLIENTES_SB;";
         List<Clientes> clienteList = new ArrayList<>();
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -354,20 +375,20 @@ public class Clientes extends Personas {
                     clienteList.add(
                             Clientes.
                                     builder().
-                                    id_persona(rs.getInt("id")).
-                                    persona(rs.getString("persona").charAt(0)).
+                                    id_persona(rs.getInt("ID")).
+                                    persona(rs.getString("PERSONA").charAt(0)).
                                     generales(Generales.
                                             builder().
-                                            cedula(rs.getString("cedula")).
+                                            cedula(rs.getString("CEDULA")).
                                             build()
                                     ).
-                                    pnombre(rs.getString("pnombre")).
-                                    snombre(rs.getString("snombre")).
-                                    apellidos(rs.getString("apellidos")).
-                                    sexo(rs.getString("sexo")).
-                                    fecha_ingreso(rs.getDate("fecha_nacimiento")).
-                                    fecha_ingreso(rs.getDate("fecha_Ingreso")).
-                                    estado(rs.getBoolean("Estado")).
+                                    pnombre(rs.getString("PNOMBRE")).
+                                    snombre(rs.getString("SNOMBRE")).
+                                    apellidos(rs.getString("APELLIDOS")).
+                                    sexo(rs.getString("SEXO")).
+                                    fecha_ingreso(rs.getDate("FECHA_NACIMIENTO")).
+                                    fecha_ingreso(rs.getDate("FECHA_INGRESO")).
+                                    estado(rs.getBoolean("ESTADO")).
                                     build()
                     );
                 }
@@ -551,31 +572,6 @@ public class Clientes extends Personas {
      *
      * @return
      */
-    public static boolean agregarClienteCC(Clientes cliente) {
-        final String sql
-                = "EXECUTE PROCEDURE SP_INSERT_CLIENTE_CC(?,?,?,?,?,?)";
-        try (CallableStatement cs = getCnn().prepareCall(
-                sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            cs.setString(1, cliente.getPnombre());
-            cs.setString(2, cliente.getSnombre());
-            cs.setString(3, cliente.getApellidos());
-            cs.setString(4, cliente.getSexo());
-            cs.setString(5, cliente.getCorreo());
-            cs.setBigDecimal(6, cliente.getSaldo());
-            return cs.execute();
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, "Error al insertar id del clliente.", ex);
-            return false;
-        }
-    }
-
-    /**
-     *
-     * @return
-     */
     public static boolean modificarClienteCC(Clientes cliente) {
         final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE_CC(?,?,?,?,?,?,?)";
@@ -597,7 +593,12 @@ public class Clientes extends Personas {
             return false;
         }
     }
-    
+
+    /**
+     *
+     * @param idCliente
+     * @return
+     */
     public static boolean eliminarClienteCC(int idCliente) {
         final String sql
                 = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_CC (?)";

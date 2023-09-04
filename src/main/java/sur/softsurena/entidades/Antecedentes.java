@@ -26,14 +26,16 @@ public class Antecedentes extends Personas {
 
     public synchronized static String borrarAntecedente(int idAntecedente) {
         final String DELETE
-            = "DELETE FROM V_ANTECEDENTES WHERE ID = ?";
+            = "EXECUTE PROCEDURE SP_DELETE_ANTECEDENTE (?);";
         
         try (PreparedStatement ps = getCnn().prepareStatement(
                 DELETE,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_UPDATABLE,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+            
             ps.setInt(1, idAntecedente);
+            
             ps.executeUpdate();
             return "Borrado o inactivo correctamente";
         } catch (SQLException ex) {
@@ -60,7 +62,7 @@ public class Antecedentes extends Personas {
      */
     public synchronized static String agregarAntecedente(int id, String antecedente) {
         final String INSERT
-            = "INSERT INTO V_ANTECEDENTES (ID_CONSULTA, DESCRIPCION) VALUES (?, ?)";
+            = "EXECUTE PROCEDURE SP_INSERT_ANTECEDENTE(?,?)";
         
         try (PreparedStatement ps = getCnn().prepareStatement(
                 INSERT,
@@ -91,12 +93,12 @@ public class Antecedentes extends Personas {
             String descrpcion) {
         
         final String UPDATE
-            = "UPDATE V_ANTECEDENTES SET DESCRIPCION = ? WHERE ID = ?";
+            = "EXECUTE PROCEDURE SP_UPDATE_ANTECEDENTE (?, ?);";
         
         try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
 
-            ps.setString(1, descrpcion);
-            ps.setInt(2, idAntecedente);
+            ps.setInt(1, idAntecedente);
+            ps.setString(2, descrpcion);
 
             ps.executeUpdate();
 
@@ -115,7 +117,7 @@ public class Antecedentes extends Personas {
     public synchronized static ResultSet getAntecedentes(int idPadre) {
         final String sql = "SELECT IDANTECEDENTE, DESCRIPCION "
                 + "FROM V_ANTECEDENTES "
-                + "WHERE IDPACIENTE = ?";
+                + "WHERE IDPACIENTE = ?;";
 
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,

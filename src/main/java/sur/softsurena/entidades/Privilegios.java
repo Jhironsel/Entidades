@@ -3,8 +3,6 @@ package sur.softsurena.entidades;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
@@ -66,43 +64,6 @@ public class Privilegios {
      */
     public static char PRIVILEGIO_REFERENCE = 'R';
 
-    /**
-     * Es el metodo que nos devuelve los Roles del sistema, los cuales son asig-
-     * nados a los usuarios.
-     *
-     * @return
-     */
-    public synchronized static List<Roles> getRoles() {
-        final String GET_ROLES
-                = "SELECT ROL, PROPIETARIO, DESCRIPCION FROM GET_ROLES";
-        
-        List<Roles> rolesList = new ArrayList<>();
-        
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                GET_ROLES,
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
-            try (ResultSet rs = ps.executeQuery();) {
-                while (rs.next()) {
-                    rolesList.add(Roles.builder().
-                            roleName(rs.getString("Rol")).
-                            descripcion(rs.getString("Descripcion")).
-                            propietario(rs.getString("PROPIETARIO")).build());
-                }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
-            
-            return rolesList;
-            
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
 
     /**
      *
@@ -113,8 +74,10 @@ public class Privilegios {
         final String PERMISO_UPDATE_TABLA
             = "SELECT (1) "
             + "FROM GET_PRIVILEGIOS "
-            + "WHERE (TRIM(USER_NAME) LIKE TRIM(CURRENT_USER) OR "
-            + "      TRIM(USER_NAME) LIKE TRIM(CURRENT_ROLE)) AND "
+            + "WHERE ("
+            + "      TRIM(USER_NAME) LIKE TRIM(CURRENT_USER) OR "
+            + "      TRIM(USER_NAME) LIKE TRIM(CURRENT_ROLE) OR "
+            + "      TRIM(USER_NAME) LIKE 'PUBLIC') AND "
             + "      TRIM(PRIVILEGIO) LIKE TRIM(?) AND "
             + "      TRIM(NOMBRE_RELACION) LIKE TRIM(?) ";
         

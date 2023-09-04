@@ -2,11 +2,9 @@ package sur.softsurena.entidades;
 
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,12 +13,11 @@ import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
+import static sur.softsurena.utilidades.Utilidades.LOGGER;
 
 @SuperBuilder
 @Getter
 public class Turnos {
-
-    private static final Logger LOG = Logger.getLogger(Turnos.class.getName());
 
     private final int id;
     private final String turno_usuario;
@@ -43,9 +40,9 @@ public class Turnos {
      */
     public synchronized static int idTurnoActivo(String userName) {
         final String sql
-                = "SELECT id "
-                + "FROM v_turnos "
-                + "WHERE TRIM(TURNO_USUARIO) STARTING WITH ? and estado";
+                = "SELECT ID "
+                + "FROM SP_SELECT_TURNOS "
+                + "WHERE ESTADO AND TRIM(TURNO_USUARIO) STARTING WITH ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
@@ -58,18 +55,20 @@ public class Turnos {
                     return 0;
                 }
             } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                 return -1;
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             return -1;
         }
     }
 
     public static List<Turnos> getTurnosActivos() {
-        final String sql = "SELECT ID, TURNO_USUARIO, FECHA_HORA_INICIO "
-                + "FROM V_TURNOS WHERE ESTADO";
+        final String sql = 
+                "SELECT ID, TURNO_USUARIO, FECHA_HORA_INICIO "
+                + "FROM SP_SELECT_TURNOS "
+                + "WHERE ESTADO";
         List<Turnos> turnosList = new ArrayList<>();
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             try (ResultSet rs = ps.executeQuery()) {
@@ -83,11 +82,11 @@ public class Turnos {
                 }
                 return turnosList;
             } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
@@ -97,8 +96,8 @@ public class Turnos {
                 = "SELECT ID, TURNO_USUARIO, FECHA_HORA_INICIO, FECHA_HORA_FINAL, "
                 + "     ESTADO, MONTO_FACTURADO, MONTO_DEVUELTO, MONTO_EFECTIVO,"
                 + "     MONTO_CREDITO "
-                + "FROM V_TURNOS "
-                + "WHERE TURNO_USUARIO STARTING WITH ? AND ESTADO IS FALSE";
+                + "FROM SP_SELECT_TURNOS "
+                + "WHERE ESTADO IS FALSE AND TURNO_USUARIO STARTING WITH ? ";
         List<Turnos> turnosList = new ArrayList<>();
         
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
@@ -117,11 +116,11 @@ public class Turnos {
                         monto_credito(rs.getBigDecimal("MONTO_CREDITO")).build());
                 }
             } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
         return turnosList;
@@ -140,10 +139,7 @@ public class Turnos {
      * si no cuenta con un turno abierto.
      */
     public synchronized static boolean usuarioTurnoActivo(String userName) {
-        if (idTurnoActivo(userName) > 0) {
-            return true;
-        }
-        return false;
+        return (idTurnoActivo(userName) > 0);
     }
 
     /**
@@ -159,7 +155,7 @@ public class Turnos {
 
             return cs.execute();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }
@@ -169,15 +165,15 @@ public class Turnos {
      * @param idUsuario
      * @return
      */
-    public synchronized static boolean cerrarTurno(String idUsuario) {
-        final String sql = "EXECUTE PROCEDURE Admin_CerrarTurno (?)";
+    public synchronized static boolean cerrarTurno(Integer idTurno) {
+        final String sql = "EXECUTE PROCEDURE ADMIN_CERRAR_TURNO(?)";
         try (CallableStatement cs = getCnn().prepareCall(sql)) {
 
-            cs.setString(1, idUsuario);
+            cs.setInt(1, idTurno);
 
             return cs.execute();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }

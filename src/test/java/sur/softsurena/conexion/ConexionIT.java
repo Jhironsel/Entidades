@@ -1,25 +1,22 @@
 package sur.softsurena.conexion;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import sur.softsurena.conexion.Conexion;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class ConexionIT {
     
     final String user = "jhironsel";
     final String clave = "123uasd";
-    final String role = "None";
     final String pathBaseDatos = "/home/jhironsel/BaseDatos/BaseDeDatos3.fdb";
     final String dominio = "localhost";
     final String puerto = "3050"; 
     final Conexion conexion;
     
     public ConexionIT() {
-        conexion = Conexion.getInstance(user, clave, role, pathBaseDatos, dominio, puerto);
+        conexion = Conexion.getInstance(user, clave, pathBaseDatos, dominio, puerto);
     }
     
     @BeforeClass
@@ -29,16 +26,7 @@ public class ConexionIT {
     @AfterClass
     public static void tearDownClass() {
     }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
-
-    
+        
     /**
      * Test of getInstance method, of class Conexion.
      */

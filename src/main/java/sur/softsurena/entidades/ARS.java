@@ -70,10 +70,9 @@ public class ARS {
      * @param idARS
      * @return
      */
-    public synchronized static Resultados borrarSeguro(int idARS) {
-
-        final String DELETE = "DELETE FROM V_ARS WHERE id = ?";
-        Resultados r;
+    public synchronized static Resultados<Object> borrarSeguro(int idARS) {
+        final String DELETE = "EXECUTE PROCEDURE SP_DELETE_ARS (?);";
+        Resultados<Object> r;
         try (PreparedStatement ps = getCnn().prepareStatement(
                 DELETE,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -88,7 +87,6 @@ public class ARS {
                     cantidad(cantidad).
                     id(-1).
                     mensaje(BORRADO_CORRECTAMENTE).build();
-            
             
             return r;
         } catch (SQLException ex) {
@@ -132,17 +130,13 @@ public class ARS {
      * @return
      */
     public synchronized static String modificarSeguro(ARS ars) {
-        String sql = "update V_ARS set "
-                + " DESCRIPCION = ? , "
-                + " COVERCONSULTAPORC = ?, "
-                + " ESTADO = ? "
-                + " where idArs = ? ;";
+        String sql = "EXECUTE PROCEDURE SP_UPDATE_ARS (?, ?, ?, ?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            ps.setString(1, ars.getDescripcion());
-            ps.setBigDecimal(2, ars.getCovertura());
-            ps.setBoolean(3, ars.getEstado());
-            ps.setInt(4, ars.getId());
+            ps.setInt(1, ars.getId());
+            ps.setString(2, ars.getDescripcion());
+            ps.setBigDecimal(3, ars.getCovertura());
+            ps.setBoolean(4, ars.getEstado());
 
             ps.executeUpdate();
             return "Seguro modificado correctamente";

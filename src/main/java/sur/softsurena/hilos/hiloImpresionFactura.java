@@ -3,12 +3,14 @@ package sur.softsurena.hilos;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.print.Doc;
 import javax.print.DocFlavor;
 import javax.print.PrintException;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import javax.print.SimpleDoc;
+import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import net.sf.jasperreports.engine.JRException;
@@ -18,8 +20,9 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.util.JRLoader;
 import static sur.softsurena.conexion.Conexion.getCnn;
-import sur.softsurena.formularios.frmPrintFacturaConReporte;
+import sur.softsurena.formularios.frmPrintFacturaConReporte2;
 import sur.softsurena.utilidades.Utilidades;
+import static sur.softsurena.utilidades.Utilidades.LOGGER;
 
 public class hiloImpresionFactura extends Thread {
 
@@ -83,20 +86,19 @@ public class hiloImpresionFactura extends Thread {
                 
                 jprImpresion.setValue(42);
                 jprImpresion.setString("42% Documento Creado");
-                fileReporte = System.getProperty("user.dir") + "/Reportes/reporteTemp.pdf";
                 
-                JasperExportManager.exportReportToPdfFile(jp, fileReporte);
+                JasperExportManager.exportReportToPdfFile(jp, "reportes/reporteTemp.pdf");
                 jprImpresion.setValue(58);
                 jprImpresion.setString("58% PDF Creado, Enviando...");         
                 
                 if (preVista) {
                     jprImpresion.setValue(70);
                     jprImpresion.setString("70% Extrayendo imagen");
-                    Utilidades.extractPrintImage(fileReporte.replace("pdf", "png"), jp);
+                    Utilidades.extractPrintImage("reportes/reporteTemp.png", jp);
                     
                     jprImpresion.setValue(77);
                     jprImpresion.setString("77% Image Creada");
-                    frmPrintFacturaConReporte miReport = new frmPrintFacturaConReporte(null, true);
+                    frmPrintFacturaConReporte2 miReport = new frmPrintFacturaConReporte2(null, true);
                     
                     jprImpresion.setValue(89);
                     jprImpresion.setString("89% Imagen cargada");
@@ -110,14 +112,14 @@ public class hiloImpresionFactura extends Thread {
                     jprImpresion.setValue(73);
                     jprImpresion.setString("73% Generando Documento");
                     
-                    FileInputStream in = new FileInputStream(fileReporte);
+                    FileInputStream in = new FileInputStream("reportes/reporteTemp.pdf");
                     Doc doc = new SimpleDoc(in, DocFlavor.INPUT_STREAM.PDF, null);
                     
                     jprImpresion.setValue(80);
                     jprImpresion.setString("80% Buscando Impres. Princ.");
                     
                     PrintService service = PrintServiceLookup.lookupDefaultPrintService();
-                    service.createPrintJob().print(doc, null);
+                    service.createPrintJob().print(doc, new HashPrintRequestAttributeSet());
                     
                     jprImpresion.setValue(88);
                     jprImpresion.setString("88% Enviando....");
@@ -125,7 +127,7 @@ public class hiloImpresionFactura extends Thread {
                     terminar();
                 }
             } catch (JRException | FileNotFoundException | PrintException ex) {
-                //Instalar Logger
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             }
             detenElHilo();
         }

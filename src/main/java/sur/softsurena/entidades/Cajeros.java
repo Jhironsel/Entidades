@@ -22,9 +22,8 @@ public class Cajeros extends Usuarios{
         List<Cajeros> cajerosList = new ArrayList<>();
 
         final String SELECT
-                = "SELECT USER_NAME, ROL, PNOMBRE, SNOMBRE, APELLIDOS, ESTADO,"
-                + "       DESCRIPCION "
-                + "FROM GET_CAJEROS";
+                = "SELECT USER_NAME, ROL, PNOMBRE, SNOMBRE, APELLIDOS, ESTADO, DESCRIPCION "
+                + "FROM SP_SELECT_GET_CAJEROS;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
@@ -54,13 +53,11 @@ public class Cajeros extends Usuarios{
         }
     }
     
-    public synchronized static List<Cajeros> getCajerosDisponible() {
+    public synchronized static List<Cajeros> getCajerosName() {
         List<Cajeros> cajerosList = new ArrayList<>();
 
         final String SELECT
-                = "SELECT USER_NAME, ROL, PNOMBRE, SNOMBRE, APELLIDOS, ESTADO,"
-                + "       DESCRIPCION "
-                + "FROM GET_CAJEROS_DISPONIBLES";
+                = "SELECT USER_NAME FROM GET_CAJEROS";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
@@ -72,12 +69,7 @@ public class Cajeros extends Usuarios{
                 while (rs.next()) {
                     cajerosList.add(Cajeros.builder().
                             user_name(rs.getString("USER_NAME")).
-                            rol(rs.getString("ROL")).
-                            pnombre(rs.getString("PNOMBRE")).
-                            snombre(rs.getString("SNOMBRE")).
-                            apellidos(rs.getString("APELLIDOS")).
-                            estado(rs.getBoolean("ESTADO")).
-                            descripcion(rs.getString("DESCRIPCION")).build());
+                            build());
                 }
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -89,5 +81,4 @@ public class Cajeros extends Usuarios{
             return null;
         }
     }
-
 }

@@ -13,11 +13,10 @@ public class Resultados <T>{
     private final Object objecto;
     private final Object[] objectos;
     private final List<T> lista;
+    private final Boolean estado;
     
     @Override
     public String toString() {
         return mensaje;
     }
-    
-    
 }

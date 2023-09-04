@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
@@ -85,8 +86,7 @@ public class ContactosEmail {
         final String SELECT_BY_ID
                 = "SELECT ID, EMAIL, FECHA "
                 + "FROM V_CONTACTOS_EMAIL  "
-                + "WHERE "
-                + "   ID_PERSONA = ?; ";
+                + "WHERE ID_PERSONA = ?;";
         List<ContactosEmail> contactosEmailList = new ArrayList<>();
         try (PreparedStatement ps = getCnn().prepareStatement(SELECT_BY_ID)) {
             ps.setInt(1, id);
@@ -108,6 +108,34 @@ public class ContactosEmail {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return contactosEmailList;
+    }
+    
+    public static String generarCorreo(){
+        StringBuilder telefonoMovil = new StringBuilder();
+        String correoDominio[] = {"@hotmail.com", "@gmail.com", "@outlook.com", "@yahoo.com"};
+        int indexArea = (int) (Math.random() * 4);
+        
+        int num1 = (int) (Math.random() * 10);
+        int num2 = (int) (Math.random() * 10);
+        int num3 = (int) (Math.random() * 10);
+        int num4 = (int) (Math.random() * 10);
+        
+        telefonoMovil.
+                append("correo_prueba_").
+                append(num1).
+                append(num2).
+                append(num3).
+                append(num4).
+                append(correoDominio[indexArea]);
+        
+        
+        return telefonoMovil.toString();
+    }
+    
+    public static boolean correo(String correo) {
+        Pattern ptr = Pattern.compile(
+                "[\\w\\-\\_\\+]+(\\.[\\w\\-\\_]+)*@([A-za-z0-9-]+\\.)+[A-za-z]{2,4}");
+        return ptr.matcher(correo).matches();
     }
 
     @Override

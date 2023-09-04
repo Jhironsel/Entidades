@@ -14,7 +14,7 @@ import javax.print.SimpleDoc;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-public class frmPrintFacturaConReporte extends javax.swing.JDialog {
+public class frmPrintFacturaConReporte2 extends javax.swing.JDialog {
     private boolean copia;
     private Point p;
 
@@ -25,7 +25,7 @@ public class frmPrintFacturaConReporte extends javax.swing.JDialog {
     public void setCopia(boolean copia) {
         this.copia = copia;
     }
-    public frmPrintFacturaConReporte(java.awt.Frame parent, boolean modal) {
+    public frmPrintFacturaConReporte2(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         
         initComponents();

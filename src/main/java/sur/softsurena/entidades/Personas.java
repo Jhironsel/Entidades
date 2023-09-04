@@ -26,7 +26,7 @@ public abstract class Personas {
 
     private final Asegurados asegurado;
 
-    private final List<Direcciones> direccion;
+    private final List<Direcciones> direcciones;
     private final List<ContactosEmail> contactosEmail;
     private final List<ContactosTel> contactosTel;
 

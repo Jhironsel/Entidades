@@ -8,11 +8,11 @@ import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import javax.swing.JDialog;
 
-public class frmImpresoras extends JDialog {
+public class frmImpresoras2 extends JDialog {
 
     private final String seleccionar = "Seleccionar una impresora";
     
-    public frmImpresoras(Frame parent, boolean modal) {
+    public frmImpresoras2(Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         //Centra la ventana en la pantalla

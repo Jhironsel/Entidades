@@ -63,13 +63,13 @@ public class Categorias implements Comparable {
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_UPDATABLE,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
+
             cs.setString(1, c.getDescripcion());
             cs.setString(2, Utilidades.imagenEncode64(c.getPathImage()));
             cs.setBoolean(3, c.getEstado());
-            
+
             int cantidad = cs.executeUpdate();
-            
+
             return Resultados.builder().
                     id(-1).
                     mensaje(CATEGORIA_AGREGADA_CON_EXITO).
@@ -169,35 +169,33 @@ public class Categorias implements Comparable {
      * @return Devuelve una lista de categoria donde el estado es TRUE.
      *
      */
-    public synchronized static List<Categorias> getCategirias() {
+    public synchronized static List<Categorias> getCategirias() throws SQLException {
         List<Categorias> categoriaList = new ArrayList<>();
 
         final String SELECT
-                = "SELECT ID, DESCRIPCION, FECHA_CREACION FROM V_CATEGORIAS WHERE ESTADO";
+                = "SELECT ID, DESCRIPCION, FECHA_CREACION "
+                + "FROM V_CATEGORIAS "
+                + "WHERE ESTADO;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT); 
+                ResultSet rs = ps.executeQuery()) {
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    categoriaList.add(
-                            Categorias.
-                                    builder().
-                                    id_categoria(rs.getInt("ID")).
-                                    descripcion(rs.getString("Descripcion")).
-                                    fecha_creacion(rs.getDate("FECHA_CREACION")).
-                                    build()
-                    );
-                }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            while (rs.next()) {
+                categoriaList.add(
+                        Categorias.
+                                builder().
+                                id_categoria(rs.getInt("ID")).
+                                descripcion(rs.getString("Descripcion")).
+                                fecha_creacion(rs.getDate("FECHA_CREACION")).
+                                build()
+                );
             }
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-        }
+        } 
+        
         return categoriaList;
     }
 

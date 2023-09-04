@@ -32,8 +32,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import net.sf.jasperreports.engine.DefaultJasperReportsContext;
@@ -41,7 +43,7 @@ import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperPrintManager;
 import org.apache.commons.codec.binary.Base64;
-import sur.softsurena.entidades.Celda_CheckBox;
+import sur.softsurena.entidades.DefaultTableCellHeaderRenderer;
 import sur.softsurena.entidades.Render_CheckBox;
 import sur.softsurena.metodos.Imagenes;
 
@@ -104,7 +106,6 @@ public class Utilidades {
     }
 
     /**
-     * No se está utilizando
      *
      * @param filePath
      * @param print
@@ -467,33 +468,39 @@ public class Utilidades {
      * tablas, pudiendo asi tener el alcho de las columnas.
      * Deberia de ejecutar luego de insertar, actualizar o borrar un registro.
      * 
-     * @param table Es el componente JTable que va a modicarse su ancho 
+     * @param miTabla Es el componente JTable que va a modicarse su ancho 
      * automaticamente.
      */
-    public static void repararColumnaTable(JTable table) {
-        //Se obtiene el modelo de la columna
-        TableColumnModel columnModel = table.getColumnModel();
+    public static void repararColumnaTable(JTable miTabla) {
+        DefaultTableCellRenderer tcr = new DefaultTableCellHeaderRenderer() {
+        };
+        tcr.setHorizontalAlignment(SwingConstants.LEFT);
+//        tblPermisosAsignados.getColumnModel().getColumn(0).setCellRenderer(tcr);
 
+        //Se obtiene el modelo de la columna
+        TableColumnModel columnModel = miTabla.getColumnModel();
+        
         //Se obtiene el total de las columnas
-        for (int column = 0; column < table.getColumnCount(); column++) {
+        for (int column = 0; column < miTabla.getColumnCount(); column++) {
 
             //Establecemos un valor minimo para el ancho de la columna
             int width = 150; //Min Width
 
             //Obtenemos el numero de filas de la tabla
-            for (int row = 0; row < table.getRowCount(); row++) {
+            for (int row = 0; row < miTabla.getRowCount(); row++) {
 
                 //Obtenemos el renderizador de la tabla
-                TableCellRenderer renderer = table.getCellRenderer(row, column);
-
+                TableCellRenderer renderer = miTabla.getCellRenderer(row, column);
+                
                 //Creamos un objeto para preparar el renderer
-                Component comp = table.prepareRenderer(renderer, row, column);
-
+                Component comp = miTabla.prepareRenderer(renderer, row, column);
+                
                 //Establecemos el width segun el valor maximo del ancho de la columna
                 width = Math.max(comp.getPreferredSize().width + 1, width);
-
             }
-
+            
+            miTabla.getColumnModel().getColumn(0).setCellRenderer(tcr);
+            
             //Se establece una condicion para no sobrepasar el valor de 300
             //Esto es Opcional
             if (width > 400) {
@@ -552,28 +559,6 @@ public class Utilidades {
         };
 
         return keyListener;
-    }
-    
-    public static void teclas(java.awt.event.KeyEvent evt) {
-        char caracter = evt.getKeyChar();
-        if (caracter == '.') {
-            return;
-        }
-        if (caracter == ',') {
-            return;
-        }
-        if (caracter == 'R') {
-            return;
-        }
-        if (caracter == 'D') {
-            return;
-        }
-        if (caracter == '$') {
-            return;
-        }
-        if (caracter < '0' || (caracter > '9')) {
-            evt.consume();
-        }
     }
     
 }

@@ -30,9 +30,7 @@ public class D_Recetas {
     public synchronized static void agregarRecetaDetalle(List<D_Recetas> dr) {
         
         final String INSERT 
-            ="insert into V_DETALLERECETAS (IDRECETAS, LINEA, "
-                    + "ID_MEDICAMENTO, CANTIDAD, D_DOSIS) "
-                    + "values (?, ?, ?, ?, ?)";
+            = "EXECUTE PROCEDURE SP_INSERT_DETALLE_RECETAS (?, ?, ?, ?, ?);";
         
         try (PreparedStatement ps = getCnn().prepareStatement(INSERT)){
             dr.stream().forEach(x -> {

@@ -3,9 +3,9 @@ package sur.softsurena.formularios;
 import java.util.Calendar;
 import javax.swing.JOptionPane;
 
-public class frmRegistros extends javax.swing.JDialog {
+public class frmRegistros2 extends javax.swing.JDialog {
 
-    public frmRegistros(java.awt.Frame parent, boolean modal, String idMaquina) {
+    public frmRegistros2(java.awt.Frame parent, boolean modal, String idMaquina) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);

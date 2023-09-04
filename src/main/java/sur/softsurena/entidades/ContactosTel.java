@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.table.DefaultTableModel;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
@@ -122,6 +123,40 @@ public class ContactosTel {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return contactosTelList;
+    }
+    
+    public static String generarTelMovil(){
+        StringBuilder telefonoMovil = new StringBuilder();
+        String codigoArea[] = {"809", "829", "849"};
+        int indexArea = (int) (Math.random() * 3);
+        
+        int num1 = (int) (Math.random() * 10);
+        int num2 = (int) (Math.random() * 10);
+        int num3 = (int) (Math.random() * 10);
+        int num4 = (int) (Math.random() * 10);
+        int num5 = (int) (Math.random() * 10);
+        int num6 = (int) (Math.random() * 10);
+        int num7 = (int) (Math.random() * 10);
+        
+        telefonoMovil.
+                append("+1(").
+                append(codigoArea[indexArea]).
+                append(") ").
+                append(num1).
+                append(num2).
+                append(num3).
+                append("-").
+                append(num4).
+                append(num5).
+                append(num6).
+                append(num7);        
+        return telefonoMovil.toString();
+    }
+    
+    public static boolean telefono(String tel) {
+        Pattern pat = Pattern.compile("[+][1][(][8][0|2|4][9][)]\\s\\d{3}-\\d{4}");
+        Matcher mat = pat.matcher(tel.trim());
+        return mat.matches();
     }
 
     @Override

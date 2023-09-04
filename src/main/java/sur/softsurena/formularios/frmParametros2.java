@@ -16,12 +16,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import rojeru_san.RSMTextFull;
 import sur.softsurena.entidades.Servidor;
 
-public class frmParametros extends javax.swing.JFrame {
+public class frmParametros2 extends javax.swing.JFrame {
 
     private final Properties propiedades;
     private File f = null;
 
-    public frmParametros() {
+    public frmParametros2() {
         initComponents();
         propiedades = new Properties();
 
@@ -31,11 +31,11 @@ public class frmParametros extends javax.swing.JFrame {
             propiedades.load(new FileReader(f));
 
         } catch (URISyntaxException ex) {
-            Logger.getLogger(frmParametros.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(frmParametros2.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(frmParametros.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(frmParametros2.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (IOException ex) {
-            Logger.getLogger(frmParametros.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(frmParametros2.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         cargarParamentos("todo");
@@ -567,7 +567,7 @@ public class frmParametros extends javax.swing.JFrame {
                     new FileWriter(f),
                     "Parametros del Servidor");
         } catch (IOException ex) {
-            Logger.getLogger(frmParametros.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            Logger.getLogger(frmParametros2.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 

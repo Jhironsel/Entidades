@@ -1,3 +1,4 @@
+
 package sur.softsurena.entidades;
 
 import java.math.BigDecimal;

@@ -15,14 +15,13 @@ public class ConexionNGTest {
 
     private final String user = "jhironsel";
     private final String clave = "123uasd";
-    private final String role = "None";
     private final String pathBaseDatos = "/home/jhironsel/BaseDatos/BaseDeDatos3.fdb";
     private final String dominio = "localhost";
     private final String puerto = "3050";
 
     public ConexionNGTest() {
         System.out.println("ConexionNGTest.<init>()");
-        Conexion.getInstance(user, clave, role, pathBaseDatos, dominio, puerto);
+        Conexion.getInstance(user, clave, pathBaseDatos, dominio, puerto);
     }
 
     @BeforeClass
