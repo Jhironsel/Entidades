@@ -258,7 +258,7 @@ public class Padres extends Personas {
     public synchronized static ResultSet getPadresActivo(String cedula, String sexo) {
         final String sql = "SELECT IDPADRE, CEDULA, NOMBRES, APELLIDOS "
                 + "FROM GET_PADRES "
-                + "WHERE ESTADO AND CEDULA starting ? AND SEXO LIKE ?;";
+                + "WHERE ESTADO AND CEDULA STARTING WITH ? AND SEXO LIKE ?;";
         
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,

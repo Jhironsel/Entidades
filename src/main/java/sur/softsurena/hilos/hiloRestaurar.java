@@ -99,9 +99,15 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
         }
         JPasswordField pf = new JPasswordField();        
 
-        claveMaster = "" + JOptionPane.showConfirmDialog(null, pf,
-                "Inserte la clave de Usuario: ", JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.INFORMATION_MESSAGE);
+        //TODO Analizar este proceso.
+        claveMaster = "" + JOptionPane.showConfirmDialog(
+                null, 
+                pf,
+                "Inserte la clave de Usuario: ", 
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        
         pf.requestFocusInWindow();
 
         if (claveMaster.isEmpty()) {

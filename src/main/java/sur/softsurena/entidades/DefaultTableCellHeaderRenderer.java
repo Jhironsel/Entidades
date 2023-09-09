@@ -2,6 +2,7 @@ package sur.softsurena.entidades;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -15,6 +16,8 @@ import javax.swing.table.*;
 
 public class DefaultTableCellHeaderRenderer extends DefaultTableCellRenderer
         implements UIResource {
+
+    private static final long serialVersionUID = 1L;
     private boolean horizontalTextPositionSet;
     private Icon sortArrow;
     private final EmptyIcon emptyIcon = new EmptyIcon();
@@ -39,24 +42,21 @@ public class DefaultTableCellHeaderRenderer extends DefaultTableCellRenderer
         if (table != null) {
             JTableHeader header = table.getTableHeader();
             if (header != null) {
-                Color fgColor = null;
-                Color bgColor = null;
-                if (hasFocus) {
-//                    fgColor = DefaultLookup.getColor(this, ui, "TableHeader.focusCellForeground");
-//                    bgColor = DefaultLookup.getColor(this, ui, "TableHeader.focusCellBackground");
-                    fgColor = javax.swing.UIManager.getColor("TableHeader.focusCellForeground");
-                    bgColor = javax.swing.UIManager.getColor("TableHeader.focusCellBackground");
+                Color fgColor = new Color(37,45,223);
+                Color bgColor = new Color(204,204,204);
+                if((row % 2) == 0){
+                    bgColor = new Color(255,255,255);
                 }
-                if (fgColor == null) {
-                    fgColor = header.getForeground();
-                }
-                if (bgColor == null) {
-                    bgColor = header.getBackground();
-                }
+                
                 setForeground(fgColor);
                 setBackground(bgColor);
+                
+                if (hasFocus || isSelected) {
+                    setForeground(bgColor);
+                    setBackground(fgColor);
+                }
 
-                setFont(header.getFont());
+                setFont(new java.awt.Font("Tahoma", Font.BOLD , 12));
 
                 isPaintingForPrint = header.isPaintingForPrint();
             }
@@ -65,7 +65,7 @@ public class DefaultTableCellHeaderRenderer extends DefaultTableCellRenderer
                 if (!horizontalTextPositionSet) {
                     // There is a row sorter, and the developer hasn't
                     // set a text position, change to leading.
-                    setHorizontalTextPosition(JLabel.LEADING);
+                    setHorizontalTextPosition(JLabel.LEFT);
                 }
                 SortOrder sortOrder = getColumnSortOrder(table, column);
                 if (sortOrder != null) {

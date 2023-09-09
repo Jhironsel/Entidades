@@ -15,7 +15,7 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 
 @Getter
 @SuperBuilder
-public class Usuarios extends Personas {
+public class Usuario extends Personas {
     
     /*
         Tenemos una vista y un procedimiento que muestran casi lo mismo... 
@@ -25,7 +25,7 @@ public class Usuarios extends Personas {
         codigo. 
     */
 
-    private static final Logger LOG = Logger.getLogger(Usuarios.class.getName());
+    private static final Logger LOG = Logger.getLogger(Usuario.class.getName());
     private static final String USUARIO_BORRADO_CORRECTAMENTE = "Usuario borrado correctamente.";
     private static final String ERROR_AL_BORRAR_USUARIO = "Error al borrar usuario.";
 
@@ -120,7 +120,7 @@ public class Usuarios extends Personas {
     /**
      * Este metodo debe ser investigado pues no fue documentado.
      *
-     * @param idUsuario
+     * @param idUsuario Identificador unico de los usuarios del sistema.
      * @return
      */
     public synchronized static String getCreadorUsuario(String idUsuario) {
@@ -148,13 +148,6 @@ public class Usuarios extends Personas {
     }
 
     /**
-     * Esta variable se esta utilizando para obtener el rol y el usuario que se
-     * loguean en el sistema.
-     *
-     * Fecha de revision: 24 oct 2022
-     */
-
-    /**
      * Nitido. Metodo para consultar cual es el usuario actual del sistema.
      *
      * Una vez iniciada la session del usuario en el sistema, hacemos una
@@ -171,7 +164,7 @@ public class Usuarios extends Personas {
      * @return Retorna un String con el dato de cual es usuario del sistema que
      * ha iniciado sessión actualmente.
      */
-    public synchronized static Usuarios getUsuarioActual() {
+    public synchronized static Usuario getUsuarioActual() {
         final String sql
                 = "SELECT TRIM(CURRENT_USER) USUARIO, TRIM(CURRENT_ROLE) ROLE "
                 + "FROM RDB$DATABASE";
@@ -183,7 +176,7 @@ public class Usuarios extends Personas {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
-                return Usuarios.builder().
+                return Usuario.builder().
                         user_name(rs.getString("USUARIO")).
                         rol(rs.getString("ROLE")).
                         build();
@@ -216,7 +209,7 @@ public class Usuarios extends Personas {
      * parametro, si se le pasa all recibi un conjunto de datos de todos los
      * usuarios del sistema.
      */
-    public synchronized static Usuarios getUsuario(String userName) {
+    public synchronized static Usuario getUsuario(String userName) {
         final String GET_USER_BY_USER_NAME
             = "SELECT TRIM(p.O_USER_NAME) AS O_USER_NAME, "
             + "TRIM(p.O_PRIMER_NOMBRE) AS O_PRIMER_NOMBRE, "
@@ -233,7 +226,7 @@ public class Usuarios extends Personas {
             ps.setString(1, userName);
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
-                return Usuarios.builder().
+                return Usuario.builder().
                         user_name(rs.getString("O_USER_NAME")).
                         pnombre(rs.getString("O_PRIMER_NOMBRE")).
                         snombre(rs.getString("O_SEGUNDO_NOMBRE")).
@@ -259,11 +252,11 @@ public class Usuarios extends Personas {
      *
      * @return
      */
-    public synchronized static List<Usuarios> getUsuarios() {
-        List<Usuarios> usuarios = new ArrayList<>();
-        Usuarios u;
+    public synchronized static List<Usuario> getUsuarios() {
+        List<Usuario> usuarios = new ArrayList<>();
+        Usuario u;
 
-        final String SELECT
+        final String sql
                 = "SELECT TRIM(u.SEC$USER_NAME) AS USER_NAME, "
                 + "     TRIM(u.SEC$FIRST_NAME) AS PNOMBRE, "
                 + "     TRIM(u.SEC$MIDDLE_NAME) AS SNOMBRE, "
@@ -274,14 +267,14 @@ public class Usuarios extends Personas {
                 + "FROM SEC$USERS u";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
-                SELECT,
+                sql,
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    u = Usuarios.builder().
+                    u = Usuario.builder().
                             pnombre((rs.getString("PNOMBRE") == null ? "" : rs.getString("PNOMBRE"))).
                             snombre((rs.getString("SNOMBRE") == null ? "" : rs.getString("SNOMBRE"))).
                             apellidos((rs.getString("APELLIDOS") == null ? "" : rs.getString("APELLIDOS"))).
@@ -291,9 +284,6 @@ public class Usuarios extends Personas {
                             descripcion(rs.getString("DESCRIPCION")).build();
                     usuarios.add(u);
                 }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
             }
             return usuarios;
         } catch (SQLException ex) {
@@ -302,17 +292,47 @@ public class Usuarios extends Personas {
         }
     }
 
+    /**
+     * Metodo utilizado para obtener todos los nombres de usuarios del sistema.
+     * En primera instacia se utilizada para consultar la base de datos y 
+     * obtener los roles de este. 
+     * 
+     * @return Retorna una lista de usuarios del sistema.
+     */
+    public synchronized static List<Usuario> getNombresUsuarios() {
+        List<Usuario> usuarios = new ArrayList<>();
+        Usuario u;
+        final String sql = "SELECT USERNAME FROM V_USUARIOS";
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+
+            try (ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    u = Usuario.builder().
+                            user_name(rs.getString("USERNAME")).build();
+                    usuarios.add(u);
+                }
+            } 
+            return usuarios;
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return null;
+        }
+    }
     
     /**
      * Metodo utilizado para modificar los usuarios del sistema con el rol
-     * doctor, el cual permite agregar al registro su Exequatur y Especialidad.
+     * doctor, el cual permite agregar al registro su Exequatur y Especialidad.Metodo actualizado el 19 05 2022.
      *
-     * Metodo actualizado el 19 05 2022.
      *
      * @param u Un objeto de la case Usuario.
+     * @param sql
      * @return Devuelve un mensaje que indica si la actualizacion fue exitosa.
      */
-    public static synchronized String agregarModificarUsuario(Usuarios u, boolean sql) {
+    public static synchronized String agregarModificarUsuario(Usuario u, boolean sql) {
         /**
          * Query que permite agregar usuarios al sistema.
          */

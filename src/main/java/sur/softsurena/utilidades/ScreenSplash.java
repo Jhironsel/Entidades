@@ -53,7 +53,6 @@ public final class ScreenSplash {
                 g.setColor(Color.GREEN);//color de barra de progeso
                 g.setColor(new Color(4, 52, 101));
                 g.drawLine(20, 370, 590, 370);
-                //se actualiza todo
                 splash.update();
                 dormir();
             }
@@ -82,7 +81,6 @@ public final class ScreenSplash {
                 g.setColor(Color.GREEN);//color de barra de progeso
                 g.setColor(new Color(4, 52, 101));
                 g.drawLine(20, 370, 590, 370);
-                //se actualiza todo
                 splash.update();
                 dormir();
             }

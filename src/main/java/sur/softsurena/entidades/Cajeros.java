@@ -13,7 +13,7 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 
 @Getter
 @SuperBuilder
-public class Cajeros extends Usuarios{
+public class Cajeros extends Usuario{
 
     private static final Logger LOG = Logger.getLogger(Cajeros.class.getName());
     

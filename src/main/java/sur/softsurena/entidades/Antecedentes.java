@@ -17,9 +17,9 @@ public class Antecedentes extends Personas {
 
     private static final Logger LOG = Logger.getLogger(Antecedentes.class.getName());
 
-    private int id;
-    @NonNull private int idDoctor;
-    @NonNull private Date fecha;
+    private final int id;
+    @NonNull private final int idDoctor;
+    @NonNull private final Date fecha;
     @NonNull private String descripcion;
     private String UserName;
     private String Rol;

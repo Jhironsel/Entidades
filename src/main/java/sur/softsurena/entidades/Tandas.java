@@ -109,7 +109,7 @@ public class Tandas {
 
     public String modificarTanda(Tandas t) {
         /**
-         * Campo que permite actualizar todo el contenido de una tanda en el
+         * Campo que permite actualizar all el contenido de una tanda en el
          * sistema.
          */
         final String UPDATE

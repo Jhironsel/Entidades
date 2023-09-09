@@ -107,15 +107,11 @@ public class BaseDeDatos {
 
         try (PreparedStatement ps = getCnn().prepareStatement(EXISTE_REGISTRO)) {
 
-            ps.setString(1, idMaquina.trim());
+            ps.setString(1, idMaquina.strip());
 
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return false;
             }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
@@ -158,7 +154,7 @@ public class BaseDeDatos {
             return false;
         }
     }
-    
+
     /**
      * Metodo de consulta que es utilizada para obtener el numero de registros
      * de una tabla del sistema.
@@ -167,16 +163,16 @@ public class BaseDeDatos {
      *
      * @return Devuelve la cantindad de registros que existe en una tabla dada
      * en el parametro.
-     * 
+     *
      * //Conseguir con el conteos de las tablas....
      */
     public synchronized static int cantidadRegistros(String tabla) {
-        try ( PreparedStatement ps = getCnn().prepareStatement(
+        try (PreparedStatement ps = getCnn().prepareStatement(
                 "SELECT COALESCE(cantidad, 0) as num "
                 + "FROM tabla_reccount "
                 + "WHERE tabla = ?;")) {
             ps.setString(1, tabla);
-            try ( ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("num");
                 } else {
