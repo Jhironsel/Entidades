@@ -81,7 +81,7 @@ public class Medicamentos {
         List<Medicamentos> medicamentoList = null;
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             try (ResultSet rs = ps.executeQuery();) {
@@ -108,7 +108,7 @@ public class Medicamentos {
         final String sql = "SELECT FOTO FROM V_MEDICAMENTOS "
                 + "WHERE idMedicamento = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setString(1, idMedicamento);
@@ -126,7 +126,7 @@ public class Medicamentos {
                 + "   FROM GET_MEDICAMENTO"
                 + "   WHERE ESTADO IS ? ORDER BY 1, 3";
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 

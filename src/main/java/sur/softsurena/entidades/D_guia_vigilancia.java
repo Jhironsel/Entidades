@@ -51,7 +51,7 @@ public class D_guia_vigilancia {
                 + "WHERE b.EDAD " + (cero ? "" : "!") + "= 0";
 
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 

@@ -101,7 +101,7 @@ public class EntradaProducto {
                 + "GROUP BY r.FECHAENTRADA,  r.OP, r.IDUSUARIO";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql, 
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setInt(1, mes);

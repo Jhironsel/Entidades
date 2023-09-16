@@ -203,7 +203,7 @@ public class Productos {
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             cs.setInt(1, ID);
@@ -244,7 +244,7 @@ public class Productos {
 
         try (CallableStatement ps = getCnn().prepareCall(sql,
                 ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setInt(1, p.getCategoria().getId_categoria());
             ps.setString(2, p.getCodigo());
@@ -293,8 +293,8 @@ public class Productos {
                 = "EXECUTE PROCEDURE SP_UPDATE_PRODUCTO (?,?,?,?,?,?,?)";
         try (CallableStatement ps = getCnn().prepareCall(
                 sql, 
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             ps.setInt(1, p.getId());

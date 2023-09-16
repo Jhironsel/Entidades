@@ -27,7 +27,7 @@ public class Cajeros extends Usuario{
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
@@ -61,7 +61,7 @@ public class Cajeros extends Usuario{
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 

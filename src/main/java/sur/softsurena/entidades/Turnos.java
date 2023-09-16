@@ -9,7 +9,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
@@ -148,7 +147,7 @@ public class Turnos {
      * @return
      */
     public synchronized static boolean habilitarTurno(String idUsuario) {
-        final String sql = "EXECUTE PROCEDURE Admin_Habilitar_Turno (?)";
+        final String sql = "EXECUTE PROCEDURE ADMIN_HABILITAR_TURNO(?)";
         try (CallableStatement cs = getCnn().prepareCall(sql)) {
 
             cs.setString(1, idUsuario);

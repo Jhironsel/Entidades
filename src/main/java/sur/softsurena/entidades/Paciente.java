@@ -57,8 +57,8 @@ public class Paciente extends Personas {
         
         try (CallableStatement ps = getCnn().prepareCall(
                 UPDATE,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             ps.setInt(1, p.getId_persona());
@@ -125,8 +125,8 @@ public class Paciente extends Personas {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 INSERT, 
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setInt(1, p.getIdPadre());
@@ -206,7 +206,7 @@ public class Paciente extends Personas {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 GET_SEXO_BY_ID,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -238,7 +238,7 @@ public class Paciente extends Personas {
         final String sql = "SELECT (1) FROM V_PACIENTES WHERE cedula = ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -271,7 +271,7 @@ public class Paciente extends Personas {
                 + "WHERE IDPACIENTE = ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(GET_PACIENTES,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setInt(1, idPaciente);
@@ -288,7 +288,7 @@ public class Paciente extends Personas {
                 + "FROM V_DATOSNACIMIENTO "
                 + "WHERE idPaciente = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -305,7 +305,7 @@ public class Paciente extends Personas {
         final String sql = "SELECT IDPACIENTE FROM V_PACIENTES WHERE CEDULA LIKE ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -333,7 +333,7 @@ public class Paciente extends Personas {
                 + "WHERE Estado IS ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -358,7 +358,7 @@ public class Paciente extends Personas {
                 + "a.Estado " + filtro;
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -385,7 +385,7 @@ public class Paciente extends Personas {
                 + filtro + " order by turno";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 

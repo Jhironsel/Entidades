@@ -41,7 +41,7 @@ public class ARS {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT_CANTIDAD,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -75,8 +75,8 @@ public class ARS {
         Resultados<Object> r;
         try (PreparedStatement ps = getCnn().prepareStatement(
                 DELETE,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             
             ps.setInt(1, idARS);
@@ -158,7 +158,7 @@ public class ARS {
                 + "WHERE ESTADO";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 

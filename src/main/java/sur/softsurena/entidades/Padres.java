@@ -29,7 +29,7 @@ public class Padres extends Personas {
             + "WHERE CEDULA = ? AND ESTADO IS FALSE;";
         
         try ( PreparedStatement ps = getCnn().prepareStatement(RECUPERAR_PADRE,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -154,7 +154,7 @@ public class Padres extends Personas {
                 + "WHERE ESTADO IS ? AND IDPADRE != 0;";
 
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -236,7 +236,7 @@ public class Padres extends Personas {
                 + "WHERE IDPADRE = ?";
 
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -261,7 +261,7 @@ public class Padres extends Personas {
                 + "WHERE ESTADO AND CEDULA STARTING WITH ? AND SEXO LIKE ?;";
         
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setString(1, cedula);
@@ -287,7 +287,7 @@ public class Padres extends Personas {
                 + "WHERE ESTADO IS ? and idPadre != 0";
 
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -303,7 +303,7 @@ public class Padres extends Personas {
     public synchronized int getIdMadrePadre(String cedula) {
         final String sql = "SELECT IDPADRE FROM V_PADRES WHERE CEDULA LIKE ?";
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -326,7 +326,7 @@ public class Padres extends Personas {
     public synchronized static boolean existePadre(String cedula, boolean estado) {
         final String sql = "SELECT (1) FROM V_PADRES WHERE cedula = ? and ESTADO IS ?";
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 

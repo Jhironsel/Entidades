@@ -52,7 +52,7 @@ public class Deudas extends Personas {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 GET_DEUDAS,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             

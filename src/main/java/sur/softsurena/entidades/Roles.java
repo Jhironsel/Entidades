@@ -45,7 +45,7 @@ public class Roles {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT_ROLES_USUARIOS,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setString(1, userName.trim().toUpperCase());
@@ -74,7 +74,7 @@ public class Roles {
     }
 
     /**
-     *
+     * 
      * @param userName
      * @return
      */
@@ -90,10 +90,12 @@ public class Roles {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT_ROLES_USUARIOS,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+            
             ps.setString(1, userName.strip().toUpperCase());
+            
             try (ResultSet rs = ps.executeQuery()) {
                 String aux, descripcion;
                 while (rs.next()) {
@@ -237,19 +239,22 @@ public class Roles {
      * Este metodo nos permite establecer el rol que el usuario usará en el
      * sistema, puede ser ejecutado una vez que el usuario haya iniciado
      * session.
+     * 
+     * Es un procedimiento de uso publico, ya que todos van a cambiar su rol en 
+     * el sistema.
      *
-     * @param role Nombre del rol que va a establecerse al usuario que ejecute
+     * @param i_role Nombre del rol que va a establecerse al usuario que ejecute
      * el metodo.
      * @return
      */
-    public synchronized static Resultados<Object> setRole(String role) {
-        String sql = "EXECUTE PROCEDURE SP_SET_ROLE (?)";
+    public synchronized static Resultados<Object> setRole(String i_role) {
+        String sql = "EXECUTE PROCEDURE ADMIN_SET_ROLE(?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            cs.setString(1, role);
+            cs.setString(1, i_role);
             boolean execute = cs.execute();
 
             return Resultados.builder().
@@ -260,7 +265,49 @@ public class Roles {
                     build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados.builder().id(-1).mensaje("Error al establecer rol").cantidad(-1).build();
+            return Resultados.builder().
+                    id(-1).
+                    mensaje("Error al establecer rol").
+                    cantidad(-1).
+                    build();
+        }
+    }
+    
+    /**
+     * Este metodo nos permite establecer el rol que el usuario usará en el
+     * sistema, puede ser ejecutado una vez que el usuario haya iniciado
+     * session.
+     * 
+     * Es un procedimiento de uso publico, ya que todos van a cambiar su rol en 
+     * el sistema.
+     *
+     * @param i_role Nombre del rol que va a establecerse al usuario que ejecute
+     * el metodo.
+     * @return
+     */
+    public synchronized static Resultados<Object> dropRole(String i_role) {
+        String sql = "EXECUTE PROCEDURE ADMIN_BORRAR_ROLE(?)";
+        try (CallableStatement cs = getCnn().prepareCall(
+                sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+            cs.setString(1, i_role);
+            boolean execute = cs.execute();
+
+            return Resultados.builder().
+                    id(-1).
+                    mensaje("Role eliminado").
+                    cantidad(-1).
+                    estado(execute).
+                    build();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return Resultados.builder().
+                    id(-1).
+                    mensaje("Error al borrar rol").
+                    cantidad(-1).
+                    build();
         }
     }
     
@@ -277,7 +324,7 @@ public class Roles {
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             
             cs.setString(1, procedimiento);
@@ -311,7 +358,7 @@ public class Roles {
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             
             cs.setString(1, rol);
@@ -349,11 +396,50 @@ public class Roles {
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             
             cs.setString(1, procedimiento);
             cs.setString(2, rol);
+            
+            boolean execute = cs.execute();
+
+            return Resultados.builder().
+                    id(-1).
+                    mensaje("Procedimiento sin control administrativo.").
+                    cantidad(-1).
+                    estado(execute).
+                    build();
+            
+        } catch (SQLException ex) {
+            
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            
+            return Resultados.builder().
+                    id(-1).
+                    mensaje("Error al quitar control administrativo.").
+                    cantidad(-1).
+                    build();
+        }
+    }
+    
+    /**
+     * 
+     * @param rol
+     * @param usuario
+     * @return 
+     */
+    public synchronized static Resultados<Object> quitarPermisoAdminRole(
+            String rol, String usuario) {
+        String sql = "EXECUTE PROCEDURE ADMIN_QUITAR_PERMISO_ADMIN_ROL(?,?)";
+        try (CallableStatement cs = getCnn().prepareCall(
+                sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+            
+            cs.setString(1, rol);
+            cs.setString(2, usuario);
             
             boolean execute = cs.execute();
 
@@ -389,7 +475,7 @@ public class Roles {
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             
             cs.setString(1, procedimiento);
@@ -415,7 +501,47 @@ public class Roles {
                     build();
         }
     }
+    
+    /**
+     * 
+     * @param role
+     * @param usuario
+     * @param admin
+     * @return 
+     */
+    public synchronized static Resultados<Object> agregarPermisoAdminRole(
+            String role, String usuario) {
+        String sql = "EXECUTE PROCEDURE ADMIN_AGREGAR_PERMISO_ADMIN_ROLE(?,?)";
+        try (CallableStatement cs = getCnn().prepareCall(
+                sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+            
+            cs.setString(1, role);
+            cs.setString(2, usuario);
+            
+            boolean execute = cs.execute();
 
+            return Resultados.builder().
+                    id(-1).
+                    mensaje("Role sin control administrativo.").
+                    cantidad(-1).
+                    estado(execute).
+                    build();
+            
+        } catch (SQLException ex) {
+            
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            
+            return Resultados.builder().
+                    id(-1).
+                    mensaje("Error al quitar control administrativo a role.").
+                    cantidad(-1).
+                    build();
+        }
+    }
+    
     /**
      * 
      * @param procedimiento
@@ -429,7 +555,7 @@ public class Roles {
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             
             cs.setString(1, procedimiento);
@@ -469,7 +595,7 @@ public class Roles {
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             
             cs.setString(1, rol);
@@ -507,7 +633,7 @@ public class Roles {
 
         try (PreparedStatement cs = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             cs.setString(1, rolee);
@@ -531,13 +657,22 @@ public class Roles {
         }
     }
 
+    /**
+     * SP que permite a los administradores modificar los nombres de los roles y
+     * pasar los permisos y asignaciones de los roles al nuevo rol creado.
+     * 
+     * @param actual recibe el nombre de un rol existente. 
+     * @param nuevo recibe el nuevo nombre del rol a crear. 
+     * 
+     * @return devuelve un objecto Resultados para obtener informacion de la op.
+     */
     public synchronized static Resultados<Object> modificarRol(String actual,
             String nuevo) {
-        final String sql = "EXECUTE PROCEDURE SP_ALTER_ROLE (?, ?);";
+        final String sql = "EXECUTE PROCEDURE ADMIN_ALTER_ROLE(?, ?);";
 
         try (PreparedStatement cs = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             cs.setString(1, actual);

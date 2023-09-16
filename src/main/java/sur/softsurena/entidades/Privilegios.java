@@ -83,7 +83,7 @@ public class Privilegios {
         
         try (PreparedStatement ps = getCnn().prepareStatement(
                 PERMISO_UPDATE_TABLA,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 

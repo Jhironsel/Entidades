@@ -133,8 +133,8 @@ public class Clientes extends Personas {
                 = "EXECUTE PROCEDURE SP_INSERT_PERSONA_CLIENTES_ID(?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             cs.setInt(1, id);
             return cs.execute();
@@ -155,8 +155,8 @@ public class Clientes extends Personas {
                 = "EXECUTE PROCEDURE SP_INSERT_CLIENTE_CC(?,?,?,?,?,?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             cs.setString(1, cliente.getPnombre());
             cs.setString(2, cliente.getSnombre());
@@ -280,7 +280,7 @@ public class Clientes extends Personas {
                 + "WHERE CEDULA LIKE TRIM(?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 GET_ID_CLIENTE_BY_CEDULA,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
@@ -318,7 +318,7 @@ public class Clientes extends Personas {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
@@ -367,7 +367,7 @@ public class Clientes extends Personas {
         List<Clientes> clienteList = new ArrayList<>();
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             try (ResultSet rs = ps.executeQuery();) {
@@ -418,7 +418,7 @@ public class Clientes extends Personas {
         List<Clientes> clienteList = new ArrayList<>();
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
@@ -536,7 +536,7 @@ public class Clientes extends Personas {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
@@ -577,8 +577,8 @@ public class Clientes extends Personas {
                 = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE_CC(?,?,?,?,?,?,?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             cs.setInt(1, cliente.getId_persona());
             cs.setString(2, cliente.getPnombre());
@@ -604,8 +604,8 @@ public class Clientes extends Personas {
                 = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_CC (?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             cs.setInt(1, idCliente);
             return cs.execute();

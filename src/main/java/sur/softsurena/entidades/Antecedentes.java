@@ -30,8 +30,8 @@ public class Antecedentes extends Personas {
         
         try (PreparedStatement ps = getCnn().prepareStatement(
                 DELETE,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             
             ps.setInt(1, idAntecedente);
@@ -66,8 +66,8 @@ public class Antecedentes extends Personas {
         
         try (PreparedStatement ps = getCnn().prepareStatement(
                 INSERT,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             ps.setInt(1, id);
@@ -120,7 +120,7 @@ public class Antecedentes extends Personas {
                 + "WHERE IDPACIENTE = ?;";
 
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 

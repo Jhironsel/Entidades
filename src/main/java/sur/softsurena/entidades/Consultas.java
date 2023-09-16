@@ -63,7 +63,7 @@ public class Consultas extends Paciente {
                 + "WHERE FECHA = ? and ESTADO";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -79,7 +79,7 @@ public class Consultas extends Paciente {
     public synchronized boolean getControlConsulta(String fecha) {
         final String sql = "SELECT (1) FROM V_CONTROLCONSULTA WHERE fecha = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setString(1, fecha);

@@ -60,8 +60,8 @@ public class Categorias implements Comparable {
 
         try (CallableStatement cs = getCnn().prepareCall(
                 INSERT,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             cs.setString(1, c.getDescripcion());
@@ -110,8 +110,8 @@ public class Categorias implements Comparable {
                 + "     a.ID = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 UPDATE,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             ps.setString(1, c.getDescripcion());
@@ -179,7 +179,7 @@ public class Categorias implements Comparable {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT); 
                 ResultSet rs = ps.executeQuery()) {
@@ -220,7 +220,7 @@ public class Categorias implements Comparable {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT_CATEGORIA,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             List<Categorias> categorias = new ArrayList<>();
@@ -269,7 +269,7 @@ public class Categorias implements Comparable {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT_CATEGORIA_ACTIVAS,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 

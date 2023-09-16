@@ -78,7 +78,7 @@ public class DetalleMotivoConsulta {
                 + "   WHERE d.IDCONSULTA = ? and d.TURNO = ?";
         
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setInt(1, idConsulta);

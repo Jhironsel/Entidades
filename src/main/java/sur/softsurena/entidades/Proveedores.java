@@ -29,8 +29,8 @@ public class Proveedores extends Personas {
     public synchronized static String agregarProveedor(Proveedores p) {
         try (PreparedStatement ps = getCnn().prepareStatement(
                 INSERT_PROVEEDOR, 
-                ResultSet.TYPE_SCROLL_INSENSITIVE, 
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.TYPE_SCROLL_SENSITIVE, 
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)){
 
             ps.setString(1, p.getCodigoProveedor());
@@ -59,7 +59,7 @@ public class Proveedores extends Personas {
         try ( PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             ps.setInt(1, p.getId_persona());
@@ -85,7 +85,7 @@ public class Proveedores extends Personas {
                 + "TELEFONO_PROVEEDOR, ESTADO "
                 + "FROM V_PROVEEDORES ";
         try ( PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             return ps.executeQuery();
