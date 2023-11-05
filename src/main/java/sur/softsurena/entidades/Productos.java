@@ -96,15 +96,20 @@ public class Productos {
      * @return Devuelve un conjunto de datos de la tabla de los productos del
      * sistema.
      */
-    public synchronized static List<Productos> getProductos() {
+    public synchronized static List<Productos> getProductos(Integer nPaginaNro, Integer nCantidadFilas) {
         List<Productos> listaProducto = new ArrayList<>();
 
         final String SELECT
                 = "SELECT ID, ID_CATEGORIA, DESC_CATEGORIA, CODIGO, DESCRIPCION,"
                 + "      NOTA, FECHA_CREACION, ESTADO "
-                + "FROM SP_SELECT_GET_PRODUCTOS;";
+                + "FROM SP_SELECT_GET_PRODUCTOS "
+                + "ROWS (? - 1) * ? + 1 TO (? + (1 - 1)) * ?;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(SELECT)) {
+            ps.setInt(1, nPaginaNro);
+            ps.setInt(2, nCantidadFilas);
+            ps.setInt(3, nPaginaNro);
+            ps.setInt(4, nCantidadFilas);
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     listaProducto.add(Productos.
@@ -184,6 +189,39 @@ public class Productos {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
+    }
+
+    public synchronized static List<Productos> getProductosByCategoria(int idCategoria, boolean estado) {
+        final String sql
+                = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_PRODUCTO "
+                + "FROM GET_PRODUCTOS r "
+                + "WHERE r.ID_CATEGORIA = ? "+(!estado ? " AND r.ESTADO;":";");
+
+        List<Productos> productosList = new ArrayList<>();
+
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
+            ps.setInt(1, idCategoria);
+            try (ResultSet rs = ps.executeQuery();) {
+                while(rs.next()) {
+                    productosList.add(
+                            Productos.builder().
+                                    id(rs.getInt("ID")).
+                                    descripcion(rs.getString("descripcion")).
+                                    imagenProducto(rs.getString("imagen_producto")).
+                                    build()
+                    );
+                }
+            } 
+            return productosList;
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        return null;
     }
 
     /**
@@ -278,21 +316,20 @@ public class Productos {
     /**
      * Metodo que permite modificar los productos del sistema como a la
      * categoria a la que pertenece el producto, su codigo de barra, la
-     * descripcion, la imagen de este, la nota del producto y su estado. 
-     * 
+     * descripcion, la imagen de este, la nota del producto y su estado.
+     *
      * Metodo actualizado el dia 23 de abril, segun la vista productos.
      *
-     * @param id es el identificador del producto en la base de datos.
      * @param p perteneciente a la clase Producto, define los productos del
      * sistema.
-     * 
+     *
      * @return
      */
     public synchronized static String modificarProducto(Productos p) {
         final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_PRODUCTO (?,?,?,?,?,?,?)";
         try (CallableStatement ps = getCnn().prepareCall(
-                sql, 
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT

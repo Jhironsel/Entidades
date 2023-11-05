@@ -74,7 +74,7 @@ public class BaseDeDatos {
      */
     public synchronized static int periodoMaquina() {
         final String PERIODO
-                = "SELECT r.DIAS_RESTANTES FROM V_TIME_LIC r";
+                = "SELECT DIAS_RESTANTES FROM V_E_S_SYS WHERE ID = 1";
 
         try (PreparedStatement ps = getCnn().prepareStatement(PERIODO)) {
 
@@ -100,12 +100,15 @@ public class BaseDeDatos {
      * @return Devuelve true si el equipo se encuentra resgistrado, y false si
      * no existe registro en la base de datos.
      */
-    public synchronized static boolean existeIdMaquina(String idMaquina) {
+    public synchronized static Boolean existeIdMaquina(String idMaquina) {
 
-        final String EXISTE_REGISTRO
+        final String sql
                 = "SELECT (1) FROM V_FCH_LC a WHERE a.ID = ?";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(EXISTE_REGISTRO)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             ps.setString(1, idMaquina.strip());
 

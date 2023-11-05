@@ -129,6 +129,18 @@ public class frmEtiquetas extends javax.swing.JDialog {
             txtValor.requestFocus();
             return;
         }
+        
+        if(txtPropiedad.getText().contains(" ")){
+            JOptionPane.showMessageDialog(
+                    null, 
+                    "Propiedad contiene espacio. \nDigite la propiedad sin espacio.", 
+                    PROCESO_DE_VALIDACION, 
+                    JOptionPane.WARNING_MESSAGE
+            );
+            txtPropiedad.requestFocus();
+            return;
+        }
+        
         aceptar = true;
         dispose();
     }//GEN-LAST:event_btnAceptarActionPerformed

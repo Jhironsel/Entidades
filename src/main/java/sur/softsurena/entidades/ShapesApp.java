@@ -1,7 +1,8 @@
 package sur.softsurena.entidades;
 
 import java.io.File;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -16,7 +17,6 @@ import net.sf.jasperreports.engine.export.oasis.JROdtExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRPptxExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
-import net.sf.jasperreports.engine.util.AbstractSampleApp;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
@@ -25,30 +25,10 @@ import net.sf.jasperreports.export.SimpleXlsReportConfiguration;
 import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
 
 /**
- * @author Teodor Danciu (teodord@users.sourceforge.net)
+ * TODO Esta clase contiene todos los metodos necesario para crear los reportes. 
  */
-public class ShapesApp extends AbstractSampleApp {
+public class ShapesApp {
 
-    public static void main(String[] args) {
-        main(new ShapesApp(), args);
-    }
-
-    @Override
-    public void test() throws JRException {
-        fill();
-        pdf();
-        xmlEmbed();
-        xml();
-        html();
-        rtf();
-        xls();
-        csv();
-        odt();
-        ods();
-        docx();
-        xlsx();
-        pptx();
-    }
 
     /**
      *
@@ -71,10 +51,18 @@ public class ShapesApp extends AbstractSampleApp {
 
     /**
      *
+     * @param origen Es un archivo de tipo jfPrint.
+     * @param destino sera un archivo en PDF.
      */
-    public void pdf() throws JRException {
+    public static void pdf(String origen, String destino) {
         long start = System.currentTimeMillis();
-        JasperExportManager.exportReportToPdfFile("build/reports/ShapesReport.jrprint");
+        
+        try {
+            JasperExportManager.exportReportToPdfFile(origen, destino);
+        } catch (JRException ex) {
+            Logger.getLogger(ShapesApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         System.err.println("PDF creation time : " + (System.currentTimeMillis() - start));
     }
 

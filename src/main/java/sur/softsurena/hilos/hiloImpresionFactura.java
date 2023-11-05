@@ -68,6 +68,7 @@ public class hiloImpresionFactura extends Thread {
 
     /**
      * Es el metodo que inicia el hijo sincronico con la app.
+     * TODO Esto es necesario llevarlo a un metodo de jasperReport.
      */
     @Override
     public void run() {

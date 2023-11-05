@@ -27,14 +27,14 @@ public class Facturas {
      * 
      * 
      * 
-     * @return 
+     * @return Devuelve un lista de los identificadores unicos de las faturas.
      */
     public synchronized static List<Facturas> getFacturas() {
         
-        final String SELECT_ID_FACTURAS
+        final String sql
             = "SELECT ID FROM V_FACTURAS ORDER BY 1";
         
-        try (PreparedStatement ps = getCnn().prepareStatement(SELECT_ID_FACTURAS);) {
+        try (PreparedStatement ps = getCnn().prepareStatement(sql);) {
             List<Facturas> facturasList = new ArrayList<>();
             
             try (ResultSet rs = ps.executeQuery();) {

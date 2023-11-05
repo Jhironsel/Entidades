@@ -16,15 +16,14 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 @Getter
 @SuperBuilder
 public class Usuario extends Personas {
-    
+
     /*
         Tenemos una vista y un procedimiento que muestran casi lo mismo... 
         
         La lista V_USUARIOS no se está utilizando.... y es casi igual que el
         procedimiento SP_SELECT_USUARIOS_TAGS, este se utiliza en 3 linea de 
         codigo. 
-    */
-
+     */
     private static final Logger LOG = Logger.getLogger(Usuario.class.getName());
     private static final String USUARIO_BORRADO_CORRECTAMENTE = "Usuario borrado correctamente.";
     private static final String ERROR_AL_BORRAR_USUARIO = "Error al borrar usuario.";
@@ -34,6 +33,7 @@ public class Usuario extends Personas {
     private final Boolean administrador;
     private final List<Roles> roles;
     private final List<Etiquetas> etiquetas;
+    private final String tags;
 
     /**
      * Metodo que permite el cambio de contraseña de un usuario en el sistema.
@@ -47,35 +47,11 @@ public class Usuario extends Personas {
      * @param clave Es la clave del usuario actual que permite la actualizacion
      * de su clave.
      */
-    public synchronized static boolean cambioClave(String clave) {
-        final String CAMBIAR_CLAVE
-                = "ALTER USER CURRENT_USER PASSWORD ?";
+    public synchronized static boolean cambioClave(String usuario, String clave) {
+        final String sql = "EXECUTE PROCEDURE ADMIN_CAMBIAR_CLAVE_USUARIO_ACTUAL (?, ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(CAMBIAR_CLAVE)) {
-            ps.setString(1, clave);
-
-            return ps.execute();
-
-        } catch (SQLException ex) {
-            //Instalar Logger
-            return false;
-        }
-    }
-
-    /**
-     * Metodo que permite que los usuarios del sistema actualicen la contraseña
-     * de otro usuario de otro sistema.
-     *
-     * @param userName
-     * @param clave
-     * @return
-     */
-    public synchronized static boolean cambioClaveUsuario(String userName, String clave) {
-        final String CAMBIAR_CLAVE_USER_NAME
-                = "ALTER USER ? PASSWORD ?";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(CAMBIAR_CLAVE_USER_NAME);) {
-            ps.setString(1, userName);
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+            ps.setString(1, usuario);
             ps.setString(2, clave);
 
             return ps.execute();
@@ -96,54 +72,24 @@ public class Usuario extends Personas {
      * @return
      */
     public synchronized static String borrarUsuario(String loginName) {
-        
+
         final String sql = "EXECUTE PROCEDURE SP_DELETE_USUARIO (?);";
-        
+
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setString(1, loginName);
             ps.executeUpdate();
             return USUARIO_BORRADO_CORRECTAMENTE;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ERROR_AL_BORRAR_USUARIO, ex);
-            if(ex.getMessage().contains("E_CAJERO_TURNO_ACTIVO")){
+            if (ex.getMessage().contains("E_CAJERO_TURNO_ACTIVO")) {
                 JOptionPane.showMessageDialog(
-                        null, 
-                        "Cajero cuenta con un turno activo.", 
-                        "Error...", 
+                        null,
+                        "Cajero cuenta con un turno activo.",
+                        "Error...",
                         JOptionPane.ERROR_MESSAGE
                 );
             }
             return ERROR_AL_BORRAR_USUARIO;
-        }
-    }
-    
-    /**
-     * Este metodo debe ser investigado pues no fue documentado.
-     *
-     * @param idUsuario Identificador unico de los usuarios del sistema.
-     * @return
-     */
-    public synchronized static String getCreadorUsuario(String idUsuario) {
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                "SELECT creador "
-                + "FROM get_creador "
-                + "WHERE TRIM(usuario) like ?;")) {
-
-            ps.setString(1, idUsuario);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("creador");
-                } else {
-                    return null;
-                }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
         }
     }
 
@@ -166,7 +112,9 @@ public class Usuario extends Personas {
      */
     public synchronized static Usuario getUsuarioActual() {
         final String sql
-                = "SELECT TRIM(CURRENT_USER) USUARIO, TRIM(CURRENT_ROLE) ROLE "
+                = "SELECT TRIM(CURRENT_USER) USUARIO, "
+                + "     IIF(TRIM(CURRENT_ROLE) = 'RDB$ADMIN', "
+                + "         'ADMINISTRADOR', TRIM(CURRENT_ROLE)) ROLE "
                 + "FROM RDB$DATABASE";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -200,7 +148,7 @@ public class Usuario extends Personas {
      * Consulta que nos permite tener el nombre de usuario, primer nombre,
      * segundo nombre, apellidos, estado del usuario, si es administrador y una
      * breve descripcion del usuario que se haya registrado.
-     * 
+     *
      * @param userName Es el identificador que utiliza el usuario para iniciar
      * session en el sistema, este campo tambien puede recibir un string con el
      * valor all para obtener todos los usuarios del sistema.
@@ -210,30 +158,31 @@ public class Usuario extends Personas {
      * usuarios del sistema.
      */
     public synchronized static Usuario getUsuario(String userName) {
-        final String GET_USER_BY_USER_NAME
-            = "SELECT TRIM(p.O_USER_NAME) AS O_USER_NAME, "
-            + "TRIM(p.O_PRIMER_NOMBRE) AS O_PRIMER_NOMBRE, "
-            + "TRIM(p.O_SEGUNDO_NOMBRE) AS O_SEGUNDO_NOMBRE, "
-            + "TRIM(p.O_APELLIDOS) AS O_APELLIDOS, "
-            + "p.O_ESTADO_ACTIVO, p.O_ADMINISTRADOR, p.O_DESCRIPCION "
-            + "FROM SP_SELECT_USUARIOS_TAGS (?) p;";
-        
+        final String sql
+                = "SELECT PNOMBRE, SNOMBRE, APELLIDOS, ESTADO, ADMINISTRADOR, "
+                + "         DESCRIPCION "
+                + "FROM SP_SELECT_USUARIOS "
+                + "WHERE TRIM(USERNAME) LIKE ?;";
+
         try (PreparedStatement ps = getCnn().prepareStatement(
-                GET_USER_BY_USER_NAME,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+            
             ps.setString(1, userName);
+            
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
                 return Usuario.builder().
-                        user_name(rs.getString("O_USER_NAME")).
-                        pnombre(rs.getString("O_PRIMER_NOMBRE")).
-                        snombre(rs.getString("O_SEGUNDO_NOMBRE")).
-                        apellidos(rs.getString("O_APELLIDOS")).
-                        estado(rs.getBoolean("O_ESTADO_ACTIVO")).
-                        administrador(rs.getBoolean("O_ADMINISTRADOR")).
-                        descripcion(rs.getString("O_DESCRIPCION")).build();
+                        pnombre(rs.getString("PNOMBRE")).
+                        snombre(rs.getString("SNOMBRE")).
+                        apellidos(rs.getString("APELLIDOS")).
+                        estado(rs.getBoolean("ESTADO")).
+                        administrador(rs.getBoolean("ADMINISTRADOR")).
+                        descripcion(rs.getString("DESCRIPCION")).
+                        user_name(userName).
+                        build();
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
@@ -257,14 +206,9 @@ public class Usuario extends Personas {
         Usuario u;
 
         final String sql
-                = "SELECT TRIM(u.SEC$USER_NAME) AS USER_NAME, "
-                + "     TRIM(u.SEC$FIRST_NAME) AS PNOMBRE, "
-                + "     TRIM(u.SEC$MIDDLE_NAME) AS SNOMBRE, "
-                + "     TRIM(u.SEC$LAST_NAME) AS APELLIDOS, "
-                + "     u.SEC$ACTIVE AS ESTADO, "
-                + "     u.SEC$ADMIN AS ADMINISTRADOR, "
-                + "     TRIM(u.SEC$DESCRIPTION) AS DESCRIPCION "
-                + "FROM SEC$USERS u";
+                = "SELECT USERNAME, PNOMBRE, SNOMBRE, APELLIDOS, ESTADO, "
+                + "     ADMINISTRADOR, DESCRIPCION " +
+                  "FROM SP_SELECT_USUARIOS;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -280,7 +224,7 @@ public class Usuario extends Personas {
                             apellidos((rs.getString("APELLIDOS") == null ? "" : rs.getString("APELLIDOS"))).
                             administrador(rs.getBoolean("ADMINISTRADOR")).
                             estado(rs.getBoolean("ESTADO")).
-                            user_name(rs.getString("USER_NAME")).
+                            user_name(rs.getString("USERNAME")).
                             descripcion(rs.getString("DESCRIPCION")).build();
                     usuarios.add(u);
                 }
@@ -293,16 +237,17 @@ public class Usuario extends Personas {
     }
 
     /**
-     * Metodo utilizado para obtener todos los nombres de usuarios del sistema.
-     * En primera instacia se utilizada para consultar la base de datos y 
-     * obtener los roles de este. 
-     * 
+     * Metodo utilizado para obtener todos los nombres de los usuarios del
+     * sistema. En primera instacia se utilizada para consultar la base de datos
+     * y obtener los roles de este.
+     *
      * @return Retorna una lista de usuarios del sistema.
      */
     public synchronized static List<Usuario> getNombresUsuarios() {
         List<Usuario> usuarios = new ArrayList<>();
         Usuario u;
-        final String sql = "SELECT USERNAME FROM V_USUARIOS";
+        final String sql = "SELECT USERNAME FROM SP_SELECT_USUARIOS;";
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -315,7 +260,7 @@ public class Usuario extends Personas {
                             user_name(rs.getString("USERNAME")).build();
                     usuarios.add(u);
                 }
-            } 
+            }
             return usuarios;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -325,28 +270,22 @@ public class Usuario extends Personas {
     
     /**
      * Metodo utilizado para modificar los usuarios del sistema con el rol
-     * doctor, el cual permite agregar al registro su Exequatur y Especialidad.Metodo actualizado el 19 05 2022.
+     * doctor, el cual permite agregar al registro su Exequatur y
+     * Especialidad.Metodo actualizado el 19 05 2022.
      *
      *
      * @param u Un objeto de la case Usuario.
      * @param sql
      * @return Devuelve un mensaje que indica si la actualizacion fue exitosa.
      */
-    public static synchronized String agregarModificarUsuario(Usuario u, boolean sql) {
-        /**
-         * Query que permite agregar usuarios al sistema.
-         */
-        final String INSERT
-                = "EXECUTE PROCEDURE SP_INSERT_USUARIO(?,?,?,?,?,?,?,?)";
-
-        /**
-         * Procedimiento que se encarga de actualizar a los usuarios del
-         * sistema.
-         */
-        final String UPDATE
-                = "EXECUTE PROCEDURE SP_UPDATE_USUARIO(?,?,?,?,?,?,?,?)";
-        
-        try (CallableStatement cs = getCnn().prepareCall(sql ? INSERT: UPDATE)) {
+    public static synchronized String agregarUsuario(Usuario u) {
+        final String sql
+                = "EXECUTE PROCEDURE SP_INSERT_USUARIO(?,?,?,?,?,?,?,?,?)";
+        System.out.println("TAGS: "+u.getTags());
+        try (CallableStatement cs = getCnn().prepareCall(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             cs.setString(1, u.getUser_name());
             cs.setString(2, u.getClave());
             cs.setString(3, u.getPnombre());
@@ -355,14 +294,52 @@ public class Usuario extends Personas {
             cs.setBoolean(6, u.getEstado());
             cs.setBoolean(7, u.getAdministrador());
             cs.setString(8, u.getDescripcion());
-
+            cs.setString(9, u.getTags());
             cs.executeUpdate();
 
-            return "Usuario Agregado o Modificado Correctamente.";
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al Modificar Usuario...";
+            return "Error al agregar Usuario...";
         }
+        u.getRoles().forEach(role -> {
+            Roles.asignarRolUsuario(
+                    role.getRoleName(),
+                    u.getUser_name(),
+                    role.isConAdmin());
+        });
+
+        return "Usuario agregado correctamente.";
+    }
+    
+    public static synchronized String modificarUsuario(Usuario u) {
+        final String sql
+                = "EXECUTE PROCEDURE SP_UPDATE_USUARIO (?,?,?,?,?,?,?,?)";
+
+        try (CallableStatement cs = getCnn().prepareCall(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+            cs.setString(1, u.getUser_name());
+            cs.setString(2, u.getClave());
+            cs.setString(3, u.getPnombre());
+            cs.setString(4, u.getSnombre());
+            cs.setString(5, u.getApellidos());
+            cs.setBoolean(6, u.getEstado());
+            cs.setBoolean(7, u.getAdministrador());
+            cs.setString(8, u.getDescripcion());
+            cs.executeUpdate();
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return "Error al modificar usuario...";
+        }
+        u.getRoles().forEach(role -> {
+            Roles.asignarRolUsuario(
+                    role.getRoleName(),
+                    u.getUser_name(),
+                    role.isConAdmin());
+        });
+
+        return "Usuario modificado correctamente.";
     }
 
     /**
@@ -382,11 +359,14 @@ public class Usuario extends Personas {
      */
     public synchronized static boolean existeUsuarioByUserName(String userName) {
 
-        final String EXISTE_USUARIO_BY_USER_NAME
+        final String sql
                 = "SELECT DISTINCT(1) "
-                + "FROM SP_SELECT_USUARIOS_TAGS ('all') p "
-                + "WHERE TRIM(p.O_USER_NAME) STARTING WITH TRIM(UPPER(?))";
-        try (PreparedStatement ps = getCnn().prepareStatement(EXISTE_USUARIO_BY_USER_NAME)) {
+                + "FROM SP_SELECT_USUARIOS "
+                + "WHERE TRIM(USERNAME) STARTING WITH TRIM(UPPER(?))";
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setString(1, userName);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();

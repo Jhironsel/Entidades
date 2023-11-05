@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
 
@@ -18,9 +17,9 @@ public class Antecedentes extends Personas {
     private static final Logger LOG = Logger.getLogger(Antecedentes.class.getName());
 
     private final int id;
-    @NonNull private final int idDoctor;
-    @NonNull private final Date fecha;
-    @NonNull private String descripcion;
+    private final int idDoctor;
+    private final Date fecha;
+    private String descripcion;
     private String UserName;
     private String Rol;
 

@@ -1,7 +1,6 @@
 package sur.softsurena.enums;
 
 import lombok.Getter;
-import org.eclipse.jdt.internal.compiler.batch.Main;
 
 @Getter
 public enum Meses {

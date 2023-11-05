@@ -43,16 +43,4 @@ public class ConexionNGTest {
     public void tearDownMethod() throws Exception {
         System.out.println("tearDownMethod()");
     }
-
-//    /**
-//     * Test of verificar method, of class Conexion.
-//     */
-//    @Test
-//    public void testVerificar() {
-//        System.out.println("verificar");
-//        
-//        assertEquals(Boolean.TRUE, Conexion.verificar());
-//        
-//        assertEquals(Conexion.USUARIO_LOGEADO, Conexion.alerta.getContentText());
-//    }
 }

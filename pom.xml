@@ -51,8 +51,12 @@
             <version>2</version>
             <type>jar</type>
         </dependency>
-        
-                
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jcommon</artifactId>
+            <version>1.0.23</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <name>entidades</name>
     <description>En este proyecto guardo todas las entidades de mis programas.</description>

@@ -42,9 +42,8 @@ public class E_S_SYS {
      */
     public synchronized static boolean insertLogo(File file){
         final String INSERT_LOGO
-            = "UPDATE OR INSERT INTO V_E_S_SYS(ID_E_S_SYS, LOGO) "
-            + "VALUES(1,?) "
-            + "MATCHING(ID_E_S_SYS);";
+            = "UPDATE OR INSERT INTO V_E_S_SYS(ID, LOGO) "
+            + "VALUES(1,?) MATCHING(ID);";
         
         try (PreparedStatement ps = getCnn().prepareStatement(INSERT_LOGO)){
             ps.setString(1, Utilidades.imagenEncode64(file));
@@ -60,13 +59,11 @@ public class E_S_SYS {
      * @return 
      */
     public synchronized static String getLogo() {
-        final String SELECT_LOGO
-            = "SELECT r.LOGO \n"
-            + "FROM V_E_S_SYS r \n"
-            + "WHERE r.ID_E_S_SYS = 1; ";
+        final String sql
+            = "SELECT LOGO FROM V_E_S_SYS WHERE ID = 1; ";
         
         try ( PreparedStatement ps = getCnn().prepareStatement(
-                SELECT_LOGO,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {

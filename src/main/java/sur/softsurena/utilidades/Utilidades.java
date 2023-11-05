@@ -82,7 +82,7 @@ public class Utilidades {
         });
     }
     /**
-     * Metodo que nos permite seleccionar todo el contenido de un JTextField.
+     * Metodo que nos permite seleccionar el contenido de un JTextField.
      * Dicho metodo debe ser declarado despues del metodo init del constructor
      * de la clase que valla a utilizarse.
      * 
@@ -106,7 +106,7 @@ public class Utilidades {
     }
 
     /**
-     *
+     * TODO llevar esto a un metodo para jasper
      * @param filePath
      * @param print
      */
@@ -121,7 +121,9 @@ public class Utilidades {
             BufferedImage rendered_image = (BufferedImage) printManager.printToImage(print, 0, 1.6f);
             ImageIO.write(rendered_image, "png", ouputStream);
 
-        } catch (IOException | JRException e) {
+        } catch (IOException x) {
+            JOptionPane.showMessageDialog(null, x.getLocalizedMessage());
+        } catch (JRException e){
             JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
         }
     }

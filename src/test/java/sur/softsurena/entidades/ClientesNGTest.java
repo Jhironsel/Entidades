@@ -5,10 +5,6 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import static org.testng.Assert.*;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 
@@ -21,32 +17,16 @@ public class ClientesNGTest {
     private Clientes cliente;
 
     public ClientesNGTest() {
-        Conexion.getInstance("sysdba", "Seguridad43210",
+        Conexion.getInstance("sysdba", "1",
                 "/home/jhironsel/BaseDatos/BaseDeDatos4.fdb",
                 "localhost", "3050");
-        if (Conexion.verificar()) {
+        if (Conexion.verificar().getEstado()) {
             System.out.println("Contraseña correcta...");
         } else {
             System.out.println("Error en la clave...");
         }
     }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @BeforeMethod
-    public void setUpMethod() throws Exception {
-    }
-
-    @AfterMethod
-    public void tearDownMethod() throws Exception {
-    }
-
+    
     @Test
     public void testAgregarCliente() {
         contactosTels.add(ContactosTel.builder().
@@ -172,7 +152,7 @@ public class ClientesNGTest {
 
     @Test
     public void testGetClientesTablaSB() {
-        List<Clientes> result = Clientes.getClientesTablaSB();
+        List<Clientes> result = Clientes.getClientesTablaSB(1, 10);
         assertNotNull(result);
     }
 
@@ -230,6 +210,8 @@ public class ClientesNGTest {
         boolean result = Clientes.modificarClienteCC(cliente2);
         assertEquals(result, expResult);
     }
+
+
     
 //    @Test
 //    public void testEliminarClienteCC() {
@@ -239,8 +221,6 @@ public class ClientesNGTest {
 //        assertEquals(result, expResult);
 //    }
     
-
-
     
     
 //    @Test
@@ -248,5 +228,5 @@ public class ClientesNGTest {
 //        Resultados<Object> result = Clientes.borrarCliente(idCliente);
 //        assertEquals(result.getMensaje(), Clientes.CLIENTE_BORRADO_CORRECTAMENTE);
 //    }
-    
+
 }

@@ -4,28 +4,19 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.NonNull;
-import org.pentaho.reporting.engine.classic.core.modules.misc.datafactory.sql.DriverConnectionProvider;
+import sur.softsurena.entidades.Resultados;
 
 public class Conexion {
 
     //Variables Privadas
     private static final Logger LOG = Logger.getLogger(Conexion.class.getName());
+    
     private static Connection cnn;
-    private static DriverConnectionProvider provider;
     private static String user, clave;
     private static StringBuilder urlDB;
     private static final String PROTOCOLO_FIREBIRD = "jdbc:firebirdsql://";
-    private static final String VALIDACIONES_DEL_SISTEMA = "Validaciones del sistema";
-
-    //Variables Publicas
-//    public static Alert alerta;
-    public static final String NO_ES_POSIBLE_CONECTARSE_AL_SERVIDOR = "No es posible conectarse al servidor: ";
-    public static final String USUARIO_NO_IDENTIFICADO = "Usuario no identificado";
-    public static final String LIBRERIA_DEL_DRIVER_NO_ENCONTRADA = "Libreria no encontrada";
-    public static final String USUARIO_LOGEADO = "Usuario logeado";
 
     public static Connection getCnn() {
         return cnn;
@@ -35,14 +26,6 @@ public class Conexion {
         Conexion.cnn = cnn;
     }
 
-    public static DriverConnectionProvider getProvider() {
-        return provider;
-
-    }
-
-    public static void setProvider(DriverConnectionProvider provider) {
-        Conexion.provider = provider;
-    }
 
     /**
      * Unico Metodo que permite obtener una instancia de la clase Conexión. La
@@ -96,7 +79,7 @@ public class Conexion {
      * @return Retorna true si esta dentro o false si tuvo problema en la
      * conexion.
      */
-    public static Boolean verificar() {
+    public static Resultados<Object> verificar() {
         final Properties properties = new Properties();
         //Objecto Properties necesario para la base de datos. 
         properties.setProperty("user", user);
@@ -104,26 +87,89 @@ public class Conexion {
         properties.setProperty("charSet", "UTF8");
         try {
             setCnn(DriverManager.getConnection(urlDB.toString(), properties));
-            // Defining the connection provider.
-            provider = new DriverConnectionProvider();
-            provider.setProperty("user", user);
-            provider.setProperty("password", clave);
-            provider.setProperty("charSet", "UTF8");
-            provider.setUrl(urlDB.toString());
-            return true;
-        } catch (SQLException ex) {
-            if (ex.getMessage().contains("password")) {
-                LOG.log(Level.INFO, USUARIO_NO_IDENTIFICADO);
+            return Resultados.builder().
+                    mensaje("Mensaje").
+                    estado(Boolean.TRUE).build();
+        } catch(java.sql.SQLInvalidAuthorizationSpecException ex1){
+            return Resultados.builder().
+                        mensaje(JAVASQL_SQL_INVALID_AUTHORIZATION_SPEC_EXCEPTI).
+                        estado(Boolean.TRUE).
+                    build();
+        }catch (SQLException ex) {
+            ex.printStackTrace();
+            
+            if (ex.getMessage().contains(E_FECHA_INICIAL_INCORRECTA)) {
+                return Resultados.builder().
+                        mensaje(E_FECHA_INICIAL_INCORRECTA).
+                        estado(Boolean.FALSE).
+                        build();
             }
+            
+            if (ex.getMessage().contains(E_FECHA_ACTUAL_INCORRECTA)) {
+                return Resultados.builder().
+                        mensaje(E_FECHA_ACTUAL_INCORRECTA).
+                        estado(Boolean.FALSE).
+                        build();
+            }
+            
+            if (ex.getMessage().contains(E_FECHA_VENCIMIENTO)) {
+                return Resultados.builder().
+                        mensaje(E_FECHA_VENCIMIENTO).
+                        estado(Boolean.FALSE).
+                        build();
+            }
+            
+            if (ex.getMessage().contains(E_EQUIPO_NO_REGISTRADO)) {
+                return Resultados.builder().
+                        mensaje(E_EQUIPO_NO_REGISTRADO).
+                        estado(Boolean.FALSE).
+                        build();
+            }
+            
             if (ex.getMessage().contains("Unable to complete network request to host")) {
-
-                StringBuilder mensaje = new StringBuilder();
-
-                mensaje.append(NO_ES_POSIBLE_CONECTARSE_AL_SERVIDOR)
-                        .append(urlDB);
-                LOG.log(Level.INFO, mensaje.toString(), ex);
+                return Resultados.builder().
+                        build();
             }
-            return false;
+            
+            
+
+            return Resultados.builder().
+                    mensaje(ex.getMessage()).
+                    estado(Boolean.FALSE).build();
         }
     }
+    /**
+     * Driver de firebird (Jaybird) no se encuentra en la carpecta /lib del 
+     * proyecto.
+     * https://firebirdsql.org/en/jdbc-driver/
+     */
+    public static final String LIBRERIA_DEL_DRIVER_NO_ENCONTRADA = 
+            "Libreria no encontrada";
+    
+    /**
+     * Esta variable indica que el usuario y la contraseña son incorrecto.
+     */
+    public static final String JAVASQL_SQL_INVALID_AUTHORIZATION_SPEC_EXCEPTI = 
+            "JAVASQL_SQL_INVALID_AUTHORIZATION_SPEC_EXCEPTI";
+    /**
+     * Esta variable indica que la fecha inicial es incorrecta. Debe ajustar la
+     * fecha del servidor.
+     */
+    public static final String E_FECHA_INICIAL_INCORRECTA = 
+            "E_FECHA_INICIAL_INCORRECTA";
+    /**
+     * La fecha actual registrada en el revidor es incorrecta. 
+     */
+    public static final String E_FECHA_ACTUAL_INCORRECTA = 
+            "E_FECHA_ACTUAL_INCORRECTA";
+    /**
+     * La fecha del producto ha caducado.
+     */
+    public static final String E_FECHA_VENCIMIENTO = "E_FECHA_VENCIMIENTO";
+    
+    /**
+     * Indica que no existe registros en el servidor de la base de datos.
+     */
+    public static final String E_EQUIPO_NO_REGISTRADO = 
+            "E_EQUIPO_NO_REGISTRADO";
 }

@@ -17,7 +17,11 @@ public class Cajeros extends Usuario{
 
     private static final Logger LOG = Logger.getLogger(Cajeros.class.getName());
     
-    
+    /**
+     * Metodo que devuelve una lista de atributos de los usuarios del sistema. 
+     * @return El valor devuelto de este metodo es una lista de atributos de 
+     * los usuarios del sistema. 
+     */
     public synchronized static List<Cajeros> getCajeros() {
         List<Cajeros> cajerosList = new ArrayList<>();
 
@@ -53,11 +57,16 @@ public class Cajeros extends Usuario{
         }
     }
     
+    /**
+     * Metodo que devuelve una lista de nombres de usuarios del sistema. 
+     * @return El valor devuelto de este metodo es una lista de nombres de 
+     * usuarios del sistema. 
+     */
     public synchronized static List<Cajeros> getCajerosName() {
         List<Cajeros> cajerosList = new ArrayList<>();
 
         final String SELECT
-                = "SELECT USER_NAME FROM GET_CAJEROS";
+                = "SELECT USER_NAME FROM SP_SELECT_GET_CAJEROS;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,

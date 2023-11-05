@@ -27,7 +27,7 @@ public class frmParametros2 extends javax.swing.JFrame {
 
         try {
             f = new File(getClass().getResource(
-                    "/sur/softsurena/properties/propiedades.properties").toURI());
+                    "properties/propiedades.properties").toURI());
             propiedades.load(new FileReader(f));
 
         } catch (URISyntaxException ex) {
@@ -352,7 +352,7 @@ public class frmParametros2 extends javax.swing.JFrame {
             }
 
             if (valor < 0 || valor > 255) {
-                JOptionPane.showMessageDialog(rootPane, "Valor incorrecto en el Ambito 1");
+                JOptionPane.showMessageDialog(null, "Valor incorrecto en el Ambito 1");
                 txtValor1.setText("");
                 txtValor1.requestFocusInWindow();
                 return;
@@ -364,7 +364,7 @@ public class frmParametros2 extends javax.swing.JFrame {
                 valor = -1;
             }
             if (valor < 0 || valor > 255) {
-                JOptionPane.showMessageDialog(rootPane, "Valor incorrecto en el Ambito 2");
+                JOptionPane.showMessageDialog(null, "Valor incorrecto en el Ambito 2");
                 txtValor2.setText("");
                 txtValor2.requestFocusInWindow();
                 return;
@@ -376,7 +376,7 @@ public class frmParametros2 extends javax.swing.JFrame {
                 valor = -1;
             }
             if (valor < 0 || valor > 255) {
-                JOptionPane.showMessageDialog(rootPane, "Valor incorrecto en el Ambito 3");
+                JOptionPane.showMessageDialog(null, "Valor incorrecto en el Ambito 3");
                 txtValor3.setText("");
                 txtValor3.requestFocusInWindow();
                 return;
@@ -388,7 +388,7 @@ public class frmParametros2 extends javax.swing.JFrame {
                 valor = -1;
             }
             if (valor < 0 || valor > 255) {
-                JOptionPane.showMessageDialog(rootPane, "Valor incorrecto en el Ambito 4");
+                JOptionPane.showMessageDialog(null, "Valor incorrecto en el Ambito 4");
                 txtValor4.setText("");
                 txtValor4.requestFocusInWindow();
                 return;
@@ -411,7 +411,7 @@ public class frmParametros2 extends javax.swing.JFrame {
                 valor = -1;
             }
             if (valor < 0 || valor > 65535) {
-                JOptionPane.showMessageDialog(rootPane, "Este Puerto no es valido");
+                JOptionPane.showMessageDialog(null, "Este Puerto no es valido");
                 txtPuerto.setText("");
                 txtPuerto.requestFocusInWindow();
                 return;

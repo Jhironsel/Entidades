@@ -24,6 +24,7 @@ public class Roles {
     private final String nombreProcedimiento;
     private final String descripcion;
     private final int opcionPermiso;
+    private final boolean conAdmin;
 
     /**
      * Metodo utilizado para consultar a la base de datos, los roles creado y
@@ -38,28 +39,25 @@ public class Roles {
     public synchronized static List<Roles> comprobandoRol(String userName) {
         List<Roles> roles = new ArrayList<>();
 
-        final String SELECT_ROLES_USUARIOS
+        final String sql
                 = "SELECT ROL, DESCRIPCION, ADMINISTRACION "
                 + "FROM GET_ROL "
                 + "WHERE USER_NAME STARTING WITH ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
-                SELECT_ROLES_USUARIOS,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            ps.setString(1, userName.trim().toUpperCase());
+            
+            ps.setString(1, userName.strip().toUpperCase());
+            
             try (ResultSet rs = ps.executeQuery()) {
-                String aux;
                 while (rs.next()) {
-                    aux = rs.getString("ROL");
-                    if (aux.equalsIgnoreCase("RDB$ADMIN")) {
-                        aux = "ADMINISTRADOR";
-                    }
                     String descripcion = rs.getString("DESCRIPCION");
                     roles.add(
                             Roles.builder().
-                                    roleName(aux.strip()).
+                                    roleName(rs.getString("ROL")).
                                     descripcion(Objects.isNull(descripcion) ? "":descripcion).
                                     opcionPermiso(rs.getInt("ADMINISTRACION")).
                                     build()
@@ -122,78 +120,6 @@ public class Roles {
     }
 
     /**
-     * Este metodo devuelve todos los relacionados a un rol del sistema.
-     *
-     * @param rol
-     * @return
-     */
-    public synchronized static List<Roles> getPermisosRoles(String rol) {
-        final String sql = 
-                "SELECT TRIM(NOMBRE_RELACION) NOMBRE_RELACION, "
-                + "TRIM(DESCRIPCION) DESCRIPCION, OPCION_PERMISO "
-                + "FROM GET_PRIVILEGIOS "
-                + "WHERE TRIM(USER_NAME) STARTING WITH ? AND NOMBRE_RELACION STARTING WITH 'SP_'";
-        List<Roles> roles = new ArrayList<>();
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                sql,
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            ps.setString(1, rol);
-            try (ResultSet rs = ps.executeQuery();) {
-                while (rs.next()) {
-                    
-                    String nombreRelacion = rs.getString("NOMBRE_RELACION");
-                    String descripcion = rs.getString("DESCRIPCION");
-                    int opcionPermiso = rs.getInt("OPCION_PERMISO");
-                    
-                    roles.add(Roles.builder().
-                            descripcion(Objects.isNull(descripcion) ? "":descripcion .strip()).
-                            nombreProcedimiento(Objects.isNull(nombreRelacion) ? "":nombreRelacion.strip()).
-                            opcionPermiso(opcionPermiso).
-                            build());
-                }
-            }
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-        return roles;
-    }
-
-    public synchronized static List<Roles> getRolesDisponibles(String rol) {
-        final String sql = "SELECT DISTINCT(TRIM(a.NOMBRE_RELACION)) NOMBRE_RELACION, TRIM(a.DESCRIPCION) DESCRIPCION "
-                + "FROM GET_PRIVILEGIOS a "
-                + "WHERE TRIM(a.USER_NAME) LIKE 'RDB$ADMIN' AND TRIM(a.NOMBRE_RELACION) STARTING WITH 'SP_' AND "
-                + "     TRIM(a.NOMBRE_RELACION) NOT IN(SELECT TRIM(NOMBRE_RELACION) "
-                + "                              FROM GET_PRIVILEGIOS "
-                + "                              WHERE TRIM(USER_NAME) STARTING WITH ?);";
-        List<Roles> roles = new ArrayList<>();
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                sql,
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            ps.setString(1, rol);
-            try (ResultSet rs = ps.executeQuery();) {
-                while (rs.next()) {
-                    String descripcion, nombreRelacion;
-                    descripcion = rs.getString("DESCRIPCION");
-                    nombreRelacion = rs.getString("NOMBRE_RELACION");
-                    roles.add(Roles.builder().
-                            descripcion(Objects.isNull(descripcion) ? "": descripcion.strip()).
-                            nombreProcedimiento(Objects.isNull(nombreRelacion) ? "":nombreRelacion.strip()).
-                            build());
-                }
-            }
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-        return roles;
-    }
-
-    /**
      * Es el metodo que nos devuelve los Roles del sistema, los cuales son asig-
      * nados a los usuarios.
      *
@@ -213,10 +139,13 @@ public class Roles {
 
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
+                    
                     String rol, descripcion, propietario;
+                    
                     rol = rs.getString("Rol");
                     descripcion = rs.getString("Descripcion");
                     propietario = rs.getString("PROPIETARIO");
+                    
                     rolesList.add(Roles.builder().
                             roleName(Objects.isNull(rol) ? "":rol.strip()).
                             descripcion(Objects.isNull(descripcion) ? "":descripcion.strip()).
@@ -312,36 +241,64 @@ public class Roles {
     }
     
     /**
+     * Este metodo permite ejecutar procedimientos que otorgan permisos a los 
+     * roles.
      * 
-     * @param procedimiento
-     * @param rol
-     * @param admin
-     * @return 
+     * @param procedimiento Es el procedimiento que se ejecuta en la BD. Debe de
+     * tener las iniciales de PERM_ para ejecutarse.
+     * 
+     * @param rol es el rol a la cual se le va a dar los permisos necesarios 
+     * para ejecutar el procedimiento.
+     * 
+     * @param admin Es la bandera que indica si el permiso tendrá derecho de 
+     * administrarlo o de cedelo a otros usuario.
+     * 
+     * @param otorgar Permite determinar si el usuario va a recibir el permiso 
+     * en el caso de que sea true, en caso contrario se le quita los permisos 
+     * false. 
+     * 
+     * @return Devuelve un objecto de la clase resultados que indica si la 
+     * operacion fue un exito si o no.
      */
     public synchronized static Resultados<Object> asignarRol(
-            String procedimiento, String rol, boolean admin) {
-        String sql = "EXECUTE PROCEDURE ADMIN_DAR_PERMISO_ROL(?,?,?)";
+            String procedimiento, String rol, boolean admin, boolean otorgar) {
+        
+        if(!procedimiento.startsWith("PERM_")){
+            return Resultados.builder().
+                    id(-1).
+                    mensaje("Procedimiento incorrecto a la base de datos.").
+                    cantidad(-1).
+                    estado(Boolean.FALSE).
+                    build();
+        }
+        
+        String sql = "EXECUTE PROCEDURE "+procedimiento+" (?,?,?)";
+        
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             
-            cs.setString(1, procedimiento);
-            cs.setString(2, rol);
-            cs.setBoolean(3, admin);
+            cs.setString(1, rol);
+            cs.setBoolean(2, admin);
+            cs.setBoolean(3, otorgar);
             
             boolean execute = cs.execute();
 
             return Resultados.builder().
                     id(-1).
-                    mensaje("Rol asignado").
+                    mensaje("Permiso Actualizado.").
                     cantidad(-1).
                     estado(execute).
                     build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados.builder().id(-1).mensaje("Error al establecer rol").cantidad(-1).build();
+            return Resultados.builder().
+                    id(-1).
+                    mensaje("Error al establecer rol").
+                    cantidad(-1).
+                    build();
         }
     }
     
@@ -378,205 +335,6 @@ public class Roles {
             return Resultados.builder().
                     id(-1).
                     mensaje("Error al asignar rol").
-                    cantidad(-1).
-                    build();
-        }
-    }
-    
-    /**
-     * 
-     * @param procedimiento
-     * @param rol
-     * @param admin
-     * @return 
-     */
-    public synchronized static Resultados<Object> quitarPermisoAdminProcedimiento(
-            String procedimiento, String rol) {
-        String sql = "EXECUTE PROCEDURE ADMIN_QUITAR_PERMISO_ADMIN_PROCE(?,?)";
-        try (CallableStatement cs = getCnn().prepareCall(
-                sql,
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
-            cs.setString(1, procedimiento);
-            cs.setString(2, rol);
-            
-            boolean execute = cs.execute();
-
-            return Resultados.builder().
-                    id(-1).
-                    mensaje("Procedimiento sin control administrativo.").
-                    cantidad(-1).
-                    estado(execute).
-                    build();
-            
-        } catch (SQLException ex) {
-            
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            
-            return Resultados.builder().
-                    id(-1).
-                    mensaje("Error al quitar control administrativo.").
-                    cantidad(-1).
-                    build();
-        }
-    }
-    
-    /**
-     * 
-     * @param rol
-     * @param usuario
-     * @return 
-     */
-    public synchronized static Resultados<Object> quitarPermisoAdminRole(
-            String rol, String usuario) {
-        String sql = "EXECUTE PROCEDURE ADMIN_QUITAR_PERMISO_ADMIN_ROL(?,?)";
-        try (CallableStatement cs = getCnn().prepareCall(
-                sql,
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
-            cs.setString(1, rol);
-            cs.setString(2, usuario);
-            
-            boolean execute = cs.execute();
-
-            return Resultados.builder().
-                    id(-1).
-                    mensaje("Procedimiento sin control administrativo.").
-                    cantidad(-1).
-                    estado(execute).
-                    build();
-            
-        } catch (SQLException ex) {
-            
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            
-            return Resultados.builder().
-                    id(-1).
-                    mensaje("Error al quitar control administrativo.").
-                    cantidad(-1).
-                    build();
-        }
-    }
-    
-    /**
-     * 
-     * @param procedimiento
-     * @param rol
-     * @param admin
-     * @return 
-     */
-    public synchronized static Resultados<Object> agregarPermisoAdminProcedimiento(
-            String procedimiento, String rol) {
-        String sql = "EXECUTE PROCEDURE ADMIN_AGREGAR_PERMISO_ADMIN_PROCE(?,?)";
-        try (CallableStatement cs = getCnn().prepareCall(
-                sql,
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
-            cs.setString(1, procedimiento);
-            cs.setString(2, rol);
-            
-            boolean execute = cs.execute();
-
-            return Resultados.builder().
-                    id(-1).
-                    mensaje("Procedimiento sin control administrativo.").
-                    cantidad(-1).
-                    estado(execute).
-                    build();
-            
-        } catch (SQLException ex) {
-            
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            
-            return Resultados.builder().
-                    id(-1).
-                    mensaje("Error al quitar control administrativo.").
-                    cantidad(-1).
-                    build();
-        }
-    }
-    
-    /**
-     * 
-     * @param role
-     * @param usuario
-     * @param admin
-     * @return 
-     */
-    public synchronized static Resultados<Object> agregarPermisoAdminRole(
-            String role, String usuario) {
-        String sql = "EXECUTE PROCEDURE ADMIN_AGREGAR_PERMISO_ADMIN_ROLE(?,?)";
-        try (CallableStatement cs = getCnn().prepareCall(
-                sql,
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
-            cs.setString(1, role);
-            cs.setString(2, usuario);
-            
-            boolean execute = cs.execute();
-
-            return Resultados.builder().
-                    id(-1).
-                    mensaje("Role sin control administrativo.").
-                    cantidad(-1).
-                    estado(execute).
-                    build();
-            
-        } catch (SQLException ex) {
-            
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            
-            return Resultados.builder().
-                    id(-1).
-                    mensaje("Error al quitar control administrativo a role.").
-                    cantidad(-1).
-                    build();
-        }
-    }
-    
-    /**
-     * 
-     * @param procedimiento
-     * @param rol
-     * @param admin
-     * @return 
-     */
-    public synchronized static Resultados<Object> borrarPermisoAdminProcedimiento(
-            String procedimiento, String rol) {
-        String sql = "EXECUTE PROCEDURE ADMIN_BORRAR_PERMISO_ADMIN_PROCE(?,?)";
-        try (CallableStatement cs = getCnn().prepareCall(
-                sql,
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
-            cs.setString(1, procedimiento);
-            cs.setString(2, rol);
-            
-            boolean execute = cs.execute();
-
-            return Resultados.builder().
-                    id(-1).
-                    mensaje("Permiso borrado correctamente.").
-                    cantidad(-1).
-                    estado(execute).
-                    build();
-            
-        } catch (SQLException ex) {
-            
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            
-            return Resultados.builder().
-                    id(-1).
-                    mensaje("Error al borrar permiso").
                     cantidad(-1).
                     build();
         }
@@ -629,7 +387,7 @@ public class Roles {
      * @return
      */
     public synchronized static Resultados<Object> createRole(String rolee) {
-        final String sql = "EXECUTE PROCEDURE SP_CREATE_ROLE (?);";
+        final String sql = "EXECUTE PROCEDURE ADMIN_CREATE_ROLE(?);";
 
         try (PreparedStatement cs = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -702,8 +460,13 @@ public class Roles {
         if(Objects.isNull(roleName)){
             return nombreProcedimiento;
         }else{
-            return roleName.replace("RDB$ADMIN", "ADMINISTRADOR").strip();
+            if(roleName.equalsIgnoreCase("RDB$ADMIN")){
+                return "ADMINISTRADOR";
+            }else if(roleName.equalsIgnoreCase("ADMINISTRADOR")){
+                return "RDB$ADMIN";
+            }
         }
+        return roleName.strip();
     }
 
 }

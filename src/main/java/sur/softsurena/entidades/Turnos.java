@@ -40,7 +40,7 @@ public class Turnos {
     public synchronized static int idTurnoActivo(String userName) {
         final String sql
                 = "SELECT ID "
-                + "FROM SP_SELECT_TURNOS "
+                + "FROM SP_SELECT_TURNOS_POR_CAMPOS_PUBLICO "
                 + "WHERE ESTADO AND TRIM(TURNO_USUARIO) STARTING WITH ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
@@ -63,6 +63,10 @@ public class Turnos {
         }
     }
 
+    /**
+     * 
+     * @return 
+     */
     public static List<Turnos> getTurnosActivos() {
         final String sql = 
                 "SELECT ID, TURNO_USUARIO, FECHA_HORA_INICIO "
@@ -90,6 +94,11 @@ public class Turnos {
         }
     }
     
+    /**
+     * 
+     * @param userName
+     * @return 
+     */
     public static List<Turnos> getTurnosByUserName(String userName){
         final String sql 
                 = "SELECT ID, TURNO_USUARIO, FECHA_HORA_INICIO, FECHA_HORA_FINAL, "

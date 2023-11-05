@@ -37,8 +37,6 @@ public class Categorias implements Comparable {
      * Agregar las categorias de los productos a la base de datos en la tabla
      * Categoria.
      *
-     * Actualizado el dia 13 de abril del 2022.
-     *
      * Actualizado el dia 06 de Julio del 2022: Se agrega el campo static
      * INSERT_CATEGORIA.
      *
@@ -55,11 +53,11 @@ public class Categorias implements Comparable {
      * o no.
      */
     public synchronized static Resultados agregarCategoria(Categorias c) {
-        final String INSERT
+        final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_CATEGORIAS(?,?,?)";
 
         try (CallableStatement cs = getCnn().prepareCall(
-                INSERT,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
@@ -86,8 +84,9 @@ public class Categorias implements Comparable {
     }
 
     /**
-     * Este metodo es utilizado para modificar las categorias de los productos.
-     * En este se puede modificar la descripción y la imagen de la categoria.
+     * Metodo utilizado para modificar las categorias de los productos.
+     * En este se puede modificar la descripción, la imagen de la categoria y
+     * el estado de la categoria.
      *
      * Actualizacion dia 09 julio 2022: Nota, Este metodo se modifica para que
      * devuelta valores de tipo String que indique si el registro fue modificado
@@ -99,30 +98,31 @@ public class Categorias implements Comparable {
      * realizo con exito si o no.
      *
      */
-    public synchronized static String modificarCategoria(Categorias c) {
-        final String UPDATE
-                = "UPDATE V_CATEGORIAS a "
-                + "SET "
-                + "     a.DESCRIPCION = ?, "
-                + "     a.IMAGEN_TEXTO = ?, "
-                + "     a.ESTADO = ? "
-                + "WHERE "
-                + "     a.ID = ?";
+    public synchronized static Resultados modificarCategoria(Categorias c) {
+        final String sql 
+                = "EXECUTE PROCEDURE SP_UPDATE_CATEGORIA (?, ?, ?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
-                UPDATE,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
-            ps.setString(1, c.getDescripcion());
-            ps.setString(2, Utilidades.imagenEncode64(c.getPathImage()));
-            ps.setInt(3, c.getId_categoria());
+            ps.setInt(1, c.getId_categoria());
+            ps.setString(2, c.getDescripcion());
+            ps.setString(3, Utilidades.imagenEncode64(c.getPathImage()));
+            ps.setBoolean(4, c.getEstado());
 
-            ps.executeUpdate();
-            return "Se modificó la categoria correctamente.";
+            int cantidad = ps.executeUpdate();
+            return Resultados.builder().
+                    mensaje("Se modificó la categoria correctamente.").
+                    cantidad(cantidad).
+                    build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al modificar la categoria.";
+            return Resultados.builder().
+                    mensaje("Error al modificar la categoria.").
+                    cantidad(-1).
+                    build();
         }
     }
 
@@ -139,10 +139,10 @@ public class Categorias implements Comparable {
      * @return Devuelve un mensaje de la acción realizada.
      */
     public static Resultados borrarCategoria(int idCategoria) {
-        final String DELETE
-                = "DELETE FROM V_CATEGORIAS WHERE ID = ?;";
+        final String sql
+                = "EXECUTE PROCEDURE SP_DELETE_CATEGORIAS (?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(DELETE)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             ps.setInt(1, idCategoria);
 
@@ -212,37 +212,32 @@ public class Categorias implements Comparable {
      * donde contiene todos los campos de la tabla.
      */
     public synchronized static List<Categorias> getCategorias() {
-
-        final String SELECT_CATEGORIA
+        final String sql
                 = "SELECT ID, DESCRIPCION, IMAGEN_TEXTO, FECHA_CREACION, ESTADO "
-                + "FROM V_CATEGORIAS "
+                + "FROM SP_V_CATEGORIAS "
                 + "ORDER BY 1";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
-                SELECT_CATEGORIA,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             List<Categorias> categorias = new ArrayList<>();
-            Categorias cat;
 
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    cat = Categorias.builder().
+                    categorias.add( 
+                            Categorias.builder().
                             id_categoria(rs.getInt("ID")).
                             descripcion(rs.getString("DESCRIPCION")).
                             image_texto(rs.getString("IMAGEN_TEXTO")).
                             estado(rs.getBoolean("ESTADO")).
                             fecha_creacion(rs.getDate("FECHA_CREACION"))
-                            .build();
-
-                    categorias.add(cat);
+                            .build()
+                    );
                 }
                 return categorias;
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
+            } 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -261,14 +256,14 @@ public class Categorias implements Comparable {
          * Esta consulta nos trae aquellas CATEGORIAS que se encuentra asignado
          * a un producto solamente.
          */
-        final String SELECT_CATEGORIA_ACTIVAS
-                = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_TEXTO "
-                + "FROM GET_CATEGORIA_ACTIVAS r";
+        final String sql
+                = "SELECT ID, DESCRIPCION, IMAGEN_TEXTO " +
+                  "FROM SP_GET_CATEGORIA_ACTIVAS;";
 
         List<Categorias> categoriasList = new ArrayList<>();
 
         try (PreparedStatement ps = getCnn().prepareStatement(
-                SELECT_CATEGORIA_ACTIVAS,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {

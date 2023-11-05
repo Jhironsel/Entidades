@@ -275,8 +275,8 @@ public class Clientes extends Personas {
      */
     public synchronized static Integer existeCliente(String cedula) {
         final String GET_ID_CLIENTE_BY_CEDULA
-                = "SELECT ID_PERSONA AS ID "
-                + "FROM V_GENERALES  "
+                = "SELECT ID_PERSONA "
+                + "FROM SP_SELECT_GENERALES "
                 + "WHERE CEDULA LIKE TRIM(?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 GET_ID_CLIENTE_BY_CEDULA,
@@ -288,7 +288,7 @@ public class Clientes extends Personas {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    return rs.getInt("ID");
+                    return rs.getInt("ID_PERSONA");
                 }
                 return -1;
             } catch (SQLException ex) {
@@ -302,17 +302,23 @@ public class Clientes extends Personas {
     }
 
     /**
-     * Metodo utilizado para llevar los comboBox de los componente de clientes.
-     *
-     * Nota: este metodo no deberia devolver un resultset.
+     * Metodo utilizado para llenar los comboBox de los componente de clientes.
+     * 
+     * Dicho metodo entrega un lista de atributos: 
+     *  1) ID
+     *  2) CEDULA
+     *  3) PNOMBRE -> Primer nombre
+     *  4) SNOMBRE -> Segundo nombre
+     *  5) APELLIDOS
      *
      * @return
      */
     public synchronized static List<Clientes> getClientesCombo() {
         final String sql
-                = "SELECT ID, CEDULA, PNOMBRE, SNOMBRE, APELLIDOS, ESTADO "
-                + "FROM GET_CLIENTES_SB "
-                + "WHERE ESTADO";
+                = "SELECT ID, CEDULA, PNOMBRE, SNOMBRE, APELLIDOS "
+                + "FROM SP_GET_CLIENTES_SB "
+                + "WHERE ESTADO "
+                + "ORDER BY 1";
 
         List<Clientes> clienteList = new ArrayList<>();
 
@@ -342,9 +348,6 @@ public class Clientes extends Personas {
                 }
 
                 return clienteList;
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -356,20 +359,30 @@ public class Clientes extends Personas {
      * Metodo utilizado para presentar los datos en la tabla del formulario
      * clientes.
      *
+     * @param nPaginaNro
+     * @param nCantidadFilas
      * @return Devuelve todos los datos realacionado con los clientes en la base
      * de datos.
      */
-    public static synchronized List<Clientes> getClientesTablaSB() {
+    public static synchronized List<Clientes> getClientesTablaSB(Integer nPaginaNro, Integer nCantidadFilas) {
         final String sql
                 = "SELECT ID, CEDULA, PERSONA, PNOMBRE, SNOMBRE, APELLIDOS, "
                 + "     SEXO, FECHA_NACIMIENTO, FECHA_INGRESO, ESTADO "
-                + "FROM SP_SELECT_GET_CLIENTES_SB;";
+                + "FROM SP_SELECT_GET_CLIENTES_SB "
+                + "ROWS (? - 1) * ? + 1 TO (? + (1 - 1)) * ?;";
+        
         List<Clientes> clienteList = new ArrayList<>();
+        
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+            ps.setInt(1, nPaginaNro);
+            ps.setInt(2, nCantidadFilas);
+            ps.setInt(3, nPaginaNro);
+            ps.setInt(4, nCantidadFilas);
+            
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     clienteList.add(
@@ -397,7 +410,6 @@ public class Clientes extends Personas {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
             }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -489,10 +501,16 @@ public class Clientes extends Personas {
         }
     }
 
+    /**
+     * Este metodo es utilizado para consultar los cliente del proyecto web 
+     * llamado control cliente.
+     * 
+     * @param id Identificador del cliente.
+     * @return Devuelve un objecto de la clase Clientes.
+     */
     public synchronized static Clientes getClienteByIDCC(int id) {
         final String sql
-                = "SELECT PERSONA, PNOMBRE, SNOMBRE, APELLIDOS, "
-                + "     TRIM(SEXO) AS SEXO, CORREO, SALDO "
+                = "SELECT PERSONA, PNOMBRE, SNOMBRE, APELLIDOS, TRIM(SEXO) AS SEXO, CORREO, SALDO "
                 + "FROM GET_CLIENTES_CC "
                 + "WHERE ID = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
@@ -524,7 +542,7 @@ public class Clientes extends Personas {
     }
 
     /**
-     *
+     * Metodo que nos
      * @return
      */
     public synchronized static List<Clientes> getClientesCC() {

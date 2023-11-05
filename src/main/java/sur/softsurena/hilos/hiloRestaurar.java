@@ -59,9 +59,12 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
                 return;
             }
 
-            JOptionPane.showMessageDialog(null, "Base de Datos restaurada",
+            JOptionPane.showMessageDialog(
+                    null, 
+                    "Base de Datos restaurada",
                     "sistema de restauracion",
-                    JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.INFORMATION_MESSAGE
+            );
 
             detener();
         }//Para restaurar una base de datos en segundo plano....
@@ -79,27 +82,28 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
 
     @Override
     public void correr() {
-        
+        //TODO Analizar este proceso.        
         BD = pathBaseDeDatos();//Base de Datos actual.
 
-        BDR = System.getProperty("user.dir") + 
-                "/Data/respaldo/SistemaDeBebida.FBK";//Base de Datos Guardada.
-        //Archivo Log
-        log = System.getProperty("user.dir") + "/Data/respaldo/Respaldo.Log";
-
-        RGBAK = System.getProperty("user.dir") + 
-                "/respaldo/gbak";
+        BDR = "/Data/respaldo/SistemaDeBebida.FBK";//Base de Datos Guardada.
         
-        usuarioMaster = JOptionPane.showInputDialog(null,
-                "Inserte el nombre de Usuario: ", "Usuario...",
+        //Archivo Log
+        log = "/Data/respaldo/Respaldo.Log";
+
+        RGBAK = "/respaldo/gbak";
+        
+        usuarioMaster = JOptionPane.showInputDialog(
+                null,
+                "Inserte el nombre de Usuario: ", 
+                "Usuario...",
                 JOptionPane.INFORMATION_MESSAGE);
         
-        if (usuarioMaster.equals("null")) {
+        if (usuarioMaster.isBlank()) {
             return;
         }
+        
         JPasswordField pf = new JPasswordField();        
 
-        //TODO Analizar este proceso.
         claveMaster = "" + JOptionPane.showConfirmDialog(
                 null, 
                 pf,
@@ -110,7 +114,7 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
         
         pf.requestFocusInWindow();
 
-        if (claveMaster.isEmpty()) {
+        if (claveMaster.isBlank()) {
             return;
         }
 

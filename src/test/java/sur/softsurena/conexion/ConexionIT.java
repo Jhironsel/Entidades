@@ -44,7 +44,7 @@ public class ConexionIT {
         System.out.println("verificar");
         
         Boolean expResult = Boolean.TRUE;
-        Boolean result = conexion.verificar();
+        Boolean result = conexion.verificar().getEstado();
         assertEquals(expResult, result);
     }
     
