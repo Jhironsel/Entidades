@@ -364,11 +364,13 @@ public class Clientes extends Personas {
      * @return Devuelve todos los datos realacionado con los clientes en la base
      * de datos.
      */
-    public static synchronized List<Clientes> getClientesTablaSB(Integer nPaginaNro, Integer nCantidadFilas) {
+    public static synchronized List<Clientes> getClientesTablaSB(
+            String criterioBusqueda, Integer nPaginaNro, Integer nCantidadFilas) {
         final String sql
                 = "SELECT ID, CEDULA, PERSONA, PNOMBRE, SNOMBRE, APELLIDOS, "
                 + "     SEXO, FECHA_NACIMIENTO, FECHA_INGRESO, ESTADO "
-                + "FROM SP_SELECT_GET_CLIENTES_SB "
+                + "FROM SP_SELECT_GET_CLIENTES_SB (?) "
+                + "WHERE ID > 0 "
                 + "ROWS (? - 1) * ? + 1 TO (? + (1 - 1)) * ?;";
         
         List<Clientes> clienteList = new ArrayList<>();
@@ -378,10 +380,11 @@ public class Clientes extends Personas {
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            ps.setInt(1, nPaginaNro);
-            ps.setInt(2, nCantidadFilas);
-            ps.setInt(3, nPaginaNro);
-            ps.setInt(4, nCantidadFilas);
+            ps.setString(1, criterioBusqueda.strip());
+            ps.setInt(2, nPaginaNro);
+            ps.setInt(3, nCantidadFilas);
+            ps.setInt(4, nPaginaNro);
+            ps.setInt(5, nCantidadFilas);
             
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {

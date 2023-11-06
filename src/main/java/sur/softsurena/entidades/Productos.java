@@ -96,20 +96,24 @@ public class Productos {
      * @return Devuelve un conjunto de datos de la tabla de los productos del
      * sistema.
      */
-    public synchronized static List<Productos> getProductos(Integer nPaginaNro, Integer nCantidadFilas) {
+    public synchronized static List<Productos> getProductos(
+            String criterioBusqueda, Integer nPaginaNro, Integer nCantidadFilas) {
         List<Productos> listaProducto = new ArrayList<>();
 
         final String SELECT
                 = "SELECT ID, ID_CATEGORIA, DESC_CATEGORIA, CODIGO, DESCRIPCION,"
                 + "      NOTA, FECHA_CREACION, ESTADO "
-                + "FROM SP_SELECT_GET_PRODUCTOS "
+                + "FROM SP_SELECT_GET_PRODUCTOS(?)"
                 + "ROWS (? - 1) * ? + 1 TO (? + (1 - 1)) * ?;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(SELECT)) {
-            ps.setInt(1, nPaginaNro);
-            ps.setInt(2, nCantidadFilas);
-            ps.setInt(3, nPaginaNro);
-            ps.setInt(4, nCantidadFilas);
+            
+            ps.setString(1, criterioBusqueda);
+            ps.setInt(2, nPaginaNro);
+            ps.setInt(3, nCantidadFilas);
+            ps.setInt(4, nPaginaNro);
+            ps.setInt(5, nCantidadFilas);
+            
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     listaProducto.add(Productos.

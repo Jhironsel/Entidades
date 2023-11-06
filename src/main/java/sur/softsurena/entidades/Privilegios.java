@@ -71,7 +71,7 @@ public class Privilegios {
      * @return
      */
     public synchronized static boolean privilegioTabla(Privilegios p) {
-        final String PERMISO_UPDATE_TABLA
+        final String sql
             = "SELECT (1) "
             + "FROM GET_PRIVILEGIOS "
             + "WHERE ("
@@ -82,7 +82,7 @@ public class Privilegios {
             + "      TRIM(NOMBRE_RELACION) LIKE TRIM(?) ";
         
         try (PreparedStatement ps = getCnn().prepareStatement(
-                PERMISO_UPDATE_TABLA,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
