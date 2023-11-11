@@ -1,6 +1,7 @@
 package sur.softsurena.utilidades;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -561,6 +562,14 @@ public class Utilidades {
         };
 
         return keyListener;
+    }
+    
+    /**
+     * Metodo utilizado para centralizar las ventanas del tipo JInternalFrame
+     */
+    public static void centralizar(javax.swing.JInternalFrame ventana) {
+        Dimension d = ventana.getDesktopPane().getSize();
+        ventana.setLocation((d.width - ventana.getSize().width) / 2, (d.height - ventana.getSize().height) / 2);
     }
     
 }

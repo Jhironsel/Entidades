@@ -81,8 +81,7 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
     }
 
     @Override
-    public void correr() {
-        //TODO Analizar este proceso.        
+    public void correr() {       
         BD = pathBaseDeDatos();//Base de Datos actual.
 
         BDR = "/Data/respaldo/SistemaDeBebida.FBK";//Base de Datos Guardada.

@@ -25,14 +25,10 @@ import net.sf.jasperreports.export.SimpleXlsReportConfiguration;
 import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
 
 /**
- * TODO Esta clase contiene todos los metodos necesario para crear los reportes. 
+ * Esta clase contiene todos los metodos necesario para crear los reportes. 
  */
 public class ShapesApp {
 
-
-    /**
-     *
-     */
     public void fill() throws JRException {
         long start = System.currentTimeMillis();
         JasperFillManager.fillReportToFile("build/reports/ShapesReport.jasper", 
@@ -40,20 +36,12 @@ public class ShapesApp {
         System.err.println("Filling time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void print() throws JRException {
         long start = System.currentTimeMillis();
         JasperPrintManager.printReport("build/reports/ShapesReport.jrprint", true);
         System.err.println("Printing time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     * @param origen Es un archivo de tipo jfPrint.
-     * @param destino sera un archivo en PDF.
-     */
     public static void pdf(String origen, String destino) {
         long start = System.currentTimeMillis();
         
@@ -66,9 +54,6 @@ public class ShapesApp {
         System.err.println("PDF creation time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void rtf() throws JRException {
         long start = System.currentTimeMillis();
         File sourceFile = new File("build/reports/ShapesReport.jrprint");
@@ -87,36 +72,24 @@ public class ShapesApp {
         System.err.println("RTF creation time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void xml() throws JRException {
         long start = System.currentTimeMillis();
         JasperExportManager.exportReportToXmlFile("build/reports/ShapesReport.jrprint", false);
         System.err.println("XML creation time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void xmlEmbed() throws JRException {
         long start = System.currentTimeMillis();
         JasperExportManager.exportReportToXmlFile("build/reports/ShapesReport.jrprint", true);
         System.err.println("XML creation time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void html() throws JRException {
         long start = System.currentTimeMillis();
         JasperExportManager.exportReportToHtmlFile("build/reports/ShapesReport.jrprint");
         System.err.println("HTML creation time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void xls() throws JRException {
         long start = System.currentTimeMillis();
         File sourceFile = new File("build/reports/ShapesReport.jrprint");
@@ -138,9 +111,6 @@ public class ShapesApp {
         System.err.println("XLS creation time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void csv() throws JRException {
         long start = System.currentTimeMillis();
         File sourceFile = new File("build/reports/ShapesReport.jrprint");
@@ -159,9 +129,6 @@ public class ShapesApp {
         System.err.println("CSV creation time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void odt() throws JRException {
         long start = System.currentTimeMillis();
         File sourceFile = new File("build/reports/ShapesReport.jrprint");
@@ -180,9 +147,6 @@ public class ShapesApp {
         System.err.println("ODT creation time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void ods() throws JRException {
         long start = System.currentTimeMillis();
         File sourceFile = new File("build/reports/ShapesReport.jrprint");
@@ -201,9 +165,6 @@ public class ShapesApp {
         System.err.println("ODS creation time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void docx() throws JRException {
         long start = System.currentTimeMillis();
         File sourceFile = new File("build/reports/ShapesReport.jrprint");
@@ -222,9 +183,6 @@ public class ShapesApp {
         System.err.println("DOCX creation time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void xlsx() throws JRException {
         long start = System.currentTimeMillis();
         File sourceFile = new File("build/reports/ShapesReport.jrprint");
@@ -246,9 +204,6 @@ public class ShapesApp {
         System.err.println("XLSX creation time : " + (System.currentTimeMillis() - start));
     }
 
-    /**
-     *
-     */
     public void pptx() throws JRException {
         long start = System.currentTimeMillis();
         File sourceFile = new File("build/reports/ShapesReport.jrprint");

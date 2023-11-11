@@ -152,19 +152,13 @@ public class ClientesNGTest {
 
     @Test
     public void testGetClientesTablaSB() {
-        List<Clientes> result = Clientes.getClientesTablaSB(1, 10);
+        List<Clientes> result = Clientes.getClientesTablaSB(-1, "^",1, 10);
         assertNotNull(result);
     }
 
     @Test
     public void testGetClientesTablaSBCombo() {
         List<Clientes> result = Clientes.getClientesTablaSBCombo();
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testGetClienteByID() {
-        Clientes result = Clientes.getClienteByID(idCliente);
         assertNotNull(result);
     }
 

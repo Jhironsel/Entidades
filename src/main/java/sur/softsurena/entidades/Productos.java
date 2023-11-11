@@ -93,6 +93,9 @@ public class Productos {
      *
      * Fecha de Actualización el 19/05/2022.
      *
+     * @param criterioBusqueda
+     * @param nPaginaNro
+     * @param nCantidadFilas
      * @return Devuelve un conjunto de datos de la tabla de los productos del
      * sistema.
      */

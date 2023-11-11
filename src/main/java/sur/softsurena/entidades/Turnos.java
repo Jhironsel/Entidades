@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
@@ -19,6 +20,7 @@ import static sur.softsurena.utilidades.Utilidades.LOGGER;
 public class Turnos {
 
     private final int id;
+    private final Almacen almacen;
     private final String turno_usuario;
     private final Timestamp fecha_hora_inicio;
     private final Timestamp fecha_hora_final;
@@ -37,10 +39,10 @@ public class Turnos {
      * @param userName Id del usuario a identificar.
      * @return Valor que identifica el turno activo del usuario consultado.
      */
-    public synchronized static int idTurnoActivo(String userName) {
+    public synchronized static Turnos turnosActivoByUsuario(String userName) {
         final String sql
-                = "SELECT ID "
-                + "FROM SP_SELECT_TURNOS_POR_CAMPOS_PUBLICO "
+                = "SELECT ID, ID_ALMACEN, NOMBRE_ALMACEN "
+                + "FROM GET_TURNOS "
                 + "WHERE ESTADO AND TRIM(TURNO_USUARIO) STARTING WITH ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
@@ -49,29 +51,60 @@ public class Turnos {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt(1);
-                } else {
-                    return 0;
+                    return Turnos.
+                            builder().
+                            id(rs.getInt("ID")).
+                            almacen(
+                                    Almacen.
+                                            builder().
+                                            id(rs.getInt("ID_ALMACEN")).
+                                            nombre(rs.getString("NOMBRE_ALMACEN")).
+                                            build()
+                            ).
+                            build();
                 }
-            } catch (SQLException ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-                return -1;
             }
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-            return -1;
         }
+        return Turnos.
+                builder().
+                id(-1).
+                almacen(
+                        Almacen.
+                                builder().
+                                id(-1).
+                                nombre("Almacen no encontrado.").
+                                build()
+                ).
+                build();
     }
 
     /**
-     * 
-     * @return 
+     * Metodo utilizado para verificar si un empleado o cajero cuenta con un
+     * turno habilitado por un usuario autorizado que le permita facturar en el
+     * sistema.
+     *
+     * Metodo actualizado el 17/05/2022.
+     *
+     * @param userName Valor que utilizan los usuario en el sistema para iniciar
+     * session.
+     * @return Retorna true si el usuario cuenta con un turno habierto y false
+     * si no cuenta con un turno abierto.
+     */
+    public synchronized static boolean usuarioTurnoActivo(String userName) {
+        return (turnosActivoByUsuario(userName).getId() > 0);
+    }
+
+    /**
+     *
+     * @return
      */
     public static List<Turnos> getTurnosActivos() {
-        final String sql = 
-                "SELECT ID, TURNO_USUARIO, FECHA_HORA_INICIO "
-                + "FROM SP_SELECT_TURNOS "
-                + "WHERE ESTADO";
+        final String sql
+                = "SELECT ID, TURNO_USUARIO, FECHA_HORA_INICIO "
+                + "FROM GET_TURNOS "
+                + "WHERE ESTADO;";
         List<Turnos> turnosList = new ArrayList<>();
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             try (ResultSet rs = ps.executeQuery()) {
@@ -93,35 +126,35 @@ public class Turnos {
             return null;
         }
     }
-    
+
     /**
-     * 
+     *
      * @param userName
-     * @return 
+     * @return
      */
-    public static List<Turnos> getTurnosByUserName(String userName){
-        final String sql 
+    public static List<Turnos> getTurnosByUserName(String userName) {
+        final String sql
                 = "SELECT ID, TURNO_USUARIO, FECHA_HORA_INICIO, FECHA_HORA_FINAL, "
                 + "     ESTADO, MONTO_FACTURADO, MONTO_DEVUELTO, MONTO_EFECTIVO,"
                 + "     MONTO_CREDITO "
-                + "FROM SP_SELECT_TURNOS "
+                + "FROM GET_TURNOS "
                 + "WHERE ESTADO IS FALSE AND TURNO_USUARIO STARTING WITH ? ";
         List<Turnos> turnosList = new ArrayList<>();
-        
+
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            
+
             ps.setString(1, userName);
-            
+
             try (ResultSet rs = ps.executeQuery()) {
-                while(rs.next()){
+                while (rs.next()) {
                     turnosList.add(Turnos.builder().
-                        id(rs.getInt("ID")).
-                        fecha_hora_inicio(rs.getTimestamp("FECHA_HORA_INICIO")).
-                        fecha_hora_final(rs.getTimestamp("FECHA_HORA_FINAL")).
-                        monto_facturado(rs.getBigDecimal("MONTO_FACTURADO")).
-                        monto_devuelto(rs.getBigDecimal("MONTO_DEVUELTO")).
-                        monto_efectivo(rs.getBigDecimal("MONTO_EFECTIVO")).
-                        monto_credito(rs.getBigDecimal("MONTO_CREDITO")).build());
+                            id(rs.getInt("ID")).
+                            fecha_hora_inicio(rs.getTimestamp("FECHA_HORA_INICIO")).
+                            fecha_hora_final(rs.getTimestamp("FECHA_HORA_FINAL")).
+                            monto_facturado(rs.getBigDecimal("MONTO_FACTURADO")).
+                            monto_devuelto(rs.getBigDecimal("MONTO_DEVUELTO")).
+                            monto_efectivo(rs.getBigDecimal("MONTO_EFECTIVO")).
+                            monto_credito(rs.getBigDecimal("MONTO_CREDITO")).build());
                 }
             } catch (SQLException ex) {
                 LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -135,42 +168,41 @@ public class Turnos {
     }
 
     /**
-     * Metodo utilizado para verificar si un empleado o cajero cuenta con un
-     * turno habilitado por un usuario autorizado que le permita facturar en el
-     * sistema.
+     * Metodo que nos permite habilitar a los cajeros al modulo de facturacion.
      *
-     * Metodo actualizado el 17/05/2022.
-     *
-     * @param userName Valor que utilizan los usuario en el sistema para iniciar
-     * session.
-     * @return Retorna true si el usuario cuenta con un turno habierto y false
-     * si no cuenta con un turno abierto.
-     */
-    public synchronized static boolean usuarioTurnoActivo(String userName) {
-        return (idTurnoActivo(userName) > 0);
-    }
-
-    /**
-     *
+     * @param id_almacen
      * @param idUsuario
      * @return
      */
-    public synchronized static boolean habilitarTurno(String idUsuario) {
-        final String sql = "EXECUTE PROCEDURE ADMIN_HABILITAR_TURNO(?)";
+    public synchronized static Resultados habilitarTurno(int id_almacen, String idUsuario) {
+        final String sql = "EXECUTE PROCEDURE ADMIN_HABILITAR_TURNO(?, ?)";
         try (CallableStatement cs = getCnn().prepareCall(sql)) {
 
-            cs.setString(1, idUsuario);
+            cs.setInt(1, id_almacen);
+            cs.setString(2, idUsuario);
 
-            return cs.execute();
+            return Resultados.
+                    builder().
+                    estado(cs.execute()).
+                    mensaje("Turno habilitado correctamente.").
+                    icono(JOptionPane.INFORMATION_MESSAGE).
+                    build();
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-            return false;
+            return Resultados.
+                    builder().
+                    estado(Boolean.FALSE).
+                    mensaje("Error al habilitar el turno").
+                    icono(JOptionPane.ERROR_MESSAGE).
+                    build();
         }
     }
 
     /**
+     * Metodo que nos permite cerrar los turno de los cajeros habiertos en el
+     * sistema.
      *
-     * @param idUsuario
+     * @param idTurno
      * @return
      */
     public synchronized static boolean cerrarTurno(Integer idTurno) {

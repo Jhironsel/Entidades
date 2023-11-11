@@ -32,7 +32,7 @@ public class Facturas {
     public synchronized static List<Facturas> getFacturas() {
         
         final String sql
-            = "SELECT ID FROM V_FACTURAS ORDER BY 1";
+            = "SELECT ID FROM SP_SELECT_V_M_FACTURAS ORDER BY 1";
         
         try (PreparedStatement ps = getCnn().prepareStatement(sql);) {
             List<Facturas> facturasList = new ArrayList<>();

@@ -214,7 +214,7 @@ public class Categorias implements Comparable {
     public synchronized static List<Categorias> getCategorias() {
         final String sql
                 = "SELECT ID, DESCRIPCION, IMAGEN_TEXTO, FECHA_CREACION, ESTADO "
-                + "FROM SP_V_CATEGORIAS "
+                + "FROM V_CATEGORIAS "
                 + "ORDER BY 1";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -258,7 +258,7 @@ public class Categorias implements Comparable {
          */
         final String sql
                 = "SELECT ID, DESCRIPCION, IMAGEN_TEXTO " +
-                  "FROM SP_GET_CATEGORIA_ACTIVAS;";
+                  "FROM GET_CATEGORIA_ACTIVAS;";
 
         List<Categorias> categoriasList = new ArrayList<>();
 

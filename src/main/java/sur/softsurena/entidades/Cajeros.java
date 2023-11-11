@@ -19,6 +19,7 @@ public class Cajeros extends Usuario{
     
     /**
      * Metodo que devuelve una lista de atributos de los usuarios del sistema. 
+     * 
      * @return El valor devuelto de este metodo es una lista de atributos de 
      * los usuarios del sistema. 
      */

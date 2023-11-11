@@ -229,7 +229,7 @@ public class Clientes extends Personas {
             ps.setString(10, String.valueOf(cliente.getGenerales().getEstado_civil()));
 
             cliente.getDirecciones().stream().forEach(clienteList -> {
-                
+
             });
 
             cliente.getContactosEmail().stream().forEach(correoList -> {
@@ -303,20 +303,16 @@ public class Clientes extends Personas {
 
     /**
      * Metodo utilizado para llenar los comboBox de los componente de clientes.
-     * 
-     * Dicho metodo entrega un lista de atributos: 
-     *  1) ID
-     *  2) CEDULA
-     *  3) PNOMBRE -> Primer nombre
-     *  4) SNOMBRE -> Segundo nombre
-     *  5) APELLIDOS
+     *
+     * Dicho metodo entrega un lista de atributos: 1) ID 2) CEDULA 3) PNOMBRE ->
+     * Primer nombre 4) SNOMBRE -> Segundo nombre 5) APELLIDOS
      *
      * @return
      */
     public synchronized static List<Clientes> getClientesCombo() {
         final String sql
                 = "SELECT ID, CEDULA, PNOMBRE, SNOMBRE, APELLIDOS "
-                + "FROM SP_GET_CLIENTES_SB "
+                + "FROM GET_CLIENTES_SB "
                 + "WHERE ESTADO "
                 + "ORDER BY 1";
 
@@ -364,28 +360,41 @@ public class Clientes extends Personas {
      * @return Devuelve todos los datos realacionado con los clientes en la base
      * de datos.
      */
-    public static synchronized List<Clientes> getClientesTablaSB(
+    public static synchronized List<Clientes> getClientesTablaSB( int id, 
             String criterioBusqueda, Integer nPaginaNro, Integer nCantidadFilas) {
         final String sql
                 = "SELECT ID, CEDULA, PERSONA, PNOMBRE, SNOMBRE, APELLIDOS, "
-                + "     SEXO, FECHA_NACIMIENTO, FECHA_INGRESO, ESTADO "
-                + "FROM SP_SELECT_GET_CLIENTES_SB (?) "
-                + "WHERE ID > 0 "
+                + "          SEXO, FECHA_NACIMIENTO, FECHA_INGRESO, ESTADO, ESTADO_CIVIL "
+                + "FROM GET_CLIENTES_SB "
+                + "WHERE ID = ? OR "
+                + "UPPER(TRIM(CEDULA)) STARTING WITH UPPER(TRIM(?)) OR "
+                + "UPPER(TRIM(PNOMBRE)) STARTING WITH UPPER(TRIM(?)) OR "
+                + "UPPER(TRIM(SNOMBRE)) STARTING WITH UPPER(TRIM(?)) OR "
+                + "UPPER(TRIM(APELLIDOS)) STARTING WITH UPPER(TRIM(?)) "
                 + "ROWS (? - 1) * ? + 1 TO (? + (1 - 1)) * ?;";
-        
+
         List<Clientes> clienteList = new ArrayList<>();
-        
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            ps.setString(1, criterioBusqueda.strip());
-            ps.setInt(2, nPaginaNro);
-            ps.setInt(3, nCantidadFilas);
-            ps.setInt(4, nPaginaNro);
-            ps.setInt(5, nCantidadFilas);
+            //Parametros para el identificador
+            ps.setInt(1, id);
             
+            //Parametros para el criterio de busquedas
+            ps.setString(2, criterioBusqueda.strip());
+            ps.setString(3, criterioBusqueda.strip());
+            ps.setString(4, criterioBusqueda.strip());
+            ps.setString(5, criterioBusqueda.strip());
+            
+            //Parametros para la paginacion de contenido de las tablas.
+            ps.setInt(6, nPaginaNro);
+            ps.setInt(7, nCantidadFilas);
+            ps.setInt(8, nPaginaNro);
+            ps.setInt(9, nCantidadFilas);
+
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     clienteList.add(
@@ -396,6 +405,7 @@ public class Clientes extends Personas {
                                     generales(Generales.
                                             builder().
                                             cedula(rs.getString("CEDULA")).
+                                            estado_civil(rs.getString("ESTADO_CIVIL").charAt(0)).
                                             build()
                                     ).
                                     pnombre(rs.getString("PNOMBRE")).
@@ -465,49 +475,49 @@ public class Clientes extends Personas {
      *
      * @return Retorna un conjunto de datos del tipo resultSet.
      */
-    public synchronized static Clientes getClienteByID(int id) {
-        final String sql
-                = "SELECT ID, CEDULA, PERSONA, PNOMBRE, SNOMBRE, APELLIDOS, SEXO, "
-                + "     FECHA_NACIMIENTO, ESTADO_CIVIL, FECHA_INGRESO, ESTADO "
-                + "FROM GET_PERSONAS_ID "
-                + "WHERE ID = ?";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            ps.setInt(1, id);
-            Clientes c = null;
-            try (ResultSet rs = ps.executeQuery();) {
-                while (rs.next()) {
-                    c = Clientes.builder().
-                            pnombre(rs.getString("PNOMBRE")).
-                            snombre(rs.getString("SNOMBRE")).
-                            apellidos(rs.getString("APELLIDOS")).
-                            fecha_nacimiento(rs.getDate("FECHA_NACIMIENTO")).
-                            fecha_ingreso(rs.getDate("FECHA_INGRESO")).
-                            estado(rs.getBoolean("ESTADO")).
-                            persona(rs.getString("PERSONA").charAt(0)).
-                            sexo(rs.getString("SEXO")).
-                            generales(
-                                    Generales.builder().
-                                            cedula(rs.getString("CEDULA")).
-                                            estado_civil(rs.getString("ESTADO_CIVIL").charAt(0)).
-                                            build()).
-                            build();
-                }
-
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
-            return c;
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
+//    public synchronized static Clientes getClienteByID(int id) {
+//        final String sql
+//                = "SELECT ID, CEDULA, PERSONA, PNOMBRE, SNOMBRE, APELLIDOS, SEXO, "
+//                + "     FECHA_NACIMIENTO, ESTADO_CIVIL, FECHA_INGRESO, ESTADO "
+//                + "FROM GET_PERSONAS_ID "
+//                + "WHERE ID = ?";
+//        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+//            ps.setInt(1, id);
+//            Clientes c = null;
+//            try (ResultSet rs = ps.executeQuery();) {
+//                while (rs.next()) {
+//                    c = Clientes.builder().
+//                            pnombre(rs.getString("PNOMBRE")).
+//                            snombre(rs.getString("SNOMBRE")).
+//                            apellidos(rs.getString("APELLIDOS")).
+//                            fecha_nacimiento(rs.getDate("FECHA_NACIMIENTO")).
+//                            fecha_ingreso(rs.getDate("FECHA_INGRESO")).
+//                            estado(rs.getBoolean("ESTADO")).
+//                            persona(rs.getString("PERSONA").charAt(0)).
+//                            sexo(rs.getString("SEXO")).
+//                            generales(
+//                                    Generales.builder().
+//                                            cedula(rs.getString("CEDULA")).
+//                                            estado_civil(rs.getString("ESTADO_CIVIL").charAt(0)).
+//                                            build()).
+//                            build();
+//                }
+//
+//            } catch (SQLException ex) {
+//                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+//                return null;
+//            }
+//            return c;
+//        } catch (SQLException ex) {
+//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+//            return null;
+//        }
+//    }
 
     /**
-     * Este metodo es utilizado para consultar los cliente del proyecto web 
+     * Este metodo es utilizado para consultar los cliente del proyecto web
      * llamado control cliente.
-     * 
+     *
      * @param id Identificador del cliente.
      * @return Devuelve un objecto de la clase Clientes.
      */
@@ -546,6 +556,7 @@ public class Clientes extends Personas {
 
     /**
      * Metodo que nos
+     *
      * @return
      */
     public synchronized static List<Clientes> getClientesCC() {
