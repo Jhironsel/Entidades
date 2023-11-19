@@ -27,7 +27,7 @@ public class Almacen {
         final String sql
                 = "SELECT ID, NOMBRE, UBICACION, ESTADO "
                 + "FROM V_ALMACENES "
-                + "WHERE ID = ? OR UPPER(NOMBRE) LIKE UPPER(?);";
+                + "WHERE ID = ? OR UPPER(NOMBRE) STARTING WITH UPPER(?);";
 
         List<Almacen> almacenList = new ArrayList<>();
 

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
@@ -68,25 +69,32 @@ public class Categorias implements Comparable {
 
             int cantidad = cs.executeUpdate();
 
-            return Resultados.builder().
-                    id(-1).
-                    mensaje(CATEGORIA_AGREGADA_CON_EXITO).
-                    cantidad(cantidad).
-                    build();
+            return Resultados
+                    .builder()
+                    .id(-1)
+                    .mensaje(CATEGORIA_AGREGADA_CON_EXITO)
+                    .cantidad(cantidad)
+                    .estado(Boolean.TRUE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .build();
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados.builder().
-                    id(-1).
-                    mensaje(ERROR_AL_INSERTAR_CATEGORIA).
-                    cantidad(-1).build();
+            return Resultados
+                    .builder()
+                    .id(-1)
+                    .mensaje(ERROR_AL_INSERTAR_CATEGORIA)
+                    .cantidad(-1)
+                    .estado(Boolean.FALSE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
         }
     }
 
     /**
-     * Metodo utilizado para modificar las categorias de los productos.
-     * En este se puede modificar la descripción, la imagen de la categoria y
-     * el estado de la categoria.
+     * Metodo utilizado para modificar las categorias de los productos. En este
+     * se puede modificar la descripción, la imagen de la categoria y el estado
+     * de la categoria.
      *
      * Actualizacion dia 09 julio 2022: Nota, Este metodo se modifica para que
      * devuelta valores de tipo String que indique si el registro fue modificado
@@ -99,7 +107,7 @@ public class Categorias implements Comparable {
      *
      */
     public synchronized static Resultados modificarCategoria(Categorias c) {
-        final String sql 
+        final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_CATEGORIA (?, ?, ?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -113,16 +121,22 @@ public class Categorias implements Comparable {
             ps.setBoolean(4, c.getEstado());
 
             int cantidad = ps.executeUpdate();
-            return Resultados.builder().
-                    mensaje("Se modificó la categoria correctamente.").
-                    cantidad(cantidad).
-                    build();
+            return Resultados
+                    .builder()
+                    .mensaje("Se modificó la categoria correctamente.")
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .cantidad(cantidad)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados.builder().
-                    mensaje("Error al modificar la categoria.").
-                    cantidad(-1).
-                    build();
+            return Resultados
+                    .builder()
+                    .mensaje("Error al modificar la categoria.")
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .cantidad(-1)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
 
@@ -148,16 +162,20 @@ public class Categorias implements Comparable {
 
             int cant = ps.executeUpdate();
 
-            return Resultados.builder().
-                    mensaje(CATEGORIA__BORRADO__CORRECTAMENTE).
-                    cantidad(cant).
-                    build();
+            return Resultados
+                    .builder()
+                    .mensaje(CATEGORIA__BORRADO__CORRECTAMENTE)
+                    .cantidad(cant)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados.builder().
-                    mensaje("Ocurrio un error al intentar borrar la Categoria...").
-                    cantidad(-1).
-                    build();
+            return Resultados
+                    .builder()
+                    .mensaje("Ocurrio un error al intentar borrar la Categoria...")
+                    .cantidad(-1)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
         }
     }
 
@@ -181,8 +199,7 @@ public class Categorias implements Comparable {
                 SELECT,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT); 
-                ResultSet rs = ps.executeQuery()) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 categoriaList.add(
@@ -194,8 +211,8 @@ public class Categorias implements Comparable {
                                 build()
                 );
             }
-        } 
-        
+        }
+
         return categoriaList;
     }
 
@@ -226,18 +243,18 @@ public class Categorias implements Comparable {
 
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    categorias.add( 
+                    categorias.add(
                             Categorias.builder().
-                            id_categoria(rs.getInt("ID")).
-                            descripcion(rs.getString("DESCRIPCION")).
-                            image_texto(rs.getString("IMAGEN_TEXTO")).
-                            estado(rs.getBoolean("ESTADO")).
-                            fecha_creacion(rs.getDate("FECHA_CREACION"))
-                            .build()
+                                    id_categoria(rs.getInt("ID")).
+                                    descripcion(rs.getString("DESCRIPCION")).
+                                    image_texto(rs.getString("IMAGEN_TEXTO")).
+                                    estado(rs.getBoolean("ESTADO")).
+                                    fecha_creacion(rs.getDate("FECHA_CREACION"))
+                                    .build()
                     );
                 }
                 return categorias;
-            } 
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -257,8 +274,8 @@ public class Categorias implements Comparable {
          * a un producto solamente.
          */
         final String sql
-                = "SELECT ID, DESCRIPCION, IMAGEN_TEXTO " +
-                  "FROM GET_CATEGORIA_ACTIVAS;";
+                = "SELECT ID, DESCRIPCION, IMAGEN_TEXTO "
+                + "FROM GET_CATEGORIA_ACTIVAS;";
 
         List<Categorias> categoriasList = new ArrayList<>();
 

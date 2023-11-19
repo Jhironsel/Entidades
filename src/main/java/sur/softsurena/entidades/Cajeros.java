@@ -28,7 +28,7 @@ public class Cajeros extends Usuario{
 
         final String SELECT
                 = "SELECT USER_NAME, ROL, PNOMBRE, SNOMBRE, APELLIDOS, ESTADO, DESCRIPCION "
-                + "FROM SP_SELECT_GET_CAJEROS;";
+                + "FROM GET_CAJEROS;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
@@ -67,7 +67,7 @@ public class Cajeros extends Usuario{
         List<Cajeros> cajerosList = new ArrayList<>();
 
         final String SELECT
-                = "SELECT USER_NAME FROM SP_SELECT_GET_CAJEROS;";
+                = "SELECT USER_NAME FROM GET_CAJEROS;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,

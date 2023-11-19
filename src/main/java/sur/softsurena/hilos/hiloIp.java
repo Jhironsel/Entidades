@@ -20,7 +20,12 @@ public class hiloIp extends Thread implements hiloMetodos {
 
             } catch (IOException ex) {
                 //Instalar Logger
-                JOptionPane.showMessageDialog(null, "No esta conectado a ninguna RED");
+                JOptionPane.showMessageDialog(
+                        null, 
+                        "No esta conectado a ninguna RED",
+                        "",
+                        JOptionPane.ERROR_MESSAGE
+                );
                 return;
             }
             stdInput = new BufferedReader(new InputStreamReader(
@@ -28,10 +33,20 @@ public class hiloIp extends Thread implements hiloMetodos {
             try {
                 String resp = stdInput.readLine();
                 if (resp == null) {
-                    JOptionPane.showMessageDialog(null, "Revise su conexion a Internet");
+                    JOptionPane.showMessageDialog(
+                            null, 
+                            "Revise su conexion a Internet",
+                            "",
+                            JOptionPane.ERROR_MESSAGE
+                    );
                     return;
                 }
-                JOptionPane.showMessageDialog(null, resp);
+                JOptionPane.showMessageDialog(
+                        null, 
+                        resp,
+                        "",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
 
             } catch (IOException ex) {
                 //Instalar Logger

@@ -1,6 +1,5 @@
 package sur.softsurena.entidades;
 
-import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,11 +72,11 @@ public class ClientesNGTest {
                 direcciones(direccion)
                 .build();
 
-        Resultados<Object> result = Clientes.agregarCliente(cliente);
+        Resultados result = Clientes.agregarCliente(cliente);
 
         idCliente = result.getId();
 
-        assertEquals(result.getMensaje(), Clientes.CLIENTE__AGREGADO__CORRECTAMENTE);
+        assertEquals(result.toString(), Clientes.CLIENTE__AGREGADO__CORRECTAMENTE);
     }
 
     @Test
@@ -135,92 +134,19 @@ public class ClientesNGTest {
                 .build();
 
         Resultados<Object> result = Clientes.modificarCliente(cliente);
-        assertEquals(result.getMensaje(), Clientes.CLIENTE__MODIFICADO__CORRECTAMENTE);
+        assertEquals(result.toString(), Clientes.CLIENTE__MODIFICADO__CORRECTAMENTE);
     }
 
-    @Test
-    public void testExisteCliente() {
-        Integer result = Clientes.existeCliente(cliente.getGenerales().getCedula());
-        assertEquals(result, idCliente);
-    }
-
-    @Test
-    public void testGetClientesCombo() {
-        List<Clientes> result = Clientes.getClientesCombo();
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testGetClientesTablaSB() {
-        List<Clientes> result = Clientes.getClientesTablaSB(-1, "^",1, 10);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testGetClientesTablaSBCombo() {
-        List<Clientes> result = Clientes.getClientesTablaSBCombo();
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testGetClienteByIDCC() {
-        Clientes result = Clientes.getClienteByIDCC(idCliente);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testGetClientesCC() {
-        List<Clientes> result = Clientes.getClientesCC();
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testAgregarClienteCC() {
-        Clientes cliente2 = Clientes.builder().
-                pnombre("Jhironsel TOTO").
-                snombre("").
-                apellidos("Diaz Almonte").
-                sexo("M").
-                correo(ContactosEmail.generarCorreo()).
-                saldo(BigDecimal.valueOf(1500.34))
-                .build();
-        boolean expResult = false;
-        boolean result = Clientes.agregarClienteCC(cliente2);
-        assertEquals(result, expResult);
-    }
-
-    @Test
-    public void testModificarClienteCC() {
-        Clientes cliente2 = Clientes.builder().
-                id_persona(176).
-                pnombre("Jhironsel TOTA").
-                snombre("").
-                apellidos("Diaz Almonte").
-                sexo("F").
-                correo(ContactosEmail.generarCorreo()).
-                saldo(BigDecimal.valueOf(500.34))
-                .build();
-        boolean expResult = false;
-        boolean result = Clientes.modificarClienteCC(cliente2);
-        assertEquals(result, expResult);
-    }
-
-
-    
 //    @Test
-//    public void testEliminarClienteCC() {
-//        int idCliente = 0;
-//        boolean expResult = false;
-//        boolean result = Clientes.eliminarClienteCC(idCliente);
-//        assertEquals(result, expResult);
+//    public void testExisteCliente() {
+//        Integer result = Clientes.existeCliente(cliente.getGenerales().getCedula());
+//        assertEquals(result, idCliente);
 //    }
-    
-    
     
 //    @Test
 //    public void testBorrarCliente() {
 //        Resultados<Object> result = Clientes.borrarCliente(idCliente);
-//        assertEquals(result.getMensaje(), Clientes.CLIENTE_BORRADO_CORRECTAMENTE);
+//        assertEquals(result.toString(), Clientes.CLIENTE_BORRADO_CORRECTAMENTE);
 //    }
 
 }

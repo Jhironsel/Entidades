@@ -3,6 +3,7 @@ package sur.softsurena.hilos;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Objects;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import static sur.softsurena.entidades.BaseDeDatos.pathBaseDeDatos;
@@ -45,14 +46,13 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
 
                 } while (stdInput.ready());
 
-                if (linea == null || linea.equals("null")) {
-                    JOptionPane.showMessageDialog(null,
-                            "Usuario no valido o no puede realizarse el "
-                            + "backup...",
-                            "Validacion no completada",
+                if (Objects.isNull(linea)) {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Usuario no valido o no puede realizarse el backup.",
+                            "",
                             JOptionPane.ERROR_MESSAGE);
                     return;
-
                 }
             } catch (IOException ex) {
                 //Instalar Logger
@@ -62,7 +62,7 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
             JOptionPane.showMessageDialog(
                     null, 
                     "Base de Datos restaurada",
-                    "sistema de restauracion",
+                    "",
                     JOptionPane.INFORMATION_MESSAGE
             );
 
@@ -94,7 +94,7 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
         usuarioMaster = JOptionPane.showInputDialog(
                 null,
                 "Inserte el nombre de Usuario: ", 
-                "Usuario...",
+                "",
                 JOptionPane.INFORMATION_MESSAGE);
         
         if (usuarioMaster.isBlank()) {
@@ -106,7 +106,7 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
         claveMaster = "" + JOptionPane.showConfirmDialog(
                 null, 
                 pf,
-                "Inserte la clave de Usuario: ", 
+                "Inserte la clave del Usuario: ", 
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.INFORMATION_MESSAGE
         );
@@ -139,9 +139,8 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
                 linea = stdInput.readLine();
                 if (linea != null) {
                     JOptionPane.showMessageDialog(null,
-                            "Usuario no valido o no puede realizarse el "
-                            + "backup...",
-                            "Validacion no completada",
+                            "Usuario no valido o no puede realizarse elbackup...",
+                            "",
                             JOptionPane.ERROR_MESSAGE);
                 }
                 

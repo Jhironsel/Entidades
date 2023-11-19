@@ -9,8 +9,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
@@ -34,57 +36,6 @@ public class Productos {
     private final String rol;
 
     /**
-     * Metodo utilizado para obtener los productos ya sea por su ID, Codigo o
-     * Descripcion de los registros de la tabla productos.
-     *
-     * @param criterio Este valor puede ser el identificador, codigo o
-     * descripcion del producto.
-     *
-     * @return Devuelve un conjunto de datos con los criterio de la busqueda
-     * espeficicada.
-     *
-     */
-    public static List<Productos> buscarProducto(String criterio) {
-        final String sql
-                = "SELECT p.ID, p.CODIGO, p.DESCRIPCION "
-                + "FROM SP_SELECT_PRODUCTOS_FIND (?,?,?) p;";
-
-        List<Productos> productosList = new ArrayList<>();
-
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            Integer id = null;
-            try {
-                id = Integer.parseInt(criterio);
-            } catch (java.lang.NumberFormatException e) {
-                id = -1;
-            }
-            ps.setInt(1, id);
-            ps.setString(2, criterio);
-            ps.setString(3, criterio);
-
-            try (ResultSet rs = ps.executeQuery();) {
-                while (rs.next()) {
-                    productosList.add(
-                            Productos.builder().
-                                    id(rs.getInt("ID")).
-                                    codigo(rs.getString("CODIGO")).
-                                    descripcion(rs.getString("DESCRIPCION")).build());
-                }
-
-                return productosList;
-
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
-
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
-
-    /**
      * Metodo que permite recuperar las propiedades de los productos del
      * sistema. Devolviendo asi un Listado de productos con todas sus
      * propiedades.
@@ -93,30 +44,50 @@ public class Productos {
      *
      * Fecha de Actualización el 19/05/2022.
      *
-     * @param criterioBusqueda
-     * @param nPaginaNro
-     * @param nCantidadFilas
+     * @param filtro
      * @return Devuelve un conjunto de datos de la tabla de los productos del
      * sistema.
      */
-    public synchronized static List<Productos> getProductos(
-            String criterioBusqueda, Integer nPaginaNro, Integer nCantidadFilas) {
+    public synchronized static List<Productos> getProductos(FiltroBusqueda filtro) {
         List<Productos> listaProducto = new ArrayList<>();
 
-        final String SELECT
+        final String sql
                 = "SELECT ID, ID_CATEGORIA, DESC_CATEGORIA, CODIGO, DESCRIPCION,"
                 + "      NOTA, FECHA_CREACION, ESTADO "
-                + "FROM SP_SELECT_GET_PRODUCTOS(?)"
-                + "ROWS (? - 1) * ? + 1 TO (? + (1 - 1)) * ?;";
+                + "FROM GET_PRODUCTOS "
+                + "WHERE ID = ? OR "
+                + "          TRIM(CODIGO) STARTING WITH TRIM(?) OR "
+                + "          TRIM(CODIGO) CONTAINING TRIM(?) OR "
+                + "          TRIM(DESCRIPCION) STARTING WITH TRIM(?) OR "
+                + "          TRIM(DESCRIPCION) CONTAINING TRIM(?) OR "
+                + "          ID_CATEGORIA IN( SELECT c.ID "
+                + "                             FROM V_CATEGORIAS c "
+                + "                             WHERE UPPER(TRIM(c.DESCRIPCION)) STARTING WITH UPPER(TRIM(?))) "
+                + (Objects.isNull(filtro.getEstado()) ? "" : (filtro.getEstado() ? " AND ESTADO " : " AND ESTADO IS FALSE "))
+                + " ORDER BY ID "
+                + (Objects.isNull(filtro.getFilas()) ? "" : (filtro.getFilas() ? "ROWS (? - 1) * ? + 1 TO (? + (1 - 1)) * ?;" : ""));
 
-        try (PreparedStatement ps = getCnn().prepareStatement(SELECT)) {
-            
-            ps.setString(1, criterioBusqueda);
-            ps.setInt(2, nPaginaNro);
-            ps.setInt(3, nCantidadFilas);
-            ps.setInt(4, nPaginaNro);
-            ps.setInt(5, nCantidadFilas);
-            
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+
+            ps.setInt(1, (Objects.isNull(filtro.getId()) ? -1 : filtro.getId()));
+
+            ps.setString(2, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
+            ps.setString(3, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
+            ps.setString(4, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
+            ps.setString(5, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
+            ps.setString(6, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
+
+            if (!Objects.isNull(filtro.getFilas()) && filtro.getFilas()) {
+                //Parametros para la paginacion de contenido de las tablas.
+                ps.setInt(7, filtro.getNPaginaNro());
+                ps.setInt(8, filtro.getNCantidadFilas());
+                ps.setInt(9, filtro.getNPaginaNro());
+                ps.setInt(10, filtro.getNCantidadFilas());
+            }
+
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     listaProducto.add(Productos.
@@ -135,9 +106,6 @@ public class Productos {
                             build());
                 }
                 return listaProducto;
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -151,7 +119,7 @@ public class Productos {
                 = "SELECT ID, CODIGO, ID_CATEGORIA, DESCRIPCION, IMAGEN_TEXTO, "
                 + "         NOTA, FECHA_CREACION, ESTADO "
                 + "FROM V_PRODUCTOS "
-                + "WHERE ID = ? OR CODIGO = ?";
+                + "WHERE ID = ? OR CODIGO STARTING WITH ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -198,11 +166,18 @@ public class Productos {
         }
     }
 
-    public synchronized static List<Productos> getProductosByCategoria(int idCategoria, boolean estado) {
+    /**
+     * TODO Definir que hace este metodo.
+     *
+     * @param idCategoria
+     * @param estado
+     * @return
+     */
+    public synchronized static List<Productos> getProductosByCategoria(int idCategoria, Boolean estado) {
         final String sql
-                = "SELECT r.ID, r.DESCRIPCION, r.IMAGEN_PRODUCTO "
-                + "FROM GET_PRODUCTOS r "
-                + "WHERE r.ID_CATEGORIA = ? "+(!estado ? " AND r.ESTADO;":";");
+                = "SELECT ID, DESCRIPCION, IMAGEN_PRODUCTO "
+                + "FROM GET_PRODUCTOS "
+                + "WHERE ID_CATEGORIA = ? " + (Objects.isNull(estado) ? "" : (estado ? " AND ESTADO;" : " AND ESTADO IS FALSE;"));
 
         List<Productos> productosList = new ArrayList<>();
 
@@ -214,16 +189,16 @@ public class Productos {
         )) {
             ps.setInt(1, idCategoria);
             try (ResultSet rs = ps.executeQuery();) {
-                while(rs.next()) {
+                while (rs.next()) {
                     productosList.add(
                             Productos.builder().
                                     id(rs.getInt("ID")).
-                                    descripcion(rs.getString("descripcion")).
-                                    imagenProducto(rs.getString("imagen_producto")).
+                                    descripcion(rs.getString("DESCRIPCION")).
+                                    imagenProducto(rs.getString("IMAGEN_PRODUCTO")).
                                     build()
                     );
                 }
-            } 
+            }
             return productosList;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -241,7 +216,7 @@ public class Productos {
      *
      * @return Devuelve un mensaje que indica como resultado de la acción.
      */
-    public synchronized static String borrarProductoPorID(Integer ID) {
+    public synchronized static Resultados borrarProductoPorID(Integer ID) {
         final String sql
                 = "EXECUTE PROCEDURE SP_DELETE_PRODUCTO (?)";
 
@@ -255,10 +230,18 @@ public class Productos {
 
             cs.execute();
 
-            return "Producto Borrado Correctamente.";
+            return Resultados
+                    .builder()
+                    .mensaje("Producto Borrado Correctamente.")
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Ocurrio un error al intentar borrar el Producto...";
+            return Resultados
+                    .builder()
+                    .mensaje("Ocurrio un error al intentar borrar el Producto...")
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
         }
     }
 
@@ -280,10 +263,6 @@ public class Productos {
      * correctamente o no.
      */
     public synchronized static Resultados agregarProducto(Productos p) {
-        Resultados r;
-        /**
-         * Consulta que permite agregar registro de productos al sistema.
-         */
         final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_PRODUCTO(?,?,?,?,?,?)";
 
@@ -300,19 +279,24 @@ public class Productos {
 
             ps.executeUpdate();
 
-            r = Resultados.builder().
-                    id(-1).
-                    mensaje(PRODUCTO_AGREGADO_CORRECTAMENTE).
-                    cantidad(-1).build();
+            return Resultados
+                    .builder()
+                    .id(-1)
+                    .mensaje(PRODUCTO_AGREGADO_CORRECTAMENTE)
+                    .cantidad(-1)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .build();
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            r = Resultados.builder().
-                    id(-1).
-                    mensaje("Error al Insertar Producto.").
-                    cantidad(-1).build();
+            return Resultados
+                    .builder()
+                    .id(-1)
+                    .mensaje("Error al Insertar Producto.")
+                    .cantidad(-1)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
         }
-        return r;
     }
     /**
      * Variable utilizar que indica cuando un producto ha sido agregado
@@ -332,9 +316,9 @@ public class Productos {
      *
      * @return
      */
-    public synchronized static String modificarProducto(Productos p) {
+    public synchronized static Resultados modificarProducto(Productos p) {
         final String sql
-                = "EXECUTE PROCEDURE SP_UPDATE_PRODUCTO (?,?,?,?,?,?,?)";
+                = "EXECUTE PROCEDURE SP_UPDATE_PRODUCTO (?, ?, ?, ?, ?, ?, ?)";
         try (CallableStatement ps = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -350,11 +334,20 @@ public class Productos {
             ps.setBoolean(7, p.getEstado());
 
             ps.executeUpdate();
-            return PRODUCTO__MODIFICADO__CORRECTAMENTE;
+            return Resultados
+                    .builder()
+                    .mensaje(PRODUCTO__MODIFICADO__CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return Resultados
+                    .builder()
+                    .mensaje("Error al Modificar Producto...")
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
         }
-        return "Error al Modificar Producto...";
+        
     }
     /**
      * Variable utilizar que indica cuando un producto ha sido modificado

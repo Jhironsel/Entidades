@@ -111,33 +111,33 @@ public class frmEtiquetas extends javax.swing.JDialog {
     private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
         if(txtPropiedad.getText().isBlank()){
             JOptionPane.showMessageDialog(
-                    null, 
+                    this, 
                     "Debe ingresar nombre de la propiedad.", 
-                    PROCESO_DE_VALIDACION, 
-                    JOptionPane.WARNING_MESSAGE
+                    "", 
+                    JOptionPane.ERROR_MESSAGE
             );
-            txtPropiedad.requestFocus();
+            txtPropiedad.requestFocusInWindow();
             return;
         }
         if(txtValor.getText().isBlank()){
             JOptionPane.showMessageDialog(
-                    null, 
+                    this, 
                     "Debe ingresar valor de la propiedad.", 
-                    PROCESO_DE_VALIDACION, 
-                    JOptionPane.WARNING_MESSAGE
+                    "", 
+                    JOptionPane.ERROR_MESSAGE
             );
-            txtValor.requestFocus();
+            txtValor.requestFocusInWindow();
             return;
         }
         
         if(txtPropiedad.getText().contains(" ")){
             JOptionPane.showMessageDialog(
-                    null, 
+                    this, 
                     "Propiedad contiene espacio. \nDigite la propiedad sin espacio.", 
-                    PROCESO_DE_VALIDACION, 
-                    JOptionPane.WARNING_MESSAGE
+                    "", 
+                    JOptionPane.ERROR_MESSAGE
             );
-            txtPropiedad.requestFocus();
+            txtPropiedad.requestFocusInWindow();
             return;
         }
         
@@ -146,16 +146,13 @@ public class frmEtiquetas extends javax.swing.JDialog {
     }//GEN-LAST:event_btnAceptarActionPerformed
 
     private void txtPropiedadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPropiedadActionPerformed
-        txtValor.requestFocus();
+        txtValor.requestFocusInWindow();
     }//GEN-LAST:event_txtPropiedadActionPerformed
 
     private void txtValorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtValorActionPerformed
         btnAceptar.doClick();
     }//GEN-LAST:event_txtValorActionPerformed
-    private static final String PROCESO_DE_VALIDACION = "Proceso de validacion.";
-
     
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private newscomponents.RSButtonGradientIcon_new btnAceptar;
     private newscomponents.RSButtonGradientIcon_new btnCancelar;

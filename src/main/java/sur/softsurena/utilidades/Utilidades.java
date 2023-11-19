@@ -20,6 +20,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -49,7 +50,9 @@ import sur.softsurena.entidades.Render_CheckBox;
 import sur.softsurena.metodos.Imagenes;
 
 public class Utilidades {
+
     public static final Logger LOGGER = Logger.getLogger(Utilidades.class.getName());
+
     static {
         try {
             FileHandler fh = new FileHandler(new File("/TestLog.log").getPath(), true);
@@ -82,16 +85,17 @@ public class Utilidades {
             }
         });
     }
+
     /**
-     * Metodo que nos permite seleccionar el contenido de un JTextField.
-     * Dicho metodo debe ser declarado despues del metodo init del constructor
-     * de la clase que valla a utilizarse.
-     * 
-     * @param txt Es el componente de tipo JTextField que debe enviarse para 
+     * Metodo que nos permite seleccionar el contenido de un JTextField. Dicho
+     * metodo debe ser declarado despues del metodo init del constructor de la
+     * clase que valla a utilizarse.
+     *
+     * @param txt Es el componente de tipo JTextField que debe enviarse para
      * agregarle el evento focus Adapter.
-     * @param inicio indica de donde inicia la seleccion del campo. 
+     * @param inicio indica de donde inicia la seleccion del campo.
      */
-    public static void selectTextoAll(JTextField txt, int inicio){
+    public static void selectTextoAll(JTextField txt, int inicio) {
         txt.addFocusListener(new java.awt.event.FocusAdapter() {
             @Override
             public void focusGained(java.awt.event.FocusEvent evt) {
@@ -108,6 +112,7 @@ public class Utilidades {
 
     /**
      * TODO llevar esto a un metodo para jasper
+     *
      * @param filePath
      * @param print
      */
@@ -123,9 +128,19 @@ public class Utilidades {
             ImageIO.write(rendered_image, "png", ouputStream);
 
         } catch (IOException x) {
-            JOptionPane.showMessageDialog(null, x.getLocalizedMessage());
-        } catch (JRException e){
-            JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
+            JOptionPane.showMessageDialog(
+                    null, 
+                    x.getLocalizedMessage(),
+                    "",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (JRException e) {
+            JOptionPane.showMessageDialog(
+                    null, 
+                    e.getLocalizedMessage(), 
+                    "",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
@@ -150,8 +165,7 @@ public class Utilidades {
      * @param name
      */
     public static void copyFileUsingFileChannels(String source, String name) {
-        try(InputStream in = new FileInputStream(source);
-                OutputStream out = new FileOutputStream("imagenes/" + name);) {
+        try (InputStream in = new FileInputStream(source); OutputStream out = new FileOutputStream("imagenes/" + name);) {
             byte[] buf = new byte[1024];
             int len;
 
@@ -319,7 +333,6 @@ public class Utilidades {
 
         return "Foto NO Insertada";
     }
-    
 
     /**
      * Metodo utilizado para decodificar una cadena de string en base64 aun
@@ -332,10 +345,9 @@ public class Utilidades {
         byte[] data = Base64.decodeBase64(imagen64);
 
         Imagenes img = new Imagenes();
-        if (data == null || data.length <= 1) {
+        if (Objects.isNull(data) || data.length <= 1) {
             return (ImageIcon) img.getIcono("NoImageTransp 96 x 96.png");
         }
-
 
         try {
             return new ImageIcon(ImageIO.read(new ByteArrayInputStream(data)));
@@ -374,6 +386,14 @@ public class Utilidades {
         } catch (Exception ex) {
         }
         return aux;
+    }
+
+    public static Date sqlDateToUtilDate(java.sql.Date sqlDate) {
+        java.sql.Date sqlDates = sqlDate;
+
+        java.util.Date utilDate = new java.util.Date(sqlDates.getTime());
+        
+        return utilDate;
     }
 
     public static char Persona(int index) {
@@ -416,7 +436,6 @@ public class Utilidades {
         }
         return aux;
     }
-
 
     /**
      *
@@ -467,11 +486,11 @@ public class Utilidades {
     }
 
     /**
-     * Este metodo nos permite administrar el ancho de las columnas de las 
-     * tablas, pudiendo asi tener el alcho de las columnas.
-     * Deberia de ejecutar luego de insertar, actualizar o borrar un registro.
-     * 
-     * @param miTabla Es el componente JTable que va a modicarse su ancho 
+     * Este metodo nos permite administrar el ancho de las columnas de las
+     * tablas, pudiendo asi tener el alcho de las columnas. Deberia de ejecutar
+     * luego de insertar, actualizar o borrar un registro.
+     *
+     * @param miTabla Es el componente JTable que va a modicarse su ancho
      * automaticamente.
      */
     public static void repararColumnaTable(JTable miTabla) {
@@ -482,7 +501,7 @@ public class Utilidades {
 
         //Se obtiene el modelo de la columna
         TableColumnModel columnModel = miTabla.getColumnModel();
-        
+
         //Se obtiene el total de las columnas
         for (int column = 0; column < miTabla.getColumnCount(); column++) {
 
@@ -494,16 +513,16 @@ public class Utilidades {
 
                 //Obtenemos el renderizador de la tabla
                 TableCellRenderer renderer = miTabla.getCellRenderer(row, column);
-                
+
                 //Creamos un objeto para preparar el renderer
                 Component comp = miTabla.prepareRenderer(renderer, row, column);
-                
+
                 //Establecemos el width segun el valor maximo del ancho de la columna
                 width = Math.max(comp.getPreferredSize().width + 1, width);
             }
-            
+
             miTabla.getColumnModel().getColumn(0).setCellRenderer(tcr);
-            
+
             //Se establece una condicion para no sobrepasar el valor de 300
             //Esto es Opcional
             if (width > 400) {
@@ -533,17 +552,16 @@ public class Utilidades {
 
     }
 
-    
     /**
      * Por el momento no se le está dando uso a este metodo, pero es utilizado
-     * para limitar los caracteres de un campos de texto, será util en otros 
+     * para limitar los caracteres de un campos de texto, será util en otros
      * momento.
-     * 
-     * Puede ser util para un JtextField o cualquier otro. 
-     * 
+     *
+     * Puede ser util para un JtextField o cualquier otro.
+     *
      * @param limite
      * @param txt
-     * @return 
+     * @return
      */
     public static KeyListener limitarCaracteres(final int limite, final JFormattedTextField txt) {
 
@@ -563,7 +581,7 @@ public class Utilidades {
 
         return keyListener;
     }
-    
+
     /**
      * Metodo utilizado para centralizar las ventanas del tipo JInternalFrame
      */
@@ -571,5 +589,5 @@ public class Utilidades {
         Dimension d = ventana.getDesktopPane().getSize();
         ventana.setLocation((d.width - ventana.getSize().width) / 2, (d.height - ventana.getSize().height) / 2);
     }
-    
+
 }

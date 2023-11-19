@@ -63,7 +63,7 @@ public class PacienteIT {
 
         Resultados result = Paciente.agregarPaciente(pInsertar);
 
-        assertEquals(Paciente.PACIENTE_AGREGADO_CORRECTAMENTE, result.getMensaje());
+        assertEquals(Paciente.PACIENTE_AGREGADO_CORRECTAMENTE, result.toString());
 
         //Prueba de Actualizacion de paciente.
         a = Asegurados.builder().
@@ -85,10 +85,10 @@ public class PacienteIT {
 
         result = Paciente.modificarPaciente(pUpdate);
 
-        assertEquals(Paciente.PACIENTE_MODIFICADO_CORRECTAMENTE, result.getMensaje());
+        assertEquals(Paciente.PACIENTE_MODIFICADO_CORRECTAMENTE, result.toString());
         
         //Borrar el cliente. 
         result = Paciente.borrarPaciente(idPaciente);
-        assertEquals(Paciente.PACIENTE_BORRADO_CORRECTAMENTE, result.getMensaje());
+        assertEquals(Paciente.PACIENTE_BORRADO_CORRECTAMENTE, result.toString());
     }
 }

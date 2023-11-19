@@ -105,7 +105,7 @@ public class Deudas extends Personas {
     }
     
     /**
-     *
+     * TODO Revisar este procedimiento.
      * Metodo actualizado el dia 25 de abril 2022.
      *
      * @param idDeuda

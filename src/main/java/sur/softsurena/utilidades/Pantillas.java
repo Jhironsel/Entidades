@@ -20,7 +20,7 @@ public class Pantillas {
     
 //    if (!privilegioTabla(Privilegios.builder().
 //                privilegio(Privilegios.PRIVILEGIO_EXECUTE).
-//                nombre_relacion("GET_CLIENTES_SB").build())
+//                nombre_relacion("<NOMBRE_PROCEDIMIENTO>").build())
 //                ) {
 //
 //            final String mensaje = "No cuenta con permisos para ver la información de"
@@ -29,7 +29,7 @@ public class Pantillas {
 //            JOptionPane.showInternalMessageDialog(
 //                    null,
 //                    mensaje,
-//                    "Validación de proceso",
+//                    "",
 //                    JOptionPane.WARNING_MESSAGE
 //            );
 //

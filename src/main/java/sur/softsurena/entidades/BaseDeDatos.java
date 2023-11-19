@@ -73,10 +73,10 @@ public class BaseDeDatos {
      * @return
      */
     public synchronized static int periodoMaquina() {
-        final String PERIODO
+        final String sql
                 = "SELECT DIAS_RESTANTES FROM V_E_S_SYS WHERE ID = 1";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(PERIODO)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             try (ResultSet rs = ps.executeQuery()) {
                 rs.next();
@@ -135,8 +135,8 @@ public class BaseDeDatos {
      * @return Devuelve un valor booleano que indica si tuvo exito el proceso de
      * registro.
      */
-    public synchronized static boolean setLicencia(Date fecha,
-            String idMaquina, String clave1, String clave2) {
+    public synchronized static boolean setLicencia(Date fecha, String idMaquina,
+            String clave1, String clave2) {
 
         final String sql = "EXECUTE PROCEDURE SYSTEM_SET_LICENCIA (?, ?, ?, ?)";
 

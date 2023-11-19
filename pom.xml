@@ -6,8 +6,7 @@
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.release>11</maven.compiler.release>
     </properties>
     <parent>
         <groupId>sur.softsurena</groupId>
@@ -15,18 +14,18 @@
         <version>1.0-SNAPSHOT</version>
         <relativePath>../../sistemasPom/pom.xml</relativePath>
     </parent>
-<!--    <build>
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>3.11.0</version>
                 <configuration>
                     <release>11</release>
                 </configuration>
             </plugin>
         </plugins>
-    </build>-->
+    </build>
     <dependencies>
         <dependency>
             <groupId>sur.softsurena</groupId>
@@ -54,7 +53,7 @@
         <dependency>
             <groupId>org.jfree</groupId>
             <artifactId>jcommon</artifactId>
-            <version>1.0.23</version>
+            <version>1.0.24</version>
             <type>jar</type>
         </dependency>
     </dependencies>

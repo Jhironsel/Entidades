@@ -39,10 +39,10 @@ public class hiloRespardar extends Thread implements hiloMetodos {
                 do {
                     linea = stdInput.readLine();
                     if (linea != null) {
-                        JOptionPane.showMessageDialog(null,
-                                "Usuario no valido o no puede realizarse el "
-                                + "backup...",
-                                "Validacion no completada",
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "Usuario no cuenta con los permisos necesarios para realizar el backup.",
+                                "",
                                 JOptionPane.ERROR_MESSAGE);
                     }
                     

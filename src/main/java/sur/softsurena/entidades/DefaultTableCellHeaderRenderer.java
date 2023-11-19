@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.Serializable;
+import java.util.Objects;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.plaf.UIResource;
@@ -84,7 +85,7 @@ public class DefaultTableCellHeaderRenderer extends DefaultTableCellRenderer
             }
         }
 
-        setText(value == null ? "" : value.toString());
+        setText(Objects.isNull(value) ? "" : value.toString());
         setIcon(sortIcon);
         sortArrow = sortIcon;
 
@@ -102,7 +103,7 @@ public class DefaultTableCellHeaderRenderer extends DefaultTableCellRenderer
 
     public static SortOrder getColumnSortOrder(JTable table, int column) {
         SortOrder rv = null;
-        if (table == null || table.getRowSorter() == null) {
+        if (Objects.isNull(table) || Objects.isNull(table.getRowSorter()) ) {
             return rv;
         }
         java.util.List<? extends RowSorter.SortKey> sortKeys =

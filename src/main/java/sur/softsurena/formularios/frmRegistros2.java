@@ -1,6 +1,5 @@
 package sur.softsurena.formularios;
 
-import java.util.Calendar;
 import javax.swing.JOptionPane;
 
 public class frmRegistros2 extends javax.swing.JDialog {
@@ -170,30 +169,55 @@ public class frmRegistros2 extends javax.swing.JDialog {
 
     private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
         if (txtIdMaquina.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "IdMaquina vacio, Rellenar...!!!");
+            JOptionPane.showMessageDialog(
+                    this, 
+                    "IdMaquina vacio, Rellenar...!!!",
+                    "",
+                    JOptionPane.ERROR_MESSAGE
+            );
             txtIdMaquina.requestFocusInWindow();
             return;
         }
         if (txtClave1.getPassword().length == 0) {
-            JOptionPane.showMessageDialog(null, "Clave 1 vacia, Rellenar...!!!");
+            JOptionPane.showMessageDialog(
+                    this, 
+                    "Clave 1 vacia, Rellenar...!!!",
+                    "",
+                    JOptionPane.ERROR_MESSAGE
+            );
             txtClave1.requestFocusInWindow();
             return;
         }
 
         if (txtClave2.getPassword().length == 0) {
-            JOptionPane.showMessageDialog(null, "Clave 2 vacia, Rellenar...!!!");
+            JOptionPane.showMessageDialog(
+                    this, 
+                    "Clave 2 vacia, Rellenar...!!!",
+                    "",
+                    JOptionPane.ERROR_MESSAGE
+            );
             txtClave2.requestFocusInWindow();
             return;
         }
 
         if (txtClaveServidor.getPassword().length == 0) {
-            JOptionPane.showMessageDialog(null, "Clave 3 vacia, Rellenar...!!!");
+            JOptionPane.showMessageDialog(
+                    this, 
+                    "Clave 3 vacia, Rellenar...!!!",
+                    "",
+                    JOptionPane.ERROR_MESSAGE
+            );
             txtClaveServidor.requestFocusInWindow();
             return;
         }
 
         if (dchFecha.getDate() == null) {
-            JOptionPane.showMessageDialog(null, "fecha vacia, Rellenar...!!!");
+            JOptionPane.showMessageDialog(
+                    this, 
+                    "fecha vacia, Rellenar...!!!",
+                    "",
+                    JOptionPane.ERROR_MESSAGE
+            );
             dchFecha.requestFocusInWindow();
             return;
         }

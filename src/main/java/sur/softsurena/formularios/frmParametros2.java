@@ -352,7 +352,12 @@ public class frmParametros2 extends javax.swing.JFrame {
             }
 
             if (valor < 0 || valor > 255) {
-                JOptionPane.showMessageDialog(null, "Valor incorrecto en el Ambito 1");
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Valor incorrecto en el Ambito 1",
+                        "",
+                        JOptionPane.ERROR_MESSAGE
+                );
                 txtValor1.setText("");
                 txtValor1.requestFocusInWindow();
                 return;
@@ -364,7 +369,12 @@ public class frmParametros2 extends javax.swing.JFrame {
                 valor = -1;
             }
             if (valor < 0 || valor > 255) {
-                JOptionPane.showMessageDialog(null, "Valor incorrecto en el Ambito 2");
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Valor incorrecto en el Ambito 2",
+                        "",
+                        JOptionPane.ERROR_MESSAGE
+                );
                 txtValor2.setText("");
                 txtValor2.requestFocusInWindow();
                 return;
@@ -376,7 +386,12 @@ public class frmParametros2 extends javax.swing.JFrame {
                 valor = -1;
             }
             if (valor < 0 || valor > 255) {
-                JOptionPane.showMessageDialog(null, "Valor incorrecto en el Ambito 3");
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Valor incorrecto en el Ambito 3",
+                        "",
+                        JOptionPane.ERROR_MESSAGE
+                );
                 txtValor3.setText("");
                 txtValor3.requestFocusInWindow();
                 return;
@@ -388,7 +403,12 @@ public class frmParametros2 extends javax.swing.JFrame {
                 valor = -1;
             }
             if (valor < 0 || valor > 255) {
-                JOptionPane.showMessageDialog(null, "Valor incorrecto en el Ambito 4");
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Valor incorrecto en el Ambito 4",
+                        "",
+                        JOptionPane.ERROR_MESSAGE
+                );
                 txtValor4.setText("");
                 txtValor4.requestFocusInWindow();
                 return;
@@ -397,7 +417,12 @@ public class frmParametros2 extends javax.swing.JFrame {
 
         if (rbtnNombreServidor.isSelected()) {
             if (txtHost.getText().isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Nombre del servidor vacio");
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Nombre del servidor vacio",
+                        "",
+                        JOptionPane.ERROR_MESSAGE
+                );
                 txtHost.requestFocusInWindow();
                 return;
             }
@@ -411,7 +436,12 @@ public class frmParametros2 extends javax.swing.JFrame {
                 valor = -1;
             }
             if (valor < 0 || valor > 65535) {
-                JOptionPane.showMessageDialog(null, "Este Puerto no es valido");
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Este Puerto no es valido",
+                        "",
+                        JOptionPane.ERROR_MESSAGE
+                );
                 txtPuerto.setText("");
                 txtPuerto.requestFocusInWindow();
                 return;
@@ -451,20 +481,20 @@ public class frmParametros2 extends javax.swing.JFrame {
     private void txtValor4KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtValor4KeyReleased
         validarNumeros(txtValor4);
     }//GEN-LAST:event_txtValor4KeyReleased
-    
-    private void validarNumeros(RSMTextFull campo){
+
+    private void validarNumeros(RSMTextFull campo) {
         if (!campo.getText().isBlank() || !campo.getText().isEmpty()) {
             int numero = Integer.parseInt(campo.getText());
             if (numero < 0 || numero > 255 || campo.getText().isEmpty()) {
                 campo.setBordeColorFocus(Color.RED);
                 campo.setBordeColorNoFocus(Color.RED);
             } else {
-                campo.setBordeColorFocus(new Color(0,112,192));
-                campo.setBordeColorNoFocus(new Color(0,112,192));
+                campo.setBordeColorFocus(new Color(0, 112, 192));
+                campo.setBordeColorNoFocus(new Color(0, 112, 192));
             }
         }
     }
-    
+
     private void valoresEstados(boolean estado) {
         txtValor1.setEnabled(estado);
         txtValor2.setEnabled(estado);
@@ -493,14 +523,14 @@ public class frmParametros2 extends javax.swing.JFrame {
                 ipServidor4(propiedades.getProperty("Ip_Servidor4", "1")).
                 pathBaseDatos(propiedades.getProperty("PathBaseDatos", "/"))
                 .build();
-        
+
         if (zona.equals("todo") || zona.equals("nombre")) {
             if (s.getConServidor()) {
                 txtHost.setText(s.getUriServidor());
                 rbtnNombreServidor.doClick();
             }
         }
-        
+
         if (zona.equals("todo") || zona.equals("puerto")) {
             if (s.getConPuerto()) {
                 if (zona.equals("todo")) {
@@ -541,11 +571,10 @@ public class frmParametros2 extends javax.swing.JFrame {
             }
         }
 
-
         if (zona.equals("todo") || zona.equals("PathBaseDatos")) {
             txtPathBaseDatos.setText(s.getPathBaseDatos());
         }
-        
+
         return s;
     }
 

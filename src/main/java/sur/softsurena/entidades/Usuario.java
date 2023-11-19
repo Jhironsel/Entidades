@@ -17,13 +17,6 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 @SuperBuilder
 public class Usuario extends Personas {
 
-    /*
-        Tenemos una vista y un procedimiento que muestran casi lo mismo... 
-        
-        La lista V_USUARIOS no se está utilizando.... y es casi igual que el
-        procedimiento SP_SELECT_USUARIOS_TAGS, este se utiliza en 3 linea de 
-        codigo. 
-     */
     private static final Logger LOG = Logger.getLogger(Usuario.class.getName());
     private static final String USUARIO_BORRADO_CORRECTAMENTE = "Usuario borrado correctamente.";
     private static final String ERROR_AL_BORRAR_USUARIO = "Error al borrar usuario.";
@@ -44,8 +37,10 @@ public class Usuario extends Personas {
      * Nota, se cambia la posicion del parametro, primero usuario y luego la
      * clave.
      *
+     * @param usuario
      * @param clave Es la clave del usuario actual que permite la actualizacion
      * de su clave.
+     * @return
      */
     public synchronized static boolean cambioClave(String usuario, String clave) {
         final String sql = "EXECUTE PROCEDURE ADMIN_CAMBIAR_CLAVE_USUARIO_ACTUAL (?, ?);";
@@ -71,25 +66,37 @@ public class Usuario extends Personas {
      * @param loginName
      * @return
      */
-    public synchronized static String borrarUsuario(String loginName) {
+    public synchronized static Resultados borrarUsuario(String loginName) {
 
         final String sql = "EXECUTE PROCEDURE SP_DELETE_USUARIO (?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setString(1, loginName);
             ps.executeUpdate();
-            return USUARIO_BORRADO_CORRECTAMENTE;
+
+            return Resultados
+                    .builder()
+                    .mensaje(USUARIO_BORRADO_CORRECTAMENTE)
+                    .estado(Boolean.TRUE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ERROR_AL_BORRAR_USUARIO, ex);
             if (ex.getMessage().contains("E_CAJERO_TURNO_ACTIVO")) {
                 JOptionPane.showMessageDialog(
                         null,
                         "Cajero cuenta con un turno activo.",
-                        "Error...",
+                        "",
                         JOptionPane.ERROR_MESSAGE
                 );
             }
-            return ERROR_AL_BORRAR_USUARIO;
+
+            return Resultados
+                    .builder()
+                    .mensaje(ERROR_AL_BORRAR_USUARIO)
+                    .estado(Boolean.FALSE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
         }
     }
 
@@ -161,28 +168,28 @@ public class Usuario extends Personas {
         final String sql
                 = "SELECT PNOMBRE, SNOMBRE, APELLIDOS, ESTADO, ADMINISTRADOR, "
                 + "         DESCRIPCION "
-                + "FROM SP_SELECT_USUARIOS "
-                + "WHERE TRIM(USERNAME) LIKE ?;";
+                + "FROM GET_USUARIOS "
+                + "WHERE TRIM(USERNAME) STARTING WITH ?;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
+
             ps.setString(1, userName);
-            
+
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
-                return Usuario.builder().
-                        pnombre(rs.getString("PNOMBRE")).
-                        snombre(rs.getString("SNOMBRE")).
-                        apellidos(rs.getString("APELLIDOS")).
-                        estado(rs.getBoolean("ESTADO")).
-                        administrador(rs.getBoolean("ADMINISTRADOR")).
-                        descripcion(rs.getString("DESCRIPCION")).
-                        user_name(userName).
-                        build();
+                return Usuario.builder()
+                        .pnombre(rs.getString("PNOMBRE"))
+                        .snombre(rs.getString("SNOMBRE"))
+                        .apellidos(rs.getString("APELLIDOS"))
+                        .estado(rs.getBoolean("ESTADO"))
+                        .administrador(rs.getBoolean("ADMINISTRADOR"))
+                        .descripcion(rs.getString("DESCRIPCION"))
+                        .user_name(userName)
+                        .build();
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
@@ -203,12 +210,10 @@ public class Usuario extends Personas {
      */
     public synchronized static List<Usuario> getUsuarios() {
         List<Usuario> usuarios = new ArrayList<>();
-        Usuario u;
-
         final String sql
                 = "SELECT USERNAME, PNOMBRE, SNOMBRE, APELLIDOS, ESTADO, "
-                + "     ADMINISTRADOR, DESCRIPCION " +
-                  "FROM SP_SELECT_USUARIOS;";
+                + "     ADMINISTRADOR, DESCRIPCION "
+                + "FROM GET_USUARIOS;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -218,15 +223,18 @@ public class Usuario extends Personas {
 
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    u = Usuario.builder().
-                            pnombre((rs.getString("PNOMBRE") == null ? "" : rs.getString("PNOMBRE"))).
-                            snombre((rs.getString("SNOMBRE") == null ? "" : rs.getString("SNOMBRE"))).
-                            apellidos((rs.getString("APELLIDOS") == null ? "" : rs.getString("APELLIDOS"))).
-                            administrador(rs.getBoolean("ADMINISTRADOR")).
-                            estado(rs.getBoolean("ESTADO")).
-                            user_name(rs.getString("USERNAME")).
-                            descripcion(rs.getString("DESCRIPCION")).build();
-                    usuarios.add(u);
+                    usuarios.add(
+                            Usuario
+                            .builder()
+                            .pnombre(rs.getString("PNOMBRE"))
+                            .snombre(rs.getString("SNOMBRE"))
+                            .apellidos(rs.getString("APELLIDOS"))
+                            .administrador(rs.getBoolean("ADMINISTRADOR"))
+                            .estado(rs.getBoolean("ESTADO"))
+                            .user_name(rs.getString("USERNAME"))
+                            .descripcion(rs.getString("DESCRIPCION"))
+                            .build()
+                    );
                 }
             }
             return usuarios;
@@ -246,7 +254,7 @@ public class Usuario extends Personas {
     public synchronized static List<Usuario> getNombresUsuarios() {
         List<Usuario> usuarios = new ArrayList<>();
         Usuario u;
-        final String sql = "SELECT USERNAME FROM SP_SELECT_USUARIOS;";
+        final String sql = "SELECT USERNAME FROM GET_USUARIOS;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -267,7 +275,7 @@ public class Usuario extends Personas {
             return null;
         }
     }
-    
+
     /**
      * Metodo utilizado para modificar los usuarios del sistema con el rol
      * doctor, el cual permite agregar al registro su Exequatur y
@@ -275,14 +283,13 @@ public class Usuario extends Personas {
      *
      *
      * @param u Un objeto de la case Usuario.
-     * @param sql
      * @return Devuelve un mensaje que indica si la actualizacion fue exitosa.
      */
-    public static synchronized String agregarUsuario(Usuario u) {
+    public static synchronized Resultados agregarUsuario(Usuario u) {
         final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_USUARIO(?,?,?,?,?,?,?,?,?)";
-        System.out.println("TAGS: "+u.getTags());
-        try (CallableStatement cs = getCnn().prepareCall(sql,
+        try (CallableStatement cs = getCnn().prepareCall(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
@@ -299,7 +306,13 @@ public class Usuario extends Personas {
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al agregar Usuario...";
+            
+            return Resultados
+                    .builder()
+                    .mensaje("Error al agregar Usuario...")
+                    .estado(Boolean.FALSE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
         }
         u.getRoles().forEach(role -> {
             Roles.asignarRolUsuario(
@@ -308,13 +321,17 @@ public class Usuario extends Personas {
                     role.isConAdmin());
         });
 
-        return "Usuario agregado correctamente.";
+        return Resultados
+                    .builder()
+                    .mensaje("Usuario agregado correctamente.")
+                    .estado(Boolean.TRUE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .build();
     }
-    
-    public static synchronized String modificarUsuario(Usuario u) {
+
+    public static synchronized Resultados modificarUsuario(Usuario u) {
         final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_USUARIO (?,?,?,?,?,?,?,?)";
-
         try (CallableStatement cs = getCnn().prepareCall(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
@@ -330,7 +347,12 @@ public class Usuario extends Personas {
             cs.executeUpdate();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al modificar usuario...";
+            return Resultados
+                    .builder()
+                    .mensaje("Error al modificar usuario...")
+                    .estado(Boolean.FALSE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
         }
         u.getRoles().forEach(role -> {
             Roles.asignarRolUsuario(
@@ -339,7 +361,12 @@ public class Usuario extends Personas {
                     role.isConAdmin());
         });
 
-        return "Usuario modificado correctamente.";
+        return Resultados
+                    .builder()
+                    .mensaje("Usuario modificado correctamente.")
+                    .estado(Boolean.TRUE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .build();
     }
 
     /**
@@ -361,7 +388,7 @@ public class Usuario extends Personas {
 
         final String sql
                 = "SELECT DISTINCT(1) "
-                + "FROM SP_SELECT_USUARIOS "
+                + "FROM GET_USUARIOS "
                 + "WHERE TRIM(USERNAME) STARTING WITH TRIM(UPPER(?))";
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,

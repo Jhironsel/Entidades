@@ -21,6 +21,7 @@ public class Turnos {
 
     private final int id;
     private final Almacen almacen;
+    private final Facturas factura;
     private final String turno_usuario;
     private final Timestamp fecha_hora_inicio;
     private final Timestamp fecha_hora_final;
@@ -41,9 +42,9 @@ public class Turnos {
      */
     public synchronized static Turnos turnosActivoByUsuario(String userName) {
         final String sql
-                = "SELECT ID, ID_ALMACEN, NOMBRE_ALMACEN "
+                = "SELECT ID, ID_ALMACEN, NOMBRE_ALMACEN, ID_FACTURA "
                 + "FROM GET_TURNOS "
-                + "WHERE ESTADO AND TRIM(TURNO_USUARIO) STARTING WITH ?";
+                + "WHERE ESTADO AND TRIM(TURNO_USUARIO) STARTING WITH ?;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
@@ -61,6 +62,7 @@ public class Turnos {
                                             nombre(rs.getString("NOMBRE_ALMACEN")).
                                             build()
                             ).
+                            factura(Facturas.builder().id(rs.getInt("ID_FACTURA")).build()).
                             build();
                 }
             }
