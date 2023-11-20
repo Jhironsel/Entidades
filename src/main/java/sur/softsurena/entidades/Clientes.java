@@ -315,10 +315,10 @@ public class Clientes extends Personas {
             ps.setInt(1, (Objects.isNull(filtro.getId()) ? -1 : filtro.getId()));
 
             //Parametros para el criterio de busquedas
-            ps.setString(2, (Objects.isNull(filtro.getCriterioBusqueda()) ? "^":filtro.getCriterioBusqueda()));
-            ps.setString(3, (Objects.isNull(filtro.getCriterioBusqueda()) ? "^":filtro.getCriterioBusqueda()));
-            ps.setString(4, (Objects.isNull(filtro.getCriterioBusqueda()) ? "^":filtro.getCriterioBusqueda()));
-            ps.setString(5, (Objects.isNull(filtro.getCriterioBusqueda()) ? "^":filtro.getCriterioBusqueda()));
+            ps.setString(2, (Objects.isNull(filtro.getCriterioBusqueda()) ? "":filtro.getCriterioBusqueda()));
+            ps.setString(3, (Objects.isNull(filtro.getCriterioBusqueda()) ? "":filtro.getCriterioBusqueda()));
+            ps.setString(4, (Objects.isNull(filtro.getCriterioBusqueda()) ? "":filtro.getCriterioBusqueda()));
+            ps.setString(5, (Objects.isNull(filtro.getCriterioBusqueda()) ? "":filtro.getCriterioBusqueda()));
 
             
             if(!Objects.isNull(filtro.getFilas()) && filtro.getFilas()){
