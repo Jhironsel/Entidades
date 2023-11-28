@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import lombok.NonNull;
 import sur.softsurena.entidades.Resultados;
 
@@ -12,7 +13,7 @@ public class Conexion {
 
     //Variables Privadas
     private static final Logger LOG = Logger.getLogger(Conexion.class.getName());
-    
+
     private static Connection cnn;
     private static String user, clave;
     private static StringBuilder urlDB;
@@ -25,7 +26,6 @@ public class Conexion {
     public synchronized static void setCnn(Connection cnn) {
         Conexion.cnn = cnn;
     }
-
 
     /**
      * Unico Metodo que permite obtener una instancia de la clase Conexión. La
@@ -66,6 +66,7 @@ public class Conexion {
     }
 
     private static class ConexionHolder {
+
         private static final Conexion INSTANCE = new Conexion();
     }
 
@@ -87,89 +88,104 @@ public class Conexion {
         properties.setProperty("charSet", "UTF8");
         try {
             setCnn(DriverManager.getConnection(urlDB.toString(), properties));
-            return Resultados.builder().
-                    mensaje("Mensaje").
-                    estado(Boolean.TRUE).build();
-        } catch(java.sql.SQLInvalidAuthorizationSpecException ex1){
-            return Resultados.builder().
-                        mensaje(JAVASQL_SQL_INVALID_AUTHORIZATION_SPEC_EXCEPTI).
-                        estado(Boolean.TRUE).
-                    build();
-        }catch (SQLException ex) {
-            ex.printStackTrace();
-            
+            return Resultados
+                    .builder()
+                    .mensaje("Mensaje")
+                    .estado(Boolean.TRUE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .build();
+        } catch (java.sql.SQLInvalidAuthorizationSpecException ex1) {
+            return Resultados
+                    .builder()
+                    .mensaje(JAVASQL_SQL_INVALID_AUTHORIZATION_SPEC_EXCEPTI)
+                    .estado(Boolean.FALSE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
+        } catch (SQLException ex) {
             if (ex.getMessage().contains(E_FECHA_INICIAL_INCORRECTA)) {
-                return Resultados.builder().
-                        mensaje(E_FECHA_INICIAL_INCORRECTA).
-                        estado(Boolean.FALSE).
-                        build();
+                return Resultados
+                        .builder()
+                        .mensaje(E_FECHA_INICIAL_INCORRECTA)
+                        .estado(Boolean.FALSE)
+                        .icono(JOptionPane.ERROR_MESSAGE)
+                        .build();
             }
-            
-            if (ex.getMessage().contains(E_FECHA_ACTUAL_INCORRECTA)) {
-                return Resultados.builder().
-                        mensaje(E_FECHA_ACTUAL_INCORRECTA).
-                        estado(Boolean.FALSE).
-                        build();
-            }
-            
-            if (ex.getMessage().contains(E_FECHA_VENCIMIENTO)) {
-                return Resultados.builder().
-                        mensaje(E_FECHA_VENCIMIENTO).
-                        estado(Boolean.FALSE).
-                        build();
-            }
-            
-            if (ex.getMessage().contains(E_EQUIPO_NO_REGISTRADO)) {
-                return Resultados.builder().
-                        mensaje(E_EQUIPO_NO_REGISTRADO).
-                        estado(Boolean.FALSE).
-                        build();
-            }
-            
-            if (ex.getMessage().contains("Unable to complete network request to host")) {
-                return Resultados.builder().
-                        build();
-            }
-            
-            
 
-            return Resultados.builder().
-                    mensaje(ex.getMessage()).
-                    estado(Boolean.FALSE).build();
+            if (ex.getMessage().contains(E_FECHA_ACTUAL_INCORRECTA)) {
+                return Resultados
+                        .builder()
+                        .mensaje(E_FECHA_ACTUAL_INCORRECTA)
+                        .estado(Boolean.FALSE)
+                        .icono(JOptionPane.ERROR_MESSAGE)
+                        .build();
+            }
+
+            if (ex.getMessage().contains(E_FECHA_VENCIMIENTO)) {
+                return Resultados
+                        .builder()
+                        .mensaje(E_FECHA_VENCIMIENTO)
+                        .estado(Boolean.FALSE)
+                        .icono(JOptionPane.ERROR_MESSAGE)
+                        .build();
+            }
+
+            if (ex.getMessage().contains(E_EQUIPO_NO_REGISTRADO)) {
+                return Resultados
+                        .builder()
+                        .mensaje(E_EQUIPO_NO_REGISTRADO)
+                        .estado(Boolean.FALSE)
+                        .icono(JOptionPane.ERROR_MESSAGE)
+                        .build();
+            }
+
+            if (ex.getMessage().contains("Unable to complete network request to host")) {
+                return Resultados
+                        .builder()
+                        .mensaje("Unable to complete network request to host")
+                        .estado(Boolean.FALSE)
+                        .icono(JOptionPane.ERROR_MESSAGE)
+                        .build();
+            }
+
+            return Resultados
+                    .builder()
+                    .mensaje(ex.getMessage())
+                    .estado(Boolean.FALSE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
         }
     }
     /**
-     * Driver de firebird (Jaybird) no se encuentra en la carpecta /lib del 
-     * proyecto.
-     * https://firebirdsql.org/en/jdbc-driver/
+     * Driver de firebird (Jaybird) no se encuentra en la carpecta /lib del
+     * proyecto. https://firebirdsql.org/en/jdbc-driver/
      */
-    public static final String LIBRERIA_DEL_DRIVER_NO_ENCONTRADA = 
-            "Libreria no encontrada";
-    
+    public static final String LIBRERIA_DEL_DRIVER_NO_ENCONTRADA
+            = "Libreria no encontrada";
+
     /**
      * Esta variable indica que el usuario y la contraseña son incorrecto.
      */
-    public static final String JAVASQL_SQL_INVALID_AUTHORIZATION_SPEC_EXCEPTI = 
-            "JAVASQL_SQL_INVALID_AUTHORIZATION_SPEC_EXCEPTI";
+    public static final String JAVASQL_SQL_INVALID_AUTHORIZATION_SPEC_EXCEPTI
+            = "JAVASQL_SQL_INVALID_AUTHORIZATION_SPEC_EXCEPTI";
     /**
      * Esta variable indica que la fecha inicial es incorrecta. Debe ajustar la
      * fecha del servidor.
      */
-    public static final String E_FECHA_INICIAL_INCORRECTA = 
-            "E_FECHA_INICIAL_INCORRECTA";
+    public static final String E_FECHA_INICIAL_INCORRECTA
+            = "E_FECHA_INICIAL_INCORRECTA";
     /**
-     * La fecha actual registrada en el revidor es incorrecta. 
+     * La fecha actual registrada en el revidor es incorrecta.
      */
-    public static final String E_FECHA_ACTUAL_INCORRECTA = 
-            "E_FECHA_ACTUAL_INCORRECTA";
+    public static final String E_FECHA_ACTUAL_INCORRECTA
+            = "E_FECHA_ACTUAL_INCORRECTA";
     /**
      * La fecha del producto ha caducado.
      */
     public static final String E_FECHA_VENCIMIENTO = "E_FECHA_VENCIMIENTO";
-    
+
     /**
      * Indica que no existe registros en el servidor de la base de datos.
      */
-    public static final String E_EQUIPO_NO_REGISTRADO = 
-            "E_EQUIPO_NO_REGISTRADO";
+    public static final String E_EQUIPO_NO_REGISTRADO
+            = "E_EQUIPO_NO_REGISTRADO";
 }

@@ -10,7 +10,7 @@ public class ConexionIT {
     
     final String user = "jhironsel";
     final String clave = "123uasd";
-    final String pathBaseDatos = "/home/jhironsel/BaseDatos/BaseDeDatos3.fdb";
+    final String pathBaseDatos = "BaseDeDatos.db";
     final String dominio = "localhost";
     final String puerto = "3050"; 
     final Conexion conexion;

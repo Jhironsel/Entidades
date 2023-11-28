@@ -36,7 +36,7 @@ public class Render_CheckBox extends JCheckBox implements TableCellRenderer {
         ((JCheckBox) component).setHorizontalAlignment(SwingConstants.CENTER);
 
         //obtiene valor boolean y coloca valor en el JCheckBox
-        boolean b = ((Boolean) value);
+        Boolean b = ((Boolean) value);
         ((JCheckBox) component).setSelected(b);
 
         return ((JCheckBox) component);

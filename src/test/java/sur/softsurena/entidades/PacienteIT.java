@@ -22,8 +22,8 @@ public class PacienteIT {
     @BeforeClass
     public static void setUpClass() {
         final String user = "jhironsel";
-        final String clave = "123uasd";
-        final String pathBaseDatos = "/home/jhironsel/BaseDatos/BaseDeDatos3.fdb";
+        final String clave = "1";
+        final String pathBaseDatos = "BaseDeDatos.db";
         final String dominio = "localhost";
         final String puerto = "3050";
         Conexion.getInstance(user, clave, pathBaseDatos, dominio, puerto)
@@ -47,37 +47,44 @@ public class PacienteIT {
 
         //Prueba de Insersion de paciente.
         
-        Asegurados a = Asegurados.builder().
+        Asegurados asegurado = Asegurados.builder().
                 id_ars(0).
                 no_nss("").build();
 
-        Generales g = Generales.builder().
+        Generales generales = Generales.builder().
                 cedula("012-0000000-9").id_tipo_sangre(0).build();
 
-        Paciente pInsertar = Paciente.builder().
-                idPadre(0).idMadre(0).asegurado(a).generales(g).
-                pnombre("Ciliosther").snombre("").apellidos("Diaz Liriano").
-                sexo("F").
-                estado(Boolean.TRUE).
-                fecha_nacimiento(Utilidades.javaDateToSqlDate(new Date())).build();
-
-        Resultados result = Paciente.agregarPaciente(pInsertar);
+        Resultados result = Paciente.agregarPaciente(
+                Paciente
+                        .builder()
+                        .idPadre(0)
+                        .idMadre(0)
+                        .asegurado(asegurado)
+                        .generales(generales)
+                        .pnombre("Ciliosther")
+                        .snombre("")
+                        .apellidos("Diaz Liriano")
+                        .sexo("F")
+                        .estado(Boolean.TRUE)
+                        .fecha_nacimiento(Utilidades.javaDateToSqlDate(new Date()))
+                        .build()
+        );
 
         assertEquals(Paciente.PACIENTE_AGREGADO_CORRECTAMENTE, result.toString());
 
         //Prueba de Actualizacion de paciente.
-        a = Asegurados.builder().
+        asegurado = Asegurados.builder().
                 id_ars(0).
                 no_nss("").
                 estado(Boolean.FALSE).build();
 
-        g = Generales.builder().
+        generales = Generales.builder().
                 cedula("012-0000001-9").id_tipo_sangre(0).build();
 
         int idPaciente = result.getId(); 
         
         Paciente pUpdate = Paciente.builder().id_persona(idPaciente).
-                idPadre(0).idMadre(0).asegurado(a).generales(g).
+                idPadre(0).idMadre(0).asegurado(asegurado).generales(generales).
                 pnombre("Michael").snombre("").apellidos("Orozco").
                 sexo("M").
                 estado(Boolean.TRUE).

@@ -2,6 +2,7 @@ package sur.softsurena.utilidades;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -339,21 +340,31 @@ public class Utilidades {
      * formato de imagen PNG.
      *
      * @param imagen64
+     * @param ancho
+     * @param alto
      * @return
      */
-    public synchronized static ImageIcon imagenDecode64(String imagen64) {
+    public synchronized static ImageIcon imagenDecode64(String imagen64, int ancho, int alto) {
         byte[] data = Base64.decodeBase64(imagen64);
 
         Imagenes img = new Imagenes();
         if (Objects.isNull(data) || data.length <= 1) {
-            return (ImageIcon) img.getIcono("NoImageTransp 96 x 96.png");
+            return new ImageIcon(img.getIcono("NoImageTransp 96 x 96.png")
+                    .getImage()
+                    .getScaledInstance(ancho, alto, Image.SCALE_DEFAULT));
         }
 
         try {
-            return new ImageIcon(ImageIO.read(new ByteArrayInputStream(data)));
+            return new ImageIcon(new ImageIcon(
+                    ImageIO.read(
+                            new ByteArrayInputStream(data))).getImage()
+                    .getScaledInstance(ancho, alto, Image.SCALE_DEFAULT));
+            
         } catch (IOException ex) {
             //Instalar Logger
-            return (ImageIcon) img.getIcono("NoImageTransp 96 x 96.png");
+            return new ImageIcon( img.getIcono("NoImageTransp 96 x 96.png")
+                    .getImage()
+                    .getScaledInstance(ancho, alto, Image.SCALE_DEFAULT));
         }
     }
 

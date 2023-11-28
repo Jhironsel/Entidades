@@ -10,6 +10,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import javax.swing.JOptionPane;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
@@ -52,9 +53,9 @@ public class Paciente extends Personas {
     public synchronized static Resultados modificarPaciente(Paciente p) {
         final String UPDATE
                 = "EXECUTE PROCEDURE SP_UPDATE_PACIENTE (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        
+
         Resultados r;
-        
+
         try (CallableStatement ps = getCnn().prepareCall(
                 UPDATE,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -77,7 +78,7 @@ public class Paciente extends Personas {
             ps.setBoolean(14, p.getAsegurado().getEstado());
 
             int cantidad = ps.executeUpdate();
-            
+
             r = Resultados.builder().
                     id(-1).
                     mensaje(PACIENTE_MODIFICADO_CORRECTAMENTE).
@@ -98,65 +99,65 @@ public class Paciente extends Personas {
      * Metodo que permite agregar un paciente al sisteme. Primer metodo
      * testeado.
      *
-     * nota: 
-     * Proceso de agregar paciente revizado y actualizado el 22 abril 2022.
-     * Metodo actualizado 22 Junio del 2022.
+     * nota: Proceso de agregar paciente revizado y actualizado el 22 abril
+     * 2022. Metodo actualizado 22 Junio del 2022.
      *
      * @Test agregarPaciente(), metodo de la prueba del funcionamiento.
      *
-     * @param p objecto de la clase Paciente, con los campos requerido para
-     * agregar un pacient.
+     * @param paciente objecto de la clase Paciente, con los campos requerido
+     * para agregar un pacient.
      *
      * @return Retorna un mensaje que indica si el registro fue completado o no.
      *
      */
-    
-    public synchronized static Resultados agregarPaciente(Paciente p) {
+    public synchronized static Resultados agregarPaciente(Paciente paciente) {
         //Query procedimental para agregar un paciente y devolver su ID.
-        final String INSERT
-                = "SELECT V_ID " 
+        final String sql
+                = "SELECT V_ID "
                 + "FROM SP_INSERT_PACIENTE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
         //Variables de resultado lista para devolver un error.
-        Resultados r = Resultados.builder().
-                id(-1).
-                mensaje(ERROR_AL_INSERTAR_PACIENTE).
-                cantidad(-1).build();
+        Resultados r = Resultados
+                .builder()
+                .id(-1)
+                .mensaje(ERROR_AL_INSERTAR_PACIENTE)
+                .cantidad(-1)
+                .icono(JOptionPane.ERROR_MESSAGE)
+                .build();
 
         try (PreparedStatement ps = getCnn().prepareStatement(
-                INSERT, 
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
-            ps.setInt(1, p.getIdPadre());
-            ps.setInt(2, p.getIdMadre());
-            ps.setInt(3, p.getAsegurado().getId_ars());
-            ps.setString(4, p.getAsegurado().getNo_nss().trim());
-            ps.setString(5, p.getGenerales().getCedula().trim());
-            ps.setString(6, p.getPnombre().trim());
-            ps.setString(7, p.getSnombre().trim());
-            ps.setString(8, p.getApellidos().trim());
-            ps.setString(9, "" + p.getSexo());
-            ps.setDate(10, p.getFecha_nacimiento());
-            ps.setInt(11, p.getGenerales().getId_tipo_sangre());
-            ps.setBoolean(12, p.getEstado());
+            ps.setInt(1, paciente.getIdPadre());
+            ps.setInt(2, paciente.getIdMadre());
+            ps.setInt(3, paciente.getAsegurado().getId_ars());
+            ps.setString(4, paciente.getAsegurado().getNo_nss().trim());
+            ps.setString(5, paciente.getGenerales().getCedula().trim());
+            ps.setString(6, paciente.getPnombre().trim());
+            ps.setString(7, paciente.getSnombre().trim());
+            ps.setString(8, paciente.getApellidos().trim());
+            ps.setString(9, "" + paciente.getSexo());
+            ps.setDate(10, paciente.getFecha_nacimiento());
+            ps.setInt(11, paciente.getGenerales().getId_tipo_sangre());
+            ps.setBoolean(12, paciente.getEstado());
 
             /*Me quedo con la duda que si un paciente necesita numero de contacto
             Ya que los padres si deberian de tenerlo*/
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
-                r = Resultados.builder().
-                        id(rs.getInt("V_ID")).
-                        mensaje(PACIENTE_AGREGADO_CORRECTAMENTE).
-                        cantidad(-1).build();
-                
-                return r;
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                r = Resultados
+                        .builder()
+                        .id(rs.getInt("V_ID"))
+                        .mensaje(PACIENTE_AGREGADO_CORRECTAMENTE)
+                        .cantidad(-1)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .build();
+
                 return r;
             }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return r;
@@ -169,35 +170,38 @@ public class Paciente extends Personas {
     public synchronized static Resultados borrarPaciente(int id) {
 
         final String sql = "DELETE FROM V_PACIENTES WHERE ID = ?";
-        Resultados r;
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             ps.setInt(1, id);
 
             int cantidad = ps.executeUpdate();
-            
-            r = Resultados.builder().
-                    id(-1).
-                    mensaje(PACIENTE_BORRADO_CORRECTAMENTE).
-                    cantidad(cantidad).build();
-            
-            return r;
-            
+
+            return Resultados
+                    .builder()
+                    .id(-1)
+                    .mensaje(PACIENTE_BORRADO_CORRECTAMENTE)
+                    .cantidad(cantidad)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .build();
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            r = Resultados.builder().
-                    id(-1).
-                    mensaje(ERROR_AL_BORRAR_PACIENTE).
-                    cantidad(-1).build();
-            return r;
+            return Resultados
+                    .builder()
+                    .id(-1)
+                    .mensaje(ERROR_AL_BORRAR_PACIENTE)
+                    .cantidad(-1)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
         }
     }
 
     /**
-     *
+     * TODO Este metodo debe ser eliminado.
      * @param idPaciente
      * @return
      */
+    @Deprecated
     public synchronized static String getSexoPaciente(int idPaciente) {
         final String GET_SEXO_BY_ID
                 = "SELECT sexo "

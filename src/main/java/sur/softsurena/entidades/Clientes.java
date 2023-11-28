@@ -129,7 +129,7 @@ public class Clientes extends Personas {
      * @param id
      * @return
      */
-    public static boolean agregarClienteById(int id) {
+    public static Resultados agregarClienteById(int id) {
         final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_PERSONA_CLIENTES_ID(?)";
         try (CallableStatement cs = getCnn().prepareCall(
@@ -138,10 +138,22 @@ public class Clientes extends Personas {
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             cs.setInt(1, id);
-            return cs.execute();
+            boolean estado = cs.execute();
+            
+            return Resultados
+                    .builder()
+                    .estado(estado)
+                    .mensaje(CLIENTE__AGREGADO__CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, "Error al insertar id del clliente.", ex);
-            return false;
+            return Resultados
+                    .builder()
+                    .estado(Boolean.TRUE)
+                    .mensaje(ERROR_AL_INSERTAR__CLIENTE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .build();
         }
     }
 
@@ -237,45 +249,6 @@ public class Clientes extends Personas {
                     mensaje(ERROR_AL__MODIFICAR__CLIENTE).
                     cantidad(-1).
                     build();
-        }
-    }
-
-    /**
-     * Metodo utilizado para saber si existe un cliente registrado por una
-     * cedula de identidad en el sistema.
-     *
-     *
-     * Metodo revisado y actualizado el 26 de abril 2022. Metodo revisado y
-     * actualizado el 23 de noviembre 2022.
-     *
-     * @param cedula cedula del cliente utilizada para consultar la base de
-     * datos.
-     *
-     * @return devuelve el id del cliente si existe la cedula registrada y -1 si
-     * no se encuentra la cedula en el sistema.
-     */
-    public synchronized static Integer existeCliente(String cedula) {
-        final String GET_ID_CLIENTE_BY_CEDULA
-                = "SELECT ID_PERSONA "
-                + "FROM V_GENERALES "
-                + "WHERE CEDULA STARTING WITH TRIM(?);";
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                GET_ID_CLIENTE_BY_CEDULA,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
-            ps.setString(1, cedula.trim());
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    return rs.getInt("ID_PERSONA");
-                }
-                return -1;
-            }
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return -1;
         }
     }
 

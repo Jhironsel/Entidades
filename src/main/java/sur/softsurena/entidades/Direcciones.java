@@ -17,16 +17,17 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 public class Direcciones {
 
     private static final Logger LOG = Logger.getLogger(Direcciones.class.getName());
-    private final int id;//X Variables en la base de datos.
-    private final int id_persona;//X
-    private final Provincias provincia;//X
-    private final Municipios municipio;//X
-    private final Distritos_municipales distrito_municipal;//X
-    private final Codigo_Postal codigo_postal;//X
-    private final String direccion;//X
-    private final Date fecha;//X
-    private final Boolean estado;//X
-    private final Boolean por_defecto;//X
+    
+    private final int id;
+    private final int id_persona;
+    private final Provincias provincia;
+    private final Municipios municipio;
+    private final Distritos_municipales distrito_municipal;
+    private final Codigo_Postal codigo_postal;
+    private final String direccion;
+    private final Date fecha;
+    private final Boolean estado;
+    private final Boolean por_defecto;
     private final char accion;
 
     /**
@@ -40,16 +41,15 @@ public class Direcciones {
      * @return Devuelve true si la operacion fue exitosa, false caso contrario.
      */
     public static boolean agregarDirecciones(int id_persona, List<Direcciones> direcciones) {
-        final String INSERT
-                = "EXECUTE PROCEDURE SP_INSERT_DIRECCION(?, ?, ?, ?, 0, ?);";
+        final String sql = "EXECUTE PROCEDURE SP_INSERT_DIRECCION(?, ?, ?, ?, 0, ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(INSERT)) {
-            for (Direcciones d : direcciones) {
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+            for (Direcciones direccion : direcciones) {
                 ps.setInt(1, id_persona);
-                ps.setInt(2, d.getProvincia().getId());
-                ps.setInt(3, d.getMunicipio().getId());
-                ps.setInt(4, d.getDistrito_municipal().getId());
-                ps.setString(5, d.getDireccion());
+                ps.setInt(2, direccion.getProvincia().getId());
+                ps.setInt(3, direccion.getMunicipio().getId());
+                ps.setInt(4, direccion.getDistrito_municipal().getId());
+                ps.setString(5, direccion.getDireccion());
                 ps.addBatch();
             }
             ps.executeBatch();
@@ -61,17 +61,17 @@ public class Direcciones {
     }
 
     /**
-     * 
-     * @param id
+     *
+     * @param id_persona
      * @param d
-     * @return 
+     * @return
      */
-    public static boolean modificarDireccion(int id, Direcciones d) {
+    public static boolean modificarDireccion(int id_persona, Direcciones d) {
         final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_DIRECCION(?, ?, ?, ?, 0, ?, ?, ?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            ps.setInt(1, id);
+            ps.setInt(1, id_persona);
             ps.setInt(2, d.getProvincia().getId());
             ps.setInt(3, d.getMunicipio().getId());
             ps.setInt(4, d.getDistrito_municipal().getId());
@@ -82,11 +82,6 @@ public class Direcciones {
             return true;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            try {
-                getCnn().rollback();
-            } catch (SQLException ex1) {
-                LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
-            }
         }
         return false;
     }

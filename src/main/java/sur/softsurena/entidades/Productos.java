@@ -52,8 +52,9 @@ public class Productos {
         List<Productos> listaProducto = new ArrayList<>();
 
         final String sql
-                = "SELECT ID, ID_CATEGORIA, DESC_CATEGORIA, CODIGO, DESCRIPCION,"
-                + "      NOTA, FECHA_CREACION, ESTADO "
+                = "SELECT ID, ID_CATEGORIA, DESC_CATEGORIA, CODIGO, DESCRIPCION, "
+                + "      NOTA, FECHA_CREACION, IMAGEN_CATEGORIA, IMAGEN_PRODUCTO, "
+                + "      ESTADO "
                 + "FROM GET_PRODUCTOS "
                 + "WHERE ID = ? OR "
                 + "          TRIM(CODIGO) STARTING WITH TRIM(?) OR "
@@ -90,76 +91,29 @@ public class Productos {
 
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    listaProducto.add(Productos.
-                            builder().
-                            id(rs.getInt("ID")).
-                            descripcion(rs.getString("DESCRIPCION")).
-                            categoria(Categorias.
-                                    builder().
-                                    id_categoria(rs.getInt("ID_CATEGORIA")).
-                                    descripcion(rs.getString("DESC_CATEGORIA")).
-                                    build()).
-                            codigo(rs.getString("CODIGO")).
-                            nota(rs.getString("NOTA")).
-                            fechaCreacion(rs.getDate("FECHA_CREACION")).
-                            estado(rs.getBoolean("ESTADO")).
-                            build());
+                    listaProducto.add(
+                            Productos
+                                    .builder()
+                                    .id(rs.getInt("ID"))
+                                    .descripcion(rs.getString("DESCRIPCION"))
+                                    .categoria(
+                                            Categorias
+                                                    .builder()
+                                                    .id_categoria(rs.getInt("ID_CATEGORIA"))
+                                                    .descripcion(rs.getString("DESC_CATEGORIA"))
+                                                    .image_texto(rs.getString("IMAGEN_CATEGORIA"))
+                                                    .build()
+                                    )
+                                    .codigo(rs.getString("CODIGO"))
+                                    .nota(rs.getString("NOTA"))
+                                    .fechaCreacion(rs.getDate("FECHA_CREACION"))
+                                    .imagenProducto(rs.getString("IMAGEN_PRODUCTO"))
+                                    .estado(rs.getBoolean("ESTADO"))
+                                    .build()
+                    );
                 }
                 return listaProducto;
             }
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
-        }
-    }
-
-    public synchronized static Productos getProductoById(Integer idProducto,
-            String codigo) {
-        final String sql
-                = "SELECT ID, CODIGO, ID_CATEGORIA, DESCRIPCION, IMAGEN_TEXTO, "
-                + "         NOTA, FECHA_CREACION, ESTADO "
-                + "FROM V_PRODUCTOS "
-                + "WHERE ID = ? OR CODIGO STARTING WITH ?";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                sql,
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT
-        )) {
-
-            if (idProducto == null) {
-                idProducto = -1;
-            }
-            ps.setInt(1, idProducto);
-            ps.setString(2, codigo);
-
-            try (ResultSet rs = ps.executeQuery();) {
-
-                if (rs.next()) {
-                    return Productos.builder().
-                            id(rs.getInt("ID")).
-                            codigo(rs.getString("CODIGO")).
-                            categoria(
-                                    Categorias.
-                                            builder().
-                                            id_categoria(rs.getInt("ID_CATEGORIA")).
-                                            build()
-                            ).
-                            descripcion(rs.getString("DESCRIPCION")).
-                            imagenProducto(rs.getString("IMAGEN_TEXTO")).
-                            nota(rs.getString("NOTA")).
-                            fechaCreacion(rs.getDate("FECHA_CREACION")).
-                            estado(rs.getBoolean("ESTADO"))
-                            .build();
-                } else {
-                    return Productos.builder().id(-1).descripcion("Producto no encontrado.").build();
-                }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -347,7 +301,7 @@ public class Productos {
                     .icono(JOptionPane.ERROR_MESSAGE)
                     .build();
         }
-        
+
     }
     /**
      * Variable utilizar que indica cuando un producto ha sido modificado
@@ -401,8 +355,8 @@ public class Productos {
                 + "FROM RDB$DATABASE "
                 + "WHERE EXISTS(SELECT (1) "
                 + "             FROM V_PRODUCTOS "
-                + "             WHERE codigo LIKE ? or "
-                + "                    descripcion LIKE ?);";
+                + "             WHERE codigo STARING WITH ? or "
+                + "                    descripcion STARTING WITH ?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(EXISTE_PRODUCTO)) {
 
@@ -423,7 +377,8 @@ public class Productos {
     }
 
     /**
-     * Metodo que devuelve el precio de producto actual.
+     * TODO obtener el precio del producto. Metodo que devuelve el precio de
+     * producto actual.
      *
      * @param idProducto identificador del producto.
      * @return
