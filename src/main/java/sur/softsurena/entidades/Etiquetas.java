@@ -27,8 +27,9 @@ public class Etiquetas {
     public synchronized static List<Etiquetas> getEtiquetasUsuario(String usuario) {
         List<Etiquetas> etiquetaList = new ArrayList<>();
         Etiquetas etiqueta;
-        final String sql = "SELECT O_TAG_NOMBRE, O_TAG_VALOR "
-                + "FROM SP_SELECT_USUARIOS_TAGS (?);";
+        final String sql = "SELECT LLAVE, VALOR "
+                + "FROM VS_USUARIOS_TAGS "
+                + "WHERE USUARIO STATING WITH ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -36,13 +37,13 @@ public class Etiquetas {
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
-            ps.setString(1, usuario);
+            ps.setString(1, usuario.strip().toUpperCase());
 
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     etiqueta = Etiquetas.builder().
-                            propiedad(rs.getString("O_TAG_NOMBRE")).
-                            valor(rs.getString("O_TAG_VALOR")).
+                            propiedad(rs.getString("LLAVE")).
+                            valor(rs.getString("VALOR")).
                             build();
                     etiquetaList.add(etiqueta);
                 }

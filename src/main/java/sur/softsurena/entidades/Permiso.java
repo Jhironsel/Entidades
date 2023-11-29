@@ -30,11 +30,14 @@ public class Permiso {
      */
     public synchronized static List<Roles> getPermisosAsignados(String rol) {
         final String sql
-                = "SELECT R_NOMBRE_RELACION, R_GRANT_OPTION, R_DESCRIPCION " +
-                    "FROM SP_VS_PERMISOS_ASIGNADOS (?) p;";
-        
+                = "SELECT NOMBRE_RELACION, GRANT_OPTION, DESCRIPCION "
+                + "FROM GET_PERMISOS_ASIGNADOS "
+                + "WHERE ID_TIPO_OBJ = 5 AND "
+                + "      TRIM(USUARIO) STARTING WITH ? AND "
+                + "      TRIM(NOMBRE_RELACION) STARTING WITH 'PERM_';";
+
         List<Roles> roles = new ArrayList<>();
-        
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
@@ -46,9 +49,9 @@ public class Permiso {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
 
-                    String nombreRelacion = rs.getString("R_NOMBRE_RELACION");
-                    String descripcion = rs.getString("R_DESCRIPCION");
-                    int opcionPermiso = rs.getInt("R_GRANT_OPTION");
+                    String nombreRelacion = rs.getString("NOMBRE_RELACION");
+                    String descripcion = rs.getString("DESCRIPCION");
+                    int opcionPermiso = rs.getInt("GRANT_OPTION");
 
                     roles.add(Roles.builder().
                             descripcion(Objects.isNull(descripcion) ? "" : descripcion.strip()).
@@ -80,7 +83,7 @@ public class Permiso {
                 + "WHERE p.PROCEDIMIENTO STARTING WITH 'PERM_' AND "
                 + "     TRIM(r.USUARIO) IS NULL AND "
                 + "     p.PROCEDIMIENTO NOT STARTING WITH 'TRANSITIONS'";
-        
+
         List<Roles> roles = new ArrayList<>();
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -107,30 +110,27 @@ public class Permiso {
         }
         return roles;
     }
-    
-    
-    
-    
+
     /**
-     * 
+     *
      * @param rol
      * @param usuario
-     * @return 
+     * @return
      */
     public synchronized static Resultados<Object> quitarPermisoAdminRole(
             String rol, String usuario) {
-        
+
         String sql = "EXECUTE PROCEDURE ADMIN_QUITAR_PERMISO_ADMIN_ROL(?,?)";
-        
+
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
+
             cs.setString(1, rol);
             cs.setString(2, usuario);
-            
+
             boolean execute = cs.execute();
 
             return Resultados.builder().
@@ -139,11 +139,11 @@ public class Permiso {
                     cantidad(-1).
                     estado(execute).
                     build();
-            
+
         } catch (SQLException ex) {
-            
+
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            
+
             return Resultados.builder().
                     id(-1).
                     mensaje("Error al quitar control administrativo.").
@@ -151,63 +151,63 @@ public class Permiso {
                     build();
         }
     }
-    
+
     /**
-     * 
+     *
      * @param procedimiento
      * @param rol
-     * @return 
+     * @return
      */
     public synchronized static Resultados<Object> quitarPermisoAdminProcedimiento(
             String procedimiento, String rol) {
-        
+
         String sql = "EXECUTE PROCEDURE ADMIN_QUITAR_PERMISO_ADMIN_PROCE (?,?);";
-        
+
         try (PreparedStatement cs = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
+
             cs.setString(1, procedimiento);
             cs.setString(2, rol);
-            
+
             boolean execute = cs.execute();
 
             return Resultados.builder().
                     mensaje("Procedimiento sin control administrativo.").
                     estado(execute).
                     build();
-            
+
         } catch (SQLException ex) {
-            
+
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            
+
             return Resultados.builder().
                     mensaje("Error al quitar control administrativo.").
                     estado(Boolean.FALSE).
                     build();
         }
     }
-    
+
     /**
-     * 
+     *
      * @param procedimiento
      * @param rol
-     * @return 
+     * @return
      */
     public synchronized static Resultados<Object> agregarPermisoAdminProcedimiento(
             String procedimiento, String rol) {
-        
+
         String sql = "EXECUTE PROCEDURE ADMIN_AGREGAR_PERMISO_ADMIN_PROCE (?,?);";
-        
+
         try (PreparedStatement cs = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
+
             cs.setString(1, procedimiento);
             cs.setString(2, rol);
-            
+
             boolean execute = cs.execute();
 
             return Resultados.builder().
@@ -216,11 +216,11 @@ public class Permiso {
                     cantidad(-1).
                     estado(execute).
                     build();
-            
+
         } catch (SQLException ex) {
-            
+
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            
+
             return Resultados.builder().
                     id(-1).
                     mensaje("Error al quitar control administrativo.").
@@ -228,27 +228,27 @@ public class Permiso {
                     build();
         }
     }
-    
+
     /**
-     * 
+     *
      * @param role
      * @param usuario
-     * @return 
+     * @return
      */
     public synchronized static Resultados<Object> agregarPermisoAdminRole(
             String role, String usuario) {
-        
+
         String sql = "EXECUTE PROCEDURE ADMIN_AGREGAR_PERMISO_ADMIN_ROLE(?,?)";
-        
+
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
+
             cs.setString(1, role);
             cs.setString(2, usuario);
-            
+
             boolean execute = cs.execute();
 
             return Resultados.builder().
@@ -257,11 +257,11 @@ public class Permiso {
                     cantidad(-1).
                     estado(execute).
                     build();
-            
+
         } catch (SQLException ex) {
-            
+
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            
+
             return Resultados.builder().
                     id(-1).
                     mensaje("Error al quitar control administrativo a role.").
@@ -270,28 +270,28 @@ public class Permiso {
         }
     }
 
-    
     /**
-     * Metodo que elimina los permisos asignados a los roles. 
+     * Metodo que elimina los permisos asignados a los roles.
+     *
      * @param procedimiento
      * @param rol
      * @param admin
-     * @return 
+     * @return
      */
     public synchronized static Resultados<Object> borrarPermisoAdminProcedimiento(
             String procedimiento, String rol) {
-        
+
         String sql = "EXECUTE PROCEDURE ADMIN_BORRAR_PERMISO_ADMIN_PROCE(?,?)";
-        
+
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
+
             cs.setString(1, procedimiento);
             cs.setString(2, rol);
-            
+
             boolean execute = cs.execute();
 
             return Resultados.builder().
@@ -300,11 +300,11 @@ public class Permiso {
                     cantidad(-1).
                     estado(execute).
                     build();
-            
+
         } catch (SQLException ex) {
-            
+
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            
+
             return Resultados.builder().
                     id(-1).
                     mensaje("Error al borrar permiso").
@@ -312,7 +312,7 @@ public class Permiso {
                     build();
         }
     }
-    
+
     @Override
     public String toString() {
         return nombre.strip();

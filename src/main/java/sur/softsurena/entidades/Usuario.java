@@ -168,7 +168,7 @@ public class Usuario extends Personas {
         final String sql
                 = "SELECT PNOMBRE, SNOMBRE, APELLIDOS, ESTADO, ADMINISTRADOR, "
                 + "         DESCRIPCION "
-                + "FROM GET_USUARIOS "
+                + "FROM VS_USUARIOS "
                 + "WHERE TRIM(USERNAME) STARTING WITH ?;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -213,7 +213,7 @@ public class Usuario extends Personas {
         final String sql
                 = "SELECT USERNAME, PNOMBRE, SNOMBRE, APELLIDOS, ESTADO, "
                 + "     ADMINISTRADOR, DESCRIPCION "
-                + "FROM GET_USUARIOS;";
+                + "FROM VS_USUARIOS;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -254,7 +254,7 @@ public class Usuario extends Personas {
     public synchronized static List<Usuario> getNombresUsuarios() {
         List<Usuario> usuarios = new ArrayList<>();
         Usuario u;
-        final String sql = "SELECT USERNAME FROM GET_USUARIOS;";
+        final String sql = "SELECT USERNAME FROM VS_USUARIOS;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -388,7 +388,7 @@ public class Usuario extends Personas {
 
         final String sql
                 = "SELECT DISTINCT(1) "
-                + "FROM GET_USUARIOS "
+                + "FROM VS_USUARIOS "
                 + "WHERE TRIM(USERNAME) STARTING WITH TRIM(UPPER(?))";
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,

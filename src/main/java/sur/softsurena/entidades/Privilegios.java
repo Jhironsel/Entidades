@@ -64,74 +64,35 @@ public class Privilegios {
      */
     public static char PRIVILEGIO_REFERENCE = 'R';
 
-
     /**
-     * Metodo que realiza las consultas a la base de datos, en busca de los 
-     * persomisos de los usuarios. 
-     * 
-     * @param p Es un objeto que contiene los atributos que permite consultar
-     * cuales son los permisos de los usuarios en los diferentes tipos de 
-     * objectos de la base de datos. 
-     * 
-     * @return Devuelve un dato booleano que indica si un usuario cuenta con 
-     * los permisos necesarios. 
+     * Metodo que realiza las consultas a la base de datos, en busca de los
+     * persomisos de los usuarios.
+     *
+     * @param privilegio Es un objeto que contiene los atributos que permite consultar
+     * cuales son los permisos de los usuarios en los diferentes tipos de
+     * objectos de la base de datos.
+     *
+     * @return Devuelve un dato booleano que indica si un usuario cuenta con los
+     * permisos necesarios.
      */
-    public synchronized static Boolean privilegioTabla(Privilegios p) {
+    public synchronized static boolean privilegio(Privilegios privilegio) {
         final String sql
-            = "SELECT (1) "
-            + "FROM GET_PRIVILEGIOS "
-            + "WHERE ("
-            + "      TRIM(USER_NAME) STARTING WITH TRIM(CURRENT_USER) OR "
-            + "      TRIM(USER_NAME) STARTING WITH TRIM(CURRENT_ROLE) OR "
-            + "      TRIM(USER_NAME) STARTING WITH 'PUBLIC') AND "
-            + "      TRIM(PRIVILEGIO) STARTING WITH TRIM(?) AND "
-            + "      TRIM(NOMBRE_RELACION) STARTING WITH TRIM(?) ";
-        
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                sql,
+                = "SELECT (1) "
+                + "FROM GET_PRIVILEGIOS "
+                + "WHERE (TRIM(USER_NAME) STARTING WITH TRIM(CURRENT_USER) OR "
+                + "      TRIM(USER_NAME) STARTING WITH TRIM(CURRENT_ROLE)) AND "
+                + "      TRIM(PRIVILEGIO) STARTING WITH TRIM(?) AND "
+                + "      TRIM(NOMBRE_RELACION) STARTING WITH TRIM(?) AND "
+                + "      TRIM(NOMBRE_CAMPO) STARTING WITH TRIM(?); ";
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-
-            ps.setString(1, "" + p.getPrivilegio());
-            ps.setString(2, p.getNombre_relacion());
-
+            ps.setString(1, "" + privilegio.getPrivilegio());
+            ps.setString(2, privilegio.getNombre_relacion());
+            ps.setString(3, privilegio.getNombre_campo());
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return false;
-            }
-
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return false;
-        }
-    }
-
-    /**
-     *
-     * @param p
-     * @return
-     */
-    public synchronized static boolean privilegioCampo(Privilegios p) {
-        final String PERMISO_UPDATE_CAMPO
-            = "SELECT (1) "
-            + "FROM GET_PRIVILEGIOS "
-            + "WHERE (TRIM(USER_NAME) LIKE TRIM(CURRENT_USER) OR "
-            + "      TRIM(USER_NAME) LIKE TRIM(CURRENT_ROLE)) AND "
-            + "      TRIM(PRIVILEGIO) LIKE TRIM(?) AND "
-            + "      TRIM(NOMBRE_RELACION) LIKE TRIM(?) "
-            + "      AND TRIM(NOMBRE_CAMPO) LIKE TRIM(?); ";
-        try (PreparedStatement ps = getCnn().prepareStatement(PERMISO_UPDATE_CAMPO)) {
-            ps.setString(1, "" + p.getPrivilegio());
-            ps.setString(2, p.getNombre_relacion());
-            ps.setString(3, p.getNombre_campo());
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return false;
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
