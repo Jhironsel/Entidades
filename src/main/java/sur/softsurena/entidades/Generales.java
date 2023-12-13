@@ -8,8 +8,8 @@ import lombok.experimental.SuperBuilder;
 public class Generales extends Personas{
     
     private final String cedula;
-    private final int id_tipo_sangre;
-    private final char estado_civil;
+    private final Integer id_tipo_sangre;
+    private final Character estado_civil;
     
     public static String generarCedula() {
         int primerDigito = (int) (Math.random() * 4) + 1; // Los primeros dígitos de la cédula deben ser 1, 2, 3 o 4.

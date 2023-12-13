@@ -17,9 +17,9 @@ public class Distritos_municipales {
 
     private static final Logger LOG = Logger.getLogger(Distritos_municipales.class.getName());
 
-    private final int id;
+    private final Integer id;
     private final String nombre;
-    private final int idMunicipio;
+    private final Integer idMunicipio;
 
     /**
      * Metodo que me trae un conjunto de datos de los Distritos Municipales del

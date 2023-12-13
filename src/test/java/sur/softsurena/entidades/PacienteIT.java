@@ -64,7 +64,7 @@ public class PacienteIT {
                         .pnombre("Ciliosther")
                         .snombre("")
                         .apellidos("Diaz Liriano")
-                        .sexo("F")
+                        .sexo('F')
                         .estado(Boolean.TRUE)
                         .fecha_nacimiento(Utilidades.javaDateToSqlDate(new Date()))
                         .build()
@@ -86,7 +86,7 @@ public class PacienteIT {
         Paciente pUpdate = Paciente.builder().id_persona(idPaciente).
                 idPadre(0).idMadre(0).asegurado(asegurado).generales(generales).
                 pnombre("Michael").snombre("").apellidos("Orozco").
-                sexo("M").
+                sexo('M').
                 estado(Boolean.TRUE).
                 fecha_nacimiento(Utilidades.javaDateToSqlDate(new Date())).build();
 

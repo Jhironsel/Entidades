@@ -8,7 +8,7 @@ import javax.swing.JPasswordField;
 
 public class hiloRespardar extends Thread implements hiloMetodos {
 
-    private boolean respardar = false;
+    private Boolean respardar = false;
     private String usuarioMaster, claveMaster, RGBAK, BDR, BD, log;
 
     private JPasswordField pf;

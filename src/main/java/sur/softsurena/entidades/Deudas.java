@@ -18,18 +18,18 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 
 @SuperBuilder
 @Getter
-public class Deudas extends Personas {
+public class Deudas extends Personas implements Operaciones{
 
     private static final Logger LOG = Logger.getLogger(Deudas.class.getName());
 
-    private final int id_deuda;
-    private final int id_cliente;
-    private final int id_factura;
+    private final Integer id_deuda;
+    private final Integer id_cliente;
+    private final Integer id_factura;
     private final String concepto;
     private final BigDecimal monto;
     private final Date fecha;
     private final Time hora;
-    private final char estadoDeuda;
+    private final Character estadoDeuda;
 
     /**
      * Es el metodo utilizado para obtener la lista de las deudas registrada en
@@ -334,5 +334,33 @@ public class Deudas extends Personas {
     public String toString() {
         return super.toString();
     }
+
+
+    @Override
+    public Object getEntity(FiltroBusqueda filtro) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<Object> getEntities(FiltroBusqueda filtro) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
+    @Override
+    public Resultados setEntity(Object object) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public Resultados putEntity(Object object) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public Resultados delEntity(int id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+   
 
 }

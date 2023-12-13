@@ -17,8 +17,8 @@ public class Gastos {
 
     private static final Logger LOG = Logger.getLogger(Gastos.class.getName());
     
-    private final int id;
-    private final int id_turno;
+    private final Integer id;
+    private final Integer id_turno;
     private final String descripcion;
     private final BigDecimal monto;
     

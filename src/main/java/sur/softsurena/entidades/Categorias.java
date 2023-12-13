@@ -193,7 +193,7 @@ public class Categorias implements Comparable {
         final String SELECT
                 = "SELECT ID, DESCRIPCION, FECHA_CREACION "
                 + "FROM V_CATEGORIAS "
-                + "WHERE ESTADO;";
+                + "WHERE ESTADO AND ID > 0;";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
@@ -232,6 +232,7 @@ public class Categorias implements Comparable {
         final String sql
                 = "SELECT ID, DESCRIPCION, IMAGEN_TEXTO, FECHA_CREACION, ESTADO "
                 + "FROM V_CATEGORIAS "
+                + "WHERE ID > 0"
                 + "ORDER BY 1";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -244,12 +245,13 @@ public class Categorias implements Comparable {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     categorias.add(
-                            Categorias.builder().
-                                    id_categoria(rs.getInt("ID")).
-                                    descripcion(rs.getString("DESCRIPCION")).
-                                    image_texto(rs.getString("IMAGEN_TEXTO")).
-                                    estado(rs.getBoolean("ESTADO")).
-                                    fecha_creacion(rs.getDate("FECHA_CREACION"))
+                            Categorias
+                                    .builder()
+                                    .id_categoria(rs.getInt("ID"))
+                                    .descripcion(rs.getString("DESCRIPCION"))
+                                    .image_texto(rs.getString("IMAGEN_TEXTO"))
+                                    .estado(rs.getBoolean("ESTADO"))
+                                    .fecha_creacion(rs.getDate("FECHA_CREACION"))
                                     .build()
                     );
                 }
@@ -275,7 +277,8 @@ public class Categorias implements Comparable {
          */
         final String sql
                 = "SELECT ID, DESCRIPCION, IMAGEN_TEXTO "
-                + "FROM GET_CATEGORIA_ACTIVAS;";
+                + "FROM GET_CATEGORIA_ACTIVAS "
+                + "WHERE ID > 0;";
 
         List<Categorias> categoriasList = new ArrayList<>();
 

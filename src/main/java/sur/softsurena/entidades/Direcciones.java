@@ -18,8 +18,8 @@ public class Direcciones {
 
     private static final Logger LOG = Logger.getLogger(Direcciones.class.getName());
     
-    private final int id;
-    private final int id_persona;
+    private final Integer id;
+    private final Integer id_persona;
     private final Provincias provincia;
     private final Municipios municipio;
     private final Distritos_municipales distrito_municipal;
@@ -28,7 +28,7 @@ public class Direcciones {
     private final Date fecha;
     private final Boolean estado;
     private final Boolean por_defecto;
-    private final char accion;
+    private final Character accion;
 
     /**
      * Metodo utilizado para agregar una lista de direcciones del cliente al
@@ -42,8 +42,11 @@ public class Direcciones {
      */
     public static boolean agregarDirecciones(int id_persona, List<Direcciones> direcciones) {
         final String sql = "EXECUTE PROCEDURE SP_INSERT_DIRECCION(?, ?, ?, ?, 0, ?);";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             for (Direcciones direccion : direcciones) {
                 ps.setInt(1, id_persona);
                 ps.setInt(2, direccion.getProvincia().getId());
@@ -63,21 +66,24 @@ public class Direcciones {
     /**
      *
      * @param id_persona
-     * @param d
+     * @param direccion
      * @return
      */
-    public static boolean modificarDireccion(int id_persona, Direcciones d) {
+    public static boolean modificarDireccion(int id_persona, Direcciones direccion) {
         final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_DIRECCION(?, ?, ?, ?, 0, ?, ?, ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            ps.setInt(1, id_persona);
-            ps.setInt(2, d.getProvincia().getId());
-            ps.setInt(3, d.getMunicipio().getId());
-            ps.setInt(4, d.getDistrito_municipal().getId());
-            ps.setString(5, d.getDireccion());
-            ps.setBoolean(6, d.getEstado());
-            ps.setBoolean(7, d.getPor_defecto());
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+            ps.setInt(1, direccion.getId());
+            ps.setInt(2, direccion.getProvincia().getId());
+            ps.setInt(3, direccion.getMunicipio().getId());
+            ps.setInt(4, direccion.getDistrito_municipal().getId());
+            ps.setString(5, direccion.getDireccion());
+            ps.setBoolean(6, direccion.getEstado());
+            ps.setBoolean(7, direccion.getPor_defecto());
             ps.executeUpdate();
             return true;
         } catch (SQLException ex) {
@@ -100,14 +106,17 @@ public class Direcciones {
      */
     public synchronized static List<Direcciones> getDireccionByID(int id_persona) {
         List<Direcciones> direcciones = new ArrayList<>();
-        final String SELECT_BY_ID
+        final String sql
                 = "SELECT ID, ID_PERSONA, ID_PROVINCIA, PROVINCIA, ID_MUNICIPIO, "
                 + "     MUNICIPIO, ID_DISTRITO_MUNICIPAL, DISTRITO_MUNICIPAL, "
                 + "     ID_CODIGO_POSTAL, CODIGO_POSTAL, DIRECCION, FECHA, "
                 + "     ESTADO, POR_DEFECTO "
                 + "FROM GET_DIRECCION_BY_ID  "
                 + "WHERE ID_PERSONA = ?";
-        try (PreparedStatement ps = getCnn().prepareStatement(SELECT_BY_ID)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setInt(1, id_persona);
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
@@ -138,8 +147,6 @@ public class Direcciones {
                                     build()
                     );
                 }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

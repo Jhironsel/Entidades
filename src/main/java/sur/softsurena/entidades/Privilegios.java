@@ -82,7 +82,7 @@ public class Privilegios {
                 + "WHERE (TRIM(USER_NAME) STARTING WITH TRIM(CURRENT_USER) OR "
                 + "      TRIM(USER_NAME) STARTING WITH TRIM(CURRENT_ROLE)) AND "
                 + "      TRIM(PRIVILEGIO) STARTING WITH TRIM(?) AND "
-                + "      TRIM(NOMBRE_RELACION) STARTING WITH TRIM(?) AND "
+                + "      TRIM(NOMBRE_RELACION) STARTING WITH TRIM(?) OR "
                 + "      TRIM(NOMBRE_CAMPO) STARTING WITH TRIM(?); ";
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,

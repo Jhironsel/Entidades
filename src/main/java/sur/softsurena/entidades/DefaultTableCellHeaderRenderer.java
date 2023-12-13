@@ -18,8 +18,8 @@ import javax.swing.table.*;
 public class DefaultTableCellHeaderRenderer extends DefaultTableCellRenderer
         implements UIResource {
 
-    private static final long serialVersionUID = 1L;
-    private boolean horizontalTextPositionSet;
+    private static final Long serialVersionUID = 1L;
+    private Boolean horizontalTextPositionSet;
     private Icon sortArrow;
     private final EmptyIcon emptyIcon = new EmptyIcon();
     

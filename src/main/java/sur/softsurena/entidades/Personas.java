@@ -14,7 +14,7 @@ public abstract class Personas {
     private final String pnombre;
     private final String snombre;
     private final String apellidos;
-    private final String sexo;
+    private final char sexo;
     private final Date fecha_nacimiento;
     private final Date fecha_ingreso;
     private final Date fecha_hora_ultima_update;

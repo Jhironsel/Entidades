@@ -20,9 +20,9 @@ public class ContactosEmail {
     private static final Logger LOG = Logger.getLogger(ContactosEmail.class.getName());
 
     private final Integer id;
-    private final int id_persona;
+    private final Integer id_persona;
     //La accion podrá ser i Insertar, a actualizar o b borrar
-    private final char accion;
+    private final Character accion;
     private final String email;
     private final Date fecha;
 

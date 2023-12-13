@@ -54,11 +54,10 @@ public class Roles {
             
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    String descripcion = rs.getString("DESCRIPCION");
                     roles.add(
                             Roles.builder().
                                     roleName(rs.getString("ROL")).
-                                    descripcion(Objects.isNull(descripcion) ? "":descripcion).
+                                    descripcion(rs.getString("DESCRIPCION")).
                                     opcionPermiso(rs.getInt("ADMINISTRACION")).
                                     build()
                     );

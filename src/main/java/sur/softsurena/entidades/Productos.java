@@ -27,6 +27,7 @@ public class Productos {
     private final Categorias categoria;
     private final String codigo;
     private final String descripcion;
+    private final BigDecimal existencia;
     private final File pathImagen;
     private final String imagenProducto;
     private final String nota;
@@ -40,7 +41,6 @@ public class Productos {
      * sistema. Devolviendo asi un Listado de productos con todas sus
      * propiedades.
      *
-     * OJO! Deberia investigar la cantidad o existencia del producto.
      *
      * Fecha de Actualización el 19/05/2022.
      *
@@ -52,7 +52,7 @@ public class Productos {
         List<Productos> listaProducto = new ArrayList<>();
 
         final String sql
-                = "SELECT ID, ID_CATEGORIA, DESC_CATEGORIA, CODIGO, DESCRIPCION, "
+                = "SELECT ID, ID_CATEGORIA, DESC_CATEGORIA, CODIGO, DESCRIPCION, EXISTENCIA, "
                 + "      NOTA, FECHA_CREACION, IMAGEN_CATEGORIA, IMAGEN_PRODUCTO, "
                 + "      ESTADO "
                 + "FROM GET_PRODUCTOS "
@@ -109,6 +109,7 @@ public class Productos {
                                     .fechaCreacion(rs.getDate("FECHA_CREACION"))
                                     .imagenProducto(rs.getString("IMAGEN_PRODUCTO"))
                                     .estado(rs.getBoolean("ESTADO"))
+                                    .existencia(rs.getBigDecimal("EXISTENCIA"))
                                     .build()
                     );
                 }
@@ -131,7 +132,7 @@ public class Productos {
         final String sql
                 = "SELECT ID, DESCRIPCION, IMAGEN_PRODUCTO "
                 + "FROM GET_PRODUCTOS "
-                + "WHERE ID_CATEGORIA = ? " + (Objects.isNull(estado) ? "" : (estado ? " AND ESTADO;" : " AND ESTADO IS FALSE;"));
+                + "WHERE ID_CATEGORIA = ? " + (Objects.isNull(estado) ? ";" : (estado ? " AND ESTADO;" : " AND ESTADO IS FALSE;"));
 
         List<Productos> productosList = new ArrayList<>();
 
@@ -331,9 +332,6 @@ public class Productos {
             ps.setInt(1, idCategoria);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return false;
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

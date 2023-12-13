@@ -3,7 +3,7 @@ package sur.softsurena.entidades;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
-import static org.testng.Assert.*;
+import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 
@@ -87,7 +87,7 @@ public class ClientesNGTest {
                 .pnombre("Jhironsel")
                 .snombre("")
                 .apellidos("Diaz Almonte")
-                .sexo("F")
+                .sexo('F')
                 .fecha_nacimiento(new Date(0))
                 .estado(Boolean.TRUE)
                 .contactosTel(contactosTels)
@@ -99,7 +99,7 @@ public class ClientesNGTest {
 
         idCliente = result.getId();
 
-        assertEquals(result.toString(), Clientes.CLIENTE__AGREGADO__CORRECTAMENTE);
+        assertEquals(Clientes.CLIENTE__AGREGADO__CORRECTAMENTE, result.toString());
     }
 
     @Test
@@ -174,7 +174,7 @@ public class ClientesNGTest {
                 .pnombre("Jhironsel M")
                 .snombre("")
                 .apellidos("Diaz Almonte")
-                .sexo("M")
+                .sexo('M')
                 .fecha_nacimiento(new Date(0))
                 .estado(Boolean.FALSE)
                 .contactosTel(contactosTels)
@@ -182,18 +182,34 @@ public class ClientesNGTest {
                 .direcciones(direccion)
                 .build();
 
-        Resultados<Object> result = Clientes.modificarCliente(cliente);
-        assertEquals(result.toString(), Clientes.CLIENTE__MODIFICADO__CORRECTAMENTE);
+        Resultados result = Clientes.modificarCliente(cliente);
+        assertEquals(Clientes.CLIENTE__MODIFICADO__CORRECTAMENTE, result.toString());
+        
+        result = Clientes.borrarCliente(idCliente);
+        assertEquals(Clientes.CLIENTE_BORRADO_CORRECTAMENTE, result.toString());
     }
 
-//    @Test
-//    public void testExisteCliente() {
-//        Integer result = Clientes.existeCliente(cliente.getGenerales().getCedula());
-//        assertEquals(result, idCliente);
-//    }
-//    @Test
-//    public void testBorrarCliente() {
-//        Resultados<Object> result = Clientes.borrarCliente(idCliente);
-//        assertEquals(result.toString(), Clientes.CLIENTE_BORRADO_CORRECTAMENTE);
-//    }
-}
+    @Test
+    public void testExisteCliente() {
+        List<Clientes> clientes = Clientes.getClientes(
+                FiltroBusqueda
+                        .builder()
+                        .id(0)
+                        .criterioBusqueda("^")
+                        .build()
+        );
+        assertEquals(clientes.size(), 1);
+        
+        Clientes clienteLocal = clientes.get(0);
+        
+        assertEquals("000-0000000-0", clienteLocal.getGenerales().getCedula());
+        assertEquals('J', clienteLocal.getPersona());
+        assertEquals("GENERICO", clienteLocal.getPnombre());
+        assertEquals("", clienteLocal.getSnombre());
+        assertEquals("", clienteLocal.getApellidos());
+        assertEquals('X', clienteLocal.getSexo());
+        assertEquals("2000-01-01", clienteLocal.getFecha_nacimiento().toString());
+        assertEquals(Character.valueOf('X'), clienteLocal.getGenerales().getEstado_civil());
+        assertEquals(Boolean.TRUE, clienteLocal.getEstado());
+    }
+} 

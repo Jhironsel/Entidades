@@ -102,59 +102,40 @@ public class Conexion {
                     .icono(JOptionPane.ERROR_MESSAGE)
                     .build();
         } catch (SQLException ex) {
+            String mensaje = "";
             if (ex.getMessage().contains(E_FECHA_INICIAL_INCORRECTA)) {
-                return Resultados
-                        .builder()
-                        .mensaje(E_FECHA_INICIAL_INCORRECTA)
-                        .estado(Boolean.FALSE)
-                        .icono(JOptionPane.ERROR_MESSAGE)
-                        .build();
+                mensaje = E_FECHA_INICIAL_INCORRECTA;
             }
 
             if (ex.getMessage().contains(E_FECHA_ACTUAL_INCORRECTA)) {
-                return Resultados
-                        .builder()
-                        .mensaje(E_FECHA_ACTUAL_INCORRECTA)
-                        .estado(Boolean.FALSE)
-                        .icono(JOptionPane.ERROR_MESSAGE)
-                        .build();
+                mensaje = E_FECHA_ACTUAL_INCORRECTA;
             }
 
             if (ex.getMessage().contains(E_FECHA_VENCIMIENTO)) {
-                return Resultados
-                        .builder()
-                        .mensaje(E_FECHA_VENCIMIENTO)
-                        .estado(Boolean.FALSE)
-                        .icono(JOptionPane.ERROR_MESSAGE)
-                        .build();
+                mensaje = E_FECHA_VENCIMIENTO;
             }
 
             if (ex.getMessage().contains(E_EQUIPO_NO_REGISTRADO)) {
-                return Resultados
-                        .builder()
-                        .mensaje(E_EQUIPO_NO_REGISTRADO)
-                        .estado(Boolean.FALSE)
-                        .icono(JOptionPane.ERROR_MESSAGE)
-                        .build();
+                mensaje = E_EQUIPO_NO_REGISTRADO;
             }
 
-            if (ex.getMessage().contains("Unable to complete network request to host")) {
-                return Resultados
-                        .builder()
-                        .mensaje("Unable to complete network request to host")
-                        .estado(Boolean.FALSE)
-                        .icono(JOptionPane.ERROR_MESSAGE)
-                        .build();
+            if (ex.getMessage().contains(UNABLE_TO_COMPLETE_NETWORK_REQUEST_TO_HOS)) {
+                mensaje = UNABLE_TO_COMPLETE_NETWORK_REQUEST_TO_HOS;
             }
 
+            if(mensaje.isBlank()){
+                mensaje = ex.getMessage();
+            }
+            
             return Resultados
                     .builder()
-                    .mensaje(ex.getMessage())
+                    .mensaje(mensaje)
                     .estado(Boolean.FALSE)
                     .icono(JOptionPane.ERROR_MESSAGE)
                     .build();
         }
     }
+    public static final String UNABLE_TO_COMPLETE_NETWORK_REQUEST_TO_HOS = "Unable to complete network request to host";
     /**
      * Driver de firebird (Jaybird) no se encuentra en la carpecta /lib del
      * proyecto. https://firebirdsql.org/en/jdbc-driver/

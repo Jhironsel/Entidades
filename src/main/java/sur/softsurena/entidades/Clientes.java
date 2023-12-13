@@ -36,7 +36,7 @@ public class Clientes extends Personas {
 
     private final BigDecimal totalFacturado;
     private final BigDecimal totalDeuda;
-    private final int cantidadFacturado;
+    private final Integer cantidadFacturado;
     private final Date fechaUltimaCompra;
     private final String correo;
     private final BigDecimal saldo;
@@ -59,6 +59,7 @@ public class Clientes extends Personas {
                 = "SELECT V_ID FROM SP_INSERT_CLIENTE_SB (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+
             ps.setString(1, String.valueOf(c.getPersona()));
             ps.setString(2, c.getGenerales().getCedula());
             ps.setString(3, c.getPnombre());
@@ -69,6 +70,7 @@ public class Clientes extends Personas {
             ps.setBoolean(8, c.getEstado());
             ps.setString(9, String.valueOf(c.getGenerales().getEstado_civil()));
             try (ResultSet rs = ps.executeQuery();) {
+
                 rs.next();
 
                 int id_persona = rs.getInt(1);
@@ -124,8 +126,9 @@ public class Clientes extends Personas {
     }
 
     /**
-     * Permite agregar un cliente ya registrado en la tabla de personas a 
+     * Permite agregar un cliente ya registrado en la tabla de personas a
      * persona cliente.
+     *
      * @param id
      * @return
      */
@@ -139,7 +142,7 @@ public class Clientes extends Personas {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             cs.setInt(1, id);
             boolean estado = cs.execute();
-            
+
             return Resultados
                     .builder()
                     .estado(estado)
@@ -157,7 +160,6 @@ public class Clientes extends Personas {
         }
     }
 
-
     /**
      * Este procedimiento tiene la habilidad de borrar los registros de las
      * vistas siguiente: V_CONTACTS_TEL, V_CONTACTS_EMAIL, V_CLIENTES,
@@ -169,9 +171,9 @@ public class Clientes extends Personas {
      * @return
      */
     public synchronized static Resultados borrarCliente(int idCliente) {
-        final String DELETE = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_SB (?);";
+        final String sql = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_SB (?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(DELETE)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
             ps.setInt(1, idCliente);
 
@@ -205,10 +207,10 @@ public class Clientes extends Personas {
      * @return retorna un objecto de la clase resultado los cuales se envian lo
      * que es el mensaje, id y la cantidad de registro afetados.
      */
-    public synchronized static Resultados<Object> modificarCliente(Clientes cliente) {
-        final String UPDATE
+    public synchronized static Resultados modificarCliente(Clientes cliente) {
+        final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE_SB(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-        try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             //Atributos del cliente
             ps.setInt(1, cliente.getId_persona());
             ps.setString(2, String.valueOf(cliente.getPersona()));
@@ -222,33 +224,32 @@ public class Clientes extends Personas {
             ps.setString(10, String.valueOf(cliente.getGenerales().getEstado_civil()));
 
             cliente.getDirecciones().stream().forEach(clienteList -> {
-
+                Direcciones.modificarDireccion(cliente.getId_persona(), clienteList);
             });
 
-            cliente.getContactosEmail().stream().forEach(correoList -> {
+            ContactosEmail.modificarContactosEmail(cliente.getId_persona(), cliente.getContactosEmail());
 
-            });
-
-            cliente.getContactosTel().stream().forEach(telefonoList -> {
-
-            });
+            ContactosTel.modificarContactosTel(cliente.getId_persona(), cliente.getContactosTel());
 
             //Cantidad de registros afectados.
             int cant = ps.executeUpdate();
 
-            return Resultados.
-                    builder().
-                    id(cliente.getId_persona()).
-                    mensaje(CLIENTE__MODIFICADO__CORRECTAMENTE).
-                    cantidad(cant).
-                    build();
+            return Resultados
+                    .builder()
+                    .id(cliente.getId_persona())
+                    .mensaje(CLIENTE__MODIFICADO__CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .cantidad(cant)
+                    .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados.builder().
-                    id(-1).
-                    mensaje(ERROR_AL__MODIFICAR__CLIENTE).
-                    cantidad(-1).
-                    build();
+            return Resultados
+                    .builder()
+                    .id(-1)
+                    .mensaje(ERROR_AL__MODIFICAR__CLIENTE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .cantidad(-1)
+                    .build();
         }
     }
 
@@ -272,9 +273,9 @@ public class Clientes extends Personas {
                 + "UPPER(TRIM(PNOMBRE)) STARTING WITH UPPER(TRIM(?)) OR "
                 + "UPPER(TRIM(SNOMBRE)) STARTING WITH UPPER(TRIM(?)) OR "
                 + "UPPER(TRIM(APELLIDOS)) STARTING WITH UPPER(TRIM(?)) "
-                + (Objects.isNull(filtro.getEstado()) ? "" : (filtro.getEstado() ? " AND ESTADO ":" AND ESTADO IS FALSE "))
+                + (Objects.isNull(filtro.getEstado()) ? "" : (filtro.getEstado() ? " AND ESTADO " : " AND ESTADO IS FALSE "))
                 + " ORDER BY ID "
-                + (Objects.isNull(filtro.getFilas()) ? "" : (filtro.getFilas() ? "ROWS (? - 1) * ? + 1 TO (? + (1 - 1)) * ? ":""));
+                + (Objects.isNull(filtro.getFilas()) ? "" : (filtro.getFilas() ? "ROWS (? - 1) * ? + 1 TO (? + (1 - 1)) * ? " : ""));
 
         List<Clientes> clienteList = new ArrayList<>();
 
@@ -283,18 +284,17 @@ public class Clientes extends Personas {
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
+
             //Parametros para el identificador
             ps.setInt(1, (Objects.isNull(filtro.getId()) ? -1 : filtro.getId()));
 
             //Parametros para el criterio de busquedas
-            ps.setString(2, (Objects.isNull(filtro.getCriterioBusqueda()) ? "":filtro.getCriterioBusqueda()));
-            ps.setString(3, (Objects.isNull(filtro.getCriterioBusqueda()) ? "":filtro.getCriterioBusqueda()));
-            ps.setString(4, (Objects.isNull(filtro.getCriterioBusqueda()) ? "":filtro.getCriterioBusqueda()));
-            ps.setString(5, (Objects.isNull(filtro.getCriterioBusqueda()) ? "":filtro.getCriterioBusqueda()));
+            ps.setString(2, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
+            ps.setString(3, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
+            ps.setString(4, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
+            ps.setString(5, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
 
-            
-            if(!Objects.isNull(filtro.getFilas()) && filtro.getFilas()){
+            if (!Objects.isNull(filtro.getFilas()) && filtro.getFilas()) {
                 //Parametros para la paginacion de contenido de las tablas.
                 ps.setInt(6, filtro.getNPaginaNro());
                 ps.setInt(7, filtro.getNCantidadFilas());
@@ -318,7 +318,7 @@ public class Clientes extends Personas {
                                     pnombre(rs.getString("PNOMBRE")).
                                     snombre(rs.getString("SNOMBRE")).
                                     apellidos(rs.getString("APELLIDOS")).
-                                    sexo(rs.getString("SEXO")).
+                                    sexo(rs.getString("SEXO").charAt(0)).
                                     fecha_nacimiento(rs.getDate("FECHA_NACIMIENTO")).
                                     fecha_ingreso(rs.getDate("FECHA_INGRESO")).
                                     estado(rs.getBoolean("ESTADO")).

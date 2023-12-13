@@ -18,7 +18,7 @@ public class E_S_SYS {
 
     private static final Logger LOG = Logger.getLogger(E_S_SYS.class.getName());
 
-    private final int ID_E_S_SYS;
+    private final Integer ID_E_S_SYS;
     private final String nombre;
     private final String telefono;
     private final Date FCHI;

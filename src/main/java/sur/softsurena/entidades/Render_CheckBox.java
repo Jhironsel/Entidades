@@ -2,6 +2,7 @@ package sur.softsurena.entidades;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.util.Objects;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -35,9 +36,11 @@ public class Render_CheckBox extends JCheckBox implements TableCellRenderer {
 
         ((JCheckBox) component).setHorizontalAlignment(SwingConstants.CENTER);
 
-        //obtiene valor boolean y coloca valor en el JCheckBox
-        Boolean b = ((Boolean) value);
-        ((JCheckBox) component).setSelected(b);
+        if (!Objects.isNull(value)) {
+            //obtiene valor boolean y coloca valor en el JCheckBox
+            Boolean b = ((Boolean) value);
+            ((JCheckBox) component).setSelected(b);
+        }
 
         return ((JCheckBox) component);
     }

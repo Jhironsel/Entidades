@@ -22,8 +22,7 @@ public class DireccionesNGTest {
         final String pathBaseDatos = "BaseDeDatos.db";
         final String dominio = "localhost";
         final String puerto = "3050";
-        Conexion.getInstance(user, clave, pathBaseDatos, dominio, puerto)
-                .verificar();
+        Resultados<Object> verificar = Conexion.getInstance(user, clave, pathBaseDatos, dominio, puerto).verificar();
     }
 
     @AfterClass
@@ -87,7 +86,7 @@ public class DireccionesNGTest {
                         .distrito_municipal(
                                 Distritos_municipales
                                         .builder()
-                                        .id(2)
+                                        .id(23)
                                         .build()
                         )
                         .direccion("Insercion de prueba 2.")

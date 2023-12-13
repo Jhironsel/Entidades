@@ -7,7 +7,7 @@ import javax.swing.JOptionPane;
 
 public class hiloIp extends Thread implements hiloMetodos {
 
-    private boolean iniciar = false;
+    private Boolean iniciar = false;
 
     @Override
     public void run() {
