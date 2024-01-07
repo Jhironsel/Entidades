@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import static sur.softsurena.entidades.ContactosEmail.agregarContactosEmail;
 import static sur.softsurena.entidades.ContactosTel.agregarContactosTel;
-import static sur.softsurena.entidades.Direcciones.agregarDirecciones;
+import static sur.softsurena.entidades.Direcciones.agregarModificarDirecciones;
 
 @Getter
 @SuperBuilder
@@ -95,7 +95,7 @@ public class Clientes extends Personas {
                             .build();
                 }
 
-                if (!agregarDirecciones(id_persona, c.getDirecciones())) {
+                if (!agregarModificarDirecciones(id_persona, c.getDirecciones())) {
                     return Resultados
                             .builder()
                             .id(-1)
@@ -223,10 +223,8 @@ public class Clientes extends Personas {
             ps.setBoolean(9, cliente.getEstado());
             ps.setString(10, String.valueOf(cliente.getGenerales().getEstado_civil()));
 
-            cliente.getDirecciones().stream().forEach(clienteList -> {
-                Direcciones.modificarDireccion(cliente.getId_persona(), clienteList);
-            });
-
+            agregarModificarDirecciones(cliente.getId_persona(), cliente.getDirecciones());
+            
             ContactosEmail.modificarContactosEmail(cliente.getId_persona(), cliente.getContactosEmail());
 
             ContactosTel.modificarContactosTel(cliente.getId_persona(), cliente.getContactosTel());

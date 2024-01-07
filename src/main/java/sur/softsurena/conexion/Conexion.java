@@ -40,9 +40,13 @@ public class Conexion {
      * @return Devuelve una instancia de la clase conexion. La cual inicializa
      * las variables para la conexion a la base de datos.
      */
-    public static Conexion getInstance(@NonNull String user, @NonNull String clave,
-            @NonNull String pathBaseDatos, @NonNull String dominio,
-            @NonNull String puerto) {
+    public static Conexion getInstance(
+            @NonNull String user, 
+            @NonNull String clave,
+            @NonNull String pathBaseDatos, 
+            @NonNull String dominio,
+            @NonNull String puerto
+    ) {
 
         Conexion.user = user;
         Conexion.clave = clave;
@@ -81,11 +85,12 @@ public class Conexion {
      * conexion.
      */
     public static Resultados<Object> verificar() {
+        
         final Properties properties = new Properties();
-        //Objecto Properties necesario para la base de datos. 
         properties.setProperty("user", user);
         properties.setProperty("password", clave);
         properties.setProperty("charSet", "UTF8");
+        
         try {
             setCnn(DriverManager.getConnection(urlDB.toString(), properties));
             return Resultados

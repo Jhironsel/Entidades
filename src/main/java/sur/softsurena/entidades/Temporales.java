@@ -54,11 +54,7 @@ public class Temporales extends Personas {
                                             userName(rs.getString("USER_NAME")).
                                             build()).build());
                 }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
             }
-
             return temporalesList;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

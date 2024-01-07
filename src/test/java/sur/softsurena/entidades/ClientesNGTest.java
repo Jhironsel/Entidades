@@ -203,11 +203,11 @@ public class ClientesNGTest {
         Clientes clienteLocal = clientes.get(0);
         
         assertEquals("000-0000000-0", clienteLocal.getGenerales().getCedula());
-        assertEquals('J', clienteLocal.getPersona());
+        assertEquals(Character.valueOf('J'), clienteLocal.getPersona());
         assertEquals("GENERICO", clienteLocal.getPnombre());
         assertEquals("", clienteLocal.getSnombre());
         assertEquals("", clienteLocal.getApellidos());
-        assertEquals('X', clienteLocal.getSexo());
+        assertEquals(Character.valueOf('X'), clienteLocal.getSexo());
         assertEquals("2000-01-01", clienteLocal.getFecha_nacimiento().toString());
         assertEquals(Character.valueOf('X'), clienteLocal.getGenerales().getEstado_civil());
         assertEquals(Boolean.TRUE, clienteLocal.getEstado());

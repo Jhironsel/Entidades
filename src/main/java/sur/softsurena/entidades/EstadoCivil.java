@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 public class EstadoCivil {
 
-    private final char abreviatura;
+    private final Character abreviatura;
     private final String estadoCivil;
 
     public static List<EstadoCivil> getEstadoCivilList() {

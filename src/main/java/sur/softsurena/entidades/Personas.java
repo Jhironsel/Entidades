@@ -9,12 +9,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public abstract class Personas {
 
-    private final int id_persona;
-    private final char persona;
+    private final Integer id_persona;
+    private final Character persona;
     private final String pnombre;
     private final String snombre;
     private final String apellidos;
-    private final char sexo;
+    private final Character sexo;
     private final Date fecha_nacimiento;
     private final Date fecha_ingreso;
     private final Date fecha_hora_ultima_update;

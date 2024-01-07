@@ -181,7 +181,8 @@ public class Usuario extends Personas {
 
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
-                return Usuario.builder()
+                return Usuario
+                        .builder()
                         .pnombre(rs.getString("PNOMBRE"))
                         .snombre(rs.getString("SNOMBRE"))
                         .apellidos(rs.getString("APELLIDOS"))
@@ -264,8 +265,10 @@ public class Usuario extends Personas {
 
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    u = Usuario.builder().
-                            user_name(rs.getString("USERNAME")).build();
+                    u = Usuario
+                            .builder()
+                            .user_name(rs.getString("USERNAME"))
+                            .build();
                     usuarios.add(u);
                 }
             }

@@ -19,26 +19,19 @@ public class BaseDeDatos {
      * @return Devuelve un string de la ubicacion logica de la base de datos.
      */
     public synchronized static String pathBaseDeDatos() {
-        final String PATH_BASE_DATOS
-                = "SELECT MON$DATABASE_NAME FROM MON$DATABASE";
-
+        final String sql = "SELECT MON$DATABASE_NAME FROM MON$DATABASE";
         try (PreparedStatement ps1 = getCnn().prepareStatement(
-                PATH_BASE_DATOS,
+                sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
             try (ResultSet rs1 = ps1.executeQuery()) {
                 rs1.next();
                 return rs1.getString(1);
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
             }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
+            return "";
         }
     }
 

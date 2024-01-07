@@ -16,10 +16,11 @@ import javax.swing.JOptionPane;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
+import sur.softsurena.interfaces.IProducto;
 
 @SuperBuilder
 @Getter
-public class Productos {
+public class Productos implements IProducto{
 
     private static final Logger LOG = Logger.getLogger(Productos.class.getName());
 

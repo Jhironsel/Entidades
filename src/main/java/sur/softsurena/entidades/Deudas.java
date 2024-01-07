@@ -12,9 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import static sur.softsurena.conexion.Conexion.getCnn;
+import sur.softsurena.interfaces.Operaciones;
 
 @SuperBuilder
 @Getter
@@ -45,13 +47,13 @@ public class Deudas extends Personas implements Operaciones{
     public static synchronized List<Deudas> getDeudas() {
         List<Deudas> deudasList = new ArrayList<>();
         
-        final String GET_DEUDAS
+        final String sql
             = "SELECT ID, ID_CLIENTE, ID_FACTURA, CONCEPTO, MONTO, FECHA, HORA,"
             + "     ESTADO, P_NOMBRE, S_NOMBRE, APELLIDOS, CEDULA "
             + "FROM GET_DEUDAS";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
-                GET_DEUDAS,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
@@ -70,20 +72,14 @@ public class Deudas extends Personas implements Operaciones{
                         apellidos(rs.getString("APELLIDOS")).
                         generales(Generales.builder().cedula(rs.getString("CEDULA")).build()).build());
                 }
-                
-            } catch (SQLException e) {
-                LOG.log(Level.SEVERE, e.getMessage(), e);
-                return null;
-            }
+                return deudasList;
+            } 
         } catch (SQLException e) {
             LOG.log(Level.SEVERE, e.getMessage(), e);
             return null;
         }
-
-        return deudasList;
     }
     
-
     /**
      * 
      * @return 
@@ -96,7 +92,10 @@ public class Deudas extends Personas implements Operaciones{
                 + "WHERE r.ESTADO IN('i', 'a') "
                 + "GROUP BY r.IDCLIENTE, c.NOMBRES, c.APELLIDOS ";
         
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -105,27 +104,36 @@ public class Deudas extends Personas implements Operaciones{
     }
     
     /**
-     * TODO Revisar este procedimiento.
-     * Metodo actualizado el dia 25 de abril 2022.
-     *
+     * Este procedimiento permite modificar el estado de una factura.
+     * 
      * @param idDeuda
      * @param op
      * @return
      */
-    public synchronized static String modificarDeuda(int idDeuda, String op) {
-        final String sql = "SELECT S_SALIDA "
-                + "FROM SP_UPDATE_DEUDA_ESTADO(?,?)";
+    public synchronized static Resultados modificarDeuda(int idDeuda, String op) {
+        final String sql = "EXECUTE PROCEDURE SP_UPDATE_DEUDA_ESTADO (?, ?);";
         
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try ( CallableStatement ps = getCnn().prepareCall(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setInt(1, idDeuda);
             ps.setString(2, op);
-            try ( ResultSet rs = ps.executeQuery()) {
-                rs.next();
-                return rs.getString("S_SALIDA");
-            }
+            boolean estado = ps.execute();
+            return Resultados
+                    .builder()
+                    .estado(estado)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .mensaje("Esperacion realizada correctamente.")
+                    .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error a ejecutar Operacion";
+            return Resultados
+                    .builder()
+                    .estado(Boolean.FALSE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .mensaje("Error a ejecutar Operacion")
+                    .build();
         }
     }
     
@@ -141,7 +149,10 @@ public class Deudas extends Personas implements Operaciones{
         
         final String sql = "EXECUTE PROCEDURE INSER_PAGO_DEUDAS_EXT (?, ?, ?)";
         
-        try (CallableStatement cs = getCnn().prepareCall(sql)){
+        try (CallableStatement cs = getCnn().prepareCall(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)){
             cs.setInt(1, idDeuda);
             cs.setInt(2, idTurno);
             cs.setBigDecimal(3, monto);
@@ -159,7 +170,10 @@ public class Deudas extends Personas implements Operaciones{
      */
     public synchronized static boolean insertDeudas(Deudas miDeuda) {
         final String sql = "EXECUTE PROCEDURE INSER_DEUDAS (?, ?, ?)";
-        try (CallableStatement cs = getCnn().prepareCall(sql)){
+        try (CallableStatement cs = getCnn().prepareCall(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)){
             cs.setInt(1, miDeuda.getId_persona());
             cs.setString(3, miDeuda.getConcepto());
             cs.setBigDecimal(4, miDeuda.getMonto());
@@ -187,7 +201,10 @@ public class Deudas extends Personas implements Operaciones{
                 + "LEFT JOIN TABLA_CLIENTES c ON c.IDCLIENTE LIKE r.IDCLIENTE "
                 + estado
                 + "ORDER by 1";
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -204,7 +221,10 @@ public class Deudas extends Personas implements Operaciones{
         final String sql = "SELECT r.IDDEUDAS, r.CONCEPTO, r.MONTO, r.FECHA, r.ESTADO "
                 + "FROM TABLA_DEUDAS r "
                 + "WHERE r.IDCLIENTE LIKE ? AND r.ESTADO NOT IN('n', 'p')";
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setString(1, idCliente);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -222,7 +242,10 @@ public class Deudas extends Personas implements Operaciones{
         final String sql = "SELECT r.CODIGO, r.FECHA, r.HORA, r.MONTO "
                 + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
                 + "WHERE r.IDDEUDA = ?";
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setString(1, idDeuda);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -241,11 +264,11 @@ public class Deudas extends Personas implements Operaciones{
         final String sql = "SELECT r.CODIGO, r.MONTO, r.FECHA, r.HORA "
                 + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
                 + "WHERE r.IDDEUDA = ?";
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setInt(1, idDeuda);
-            
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -264,10 +287,11 @@ public class Deudas extends Personas implements Operaciones{
                 + "FROM TABLA_PAGODEUDA r "
                 + "WHERE r.IDFACTURA = ?";
         
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setInt(1, idFactura);
-            
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -285,7 +309,10 @@ public class Deudas extends Personas implements Operaciones{
                 + "FROM TABLA_DEUDAS r "
                 + "WHERE r.IDCLIENTE LIKE ?";
         
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             ps.setString(1, idCliente);
             try ( ResultSet rs = ps.executeQuery()) {
@@ -294,9 +321,6 @@ public class Deudas extends Personas implements Operaciones{
                 } else {
                     return new BigDecimal(0);
                 }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return new BigDecimal(-1);
             }
 
         } catch (SQLException ex) {
@@ -310,7 +334,10 @@ public class Deudas extends Personas implements Operaciones{
                 + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
                 + "WHERE r.IDDEUDA = ?";
         
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             try ( ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -335,7 +362,6 @@ public class Deudas extends Personas implements Operaciones{
         return super.toString();
     }
 
-
     @Override
     public Object getEntity(FiltroBusqueda filtro) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -345,7 +371,7 @@ public class Deudas extends Personas implements Operaciones{
     public List<Object> getEntities(FiltroBusqueda filtro) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
-    
+
     @Override
     public Resultados setEntity(Object object) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -360,7 +386,4 @@ public class Deudas extends Personas implements Operaciones{
     public Resultados delEntity(int id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
-
-   
-
 }

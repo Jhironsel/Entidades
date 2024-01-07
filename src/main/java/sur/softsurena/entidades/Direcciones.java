@@ -40,51 +40,29 @@ public class Direcciones {
      *
      * @return Devuelve true si la operacion fue exitosa, false caso contrario.
      */
-    public static boolean agregarDirecciones(int id_persona, List<Direcciones> direcciones) {
-        final String sql = "EXECUTE PROCEDURE SP_INSERT_DIRECCION(?, ?, ?, ?, 0, ?);";
+    public static boolean agregarModificarDirecciones(Integer id_persona, List<Direcciones> direcciones) {
+        final String sql = "SELECT O_ID "
+                + "FROM SP_UPDATE_OR_INSERT_DIRECCION (?, ?, ?, ?, ?, ?, ?, ?, ?);";
         
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             for (Direcciones direccion : direcciones) {
-                ps.setInt(1, id_persona);
-                ps.setInt(2, direccion.getProvincia().getId());
-                ps.setInt(3, direccion.getMunicipio().getId());
-                ps.setInt(4, direccion.getDistrito_municipal().getId());
-                ps.setString(5, direccion.getDireccion());
+                ps.setInt(1, direccion.getId());
+                ps.setInt(2, id_persona);
+                ps.setInt(3, direccion.getProvincia().getId());
+                ps.setInt(4, direccion.getMunicipio().getId());
+                ps.setInt(5, direccion.getDistrito_municipal().getId());
+                ps.setInt(6, direccion.getCodigo_postal().getId());
+                ps.setString(7, direccion.getDireccion());
+                ps.setBoolean(8, direccion.getEstado());
+                ps.setBoolean(9, direccion.getPor_defecto());
                 ps.addBatch();
             }
             ps.executeBatch();
-            return true;
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-        }
-        return false;
-    }
-
-    /**
-     *
-     * @param id_persona
-     * @param direccion
-     * @return
-     */
-    public static boolean modificarDireccion(int id_persona, Direcciones direccion) {
-        final String sql
-                = "EXECUTE PROCEDURE SP_UPDATE_DIRECCION(?, ?, ?, ?, 0, ?, ?, ?);";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            ps.setInt(1, direccion.getId());
-            ps.setInt(2, direccion.getProvincia().getId());
-            ps.setInt(3, direccion.getMunicipio().getId());
-            ps.setInt(4, direccion.getDistrito_municipal().getId());
-            ps.setString(5, direccion.getDireccion());
-            ps.setBoolean(6, direccion.getEstado());
-            ps.setBoolean(7, direccion.getPor_defecto());
-            ps.executeUpdate();
             return true;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

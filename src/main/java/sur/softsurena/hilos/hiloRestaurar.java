@@ -91,19 +91,22 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
 
         RGBAK = "/respaldo/gbak";
         
+        
+        
+        
         usuarioMaster = JOptionPane.showInputDialog(
                 null,
                 "Inserte el nombre de Usuario: ", 
                 "",
                 JOptionPane.INFORMATION_MESSAGE);
         
-        if (usuarioMaster.isBlank()) {
+        if (Objects.isNull(usuarioMaster) || usuarioMaster.isBlank()) {
             return;
         }
         
         JPasswordField pf = new JPasswordField();        
 
-        claveMaster = "" + JOptionPane.showConfirmDialog(
+        claveMaster = "" +JOptionPane.showConfirmDialog(
                 null, 
                 pf,
                 "Inserte la clave del Usuario: ", 
