@@ -1,5 +1,6 @@
 package sur.softsurena.interfaces;
 
+
 public interface ICliente {
     /**
      * Es utilizada para definir los cabezales de las tablas de direcciones.

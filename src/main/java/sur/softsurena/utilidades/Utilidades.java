@@ -294,7 +294,7 @@ public class Utilidades {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                ttm.setInitialDelay(oldDelay);
+                ttm.setInitialDelay(oldDelay+10000);
             }
 
         });

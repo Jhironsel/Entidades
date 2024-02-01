@@ -25,15 +25,6 @@ public class Clientes extends Personas {
 
     private static final Logger LOG = Logger.getLogger(Clientes.class.getName());
 
-    public static final String CLIENTE__AGREGADO__CORRECTAMENTE = "Cliente Agregado Correctamente";
-    public static final String ERROR_AL_INSERTAR__CLIENTE = "Error al insertar Cliente.";
-
-    public static final String CLIENTE_NO_PUEDE_SER_BORRADO = "Cliente no puede ser borrado.";
-    public static final String CLIENTE_BORRADO_CORRECTAMENTE = "Cliente borrado correctamente.";
-
-    public static final String ERROR_AL__MODIFICAR__CLIENTE = "Error al Modificar Cliente.";
-    public static final String CLIENTE__MODIFICADO__CORRECTAMENTE = "Cliente Modificado Correctamente.";
-
     private final BigDecimal totalFacturado;
     private final BigDecimal totalDeuda;
     private final Integer cantidadFacturado;
@@ -42,7 +33,16 @@ public class Clientes extends Personas {
     private final BigDecimal saldo;
     private final String masculino;
     private final String femenino;
+    
+    public static final String CLIENTE__AGREGADO__CORRECTAMENTE = "Cliente Agregado Correctamente";
+    public static final String ERROR_AL_INSERTAR__CLIENTE = "Error al insertar Cliente.";
 
+    public static final String CLIENTE_BORRADO_CORRECTAMENTE = "Cliente borrado correctamente.";
+    public static final String CLIENTE_NO_PUEDE_SER_BORRADO = "Cliente no puede ser borrado.";
+
+    public static final String CLIENTE__MODIFICADO__CORRECTAMENTE = "Cliente Modificado Correctamente.";
+    public static final String ERROR_AL__MODIFICAR__CLIENTE = "Error al Modificar Cliente.";
+    
     /**
      * Metodos utilizado para agregar los clientes en el sistema, el cual es
      * utilizado para agregar los contactos de este.
@@ -124,7 +124,7 @@ public class Clientes extends Personas {
                     .build();
         }
     }
-
+    
     /**
      * Permite agregar un cliente ya registrado en la tabla de personas a
      * persona cliente.
@@ -132,7 +132,7 @@ public class Clientes extends Personas {
      * @param id
      * @return
      */
-    public static Resultados agregarClienteById(int id) {
+    public synchronized static Resultados agregarClienteById(int id) {
         final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_PERSONA_CLIENTES_ID(?)";
         try (CallableStatement cs = getCnn().prepareCall(
@@ -343,5 +343,7 @@ public class Clientes extends Personas {
         }
         return super.toString();
     }
+    
+    
 
 }

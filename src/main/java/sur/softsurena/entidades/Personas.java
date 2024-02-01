@@ -2,6 +2,7 @@ package sur.softsurena.entidades;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -41,4 +42,32 @@ public abstract class Personas {
                 append(apellidos);
         return nombre.toString();
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + Objects.hashCode(this.id_persona);
+        hash = 97 * hash + Objects.hashCode(this.generales);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Personas other = (Personas) obj;
+        if (!Objects.equals(this.id_persona, other.id_persona)) {
+            return false;
+        }
+        return Objects.equals(this.generales, other.generales);
+    }
+    
+    
 }
