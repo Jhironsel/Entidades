@@ -23,8 +23,8 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
-import static sur.softsurena.entidades.Datos_nacimiento.getLongitudOEstatura;
-import static sur.softsurena.entidades.Paciente.getSexoPaciente;
+import static sur.softsurena.metodos.M_Dato_Nacimiento.getLongitudOEstatura;
+import static sur.softsurena.metodos.M_Paciente.getSexoPaciente;
 
 public class LongitudAlturaParaEdadNino0a5anno {
 

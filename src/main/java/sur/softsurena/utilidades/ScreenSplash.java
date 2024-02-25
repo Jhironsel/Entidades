@@ -4,9 +4,12 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.SplashScreen;
+import java.util.logging.Logger;
 
 public final class ScreenSplash {
 
+    private static final Logger LOG = Logger.getLogger(ScreenSplash.class.getName());
+    
     private final SplashScreen splash;
     public static boolean debuger;
     
@@ -31,6 +34,41 @@ public final class ScreenSplash {
         splash = SplashScreen.getSplashScreen();
     }
 
+//    public static void main(String args[]) {
+//        java.awt.EventQueue.invokeLater(() -> {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("com.sun.java.swing.plaf.gtk.GTKLookAndFeel".equals(info.getClassName())) {
+//                    try {
+//                        javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    } catch (ClassNotFoundException
+//                            | InstantiationException
+//                            | IllegalAccessException
+//                            | UnsupportedLookAndFeelException e) {
+//                        //Instalar Logger
+//                    }
+//                    break;
+//                }
+//            }
+//
+//        });
+//        
+//        for (int i = 0; i < args.length; i++) {
+//            if(args[i].equals("--debuger")){
+//                try{
+//                    debuger = Boolean.valueOf(args[i+1]);
+//                }catch(Exception e){
+//                    System.err.println("Error en paso de parametros valor "+args[i+1]);
+//                }                
+//            }
+//            
+//            if(args[i].equals("--v") || args[i].equals("--version")){
+//                //Instalar Logger
+//            }
+//        }
+//        
+//        ScreenSplash miSplash = new ScreenSplash();
+//        miSplash.animar();        
+//    }
 
     public void animar() {
         if (splash != null) {
@@ -53,11 +91,15 @@ public final class ScreenSplash {
                 g.setColor(Color.GREEN);//color de barra de progeso
                 g.setColor(new Color(4, 52, 101));
                 g.drawLine(20, 370, 590, 370);
+                
                 splash.update();
                 dormir();
             }
             splash.close();
         }
+//        frmLogin miLogin = new frmLogin();
+//        miLogin.setVisible(true);
+//        miLogin.setLocationRelativeTo(null);
     }
     
     public void animar2() {
@@ -81,6 +123,7 @@ public final class ScreenSplash {
                 g.setColor(Color.GREEN);//color de barra de progeso
                 g.setColor(new Color(4, 52, 101));
                 g.drawLine(20, 370, 590, 370);
+                
                 splash.update();
                 dormir();
             }
@@ -92,7 +135,9 @@ public final class ScreenSplash {
         try {
             Thread.sleep(10);
         } catch (InterruptedException e) {
-            //Instalar Logger
+            if(debuger){
+                //Instalar Logger
+            }
         }
     }
 }

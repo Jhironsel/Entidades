@@ -46,8 +46,6 @@ import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperPrintManager;
 import org.apache.commons.codec.binary.Base64;
-import sur.softsurena.entidades.DefaultTableCellHeaderRenderer;
-import sur.softsurena.entidades.Render_CheckBox;
 import sur.softsurena.metodos.Imagenes;
 
 public class Utilidades {
@@ -212,8 +210,11 @@ public class Utilidades {
     /**
      * Utilizado....
      *
-     *
-     *
+     * Para campos que tenga 
+     * javaDateToSqlDate(
+     *      stringToDate("08.06.2012", "dd.MM.yyyy")
+     * )
+     * 
      * @param date
      * @return
      */
@@ -433,7 +434,11 @@ public class Utilidades {
     }
 
     /**
-     *
+     * Para campos de tipo fecha sql. 
+     * 
+     * javaDateToSqlDate(
+     *      stringToDate("08.06.2012", "dd.MM.yyyy")
+     * )
      * @param fecha
      * @return
      */

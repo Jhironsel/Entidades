@@ -22,8 +22,8 @@ import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import static sur.softsurena.entidades.Datos_nacimiento.getPCefalico;
-import static sur.softsurena.entidades.Paciente.getSexoPaciente;
+import static sur.softsurena.metodos.M_Dato_Nacimiento.getPCefalico;
+import static sur.softsurena.metodos.M_Paciente.getSexoPaciente;
 
 public class PCefalicoChicoChica {
 

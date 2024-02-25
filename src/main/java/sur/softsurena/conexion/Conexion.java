@@ -7,7 +7,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import lombok.NonNull;
-import sur.softsurena.entidades.Resultados;
+import sur.softsurena.utilidades.Resultados;
 
 public class Conexion {
 
@@ -41,9 +41,9 @@ public class Conexion {
      * las variables para la conexion a la base de datos.
      */
     public static Conexion getInstance(
-            @NonNull String user, 
+            @NonNull String user,
             @NonNull String clave,
-            @NonNull String pathBaseDatos, 
+            @NonNull String pathBaseDatos,
             @NonNull String dominio,
             @NonNull String puerto
     ) {
@@ -85,12 +85,12 @@ public class Conexion {
      * conexion.
      */
     public static Resultados<Object> verificar() {
-        
+
         final Properties properties = new Properties();
         properties.setProperty("user", user);
         properties.setProperty("password", clave);
         properties.setProperty("charSet", "UTF8");
-        
+
         try {
             setCnn(DriverManager.getConnection(urlDB.toString(), properties));
             return Resultados
@@ -128,10 +128,10 @@ public class Conexion {
                 mensaje = UNABLE_TO_COMPLETE_NETWORK_REQUEST_TO_HOS;
             }
 
-            if(mensaje.isBlank()){
+            if (mensaje.isBlank()) {
                 mensaje = ex.getMessage();
             }
-            
+
             return Resultados
                     .builder()
                     .mensaje(mensaje)
