@@ -4,16 +4,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.EntradaProducto;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Entrada_Producto {
-    private static final Logger LOG = Logger.getLogger(M_Entrada_Producto.class.getName());
     
     /**
      * Agregar entrada de producto a la base de datos en la tabla de entrada de

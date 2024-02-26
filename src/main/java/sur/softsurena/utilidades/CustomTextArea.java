@@ -1,12 +1,14 @@
-package utilidades;
+package sur.softsurena.utilidades;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import javax.swing.JTextArea;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class CustomTextArea extends JTextArea {
 
@@ -18,7 +20,7 @@ public class CustomTextArea extends JTextArea {
             image = ImageIO.read(getClass().
                     getResource("/imagenesPapeles/figura" + num + ".jpeg"));
         } catch (IOException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 

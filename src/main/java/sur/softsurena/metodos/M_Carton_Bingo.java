@@ -8,16 +8,15 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Carton_Bingo {
-    private static final Logger LOG = Logger.getLogger(M_Carton_Bingo.class.getName());
-    
+
     private static int[][] card;
 
     private ArrayList<Integer> numeros;
@@ -98,18 +97,13 @@ public class M_Carton_Bingo {
 
         return numbers;
     }
-    
+
     public static Boolean generarCarton(int cantidad) {
         final String sql = "EXECUTE PROCEDURE SP_INSERT_CARTON_BINGO (?, ?);";
 
-        try {
-            getCnn().setAutoCommit(false);
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE,
-                    "Error poner metodo setAutoCommit en false", ex);
-        }
-
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+            
+            getCnn().setAutoCommit(false);
 
             for (int i = 0; i < cantidad; i++) {
                 List<Integer> lista = generarCarton();
@@ -123,12 +117,7 @@ public class M_Carton_Bingo {
 
             ps.executeBatch();
 
-            try {
-                getCnn().setAutoCommit(true);
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE,
-                        "Error poner metodo setAutoCommit en false", ex);
-            }
+            getCnn().setAutoCommit(true);
 
             return true;
         } catch (SQLException ex) {

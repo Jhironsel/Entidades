@@ -6,16 +6,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Direccion;
 import sur.softsurena.entidades.Distrito_municipal;
 import sur.softsurena.entidades.Municipio;
 import sur.softsurena.entidades.Provincia;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Direccion {
-
-    private static final Logger LOG = Logger.getLogger(M_Direccion.class.getName());
 
     /**
      * Metodo utilizado para agregar una lista de direcciones del cliente al

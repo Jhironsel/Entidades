@@ -3,17 +3,15 @@ package sur.softsurena.metodos;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
-import sur.softsurena.entidades.Receta;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Receta {
-    private static final Logger LOG = Logger.getLogger(Receta.class.getName());
-
+    
     public synchronized static int agregarReceta(int idPaciente, int idConsulta) {
         final String sql
                 = "INSERT INTO V_RECETAS (IDCONSULTA) VALUES (?)";

@@ -4,16 +4,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Proveedor;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Proveedor {
-    private static final Logger LOG = Logger.getLogger(Proveedor.class.getName());
     
     public synchronized static String agregarProveedor(Proveedor proveedor) {
         final String sql

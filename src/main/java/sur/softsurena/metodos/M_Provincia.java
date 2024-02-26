@@ -6,12 +6,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Provincia;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Provincia {
-    private static final Logger LOG = Logger.getLogger(M_Provincia.class.getName());
+    
     /**
      * Metodo que me trae un conjunto de datos de las provincias del pais.
      *

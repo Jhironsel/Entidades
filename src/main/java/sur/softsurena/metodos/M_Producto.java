@@ -9,17 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Categoria;
 import sur.softsurena.entidades.Producto;
-import sur.softsurena.utilidades.Resultados;
 import sur.softsurena.interfaces.IProducto;
 import sur.softsurena.utilidades.FiltroBusqueda;
+import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Producto implements IProducto{
-    private static final Logger LOG = Logger.getLogger(M_Producto.class.getName());
+    
     /**
      * Metodo que permite recuperar las propiedades de los productos del
      * sistema. Devolviendo asi un Listado de productos con todas sus

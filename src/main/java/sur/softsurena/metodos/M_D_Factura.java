@@ -6,17 +6,17 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.D_Factura;
 import sur.softsurena.entidades.Factura;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_D_Factura {
-    private static final Logger LOG = Logger.getLogger(D_Factura.class.getName());
+    
     /**
      * Metodo utilizado para agregar los datos de los detalle de la factura del
      * sistema.

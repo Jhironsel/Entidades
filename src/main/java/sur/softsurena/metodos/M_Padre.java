@@ -4,17 +4,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Padres;
 import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Padre {
-    private static final Logger LOG = Logger.getLogger(Padres.class.getName());
 
     /**
      *
@@ -23,13 +22,13 @@ public class M_Padre {
      */
     public synchronized static ResultSet getPadresRecuperar(String cedula) {
         final String RECUPERAR_PADRE
-            = "SELECT NOMBRES, APELLIDOS, SEXO, IDTIPOSANGRE, IDARS, "
-            + "NONSS, TELEFONO, MOVIL, CORREO, DIRECCION, CIUDAD, "
-            + "FECHANACIMIENTO "
-            + "FROM V_PADRES "
-            + "WHERE CEDULA = ? AND ESTADO IS FALSE;";
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(RECUPERAR_PADRE,
+                = "SELECT NOMBRES, APELLIDOS, SEXO, IDTIPOSANGRE, IDARS, "
+                + "NONSS, TELEFONO, MOVIL, CORREO, DIRECCION, CIUDAD, "
+                + "FECHANACIMIENTO "
+                + "FROM V_PADRES "
+                + "WHERE CEDULA = ? AND ESTADO IS FALSE;";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(RECUPERAR_PADRE,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -44,16 +43,16 @@ public class M_Padre {
     }
 
     /**
-     * 
+     *
      * @param p
-     * @return 
+     * @return
      */
     public static Resultados agregarPadreMadre(Padres p) {
         Resultados r;
         final String sql
                 = "SELECT p.O_ID FROM SP_INSERT_PADRES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) p;";
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            
+
             ps.setInt(1, p.getAsegurado().getId_ars());
             ps.setString(2, p.getAsegurado().getNo_nss());
             ps.setInt(3, p.getGenerales().getId_tipo_sangre());
@@ -90,9 +89,9 @@ public class M_Padre {
     }
 
     /**
-     * 
+     *
      * @param p
-     * @return 
+     * @return
      */
     public synchronized static String modificarPadre(Padres p) {
         final String sql = "EXECUTE PROCEDURE SP_UPDATE_PADRES (?, ?, ?, ?, ?, ?, ?, ?,"
@@ -143,29 +142,27 @@ public class M_Padre {
             return "Error al borrar padre...";
         }
     }
-    
+
     /**
-     * 
+     *
      * @param estado
-     * @return 
+     * @return
      */
     public synchronized static int numeroPadres(boolean estado) {
         final String sql = "SELECT CANTIDAD "
                 + "FROM V_RECCOUNT "
                 + "WHERE ESTADO IS ? AND IDPADRE != 0;";
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setBoolean(1, estado);
 
-            try ( ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 rs.next();
                 return rs.getInt(1);
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
 
         } catch (SQLException ex) {
@@ -173,42 +170,42 @@ public class M_Padre {
         }
         return 1;
     }
-    
+
     /**
      *
      * @param idPadre
      * @return
      */
     public static ResultSet getPadreMadres(int idPadre) {
-        
+
         final String sql = "SELECT * FROM PADREMADRES WHERE documento LIKE ?";
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+
             ps.setInt(1, idPadre);
-            
+
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
-    
+
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public static ResultSet getPadreMadres() {
         final String sql = "SELECT * FROM PADREMADRES";
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
-    
+
     /**
      *
      * @param cedula
@@ -216,8 +213,8 @@ public class M_Padre {
      */
     public static boolean validarPadreMadre(String cedula) {
         final String sql = "SELECT 1 FROM PERSONA WHERE documento like ?";
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             ps.setString(1, cedula);
             return rs.next();
         } catch (SQLException ex) {
@@ -225,18 +222,18 @@ public class M_Padre {
             return false;
         }
     }
-    
+
     /**
-     * 
+     *
      * @param idPadre
-     * @return 
+     * @return
      */
     public synchronized static ResultSet getPadresActivoID(int idPadre) {
         final String sql = "SELECT NOMBRES, APELLIDOS, ARS, NONSS "
                 + "FROM GET_PADRES "
                 + "WHERE IDPADRE = ?";
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -249,19 +246,19 @@ public class M_Padre {
             return null;
         }
     }
-    
+
     /**
-     * 
+     *
      * @param cedula
      * @param sexo
-     * @return 
+     * @return
      */
     public synchronized static ResultSet getPadresActivo(String cedula, String sexo) {
         final String sql = "SELECT IDPADRE, CEDULA, NOMBRES, APELLIDOS "
                 + "FROM GET_PADRES "
                 + "WHERE ESTADO AND CEDULA STARTING WITH ? AND SEXO LIKE ?;";
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -273,7 +270,7 @@ public class M_Padre {
             return null;
         }
     }
-    
+
     /**
      *
      * @param estado
@@ -287,7 +284,7 @@ public class M_Padre {
                 + "FROM GET_PADRES "
                 + "WHERE ESTADO IS ? and idPadre != 0";
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -300,17 +297,17 @@ public class M_Padre {
             return null;
         }
     }
-    
+
     public synchronized int getIdMadrePadre(String cedula) {
         final String sql = "SELECT IDPADRE FROM V_PADRES WHERE CEDULA LIKE ?";
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, cedula);
 
-            try ( ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("IDPADRE");
                 } else {
@@ -323,10 +320,10 @@ public class M_Padre {
         }
         return -1;
     }
-    
+
     public synchronized static boolean existePadre(String cedula, boolean estado) {
         final String sql = "SELECT (1) FROM V_PADRES WHERE cedula = ? and ESTADO IS ?";
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
@@ -334,13 +331,9 @@ public class M_Padre {
             ps.setString(1, cedula);
             ps.setBoolean(2, estado);
 
-            try ( ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return false;
             }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;

@@ -6,16 +6,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.TipoSangre;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_TiposSangres {
-    private static final Logger LOG = Logger.getLogger(M_TiposSangres.class.getName());
+    
     /**
      * Metodo utilizado para llenar los JCombox del sistema.
      *

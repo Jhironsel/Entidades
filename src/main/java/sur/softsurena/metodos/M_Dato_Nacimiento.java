@@ -4,16 +4,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Dato_Nacimiento;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Dato_Nacimiento {
-    private static final Logger LOG = Logger.getLogger(Dato_Nacimiento.class.getName());
     
     public synchronized String agregarDatosNacimiento(Dato_Nacimiento dato) {
         final String sql = "UPDATE OR INSERT INTO V_DATOSNACIMIENTO "
@@ -35,7 +34,7 @@ public class M_Dato_Nacimiento {
             return "Datos guardado correctamente";
 
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return "Error al insertar datos de Nacimiento de: " + dato.getIdPaciente();
         }
     }

@@ -2,7 +2,6 @@ package sur.softsurena.utilidades;
 
 import java.io.File;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -23,6 +22,7 @@ import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimpleWriterExporterOutput;
 import net.sf.jasperreports.export.SimpleXlsReportConfiguration;
 import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  * Esta clase contiene todos los metodos necesario para crear los reportes. 
@@ -48,7 +48,7 @@ public class ShapesApp {
         try {
             JasperExportManager.exportReportToPdfFile(origen, destino);
         } catch (JRException ex) {
-            Logger.getLogger(ShapesApp.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         
         System.err.println("PDF creation time : " + (System.currentTimeMillis() - start));
@@ -221,5 +221,4 @@ public class ShapesApp {
 
         System.err.println("PPTX creation time : " + (System.currentTimeMillis() - start));
     }
-
 }

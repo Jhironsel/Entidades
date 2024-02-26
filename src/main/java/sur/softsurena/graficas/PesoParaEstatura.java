@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -24,6 +25,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import static sur.softsurena.metodos.M_Dato_Nacimiento.getAlturaPeso;
 import static sur.softsurena.metodos.M_Paciente.getSexoPaciente;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class PesoParaEstatura {
     private final String sexo;
@@ -91,7 +93,7 @@ public class PesoParaEstatura {
                     localXYSeries8.add(rs.getFloat(4), rs.getFloat(5));
                 }
             } catch (SQLException ex) {
-                //Instalar Logger
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
 
             localXYSeriesCollection.addSeries(localXYSeries1);
@@ -104,9 +106,9 @@ public class PesoParaEstatura {
             localXYSeriesCollection.addSeries(localXYSeries8);
 
         } catch (FileNotFoundException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         } catch (IOException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         return localXYSeriesCollection;

@@ -5,8 +5,10 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class CustomJPanel extends JPanel {
 
@@ -22,7 +24,7 @@ public class CustomJPanel extends JPanel {
             image = ImageIO.read(getClass().
                     getResource("/imagenesPapeles/figura" + num + ".jpeg"));
         } catch (IOException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
     

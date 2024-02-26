@@ -4,15 +4,14 @@ import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Gasto;
 import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Gasto {
-    private static final Logger LOG = Logger.getLogger(M_Gasto.class.getName());
-
+    
     public synchronized static Resultados agregarGastosPorTurno(Gasto gasto) {
         
         final String sql = "EXECUTE PROCEDURE CAJERO_GASTOS (?, ?, ?)";

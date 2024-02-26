@@ -6,15 +6,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.ARS;
 import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_ARS {
-
-    private static final Logger LOG = Logger.getLogger(M_ARS.class.getName());
-
+    
     /**
      * Metodo que nos permite obtener una lista de Seguros Sociales del sistema.
      *

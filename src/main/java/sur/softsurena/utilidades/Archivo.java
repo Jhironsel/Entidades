@@ -1,7 +1,9 @@
 package sur.softsurena.utilidades;
 
 import java.io.*;
+import java.util.logging.Level;
 import lombok.experimental.UtilityClass;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 @UtilityClass
 public class Archivo {
@@ -12,7 +14,7 @@ public class Archivo {
             salida.close();
             return true;
         } catch (FileNotFoundException ex) {
-            ex.printStackTrace(System.out);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return false;
     }
@@ -26,7 +28,7 @@ public class Archivo {
             salida.close();
             return true;
         } catch (FileNotFoundException ex) {
-            ex.printStackTrace(System.out);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return false;
     }
@@ -37,15 +39,15 @@ public class Archivo {
             BufferedReader entrada = new BufferedReader(new FileReader(archivo));
             String lectura = entrada.readLine();
             while(lectura != null){
-                System.out.println(lectura);
+                LOG.info(lectura);
                 lectura = entrada.readLine();
             }
             entrada.close();
             return true;
         } catch (FileNotFoundException ex) {
-            ex.printStackTrace(System.out);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         } catch (IOException ex) {
-            ex.printStackTrace(System.out);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return false;
     }
@@ -59,9 +61,9 @@ public class Archivo {
             salida.close();
             return true;
         } catch (FileNotFoundException ex) {
-            ex.printStackTrace(System.out);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         } catch (IOException ex) {
-            ex.printStackTrace(System.out);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return false;
     }

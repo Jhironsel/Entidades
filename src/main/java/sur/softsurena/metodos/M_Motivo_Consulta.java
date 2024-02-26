@@ -4,16 +4,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Motivo_Consulta;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Motivo_Consulta {
-    private static final Logger LOG = Logger.getLogger(M_Motivo_Consulta.class.getName());
     
     /**
      * Metodo que permite eliminar un motivo de consultas a las consultas.

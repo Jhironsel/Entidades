@@ -6,17 +6,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.ContactoEmail;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_ContactoEmail {
-    private static final Logger LOG = Logger.getLogger(M_ContactoEmail.class.getName());
+
     /**
      *
      * @param id
@@ -84,39 +84,40 @@ public class M_ContactoEmail {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     contactosEmailList.add(ContactoEmail.
-                                    builder().
-                                    id(rs.getInt("ID")).
-                                    email(rs.getString("EMAIL")).
-                                    fecha(rs.getDate("FECHA")).
-                                    build()
+                            builder().
+                            id(rs.getInt("ID")).
+                            email(rs.getString("EMAIL")).
+                            fecha(rs.getDate("FECHA")).
+                            build()
                     );
                 }
-            } 
+            }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return contactosEmailList;
     }
-    
+
     /**
-     * Metodo que genera correo aleatorio para cuestiones de pruebas. 
-     * @return 
+     * Metodo que genera correo aleatorio para cuestiones de pruebas.
+     *
+     * @return
      */
-    public static String generarCorreo(){
+    public static String generarCorreo() {
         StringBuilder telefonoMovil = new StringBuilder();
         String correoDominio[] = {
-            "@hotmail.com", 
-            "@gmail.com", 
-            "@outlook.com", 
+            "@hotmail.com",
+            "@gmail.com",
+            "@outlook.com",
             "@yahoo.com"
         };
         int indexArea = (int) (Math.random() * 4);
-        
+
         int num1 = (int) (Math.random() * 10);
         int num2 = (int) (Math.random() * 10);
         int num3 = (int) (Math.random() * 10);
         int num4 = (int) (Math.random() * 10);
-        
+
         telefonoMovil.
                 append("correo_prueba_").
                 append(num1).
@@ -124,16 +125,15 @@ public class M_ContactoEmail {
                 append(num3).
                 append(num4).
                 append(correoDominio[indexArea]);
-        
-        
+
         return telefonoMovil.toString();
     }
-    
+
     /**
      * Metodo que permite verificar si un correo es valido o no.
-     * 
-     * @param correo correo que se intenta validar. 
-     * @return 
+     *
+     * @param correo correo que se intenta validar.
+     * @return
      */
     public static boolean correo(String correo) {
         Pattern ptr = Pattern.compile(

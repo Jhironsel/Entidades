@@ -6,15 +6,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Antecedente;
 import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Antecedente {
-
-    private static final Logger LOG = Logger.getLogger(M_Antecedente.class.getName());
 
     /**
      * Permite eliminar un antecedente registrado previamente del sistema.

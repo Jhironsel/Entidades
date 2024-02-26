@@ -4,12 +4,11 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.SplashScreen;
-import java.util.logging.Logger;
+import java.util.logging.Level;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public final class ScreenSplash {
 
-    private static final Logger LOG = Logger.getLogger(ScreenSplash.class.getName());
-    
     private final SplashScreen splash;
     public static boolean debuger;
     
@@ -43,8 +42,8 @@ public final class ScreenSplash {
 //                    } catch (ClassNotFoundException
 //                            | InstantiationException
 //                            | IllegalAccessException
-//                            | UnsupportedLookAndFeelException e) {
-//                        //Instalar Logger
+//                            | UnsupportedLookAndFeelException ex) {
+//                        LOG.log(Level.SEVERE, ex.getMessage(), ex);
 //                    }
 //                    break;
 //                }
@@ -56,13 +55,14 @@ public final class ScreenSplash {
 //            if(args[i].equals("--debuger")){
 //                try{
 //                    debuger = Boolean.valueOf(args[i+1]);
-//                }catch(Exception e){
+//                }catch(Exception ex){
 //                    System.err.println("Error en paso de parametros valor "+args[i+1]);
+//                    LOG.log(Level.SEVERE, ex.getMessage(), ex);
 //                }                
 //            }
 //            
 //            if(args[i].equals("--v") || args[i].equals("--version")){
-//                //Instalar Logger
+//                LOG.log(Level.SEVERE, ex.getMessage(), ex);
 //            }
 //        }
 //        
@@ -134,9 +134,9 @@ public final class ScreenSplash {
     private void dormir() {
         try {
             Thread.sleep(10);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ex) {
             if(debuger){
-                //Instalar Logger
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
     }

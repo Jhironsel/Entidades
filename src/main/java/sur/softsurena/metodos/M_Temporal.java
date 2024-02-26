@@ -6,17 +6,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.HeaderFactura;
 import sur.softsurena.entidades.Temporal;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Temporal {
-    private static final Logger LOG = Logger.getLogger(Temporal.class.getName());
+    
     /**
      * Para obtener las facturas temporales del sistema.
      *

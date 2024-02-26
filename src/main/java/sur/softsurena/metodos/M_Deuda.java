@@ -8,16 +8,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Deuda;
 import sur.softsurena.entidades.Generales;
 import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Deuda {
-
-    private static final Logger LOG = Logger.getLogger(M_Deuda.class.getName());
 
     /**
      * Es el metodo utilizado para obtener la lista de las deudas registrada en
@@ -152,7 +150,7 @@ public class M_Deuda {
             cs.setBigDecimal(4, miDeuda.getMonto());
             return cs.execute();
         } catch (SQLException ex) {
-            //Instalar logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }

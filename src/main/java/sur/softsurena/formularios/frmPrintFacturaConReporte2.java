@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.logging.Level;
 import javax.print.Doc;
 import javax.print.DocFlavor;
 import javax.print.PrintException;
@@ -13,6 +14,7 @@ import javax.print.PrintServiceLookup;
 import javax.print.SimpleDoc;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class frmPrintFacturaConReporte2 extends javax.swing.JDialog {
     private boolean copia;
@@ -131,7 +133,7 @@ public class frmPrintFacturaConReporte2 extends javax.swing.JDialog {
                 service.createPrintJob().print(doc, null);
             }
         } catch (PrintException | FileNotFoundException e) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, e.getMessage(), e);
         }
         this.dispose();
     }//GEN-LAST:event_btnAceptarActionPerformed

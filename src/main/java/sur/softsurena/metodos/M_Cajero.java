@@ -6,12 +6,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Cajero;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Cajero {
-    private static final Logger LOG = Logger.getLogger(M_Cajero.class.getName());
     
     /**
      * Metodo que devuelve una lista de atributos de los usuarios del sistema. 
@@ -43,10 +42,7 @@ public class M_Cajero {
                             estado(rs.getBoolean("ESTADO")).
                             descripcion(rs.getString("DESCRIPCION")).build());
                 }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
+            } 
             return cajerosList;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

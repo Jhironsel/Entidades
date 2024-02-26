@@ -4,12 +4,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Tanda;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Tanda {
-    private static final Logger LOG = Logger.getLogger(M_Tanda.class.getName());
     
     public static synchronized String agregarTanda(Tanda t) {
         /**

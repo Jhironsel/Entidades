@@ -5,17 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.utilidades.Utilidades;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_E_S_SYS {
-    private static final Logger LOG = Logger.getLogger(M_E_S_SYS.class.getName());
-
+    
     /**
      * Metodo que permite agregar una imagen en la pantalla principal del
      * sistema, es llamado logo de la aplicacion.

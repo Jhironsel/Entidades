@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -25,6 +26,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 import static sur.softsurena.metodos.M_Dato_Nacimiento.getLongitudOEstatura;
 import static sur.softsurena.metodos.M_Paciente.getSexoPaciente;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class LongitudAlturaParaEdadNino0a5anno {
 
@@ -93,7 +95,7 @@ public class LongitudAlturaParaEdadNino0a5anno {
                     localXYSeries9.add(rs.getFloat(3), rs.getFloat(5));
                 }
             } catch (SQLException ex) {
-                //Instalar Logger
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
 
             localXYSeriesCollection.addSeries(localXYSeries1);
@@ -107,9 +109,9 @@ public class LongitudAlturaParaEdadNino0a5anno {
             localXYSeriesCollection.addSeries(localXYSeries9);
 
         } catch (FileNotFoundException e) {
-            //Instalar Logger
-        } catch (IOException e) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         return localXYSeriesCollection;

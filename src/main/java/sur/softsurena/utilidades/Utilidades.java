@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import javax.imageio.ImageIO;
@@ -50,16 +51,24 @@ import sur.softsurena.metodos.Imagenes;
 
 public class Utilidades {
 
-    public static final Logger LOGGER = Logger.getLogger(Utilidades.class.getName());
+    public static final Logger LOG = Logger.getLogger(Utilidades.class.getName());
 
     static {
+        FileHandler fh = null;
         try {
-            FileHandler fh = new FileHandler(new File("/TestLog.log").getPath(), true);
+            fh = new FileHandler(
+                    new File(
+                            "/log/Log %s.log".formatted(new Date())
+                    ).getPath(),
+                    true
+            );
             //fh.setFormatter(new XMLFormatter());
             fh.setFormatter(new SimpleFormatter());
-            LOGGER.addHandler(fh);
-        } catch (IOException e) {
-            System.out.print(e.getLocalizedMessage());
+            LOG.addHandler(fh);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        }finally{
+            fh.close();
         }
     }
 
@@ -128,15 +137,15 @@ public class Utilidades {
 
         } catch (IOException x) {
             JOptionPane.showMessageDialog(
-                    null, 
+                    null,
                     x.getLocalizedMessage(),
                     "",
                     JOptionPane.ERROR_MESSAGE
             );
         } catch (JRException e) {
             JOptionPane.showMessageDialog(
-                    null, 
-                    e.getLocalizedMessage(), 
+                    null,
+                    e.getLocalizedMessage(),
                     "",
                     JOptionPane.ERROR_MESSAGE
             );
@@ -210,11 +219,9 @@ public class Utilidades {
     /**
      * Utilizado....
      *
-     * Para campos que tenga 
-     * javaDateToSqlDate(
-     *      stringToDate("08.06.2012", "dd.MM.yyyy")
-     * )
-     * 
+     * Para campos que tenga javaDateToSqlDate( stringToDate("08.06.2012",
+     * "dd.MM.yyyy") )
+     *
      * @param date
      * @return
      */
@@ -295,7 +302,7 @@ public class Utilidades {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                ttm.setInitialDelay(oldDelay+10000);
+                ttm.setInitialDelay(oldDelay + 10000);
             }
 
         });
@@ -328,9 +335,9 @@ public class Utilidades {
             return Base64.encodeBase64URLSafeString(imageData);
 
         } catch (FileNotFoundException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         } catch (IOException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
 
         return "Foto NO Insertada";
@@ -360,10 +367,10 @@ public class Utilidades {
                     ImageIO.read(
                             new ByteArrayInputStream(data))).getImage()
                     .getScaledInstance(ancho, alto, Image.SCALE_DEFAULT));
-            
+
         } catch (IOException ex) {
-            //Instalar Logger
-            return new ImageIcon( img.getIcono("NoImageTransp 96 x 96.png")
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            return new ImageIcon(img.getIcono("NoImageTransp 96 x 96.png")
                     .getImage()
                     .getScaledInstance(ancho, alto, Image.SCALE_DEFAULT));
         }
@@ -380,7 +387,7 @@ public class Utilidades {
         try {
             aux = formatoDelTexto.parse(obj.toString());
         } catch (ParseException ex) {
-            System.out.print(ex.getLocalizedMessage());
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return aux;
     }
@@ -404,7 +411,7 @@ public class Utilidades {
         java.sql.Date sqlDates = sqlDate;
 
         java.util.Date utilDate = new java.util.Date(sqlDates.getTime());
-        
+
         return utilDate;
     }
 
@@ -434,11 +441,10 @@ public class Utilidades {
     }
 
     /**
-     * Para campos de tipo fecha sql. 
-     * 
-     * javaDateToSqlDate(
-     *      stringToDate("08.06.2012", "dd.MM.yyyy")
-     * )
+     * Para campos de tipo fecha sql.
+     *
+     * javaDateToSqlDate( stringToDate("08.06.2012", "dd.MM.yyyy") )
+     *
      * @param fecha
      * @return
      */

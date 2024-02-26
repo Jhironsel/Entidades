@@ -38,8 +38,8 @@ public class RenderCeldas extends DefaultTableCellRenderer {
 //            if (d != null) {
 //                l.setHorizontalAlignment(SwingConstants.RIGHT);
 //            }
-//        } catch (NumberFormatException e) {
-//            //Instalar Logger
+//        } catch (NumberFormatException ex) {
+//            LOG.log(Level.SEVERE, ex.getMessage(), ex);
 //        }
 
         if (hasFocus) {

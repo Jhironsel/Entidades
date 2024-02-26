@@ -3,7 +3,9 @@ package sur.softsurena.utilidades;
 import java.awt.*;
 import java.awt.image.*;
 import java.net.URL;
+import java.util.logging.Level;
 import javax.swing.ImageIcon;
+import static sur.softsurena.utilidades.Utilidades.LOG;
  
 public class PanelConFondo {
 
@@ -15,9 +17,9 @@ public class PanelConFondo {
             imageDev = new TexturePaint(image,
                     new Rectangle(0, 0, image.getWidth(), image.getHeight())
             );
-        } catch (Exception e) {
+        } catch (Exception ex) {
             imageDev = null;
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return imageDev;
     }
@@ -53,7 +55,7 @@ public class PanelConFondo {
         TexturePaint image;
         image = cargaTextura(s, c);
         if (image == null) {
-            System.err.println("OMG! No puedo leer la imagen " + s);
+            LOG.log(Level.SEVERE, "OMG! No puedo leer la imagen \n %s".formatted(s));
         }
         
         return image;

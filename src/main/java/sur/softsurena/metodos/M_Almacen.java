@@ -6,15 +6,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Almacen;
 import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Almacen {
-
-    private static final Logger LOG = Logger.getLogger(M_Almacen.class.getName());
 
     public synchronized static List<Almacen> getAlmacenesList(int id,
             String criterioBusqueda) {

@@ -6,12 +6,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Etiqueta;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Etiqueta {
-    private static final Logger LOG = Logger.getLogger(M_Etiqueta.class.getName());
     
     public static synchronized List<Etiqueta> getEtiquetasUsuario(String usuario) {
         List<Etiqueta> etiquetaList = new ArrayList<>();

@@ -4,16 +4,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Control_Consulta;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Control_Consulta {
-    private static final Logger LOG = Logger.getLogger(M_Control_Consulta.class.getName());
+    
     /**
      * Metodo utilizado para eliminar los controles de consultas programadas 
      * previamente. 

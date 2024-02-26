@@ -4,6 +4,8 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  * El objetivo de esta clase es utilizar la para cargas las fuentes 
@@ -21,7 +23,7 @@ public class CustomFont {
             font = Font.createFont(Font.TRUETYPE_FONT, is);
         } catch (FontFormatException | IOException ex) {
             //Si existe un error se carga fuente por defecto ARIAL
-            System.err.println(fontName + " No se cargo la fuente");
+            LOG.log(Level.SEVERE, ex.getMessage(), ex); 
             font = new Font("Arial", Font.PLAIN, 14);
         }
     }

@@ -6,16 +6,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Distrito_municipal;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Distrito_Municipal {
-    private static final Logger LOG = Logger.getLogger(Distrito_municipal.class.getName());
+    
     /**
      * Metodo que me trae un conjunto de datos de los Distritos Municipales del
      * pais.

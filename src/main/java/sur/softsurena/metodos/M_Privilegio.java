@@ -4,23 +4,23 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Privilegio;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Privilegio {
-    private static final Logger LOG = Logger.getLogger(M_Privilegio.class.getName());
+
     /**
      * Metodo que realiza las consultas a la base de datos, en busca de los
      * persomisos de los usuarios.
      *
-     * @param privilegio Es un objeto que contiene los atributos que permite consultar
-     * cuales son los permisos de los usuarios en los diferentes tipos de
-     * objectos de la base de datos.
+     * @param privilegio Es un objeto que contiene los atributos que permite
+     * consultar cuales son los permisos de los usuarios en los diferentes tipos
+     * de objectos de la base de datos.
      *
      * @return Devuelve un dato booleano que indica si un usuario cuenta con los
      * permisos necesarios.

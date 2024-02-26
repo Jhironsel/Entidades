@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Objects;
+import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import static sur.softsurena.metodos.M_BaseDeDatos.pathBaseDeDatos;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class hiloRestaurar extends Thread implements hiloMetodos {
 
@@ -41,7 +43,7 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException ex) {
-                        //Instalar Logger
+                        LOG.log(Level.SEVERE, ex.getMessage(), ex);
                     }
 
                 } while (stdInput.ready());
@@ -55,7 +57,7 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
                     return;
                 }
             } catch (IOException ex) {
-                //Instalar Logger
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return;
             }
 
@@ -149,7 +151,7 @@ public class hiloRestaurar extends Thread implements hiloMetodos {
                 
             } while (stdInput.ready());
         } catch (IOException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 }

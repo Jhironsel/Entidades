@@ -4,9 +4,11 @@ import java.awt.Frame;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.logging.Level;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import javax.swing.JDialog;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class frmImpresoras2 extends JDialog {
 
@@ -43,12 +45,12 @@ public class frmImpresoras2 extends JDialog {
     }
 
     private void estableceImpresoraPredeterminada(String printerName) {
-        Process p = null;
+        Process process = null;
         if (System.getProperty("os.name").equalsIgnoreCase("Linux")) {
             try {
-                p = Runtime.getRuntime().exec("lpoptions -d " + printerName);
+                process = Runtime.getRuntime().exec("lpoptions -d " + printerName);
             } catch (IOException ex) {
-                //Instalar Logger
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return;
             }
         } else {
@@ -62,19 +64,19 @@ public class frmImpresoras2 extends JDialog {
             ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", cmdLine);
             builder.redirectErrorStream(true);
             try {
-                p = builder.start();
+                process = builder.start();
             } catch (IOException e) {
-                //Instalar Logger
+                LOG.log(Level.SEVERE, e.getMessage(), e);
             }
         }
 
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String line = new String();
         while (true) {
             try {
                 line = r.readLine();
             } catch (IOException e) {
-                //Instalar Logger
+                LOG.log(Level.SEVERE, e.getMessage(), e);
             }
             if (line == null) {
                 break;

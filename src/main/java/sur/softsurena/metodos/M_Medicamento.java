@@ -7,18 +7,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.codec.binary.Base64;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Medicamento;
 import sur.softsurena.utilidades.Utilidades;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Medicamento {
-    private static final Logger LOG = Logger.getLogger(Medicamento.class.getName());
     
     public synchronized static String modificarMedicamento(Medicamento m) {
         final String sql = "UPDATE V_MEDICAMENTOS "

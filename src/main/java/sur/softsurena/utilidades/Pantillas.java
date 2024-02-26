@@ -8,7 +8,6 @@ public class Pantillas {
 //        @Override
 //        public void run() {
 //            while (true) {
-//                System.out.println("Sigo vivo");
 //                if (executorService.isShutdown()) {
 //                    break;
 //                }

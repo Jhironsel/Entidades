@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
-import sur.softsurena.utilidades.Resultados;
 import sur.softsurena.entidades.Role;
+import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Role {
-    private static final Logger LOG = Logger.getLogger(M_Role.class.getName());
+    
     /**
      * Metodo utilizado para consultar a la base de datos, los roles creado y
      * aquienes fueron asignados esos roles.
@@ -137,13 +137,9 @@ public class M_Role {
                             descripcion(Objects.isNull(descripcion) ? "":descripcion.strip()).
                             propietario(Objects.isNull(propietario) ? "":propietario.strip()).build());
                 }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
+            } 
 
             return rolesList;
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -358,7 +354,6 @@ public class M_Role {
                     build();
             
         } catch (SQLException ex) {
-            
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             
             return Resultados.builder().

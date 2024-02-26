@@ -5,18 +5,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Estudiante;
 import sur.softsurena.entidades.Inscripcion;
 import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Estudiante {
-    private static final Logger LOG = Logger.getLogger(Estudiante.class.getName());
     /**
      * Metodo que permite agregar un estudiante al sistema de ballet, el cual
      * ejecuta un procedimiento almacenado en la base de datos.

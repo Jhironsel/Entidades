@@ -8,18 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
-import sur.softsurena.entidades.Permiso;
-import sur.softsurena.utilidades.Resultados;
 import sur.softsurena.entidades.Role;
+import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Permiso {
-    private static final Logger LOG = Logger.getLogger(Permiso.class.getName());
+    
     /**
      * Este metodo devuelve todos los relacionados a un rol del sistema.
      *
@@ -139,7 +138,6 @@ public class M_Permiso {
                     build();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
 
             return Resultados.builder().
@@ -172,20 +170,20 @@ public class M_Permiso {
             boolean execute = cs.execute();
 
             return Resultados.builder().
-                    mensaje("Procedimiento sin control administrativo.").
+                    mensaje(PROCEDIMIENTO_SIN_CONTROL_ADMINISTRATIVO).
                     estado(execute).
                     build();
-
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
 
             return Resultados.builder().
-                    mensaje("Error al quitar control administrativo.").
+                    mensaje(ERROR_AL_QUITAR_CONTROL_ADMINISTRATIVO).
                     estado(Boolean.FALSE).
                     build();
         }
     }
+    public static final String ERROR_AL_QUITAR_CONTROL_ADMINISTRATIVO = "Error al quitar control administrativo.";
+    public static final String PROCEDIMIENTO_SIN_CONTROL_ADMINISTRATIVO = "Procedimiento sin control administrativo.";
 
     /**
      *
@@ -214,9 +212,7 @@ public class M_Permiso {
                     cantidad(-1).
                     estado(execute).
                     build();
-
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
 
             return Resultados.builder().
@@ -257,7 +253,6 @@ public class M_Permiso {
                     build();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
 
             return Resultados.builder().
@@ -300,7 +295,6 @@ public class M_Permiso {
                     build();
 
         } catch (SQLException ex) {
-
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
 
             return Resultados.builder().

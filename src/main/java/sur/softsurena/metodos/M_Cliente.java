@@ -8,21 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Cliente;
-import sur.softsurena.utilidades.FiltroBusqueda;
 import sur.softsurena.entidades.Generales;
-import sur.softsurena.utilidades.Resultados;
 import static sur.softsurena.metodos.M_ContactoEmail.agregarContactosEmail;
 import static sur.softsurena.metodos.M_ContactoEmail.modificarContactosEmail;
 import static sur.softsurena.metodos.M_ContactoTel.agregarContactosTel;
 import static sur.softsurena.metodos.M_ContactoTel.modificarContactosTel;
 import static sur.softsurena.metodos.M_Direccion.agregarModificarDirecciones;
+import sur.softsurena.utilidades.FiltroBusqueda;
+import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Cliente {
-    private static final Logger LOG = Logger.getLogger(M_Cliente.class.getName());
     
     public static final String CLIENTE__AGREGADO__CORRECTAMENTE = "Cliente Agregado Correctamente";
     public static final String ERROR_AL_INSERTAR__CLIENTE = "Error al insertar Cliente.";
@@ -212,7 +211,9 @@ public class M_Cliente {
             ps.setString(7, String.valueOf(cliente.getSexo()));
             ps.setDate(8, cliente.getFecha_nacimiento());
             ps.setBoolean(9, cliente.getEstado());
-            ps.setString(10, String.valueOf(cliente.getGenerales().getEstado_civil()));
+            ps.setString(10, String.valueOf(
+                    cliente.getGenerales().getEstado_civil()
+            ));
 
             agregarModificarDirecciones(cliente.getId_persona(), cliente.getDirecciones());
             

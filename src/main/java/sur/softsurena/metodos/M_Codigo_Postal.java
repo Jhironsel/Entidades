@@ -6,16 +6,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Codigo_Postal;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Codigo_Postal {
-    private static final Logger LOG = Logger.getLogger(M_Codigo_Postal.class.getName());
     
     /**
      * Metodo que me permite obtener los codigo postales de la republica
@@ -51,9 +50,6 @@ public class M_Codigo_Postal {
                                     build()
                     );
                 }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
             }
             return codigo_postal_list;
         } catch (SQLException ex) {

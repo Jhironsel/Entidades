@@ -3,8 +3,10 @@ package sur.softsurena.hilos;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class hiloRespardar extends Thread implements hiloMetodos {
 
@@ -49,7 +51,7 @@ public class hiloRespardar extends Thread implements hiloMetodos {
                 } while (stdInput.ready());
 
             } catch (IOException ex) {
-                //Instalar Logger
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
             detener();
         }//Para realizar el BackUp de la base de datos... Trabajando en segundo plano

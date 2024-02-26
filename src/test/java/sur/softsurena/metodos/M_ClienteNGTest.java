@@ -288,8 +288,7 @@ public class M_ClienteNGTest {
                         .criterioBusqueda("999-9999999-9")
                         .build()
         );
-        
-        System.out.println("Cliente: "+clientes);
+        //TODO terminar
     }
     
 }

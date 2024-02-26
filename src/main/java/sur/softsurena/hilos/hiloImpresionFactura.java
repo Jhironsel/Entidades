@@ -22,7 +22,7 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.formularios.frmPrintFacturaConReporte2;
 import sur.softsurena.utilidades.Utilidades;
-import static sur.softsurena.utilidades.Utilidades.LOGGER;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class hiloImpresionFactura extends Thread {
 
@@ -128,7 +128,7 @@ public class hiloImpresionFactura extends Thread {
                     terminar();
                 }
             } catch (JRException | FileNotFoundException | PrintException ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
             detenElHilo();
         }

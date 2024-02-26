@@ -7,14 +7,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.ContactoTel;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_ContactoTel {
-    private static final Logger LOG = Logger.getLogger(M_ContactoTel.class.getName());
+    
     /**
      * Metodo para agregar numeros telefonicos de las personas del sistema.
      *

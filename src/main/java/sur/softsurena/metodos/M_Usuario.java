@@ -7,16 +7,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
-import sur.softsurena.utilidades.Resultados;
 import sur.softsurena.entidades.Usuario;
 import static sur.softsurena.metodos.M_Role.asignarRolUsuario;
+import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Usuario {
-
-    private static final Logger LOG = Logger.getLogger(M_Usuario.class.getName());
 
     /**
      * Metodo que permite el cambio de contraseña de un usuario en el sistema.
@@ -43,7 +41,7 @@ public class M_Usuario {
 
             return true;
         } catch (SQLException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }

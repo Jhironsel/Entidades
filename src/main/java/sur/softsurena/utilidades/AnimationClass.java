@@ -1,7 +1,9 @@
 package utilidades;
 
+import java.util.logging.Level;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class AnimationClass {
 
@@ -97,7 +99,7 @@ public class AnimationClass {
         try {
             Thread.sleep(valor);
         } catch (InterruptedException ex) {
-            //Instalar Logger
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 }

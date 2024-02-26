@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Categoria;
 import sur.softsurena.utilidades.Resultados;
 import sur.softsurena.utilidades.Utilidades;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  * Esta clase ayuda al sistema a gestionar las categorias del sistemas.
@@ -36,8 +36,6 @@ import sur.softsurena.utilidades.Utilidades;
  * @author jhironsel
  */
 public class M_Categoria {
-
-    private static final Logger LOG = Logger.getLogger(M_Categoria.class.getName());
 
     /**
      * Agregar las categorias de los productos a la base de datos en la tabla

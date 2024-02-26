@@ -3,7 +3,9 @@ package sur.softsurena.hilos;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.logging.Level;
 import javax.swing.JOptionPane;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class hiloIp extends Thread implements hiloMetodos {
 
@@ -19,7 +21,7 @@ public class hiloIp extends Thread implements hiloMetodos {
                 p = Runtime.getRuntime().exec("wget http://ipinfo.io/ip -qO -");
 
             } catch (IOException ex) {
-                //Instalar Logger
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 JOptionPane.showMessageDialog(
                         null, 
                         "No esta conectado a ninguna RED",
@@ -49,7 +51,7 @@ public class hiloIp extends Thread implements hiloMetodos {
                 );
 
             } catch (IOException ex) {
-                //Instalar Logger
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
             detener();
         }

@@ -4,22 +4,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
-import sur.softsurena.entidades.D_Guia_Vigilancia;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_D_Guia_Vigilancia {
-    private static final Logger LOG = Logger.getLogger(D_Guia_Vigilancia.class.getName());
+
     public synchronized static String agregarGuiaVigilancia(int idGVD, int idPaciente) {
-        final String sql = 
-                " UPDATE OR INSERT INTO V_DETALLE_GUIA_VIGIL (ID_GVD,  IDPACIENTE) "
+        final String sql
+                = " UPDATE OR INSERT INTO V_DETALLE_GUIA_VIGIL (ID_GVD,  IDPACIENTE) "
                 + "VALUES (?, ?)";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)){
-            
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+
             ps.setInt(1, idGVD);
             ps.setInt(2, idPaciente);
 
@@ -31,7 +30,7 @@ public class M_D_Guia_Vigilancia {
             return "Error al insertar Guia de Vigilancia...";
         }
     }
-    
+
     public synchronized static ResultSet getGuiaDesarrollo(int idPaciente, boolean cero) {
         //Esto debe de unirsele otras tablas que traega como resultado
         //que desarrollo a tenido el niño en el tiempo desde el nacimiento
@@ -44,7 +43,7 @@ public class M_D_Guia_Vigilancia {
                 + "FROM V_GUIA_VIGILANCIA_DESARROLLO B "
                 + "WHERE b.EDAD " + (cero ? "" : "!") + "= 0";
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {

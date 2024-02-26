@@ -1,34 +1,18 @@
 package sur.softsurena.metodos;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.FileHandler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Paciente;
 import sur.softsurena.utilidades.Resultados;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Paciente {
 
-    private static final Logger LOG = Logger.getLogger(M_Paciente.class.getName());
-
-    static {
-        try {
-            FileHandler fh = new FileHandler(new File("/Logs/Paciente.log").getPath(), true);
-            //fh.setFormatter(new XMLFormatter());
-            fh.setFormatter(new SimpleFormatter());
-            LOG.addHandler(fh);
-        } catch (IOException e) {
-            System.out.print(e.getLocalizedMessage());
-        }
-    }
     
     /**
      * Metodo que permite agregar un paciente al sisteme.

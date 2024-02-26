@@ -40,7 +40,6 @@ public class M_D_RecetaNGTest {
             description = ""
     )
     public void testAgregarRecetaDetalle() {
-        System.out.println("agregarRecetaDetalle");
         List<D_Receta> dr = null;
         M_D_Receta.agregarRecetaDetalle(dr);
     }

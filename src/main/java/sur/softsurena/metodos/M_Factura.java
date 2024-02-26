@@ -6,17 +6,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Factura;
 import static sur.softsurena.metodos.M_D_Factura.agregarDetalleFactura;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Factura {
-    private static final Logger LOG = Logger.getLogger(M_Factura.class.getName());
+    
     /**
      * Consulta que nos permite obtener los ID de las facturas.
      * 
@@ -35,13 +35,8 @@ public class M_Factura {
                     facturasList.add(Factura.builder().
                         id(rs.getInt("ID")).build());
                 }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
-
+            } 
             return facturasList;
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;

@@ -4,16 +4,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Mensaje;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
  * @author jhironsel
  */
 public class M_Mensaje {
-    private static final Logger LOG = Logger.getLogger(M_Mensaje.class.getName());
     
     /**
      * TODO Desarrollo de este metodo.
@@ -27,11 +26,7 @@ public class M_Mensaje {
 
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return false;
-            }
-
+            } 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;

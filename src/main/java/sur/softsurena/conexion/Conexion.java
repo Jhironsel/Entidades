@@ -4,15 +4,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import lombok.NonNull;
 import sur.softsurena.utilidades.Resultados;
 
 public class Conexion {
-
-    //Variables Privadas
-    private static final Logger LOG = Logger.getLogger(Conexion.class.getName());
 
     private static Connection cnn;
     private static String user, clave;
@@ -63,8 +59,6 @@ public class Conexion {
                 .append(p)
                 .append("/")
                 .append(pathBaseDatos);
-
-        System.out.println("URL_BD: " + urlDB);
 
         return ConexionHolder.INSTANCE;
     }

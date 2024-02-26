@@ -13,7 +13,7 @@ import sur.softsurena.entidades.Almacen;
 import sur.softsurena.entidades.Factura;
 import sur.softsurena.utilidades.Resultados;
 import sur.softsurena.entidades.Turno;
-import static sur.softsurena.utilidades.Utilidades.LOGGER;
+import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
  *
@@ -55,7 +55,7 @@ public class M_Turno {
                 }
             }
         } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return Turno.
                 builder().
@@ -108,11 +108,11 @@ public class M_Turno {
                 }
                 return turnosList;
             } catch (SQLException ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
             }
         } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
     }
@@ -147,11 +147,11 @@ public class M_Turno {
                             monto_credito(rs.getBigDecimal("MONTO_CREDITO")).build());
                 }
             } catch (SQLException ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 return null;
             }
         } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
         }
         return turnosList;
@@ -178,7 +178,7 @@ public class M_Turno {
                     icono(JOptionPane.INFORMATION_MESSAGE).
                     build();
         } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return Resultados.
                     builder().
                     estado(Boolean.FALSE).
@@ -203,7 +203,7 @@ public class M_Turno {
 
             return cs.execute();
         } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
     }
