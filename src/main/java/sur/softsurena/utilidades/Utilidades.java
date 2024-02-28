@@ -54,21 +54,23 @@ public class Utilidades {
     public static final Logger LOG = Logger.getLogger(Utilidades.class.getName());
 
     static {
-        FileHandler fh = null;
         try {
-            fh = new FileHandler(
-                    new File(
-                            "/log/Log %s.log".formatted(new Date())
-                    ).getPath(),
+            final File file = new File("Logs/Log " + new Date().toString() + ".log");
+
+            FileHandler fh = new FileHandler(
+                    file.getPath(),
                     true
             );
-            //fh.setFormatter(new XMLFormatter());
+            
+            fh.setLevel(Level.SEVERE);
+            fh.setLevel(Level.WARNING);
+            
             fh.setFormatter(new SimpleFormatter());
+
             LOG.addHandler(fh);
+
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-        }finally{
-            fh.close();
         }
     }
 

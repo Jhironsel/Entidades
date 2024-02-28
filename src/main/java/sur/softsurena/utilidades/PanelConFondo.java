@@ -53,9 +53,11 @@ public class PanelConFondo {
      */
     public static TexturePaint carga(URL s, Component c) {
         TexturePaint image;
+        
         image = cargaTextura(s, c);
+        
         if (image == null) {
-            LOG.log(Level.SEVERE, "OMG! No puedo leer la imagen \n %s".formatted(s));
+            LOG.log(Level.SEVERE, "OMG! No puedo leer la imagen");
         }
         
         return image;

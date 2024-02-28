@@ -134,7 +134,8 @@ public class Conexion {
                     .build();
         }
     }
-    public static final String UNABLE_TO_COMPLETE_NETWORK_REQUEST_TO_HOS = "Unable to complete network request to host";
+    public static final String UNABLE_TO_COMPLETE_NETWORK_REQUEST_TO_HOS 
+            = "Unable to complete network request to host";
     /**
      * Driver de firebird (Jaybird) no se encuentra en la carpecta /lib del
      * proyecto. https://firebirdsql.org/en/jdbc-driver/
@@ -161,7 +162,8 @@ public class Conexion {
     /**
      * La fecha del producto ha caducado.
      */
-    public static final String E_FECHA_VENCIMIENTO = "E_FECHA_VENCIMIENTO";
+    public static final String E_FECHA_VENCIMIENTO 
+            = "E_FECHA_VENCIMIENTO";
 
     /**
      * Indica que no existe registros en el servidor de la base de datos.

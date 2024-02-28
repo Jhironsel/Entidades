@@ -21,8 +21,7 @@ public class Archivo {
     
     public static Boolean escribirArchivo(String ruta, String contenido){
         File archivo = new File(ruta);
-        try {
-            PrintWriter salida = new PrintWriter(archivo);
+        try (PrintWriter salida = new PrintWriter(archivo);){
             salida.println(contenido);
             salida.println();//Agregar espacio al final y en blanco.
             salida.close();
@@ -35,8 +34,7 @@ public class Archivo {
     
     public static Boolean leerArchivo(String nombreArchivo){
         File archivo = new File(nombreArchivo);
-        try {
-            BufferedReader entrada = new BufferedReader(new FileReader(archivo));
+        try (BufferedReader entrada = new BufferedReader(new FileReader(archivo));){
             String lectura = entrada.readLine();
             while(lectura != null){
                 LOG.info(lectura);
@@ -54,8 +52,7 @@ public class Archivo {
     
     public static Boolean anexarArchivo(String ruta, String anexo){
         File archivo = new File(ruta);
-        try {
-            PrintWriter salida = new PrintWriter(new FileWriter(archivo, true));
+        try (PrintWriter salida = new PrintWriter(new FileWriter(archivo, true));){
             salida.println(anexo);
             salida.println();//Agregar un espacio en blanco al final
             salida.close();

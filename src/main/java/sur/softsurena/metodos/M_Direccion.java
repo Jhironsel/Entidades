@@ -1,10 +1,12 @@
 package sur.softsurena.metodos;
 
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Direccion;
@@ -26,22 +28,24 @@ public class M_Direccion {
      * @return Devuelve true si la operacion fue exitosa, false caso contrario.
      */
     public static boolean agregarModificarDirecciones(Integer id_persona, List<Direccion> direcciones) {
-        final String sql = "SELECT O_ID "
-                + "FROM SP_UPDATE_OR_INSERT_DIRECCION (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        final String sql = " EXECUTE PROCEDURE SP_UPDATE_OR_INSERT_DIRECCION(?,?,?,?,?,?,?,?,?) ";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(
+        try (CallableStatement ps = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             for (Direccion direccion : direcciones) {
-                ps.setInt(1, direccion.getId());
+                ps.setInt(1, Objects.isNull(direccion.getId()) ? -1 : (int) direccion.getId());
                 ps.setInt(2, id_persona);
                 ps.setInt(3, direccion.getProvincia().getId());
                 ps.setInt(4, direccion.getMunicipio().getId());
                 ps.setInt(5, direccion.getDistrito_municipal().getId());
-                ps.setInt(6, direccion.getCodigo_postal().getId());
+                ps.setInt(6, 
+                        Objects.isNull(direccion.getCodigo_postal()) ? 
+                                0 : direccion.getCodigo_postal().getId()
+                );
                 ps.setString(7, direccion.getDireccion());
                 ps.setBoolean(8, direccion.getEstado());
                 ps.setBoolean(9, direccion.getPor_defecto());

@@ -23,15 +23,6 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Cliente {
     
-    public static final String CLIENTE__AGREGADO__CORRECTAMENTE = "Cliente Agregado Correctamente";
-    public static final String ERROR_AL_INSERTAR__CLIENTE = "Error al insertar Cliente.";
-
-    public static final String CLIENTE_BORRADO_CORRECTAMENTE = "Cliente borrado correctamente.";
-    public static final String CLIENTE_NO_PUEDE_SER_BORRADO = "Cliente no puede ser borrado.";
-
-    public static final String CLIENTE__MODIFICADO__CORRECTAMENTE = "Cliente Modificado Correctamente.";
-    public static final String ERROR_AL__MODIFICAR__CLIENTE = "Error al Modificar Cliente.";
-    
     /**
      * Metodos utilizado para agregar los clientes en el sistema, el cual es
      * utilizado para agregar los contactos de este.
@@ -108,12 +99,14 @@ public class M_Cliente {
             return Resultados
                     .builder()
                     .id(-1)
-                    .mensaje("Error al insertar Cliente...")
+                    .mensaje(ERROR_AL_INSERTAR__CLIENTE)
                     .cantidad(-1)
                     .icono(JOptionPane.ERROR_MESSAGE)
                     .build();
         }
     }
+    public static final String ERROR_AL_INSERTAR__CLIENTE = "Error al insertar Cliente.";
+    public static final String CLIENTE__AGREGADO__CORRECTAMENTE = "Cliente Agregado Correctamente";
     
     /**
      * Permite agregar un cliente ya registrado en la tabla de personas a
@@ -187,6 +180,8 @@ public class M_Cliente {
                     .build();
         }
     }
+    public static final String CLIENTE_BORRADO_CORRECTAMENTE = "Cliente borrado correctamente.";
+    public static final String CLIENTE_NO_PUEDE_SER_BORRADO = "Cliente no puede ser borrado.";
 
     /**
      * Metodo que permite modificar a los clientes del sistema de facturacion.
@@ -242,6 +237,8 @@ public class M_Cliente {
                     .build();
         }
     }
+    public static final String CLIENTE__MODIFICADO__CORRECTAMENTE = "Cliente modificado correctamente.";
+    public static final String ERROR_AL__MODIFICAR__CLIENTE = "Error al modificar cliente.";
 
     /**
      * Metodo utilizado para presentar los datos en la tabla del formulario

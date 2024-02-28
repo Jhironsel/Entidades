@@ -25,7 +25,7 @@ public class M_ContactoTel {
     public static boolean agregarContactosTel(int id_persona, 
             List<ContactoTel> contactos) {
         final String sql
-                = "EXECUTE PROCEDURE SP_INSERT_CONTACTOS_TEL (?, ?, ?, ?);";
+                = "EXECUTE PROCEDURE SP_INSERT_CONTACTOS_TEL(?, ?, ?, ?)";
         //TODO Completar procedimiento.
         try (CallableStatement ps = getCnn().prepareCall(sql)) {
             for (ContactoTel contacto : contactos) {
