@@ -10,7 +10,7 @@ import sur.softsurena.utilidades.Resultados;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Consulta {
-    
+
     /**
      * Metodo que permite agregar las consulta de los paciente al sistema.
      *
@@ -20,15 +20,19 @@ public class M_Consulta {
     public static synchronized Resultados agregarConsulta(Consulta consulta) {
         final String sql
                 = "SELECT O_ID FROM SP_INSERT_CONSULTA(?, ?, ?, ?);";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, consulta.getId_persona());
             ps.setInt(2, consulta.getId_control_consulta());
             ps.setInt(3, consulta.getTurno());
             ps.setDate(4, consulta.getFecha());
 
-            int id = -1;
-            try(ResultSet rs = ps.executeQuery();){
+            int id;
+            try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
                 id = rs.getInt("O_ID");
             }
@@ -50,7 +54,7 @@ public class M_Consulta {
     public static final String CONSULTA_AGREGADA_CORRECTAMENTE = "Consulta agregada correctamente";
 
     /**
-     * 
+     *
      * @param fecha
      * @return
      */
@@ -58,14 +62,13 @@ public class M_Consulta {
         final String sql = "SELECT idConsulta, TURNO, idPaciente, FINAL, NOMBRES, APELLIDOS, IDARS, NONSS "
                 + "FROM GET_CONSULTAS "
                 + "WHERE FECHA = ? and ESTADO;";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, fecha);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -73,19 +76,23 @@ public class M_Consulta {
         }
     }
 
+    /**
+     *
+     * @param fecha
+     * @return
+     */
     public static synchronized boolean getControlConsulta(String fecha) {
         final String sql = "SELECT (1) FROM V_CONTROLCONSULTA WHERE fecha = ?";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-            
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, fecha);
-            
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
-            
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return false;

@@ -55,7 +55,7 @@ public class M_Producto implements IProducto{
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setInt(1, (Objects.isNull(filtro.getId()) ? -1 : filtro.getId()));
 
@@ -124,7 +124,7 @@ public class M_Producto implements IProducto{
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
             ps.setInt(1, idCategoria);
             try (ResultSet rs = ps.executeQuery();) {
@@ -157,13 +157,11 @@ public class M_Producto implements IProducto{
     public synchronized static Resultados borrarProductoPorID(Integer ID) {
         final String sql
                 = "EXECUTE PROCEDURE SP_DELETE_PRODUCTO (?)";
-
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
             cs.setInt(1, ID);
 
             cs.execute();
@@ -206,10 +204,12 @@ public class M_Producto implements IProducto{
         final String sql
                 = "SELECT O_ID FROM SP_INSERT_PRODUCTO(?,?,?,?,?,?)";
         
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             
             ps.setInt(1, producto.getCategoria().getId_categoria());
             ps.setString(2, producto.getCodigo());
@@ -308,7 +308,7 @@ public class M_Producto implements IProducto{
      * @return
      */
     public synchronized static boolean existeCategoriaProductos(int idCategoria) {
-        final String EXISTE_CATEGORIA
+        final String sql
                 = "SELECT (1) "
                 + "FROM RDB$DATABASE "
                 + "WHERE EXISTS ("
@@ -317,7 +317,12 @@ public class M_Producto implements IProducto{
                 + "              WHERE p.ID_CATEGORIA = ?"
                 + "             )";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(EXISTE_CATEGORIA)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, idCategoria);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
@@ -337,7 +342,7 @@ public class M_Producto implements IProducto{
      * @return
      */
     public synchronized static boolean existeProducto(String criterio) {
-        final String EXISTE_PRODUCTO
+        final String sql
                 = "SELECT (1) "
                 + "FROM RDB$DATABASE "
                 + "WHERE EXISTS(SELECT (1) "
@@ -345,8 +350,12 @@ public class M_Producto implements IProducto{
                 + "             WHERE codigo STARTING WITH ? or "
                 + "                    descripcion STARTING WITH ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(EXISTE_PRODUCTO)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, criterio);
             ps.setString(2, criterio);
 

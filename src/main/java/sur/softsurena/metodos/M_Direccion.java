@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import static sur.softsurena.conexion.Conexion.getCnn;
+import sur.softsurena.entidades.Codigo_Postal;
 import sur.softsurena.entidades.Direccion;
 import sur.softsurena.entidades.Distrito_municipal;
 import sur.softsurena.entidades.Municipio;
@@ -27,7 +28,8 @@ public class M_Direccion {
      *
      * @return Devuelve true si la operacion fue exitosa, false caso contrario.
      */
-    public static boolean agregarModificarDirecciones(Integer id_persona, List<Direccion> direcciones) {
+    public static boolean agregarModificarDirecciones(Integer id_persona, 
+            List<Direccion> direcciones) {
         final String sql = " EXECUTE PROCEDURE SP_UPDATE_OR_INSERT_DIRECCION(?,?,?,?,?,?,?,?,?) ";
 
         try (CallableStatement ps = getCnn().prepareCall(
@@ -37,14 +39,19 @@ public class M_Direccion {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             for (Direccion direccion : direcciones) {
-                ps.setInt(1, Objects.isNull(direccion.getId()) ? -1 : (int) direccion.getId());
+                ps.setInt(
+                        1,
+                        Objects.isNull(direccion.getId())
+                        ? -1 : (int) direccion.getId()
+                );
                 ps.setInt(2, id_persona);
                 ps.setInt(3, direccion.getProvincia().getId());
                 ps.setInt(4, direccion.getMunicipio().getId());
                 ps.setInt(5, direccion.getDistrito_municipal().getId());
-                ps.setInt(6, 
-                        Objects.isNull(direccion.getCodigo_postal()) ? 
-                                0 : direccion.getCodigo_postal().getId()
+                ps.setInt(
+                        6,
+                        Objects.isNull(direccion.getCodigo_postal())
+                        ? 0 : direccion.getCodigo_postal().getId()
                 );
                 ps.setString(7, direccion.getDireccion());
                 ps.setBoolean(8, direccion.getEstado());
@@ -74,20 +81,23 @@ public class M_Direccion {
     public synchronized static List<Direccion> getDireccionByID(int id_persona) {
         List<Direccion> direcciones = new ArrayList<>();
         final String sql
-                = "SELECT ID, ID_PERSONA, ID_PROVINCIA, PROVINCIA, ID_MUNICIPIO, "
+                = "SELECT ID, ID_PROVINCIA, PROVINCIA, ID_MUNICIPIO, "
                 + "     MUNICIPIO, ID_DISTRITO_MUNICIPAL, DISTRITO_MUNICIPAL, "
                 + "     ID_CODIGO_POSTAL, CODIGO_POSTAL, DIRECCION, FECHA, "
                 + "     ESTADO, POR_DEFECTO "
                 + "FROM GET_DIRECCION_BY_ID  "
                 + "WHERE ID_PERSONA = ?";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, id_persona);
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    direcciones.add(Direccion
+                    direcciones.add(
+                            Direccion
                                     .builder()
                                     .id(rs.getInt("ID"))
                                     .provincia(
@@ -104,10 +114,18 @@ public class M_Direccion {
                                                     .nombre(rs.getString("MUNICIPIO"))
                                                     .build()
                                     )
-                                    .distrito_municipal(Distrito_municipal
+                                    .distrito_municipal(
+                                            Distrito_municipal
                                                     .builder()
                                                     .id(rs.getInt("ID_DISTRITO_MUNICIPAL"))
                                                     .nombre(rs.getString("DISTRITO_MUNICIPAL"))
+                                                    .build()
+                                    )
+                                    .codigo_postal(
+                                            Codigo_Postal
+                                                    .builder()
+                                                    .id(rs.getInt("ID_CODIGO_POSTAL"))
+                                                    .codigo_postal(rs.getInt("CODIGO_POSTAL"))
                                                     .build()
                                     )
                                     .direccion(rs.getString("DIRECCION"))

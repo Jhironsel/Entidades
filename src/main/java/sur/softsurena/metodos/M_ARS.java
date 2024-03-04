@@ -12,7 +12,7 @@ import sur.softsurena.utilidades.Resultados;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_ARS {
-    
+
     /**
      * Metodo que nos permite obtener una lista de Seguros Sociales del sistema.
      *
@@ -60,13 +60,14 @@ public class M_ARS {
      * @return
      */
     public synchronized static Resultados<Object> borrarSeguro(int idARS) {
-        final String DELETE = "EXECUTE PROCEDURE SP_DELETE_ARS (?);";
+        final String sql = "EXECUTE PROCEDURE SP_DELETE_ARS (?);";
         Resultados r;
         try (PreparedStatement ps = getCnn().prepareStatement(
-                DELETE,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, idARS);
 
             int cantidad = ps.executeUpdate();
@@ -102,11 +103,15 @@ public class M_ARS {
      * @return
      */
     public synchronized static Resultados agregarSeguro(ARS ars) {
-        final String INSERT
+        final String sql
                 = "SELECT O_ID FROM SP_INSERT_ARS (?, ?, ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(INSERT)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, ars.getDescripcion());
             ps.setBigDecimal(2, ars.getCovertura());
             ps.setBoolean(3, ars.getEstado());
@@ -147,7 +152,12 @@ public class M_ARS {
     public synchronized static Resultados modificarSeguro(ARS ars) {
         String sql = "EXECUTE PROCEDURE SP_UPDATE_ARS (?, ?, ?, ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, ars.getId());
             ps.setString(2, ars.getDescripcion());
             ps.setBigDecimal(3, ars.getCovertura());
@@ -177,7 +187,8 @@ public class M_ARS {
      * @return devuelve la lista de seguro que existe en la base de datos
      */
     public synchronized static List<ARS> getTipoSeguro() {
-        final String sql = "SELECT ID, DESCRIPCION "
+        final String sql 
+                = "SELECT ID, DESCRIPCION "
                 + "FROM V_ARS "
                 + "WHERE ESTADO; ";
 
@@ -187,8 +198,8 @@ public class M_ARS {
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     arsList.add(

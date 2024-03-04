@@ -17,34 +17,46 @@ public class M_D_MotivoConsulta {
     /**
      * Metodo que elimina un detalle de la consulta de los paciente, por x o y
      * razones.
+     * 
+     * TODO CREAR SP.
      *
      * @param dmc
      *
      * @return
      */
     public synchronized String borrarDetalleMotivoConsulta(D_MotivoConsulta dmc) {
-        final String DELETE
+        final String sql
                 = "DELETE FROM V_D_MOTIVO_CONSULTA a "
                 + "WHERE "
                 + "     a.IDCONSULTA = ? AND "
                 + "     a.IDMCONSULTA = '?'";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(DELETE)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, dmc.getIdConsulta());
             ps.setInt(2, dmc.getIdMotivoConsulta());
 
             ps.executeUpdate();
 
-            return "Motivo eliminado correctamente.";
+            return MOTIVO_ELIMINADO_CORRECTAMENTE;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al eliminar detalle de motivo de la consulta.";
+            return ERROR_AL_ELIMINAR_DETALLE_DE_MOTIVO_DE_LA;
         }
     }
+    
+    public static final String ERROR_AL_ELIMINAR_DETALLE_DE_MOTIVO_DE_LA 
+            = "Error al eliminar detalle de motivo de la consulta.";
+    
+    public static final String MOTIVO_ELIMINADO_CORRECTAMENTE 
+            = "Motivo eliminado correctamente.";
 
     /**
-     *
+     * TODO CREAR SP.
      * @param dmc
      * @return
      */
@@ -53,29 +65,36 @@ public class M_D_MotivoConsulta {
                 = "UPDATE OR INSERT INTO T_DETALLEMOTIVOCONSULTA "
                 + "(IDCONSULTA, TURNO, IDMCONSULTA) "
                 + "VALUES (?, ?, ?);";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setInt(1, dmc.getIdConsulta());
             ps.setInt(2, dmc.getTurno());
             ps.setInt(3, dmc.getIdMotivoConsulta());
 
             ps.executeUpdate();
-            return "Detalles agregados correctamente";
+            return DETALLES_AGREGADOS_CORRECTAMENTE;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al insertar Detalle Consulta...";
+            return ERROR_AL_INSERTAR__DETALLE__CONSULTA;
         }
     }
+    public static final String ERROR_AL_INSERTAR__DETALLE__CONSULTA = "Error al insertar Detalle Consulta...";
+    public static final String DETALLES_AGREGADOS_CORRECTAMENTE = "Detalles agregados correctamente";
 
     public synchronized static ResultSet getDetalleMotivo(int idConsulta, int turno) {
-        final String sql = "SELECT IDMCONSULTA "
-                + "   FROM V_DETALLEMOTIVOCONSULTA d "
-                + "   WHERE d.IDCONSULTA = ? and d.TURNO = ?";
-        
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        final String sql 
+                = "SELECT IDMCONSULTA "
+                + "FROM V_DETALLEMOTIVOCONSULTA d "
+                + "WHERE d.IDCONSULTA = ? and d.TURNO = ?";
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, idConsulta);
             ps.setInt(2, turno);
             return ps.executeQuery();

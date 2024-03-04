@@ -30,10 +30,15 @@ public class M_Estudiante {
      */
     public synchronized static Resultados agregarEstudiante(Estudiante e) {
 
-        final String INSERT_ESTUDIANTE
+        final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_ESTUDIANTE (?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?);";
         Resultados r;
-        try (CallableStatement cs = getCnn().prepareCall(INSERT_ESTUDIANTE)) {
+        try (CallableStatement cs = getCnn().prepareCall(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             cs.setInt(1, e.getAsegurado().getId_ars());
             cs.setString(2, e.getAsegurado().getNo_nss());
             cs.setInt(3, e.getGenerales().getId_tipo_sangre());
@@ -52,21 +57,27 @@ public class M_Estudiante {
 
             r = Resultados.builder().
                     id(-1).
-                    mensaje("Estudiante Agregado Correctamente.").
+                    mensaje(ESTUDIANTE__AGREGADO__CORRECTAMENTE).
                     cantidad(cant).build();
 
             return r;
         } catch (SQLException ex) {
             r = Resultados.builder().
                     id(-1).
-                    mensaje("Error al agregar Estudiante.").
+                    mensaje(ERROR_AL_AGREGAR__ESTUDIANTE).
                     cantidad(-1).build();
             return r;
         }
     }
+    
+    public static final String ERROR_AL_AGREGAR__ESTUDIANTE 
+            = "Error al agregar Estudiante.";
+    
+    public static final String ESTUDIANTE__AGREGADO__CORRECTAMENTE 
+            = "Estudiante Agregado Correctamente.";
 
     /**
-     *
+     * TODO CREAR VISTA.
      * @param matricula
      * @return
      */
@@ -104,14 +115,20 @@ public class M_Estudiante {
      * @return
      */
     public synchronized static String modificarEstudiante(Estudiante e) {
-        /*Metodo para modificar los estudiante del sistema de ballet
+        /*
+        Metodo para modificar los estudiante del sistema de ballet
         Actualizado el 23 de abril del 2022.
          */
-        final String sql = "EXECUTE PROCEDURE SP_UPDATE_ESTUDIANTE (?, ?, ?, ?, ?, ?, ?,"
+        final String sql 
+                = "EXECUTE PROCEDURE SP_UPDATE_ESTUDIANTE (?, ?, ?, ?, ?, ?, ?,"
                 + " ?, ?, ?, ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, e.getId_persona());
             ps.setInt(2, e.getIdPadre());
             ps.setInt(3, e.getIdMadre());
@@ -125,11 +142,14 @@ public class M_Estudiante {
             ps.setBoolean(11, e.getEstado());
 
             ps.executeUpdate();
-            return "Estudiante Modificado Correctamente...!!!";
+            return ESTUDIANTE__MODIFICADO__CORRECTAMENTE;
         } catch (SQLException ex) {
-            return "Estudiante no pudo ser Modificado, Conctate SoftSureña...!!!";
+            return ESTUDIANTE_NO_PUDO_SER__MODIFICADO__CONCTAT;
         }
     }
+    public static final String ESTUDIANTE_NO_PUDO_SER__MODIFICADO__CONCTAT = "Estudiante no pudo ser Modificado, Conctate SoftSureña...!!!";
+    
+    public static final String ESTUDIANTE__MODIFICADO__CORRECTAMENTE = "Estudiante Modificado Correctamente...!!!";
 
     public synchronized static String inscribirEstudiante(Inscripcion i) {
 
@@ -138,15 +158,17 @@ public class M_Estudiante {
         try (CallableStatement cs = getCnn().prepareCall(sql)) {
 
             cs.executeUpdate();
-            return "Alumno Inscripto...";
+            return ALUMNO__INSCRIPTO;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al inscribir estudiante.";
+            return ERROR_AL_INSCRIBIR_ESTUDIANTE;
         }
     }
+    public static final String ERROR_AL_INSCRIBIR_ESTUDIANTE = "Error al inscribir estudiante.";
+    public static final String ALUMNO__INSCRIPTO = "Alumno Inscripto...";
 
     /**
-     *
+     * TODO CREAR CLASE.
      * @param idUsuario
      * @param pago
      * @param matricula
@@ -158,8 +180,12 @@ public class M_Estudiante {
         final String sql = "EXECUTE PROCEDURE P_PAGO_MENSUALIDAD(" + idUsuario + ","
                 + pago + "," + matricula + ",'" + fechaPago + "')";
 
-        try (CallableStatement cs = getCnn().prepareCall(sql)) {
-
+        try (CallableStatement cs = getCnn().prepareCall(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             cs.execute(sql);
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -179,7 +205,12 @@ public class M_Estudiante {
                 + "FROM Mensualidad m "
                 + "WHERE matricula = " + matricula + " and PERIODO like '" + periodo + "'";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

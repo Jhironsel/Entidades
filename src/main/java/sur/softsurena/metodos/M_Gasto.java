@@ -20,12 +20,11 @@ public class M_Gasto {
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             cs.setInt(1, gasto.getId_turno());
             cs.setString(2, gasto.getDescripcion());
-            cs.setBigDecimal(3, gasto.getMonto());
-            
+            cs.setBigDecimal(3, gasto.getMonto());            
             cs.execute();
             return Resultados
                     .builder()
@@ -41,6 +40,10 @@ public class M_Gasto {
                     .build();
         }
     }
-    public static final String GASTO_REGISTRADOS_CORRECTAMENTE = "Gasto registrados correctamente.";
-    public static final String ERROR_AL_REGISTRAR_EL_GASTO = "Error al registrar el gasto.";
+
+    public static final String GASTO_REGISTRADOS_CORRECTAMENTE 
+            = "Gasto registrados correctamente.";
+
+    public static final String ERROR_AL_REGISTRAR_EL_GASTO 
+            = "Error al registrar el gasto.";
 }

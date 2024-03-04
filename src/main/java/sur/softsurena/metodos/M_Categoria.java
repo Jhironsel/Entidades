@@ -163,8 +163,12 @@ public class M_Categoria {
         final String sql
                 = "EXECUTE PROCEDURE SP_DELETE_CATEGORIAS (?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, idCategoria);
 
             int cant = ps.executeUpdate();
@@ -188,7 +192,6 @@ public class M_Categoria {
     public static final String OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__CA = "Ocurrio un error al intentar borrar la Categoria...";
     private static final String CATEGORIA__BORRADO__CORRECTAMENTE = "Categoria Borrado Correctamente.";
 
-
     /**
      * Metodo utilizado para obtener todas las categorias del sistema.
      *
@@ -198,35 +201,35 @@ public class M_Categoria {
      * Metodo creado 11 Julio 2022.
      *
      *
-     * @param estado Bandera que permite obtener un los estados de las 
-     *  categorias del sistema.
-     * @param foto Bandera que permite indicar al metodo si incluye foto de las 
-     *  categorias.
-     * 
+     * @param estado Bandera que permite obtener un los estados de las
+     * categorias del sistema.
+     * @param foto Bandera que permite indicar al metodo si incluye foto de las
+     * categorias.
+     *
      * @return Devuelve un conjunto de datos de la tabla Categoria del sistema,
      * donde contiene todos los campos de la tabla.
      */
     public synchronized static List<Categoria> getCategorias(Boolean estado, boolean foto) {
         List<Categoria> categorias = new ArrayList<>();
         final String sql
-                = "SELECT ID, DESCRIPCION, FECHA_CREACION, ESTADO "+(foto ? ", IMAGEN_TEXTO ":"")
+                = "SELECT ID, DESCRIPCION, FECHA_CREACION, ESTADO " + (foto ? ", IMAGEN_TEXTO " : "")
                 + "FROM V_CATEGORIAS "
-                + "WHERE ID > 0 "+(Objects.isNull(estado) ? " ": estado ? " AND ESTADO ":" AND ESTADO IS FALSE ")
+                + "WHERE ID > 0 " + (Objects.isNull(estado) ? " " : estado ? " AND ESTADO " : " AND ESTADO IS FALSE ")
                 + "ORDER BY 1;";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT); ResultSet rs = ps.executeQuery();) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 categorias.add(Categoria
-                                .builder()
-                                .id_categoria(rs.getInt("ID"))
-                                .descripcion(rs.getString("DESCRIPCION"))
-                                .fecha_creacion(rs.getDate("FECHA_CREACION"))
-                                .estado(rs.getBoolean("ESTADO"))
-                                .image_texto(foto ? rs.getString("IMAGEN_TEXTO") : "")
-                                .build()
+                        .builder()
+                        .id_categoria(rs.getInt("ID"))
+                        .descripcion(rs.getString("DESCRIPCION"))
+                        .fecha_creacion(rs.getDate("FECHA_CREACION"))
+                        .estado(rs.getBoolean("ESTADO"))
+                        .image_texto(foto ? rs.getString("IMAGEN_TEXTO") : "")
+                        .build()
                 );
             }
             return categorias;
@@ -248,15 +251,13 @@ public class M_Categoria {
                 = "SELECT ID, DESCRIPCION, IMAGEN_TEXTO "
                 + "FROM GET_CATEGORIA_ACTIVAS "
                 + "WHERE ID > 0;";
-
         List<Categoria> categoriasList = new ArrayList<>();
-
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     categoriasList.add(Categoria.builder().
@@ -287,10 +288,15 @@ public class M_Categoria {
      * de la categoria que se le pretende dar.
      */
     public synchronized static Boolean existeCategoria(String descripcion) {
-        final String SELECT_CATEGORIA_DESCRIPCION
+        final String sql
                 = "SELECT (1) FROM V_CATEGORIAS WHERE descripcion like ?";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(SELECT_CATEGORIA_DESCRIPCION)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, descripcion);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();

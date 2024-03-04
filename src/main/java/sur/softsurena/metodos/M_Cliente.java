@@ -38,7 +38,12 @@ public class M_Cliente {
         final String sql
                 = "SELECT V_ID FROM SP_INSERT_CLIENTE_SB (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
 
             ps.setString(1, String.valueOf(c.getPersona()));
             ps.setString(2, c.getGenerales().getCedula());
@@ -122,7 +127,8 @@ public class M_Cliente {
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             cs.setInt(1, id);
             boolean estado = cs.execute();
 
@@ -156,12 +162,14 @@ public class M_Cliente {
     public synchronized static Resultados borrarCliente(int idCliente) {
         final String sql = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_SB (?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, idCliente);
-
             int c = ps.executeUpdate();//Cantidad de registros afectados.
-
             return Resultados
                     .builder()
                     .id(-1)
@@ -195,8 +203,12 @@ public class M_Cliente {
     public synchronized static Resultados modificarCliente(Cliente cliente) {
         final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE_SB(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            //Atributos del cliente
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, cliente.getId_persona());
             ps.setString(2, String.valueOf(cliente.getPersona()));
             ps.setString(3, cliente.getGenerales().getCedula());
@@ -244,7 +256,6 @@ public class M_Cliente {
      * Metodo utilizado para presentar los datos en la tabla del formulario
      * clientes.
      *
-     *
      * @param filtro
      *
      * @return Devuelve todos los datos realacionado con los clientes en la base
@@ -270,10 +281,10 @@ public class M_Cliente {
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             //Parametros para el identificador
-            ps.setInt(1, (Objects.isNull(filtro.getId()) ? -1 : filtro.getId()));
+            ps.setInt(1, (Objects.isNull(filtro.getId()) ? -1 : (int) filtro.getId()));
 
             //Parametros para el criterio de busquedas
             ps.setString(2, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));

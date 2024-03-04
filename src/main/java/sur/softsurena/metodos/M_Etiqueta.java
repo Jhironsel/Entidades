@@ -19,15 +19,13 @@ public class M_Etiqueta {
                 = "SELECT LLAVE, VALOR "
                 + "FROM VS_USUARIOS_TAGS "
                 + "WHERE USUARIO STARTING WITH ?";
-
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, usuario.strip().toUpperCase());
-
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     etiqueta = Etiqueta.builder().

@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -101,10 +102,13 @@ public class M_Carton_Bingo {
     public static Boolean generarCarton(int cantidad) {
         final String sql = "EXECUTE PROCEDURE SP_INSERT_CARTON_BINGO (?, ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-            
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql, 
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             getCnn().setAutoCommit(false);
-
             for (int i = 0; i < cantidad; i++) {
                 List<Integer> lista = generarCarton();
 

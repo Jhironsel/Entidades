@@ -17,6 +17,8 @@ public class M_Motivo_Consulta {
     /**
      * Metodo que permite eliminar un motivo de consultas a las consultas.
      *
+     * 
+     * TODO Crear SP.
      * @param mc
      * @return
      */
@@ -26,21 +28,26 @@ public class M_Motivo_Consulta {
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
             ps.setInt(1, mc.getId());
 
             ps.executeUpdate();
 
-            return "Motivo de consulta borrado correctamente.";
+            return MOTIVO_DE_CONSULTA_BORRADO_CORRECTAMENTE;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al borrar motivo de la consulta.";
+            return ERROR_AL_BORRAR_MOTIVO_DE_LA_CONSULTA;
         }
     }
+    
+    public static final String ERROR_AL_BORRAR_MOTIVO_DE_LA_CONSULTA 
+            = "Error al borrar motivo de la consulta.";
+    public static final String MOTIVO_DE_CONSULTA_BORRADO_CORRECTAMENTE 
+            = "Motivo de consulta borrado correctamente.";
 
     /**
-     *
+     * TODO Crear SP.
      * @param m
      * @return
      */
@@ -50,7 +57,7 @@ public class M_Motivo_Consulta {
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setString(1, m);
             ps.executeUpdate();
             return true;

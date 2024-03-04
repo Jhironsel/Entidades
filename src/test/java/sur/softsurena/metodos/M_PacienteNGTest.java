@@ -13,7 +13,6 @@ import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Asegurado;
 import sur.softsurena.entidades.Generales;
 import sur.softsurena.entidades.Paciente;
-import sur.softsurena.utilidades.Resultados;
 import static sur.softsurena.metodos.M_ContactoTel.generarTelMovil;
 import static sur.softsurena.metodos.M_Generales.generarCedula;
 import static sur.softsurena.metodos.M_Paciente.PACIENTE_AGREGADO_CORRECTAMENTE;
@@ -22,6 +21,7 @@ import static sur.softsurena.metodos.M_Paciente.PACIENTE_MODIFICADO_CORRECTAMENT
 import static sur.softsurena.metodos.M_Paciente.agregarPaciente;
 import static sur.softsurena.metodos.M_Paciente.borrarPaciente;
 import static sur.softsurena.metodos.M_Paciente.modificarPaciente;
+import sur.softsurena.utilidades.Resultados;
 import sur.softsurena.utilidades.Utilidades;
 
 public class M_PacienteNGTest {
@@ -189,7 +189,7 @@ public class M_PacienteNGTest {
     public void testGetPacienteActivoID() {
         int idPaciente = 0;
         ResultSet expResult = null;
-        ResultSet result = M_Paciente.getPacienteActivoID(idPaciente);
+        Paciente result = M_Paciente.getPacienteActivoID(idPaciente);
         assertEquals(result, expResult);
     }
 

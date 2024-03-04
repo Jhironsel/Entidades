@@ -39,7 +39,7 @@ public class M_Permiso {
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, rol);
 
@@ -86,7 +86,7 @@ public class M_Permiso {
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, rol);
 
@@ -116,15 +116,13 @@ public class M_Permiso {
      */
     public synchronized static Resultados quitarPermisoAdminRole(
             String rol, String usuario) {
-
-        String sql = "EXECUTE PROCEDURE ADMIN_QUITAR_PERMISO_ADMIN_ROL(?,?)";
-
+        final String sql = "EXECUTE PROCEDURE ADMIN_QUITAR_PERMISO_ADMIN_ROL(?,?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             cs.setString(1, rol);
             cs.setString(2, usuario);
 
@@ -156,19 +154,14 @@ public class M_Permiso {
      */
     public synchronized static Resultados quitarPermisoAdminProcedimiento(
             String procedimiento, String rol) {
-
-        String sql = "EXECUTE PROCEDURE ADMIN_QUITAR_PERMISO_ADMIN_PROCE (?,?);";
-
+        final String sql = "EXECUTE PROCEDURE ADMIN_QUITAR_PERMISO_ADMIN_PROCE (?,?);";
         try (PreparedStatement cs = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
             cs.setString(1, procedimiento);
             cs.setString(2, rol);
-
             boolean execute = cs.execute();
-
             return Resultados.builder().
                     mensaje(PROCEDIMIENTO_SIN_CONTROL_ADMINISTRATIVO).
                     estado(execute).
@@ -193,14 +186,12 @@ public class M_Permiso {
      */
     public synchronized static Resultados agregarPermisoAdminProcedimiento(
             String procedimiento, String rol) {
-
         String sql = "EXECUTE PROCEDURE ADMIN_AGREGAR_PERMISO_ADMIN_PROCE (?,?);";
-
         try (PreparedStatement cs = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             cs.setString(1, procedimiento);
             cs.setString(2, rol);
 
@@ -231,20 +222,16 @@ public class M_Permiso {
      */
     public synchronized static Resultados agregarPermisoAdminRole(
             String role, String usuario) {
-
-        String sql = "EXECUTE PROCEDURE ADMIN_AGREGAR_PERMISO_ADMIN_ROLE(?,?)";
-
+        final String sql = "EXECUTE PROCEDURE ADMIN_AGREGAR_PERMISO_ADMIN_ROLE(?,?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             cs.setString(1, role);
             cs.setString(2, usuario);
-
             boolean execute = cs.execute();
-
             return Resultados.builder().
                     id(-1).
                     mensaje("Role sin control administrativo.").
@@ -273,15 +260,12 @@ public class M_Permiso {
      */
     public synchronized static Resultados borrarPermisoAdminProcedimiento(
             String procedimiento, String rol) {
-
         String sql = "EXECUTE PROCEDURE ADMIN_BORRAR_PERMISO_ADMIN_PROCE(?,?)";
-
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
             cs.setString(1, procedimiento);
             cs.setString(2, rol);
 

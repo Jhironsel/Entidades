@@ -26,7 +26,8 @@ public class M_BaseDeDatos {
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             try (ResultSet rs1 = ps1.executeQuery()) {
                 rs1.next();
                 return rs1.getString(1);
@@ -48,8 +49,12 @@ public class M_BaseDeDatos {
         final String sql
                 = "SELECT DIAS_RESTANTES FROM V_E_S_SYS WHERE ID = 1";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             try (ResultSet rs = ps.executeQuery()) {
                 rs.next();
                 return rs.getInt(1);
@@ -118,7 +123,7 @@ public class M_BaseDeDatos {
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
                 )) {
             
             ps.setString(1, tabla);

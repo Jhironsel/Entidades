@@ -11,8 +11,8 @@ import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Almacen;
 import sur.softsurena.entidades.Factura;
-import sur.softsurena.utilidades.Resultados;
 import sur.softsurena.entidades.Turno;
+import sur.softsurena.utilidades.Resultados;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
@@ -34,10 +34,13 @@ public class M_Turno {
                 + "FROM GET_TURNOS "
                 + "WHERE ESTADO AND TRIM(TURNO_USUARIO) STARTING WITH ?;";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, userName.toUpperCase().strip());
-
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return Turno.
@@ -96,7 +99,12 @@ public class M_Turno {
                 + "FROM GET_TURNOS "
                 + "WHERE ESTADO;";
         List<Turno> turnosList = new ArrayList<>();
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     turnosList.add(Turno.builder().
@@ -107,9 +115,6 @@ public class M_Turno {
 
                 }
                 return turnosList;
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -131,7 +136,12 @@ public class M_Turno {
                 + "WHERE ESTADO IS FALSE AND TURNO_USUARIO STARTING WITH ? ";
         List<Turno> turnosList = new ArrayList<>();
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
 
             ps.setString(1, userName);
 
@@ -146,9 +156,6 @@ public class M_Turno {
                             monto_efectivo(rs.getBigDecimal("MONTO_EFECTIVO")).
                             monto_credito(rs.getBigDecimal("MONTO_CREDITO")).build());
                 }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -166,15 +173,18 @@ public class M_Turno {
      */
     public synchronized static Resultados habilitarTurno(int id_almacen, String idUsuario) {
         final String sql = "EXECUTE PROCEDURE ADMIN_HABILITAR_TURNO(?, ?)";
-        try (CallableStatement cs = getCnn().prepareCall(sql)) {
-
+        try (CallableStatement cs = getCnn().prepareCall(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             cs.setInt(1, id_almacen);
             cs.setString(2, idUsuario);
-
             return Resultados.
                     builder().
                     estado(cs.execute()).
-                    mensaje("Turno habilitado correctamente.").
+                    mensaje(TURNO_HABILITADO_CORRECTAMENTE).
                     icono(JOptionPane.INFORMATION_MESSAGE).
                     build();
         } catch (SQLException ex) {
@@ -182,11 +192,13 @@ public class M_Turno {
             return Resultados.
                     builder().
                     estado(Boolean.FALSE).
-                    mensaje("Error al habilitar el turno").
+                    mensaje(ERROR_AL_HABILITAR_EL_TURNO).
                     icono(JOptionPane.ERROR_MESSAGE).
                     build();
         }
     }
+    public static final String ERROR_AL_HABILITAR_EL_TURNO = "Error al habilitar el turno";
+    public static final String TURNO_HABILITADO_CORRECTAMENTE = "Turno habilitado correctamente.";
 
     /**
      * Metodo que nos permite cerrar los turno de los cajeros habiertos en el
@@ -197,10 +209,13 @@ public class M_Turno {
      */
     public synchronized static boolean cerrarTurno(Integer idTurno) {
         final String sql = "EXECUTE PROCEDURE ADMIN_CERRAR_TURNO(?)";
-        try (CallableStatement cs = getCnn().prepareCall(sql)) {
-
+        try (CallableStatement cs = getCnn().prepareCall(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             cs.setInt(1, idTurno);
-
             return cs.execute();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

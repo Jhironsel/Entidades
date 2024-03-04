@@ -17,8 +17,11 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
 public class M_Metrica {
 
     /**
-     *
+     * TODO CREAR SP.
+     * 
      * @param metrica
+     * 
+     * @return 
      */
     public synchronized static Resultados agregarMetricas(Metrica metrica) {
         final String sql

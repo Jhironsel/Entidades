@@ -1,7 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.util.List;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertTrue;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -23,7 +23,10 @@ public class M_CajeroNGTest {
                 "localhost",
                 "3050"
         );
-        assertTrue("Error al conectarse...", Conexion.verificar().getEstado());
+        assertTrue(
+                Conexion.verificar().getEstado(),
+                "Error al conectarse..."
+        );
     }
 
     @AfterClass(description = "Contiene el metodo necesario para cerrar la base de datos.")
@@ -46,7 +49,10 @@ public class M_CajeroNGTest {
     )
     public void testGetCajeros() {
         List result = M_Cajero.getCajeros();
-        assertTrue("La tabla de cajero contiene usuarios", result.isEmpty());
+        assertTrue(
+                result.isEmpty(), 
+                "La tabla de cajero contiene usuarios"
+        );
     }
 
     @Test(
@@ -56,6 +62,9 @@ public class M_CajeroNGTest {
     )
     public void testGetCajerosName() {
         List result = M_Cajero.getCajerosName();
-        assertTrue("Existen cajeros registrados.", result.isEmpty());
+        assertTrue(
+                result.isEmpty(),
+                "Existen cajeros registrados."
+        );
     }
 }

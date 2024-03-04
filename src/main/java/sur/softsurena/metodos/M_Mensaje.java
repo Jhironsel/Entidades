@@ -22,7 +22,12 @@ public class M_Mensaje {
     public synchronized boolean existeMensaje(Mensaje mensaje) {
         final String sql = "";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
 
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();

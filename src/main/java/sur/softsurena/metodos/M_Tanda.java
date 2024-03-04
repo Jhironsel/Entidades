@@ -9,15 +9,21 @@ import sur.softsurena.entidades.Tanda;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Tanda {
-    
+
+    /**
+     * Las tandas en el sistema de Ballet permite definir al sistema cuales dias
+     * de la semana y horas se han asignado para dar clase de ballet, tambien
+     * definen el dia que se inicia la docencia de ballet.
+     *
+     * Query que permite ingresar un registro a la base de datos.
+     *
+     * TODO CREAR SP.
+     *
+     * @param t
+     * @return
+     */
     public static synchronized String agregarTanda(Tanda t) {
-        /**
-         * Las tandas en el sistema de Ballet permite definir al sistema cuales
-         * dias de la semana y horas se han asignado para dar clase de ballet,
-         * tambien definen el dia que se inicia la docencia de ballet.
-         *
-         * Query que permite ingresar un registro a la base de datos.
-         */
+
         final String INSERT_TANDA
                 = "INSERT INTO V_TANDAS (ANNO_INICIAL, ANNO_FINAL, HORA_INICIO, "
                 + "HORA_FINAL,LUNES, MARTES, MIERCOLES, JUEVES, VIERNES, "
@@ -47,10 +53,13 @@ public class M_Tanda {
             return TANDA__AGREGADA__CORRECTAMENTE;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Existe Problemas al agregar Tanda, Contactar SoftSureña :( ...! \n" + ex.toString();
+            return EXISTE__PROBLEMAS_AL_AGREGAR__TANDA__CONTACT;
         }
     }
-    public static final String TANDA__AGREGADA__CORRECTAMENTE = "Tanda Agregada Correctamente";
+    public static final String EXISTE__PROBLEMAS_AL_AGREGAR__TANDA__CONTACT
+            = "Existe Problemas al agregar Tanda, Contactar SoftSureña :( ...! ";
+    public static final String TANDA__AGREGADA__CORRECTAMENTE
+            = "Tanda Agregada Correctamente";
 
     /**
      * Consulta que permite conocer las tandas disponibles
@@ -83,30 +92,34 @@ public class M_Tanda {
         }
     }
 
+    /**
+     * Campo que permite actualizar all el contenido de una tanda en el sistema.
+     * 
+     * TODO CREAR PROCEDIMIENTO.
+     * 
+     * @param t
+     * @return 
+     */
     public static synchronized String modificarTanda(Tanda t) {
-        /**
-         * Campo que permite actualizar all el contenido de una tanda en el
-         * sistema.
-         */
         final String UPDATE
-                = "update V_TANDAS set "
-                + "ANNO_INICIAL = ?, "
-                + "ANNO_FINAL = ?, "
-                + "HORA_INICIO = ?, "
-                + "HORA_FINAL = ?, "
-                + "LUNES = ?, "
-                + "MARTES = ?, "
-                + "MIERCOLES = ?, "
-                + "JUEVES = ?, "
-                + "VIERNES = ?, "
-                + "SABADOS = ?, "
-                + "DOMINGOS = ?, "
-                + "CANTIDAD_ESTUDIANTES = ?, "
-                + "EDAD_MINIMA = ?, "
-                + "EDAD_MAXIMA = ?, "
-                + "CON_EDAD = ?, "
-                + "ESTADO = ? "
-                + "where (ID_TANDA = ?) ";
+                = "UPDATE V_TANDAS set "
+                + "     ANNO_INICIAL = ?, "
+                + "     ANNO_FINAL = ?, "
+                + "     HORA_INICIO = ?, "
+                + "     HORA_FINAL = ?, "
+                + "     LUNES = ?, "
+                + "     MARTES = ?, "
+                + "     MIERCOLES = ?, "
+                + "     JUEVES = ?, "
+                + "     VIERNES = ?, "
+                + "     SABADOS = ?, "
+                + "     DOMINGOS = ?, "
+                + "     CANTIDAD_ESTUDIANTES = ?, "
+                + "     EDAD_MINIMA = ?, "
+                + "     EDAD_MAXIMA = ?, "
+                + "     CON_EDAD = ?, "
+                + "     ESTADO = ? "
+                + "WHERE (ID_TANDA = ?) ";
 
         try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
             ps.setDate(1, t.getAnno_inicial());
@@ -136,14 +149,22 @@ public class M_Tanda {
     }
     public static final String TANDA_NO_PUDO_SER__MODIFICADO__CONCTATE__SOF = "Tanda no pudo ser Modificado, Conctate SoftSureña...!!!";
     public static final String TANDA__MODIFICADO__CORRECTAMENTE = "Tanda Modificado Correctamente...!!!";
+
     
-    
-    
+    /**
+     * 
+     * @param id_Tanda
+     * @return 
+     */
     public static synchronized ResultSet getTandas(Integer id_Tanda) {
-        final String sql = "SELECT t.cantidad_estudiantes, t.edad_minima, "
-                + "t.edad_maxima, t.con_edad "
-                + "FROM V_Tandas t "
-                + "WHERE t.id_tanda = ?";
+        final String sql 
+                = "SELECT "
+                + "     cantidad_estudiantes, "
+                + "     edad_minima, "
+                + "     edad_maxima, "
+                + "     con_edad "
+                + "FROM V_Tandas "
+                + "WHERE id_tanda = ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
@@ -155,11 +176,18 @@ public class M_Tanda {
             return null;
         }
     }
-    
-    public static synchronized ResultSet getHorario() {
-        final String sql = "SELECT * FROM V_TANDAS order by 1";
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
+    /**
+     * 
+     * @return 
+     */
+    public static synchronized ResultSet getHorario() {
+        final String sql 
+                = "SELECT * "
+                + "FROM V_TANDAS "
+                + "ORDER BY 1";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

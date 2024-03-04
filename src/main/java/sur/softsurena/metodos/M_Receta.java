@@ -12,6 +12,12 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
  */
 public class M_Receta {
     
+    /**
+     * TODO TERMINAR ESTE PROCEDIMIENTO
+     * @param idPaciente
+     * @param idConsulta
+     * @return 
+     */
     public synchronized static int agregarReceta(int idPaciente, int idConsulta) {
         final String sql
                 = "INSERT INTO V_RECETAS (IDCONSULTA) VALUES (?)";

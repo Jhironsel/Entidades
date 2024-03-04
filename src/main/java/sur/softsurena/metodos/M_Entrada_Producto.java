@@ -25,10 +25,15 @@ public class M_Entrada_Producto {
      * @return Devuelve un valor booleano que indica si el registro fue exitoso.
      */
     public static boolean agregarProductoEntrada(EntradaProducto e) {
-        final String INSERT_SP
+        final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_ENTRADA_PRODUCTOS (?, ?, ?, ?, ?, ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(INSERT_SP)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql, 
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, e.getIdProvedor());
             ps.setString(2, e.getCod_factura());
             ps.setInt(3, e.getLinea());
@@ -44,7 +49,7 @@ public class M_Entrada_Producto {
     }
 
     /**
-     *
+     * CREAR SP.
      * @param IDENTRADA_PRODUCTO
      * @param numero
      * @param cencepto
@@ -56,13 +61,16 @@ public class M_Entrada_Producto {
     public boolean agregarProductoSalida(int IDENTRADA_PRODUCTO, int numero,
             String cencepto, String idProducto, double entrada, String idUsuario) {
 
-        final String INSERT
+        final String sql
                 = "INSERT INTO ENTRADAS_PRODUCTO (IDENTRADA_PRODUCTO, CONCEPTO, "
                 + "IDPRODUCTO, ENTRADA, OP, IDUSUARIO, NUMERO)"
                 + "VALUES (?, ?, ?, ?, '-', ?, ? );";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(INSERT)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql, 
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.executeUpdate();
             return true;
         } catch (SQLException ex) {
@@ -79,17 +87,20 @@ public class M_Entrada_Producto {
      */
     public synchronized static ResultSet getEntradaProducto(int mes, int year) {
         final String sql 
-                = "SELECT r.FECHAENTRADA, IIF(r.OP = '+', 'Entrada', 'Salida') as operacion, "
-                + "r.IDUSUARIO "
+                = "SELECT "
+                + "     r.FECHAENTRADA, "
+                + "     IIF(r.OP = '+', 'Entrada', 'Salida') as operacion, "
+                + "     r.IDUSUARIO "
                 + "FROM TABLA_ENTRADAS_PRUDUCTO r "
-                + "WHERE EXTRACT(MONTH FROM r.FECHAENTRADA) = ? "
-                + "and EXTRACT(YEAR FROM r.FECHAENTRADA) = ? "
+                + "WHERE EXTRACT(MONTH FROM r.FECHAENTRADA) = ? and "
+                + "      EXTRACT(YEAR FROM r.FECHAENTRADA) = ? "
                 + "GROUP BY r.FECHAENTRADA,  r.OP, r.IDUSUARIO";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql, 
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, mes);
             ps.setInt(2, year);
             return ps.executeQuery();

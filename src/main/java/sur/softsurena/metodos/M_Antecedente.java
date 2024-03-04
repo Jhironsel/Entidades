@@ -21,15 +21,15 @@ public class M_Antecedente {
      * @return
      */
     public synchronized static String borrarAntecedente(int idAntecedente) {
-        final String DELETE
+        final String sql
                 = "EXECUTE PROCEDURE SP_DELETE_ANTECEDENTE (?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
-                DELETE,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, idAntecedente);
 
             ps.executeUpdate();
@@ -59,18 +59,16 @@ public class M_Antecedente {
      * sistema.
      */
     public synchronized static Resultados agregarAntecedente(int id_consulta, String descripcion) {
-        final String INSERT
+        final String sql
                 = "SELECT O_ID FROM SP_INSERT_ANTECEDENTE (?, ?);";
-
         try (PreparedStatement ps = getCnn().prepareStatement(
-                INSERT,
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, id_consulta);
             ps.setString(2, descripcion);
-
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
                 return Resultados
@@ -80,7 +78,6 @@ public class M_Antecedente {
                         .icono(JOptionPane.INFORMATION_MESSAGE)
                         .build();
             }
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return Resultados
@@ -105,11 +102,14 @@ public class M_Antecedente {
     public static synchronized String modificarAntecedente(int idAntecedente,
             String descrpcion) {
 
-        final String UPDATE
-                = "EXECUTE PROCEDURE SP_UPDATE_ANTECEDENTE(?, ?);";
+        final String sql = "EXECUTE PROCEDURE SP_UPDATE_ANTECEDENTE(?, ?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, idAntecedente);
             ps.setString(2, descrpcion);
 
@@ -137,20 +137,18 @@ public class M_Antecedente {
      */
     public synchronized static List<Antecedente> getAntecedentes(
             int idPaciente) {
-        final String sql = "SELECT ID, ID_CONSULTA, DESCRIPCION "
+        final String sql 
+                = "SELECT ID, ID_CONSULTA, DESCRIPCION "
                 + "FROM V_ANTECEDENTES "
                 + "WHERE ID = ?;";
-
         List<Antecedente> lista = new ArrayList<>();
-
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, idPaciente);
-
             try (ResultSet rs = ps.executeQuery();) {
 
                 while (rs.next()) {

@@ -33,7 +33,12 @@ public class M_Usuario {
     public synchronized static boolean cambioClave(String usuario, String clave) {
         final String sql
                 = "EXECUTE PROCEDURE ADMIN_CAMBIAR_CLAVE_USUARIO_ACTUAL(?, ?);";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setString(1, usuario);
             ps.setString(2, clave);
 
@@ -59,7 +64,12 @@ public class M_Usuario {
 
         final String sql = "EXECUTE PROCEDURE SP_DELETE_USUARIO (?);";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, loginName);
             ps.executeUpdate();
 
@@ -119,7 +129,7 @@ public class M_Usuario {
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
                 return Usuario.builder().
@@ -163,7 +173,7 @@ public class M_Usuario {
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             ps.setString(1, userName);
 
@@ -205,7 +215,7 @@ public class M_Usuario {
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
@@ -245,7 +255,7 @@ public class M_Usuario {
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
@@ -280,8 +290,8 @@ public class M_Usuario {
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             cs.setString(1, usuario.getUser_name());
             cs.setString(2, usuario.getClave());
             cs.setString(3, usuario.getPnombre());
@@ -305,13 +315,13 @@ public class M_Usuario {
                     .build();
         }
         usuario.getRoles().stream().forEach(
-            role -> {
-                asignarRolUsuario(
-                        role.getRoleName(),
-                        usuario.getUser_name(),
-                        role.isConAdmin()
-                );
-            }
+                role -> {
+                    asignarRolUsuario(
+                            role.getRoleName(),
+                            usuario.getUser_name(),
+                            role.isConAdmin()
+                    );
+                }
         );
 
         return Resultados
@@ -393,7 +403,7 @@ public class M_Usuario {
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setString(1, userName);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();

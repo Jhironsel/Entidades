@@ -14,13 +14,23 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
  */
 public class M_Dato_Nacimiento {
     
+    /**
+     * TODO CREAR SP.
+     * @param dato
+     * @return 
+     */
     public synchronized String agregarDatosNacimiento(Dato_Nacimiento dato) {
-        final String sql = "UPDATE OR INSERT INTO V_DATOSNACIMIENTO "
+        final String sql 
+                = "UPDATE OR INSERT INTO V_DATOSNACIMIENTO "
                 + "(IDPACIENTE, FECHANACIMIENTO, PESONACIMIENTOKG, ALTURA, "
                 + "CESAREA, TIEMPOGESTACION, PC) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?);";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
-
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, dato.getIdPaciente());
             ps.setString(2, dato.getFecha());
             ps.setString(3, dato.getPesoNacimiento());
@@ -31,26 +41,38 @@ public class M_Dato_Nacimiento {
 
             ps.executeUpdate();
 
-            return "Datos guardado correctamente";
+            return DATOS_GUARDADO_CORRECTAMENTE;
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al insertar datos de Nacimiento de: " + dato.getIdPaciente();
+            return ERROR_AL_INSERTAR_DATOS_DE__NACIMIENTO;
         }
     }
+    public static final String ERROR_AL_INSERTAR_DATOS_DE__NACIMIENTO = "Error al insertar datos de Nacimiento.";
+    public static final String DATOS_GUARDADO_CORRECTAMENTE = "Datos guardado correctamente";
 
+    /**
+     * 
+     * @param idPaciente
+     * @return 
+     */
     public synchronized static ResultSet getAlturaPeso(int idPaciente) {
-        final String sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
-                + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
+        final String sql 
+                = "SELECT "
+                + "     OUT_FECHANACIMIENTO, "
+                + "     OUT_FECHACONSULTA, "
+                + "     OUT_DEFERENCIAFECHA, "
+                + "     OUT_LONGITUD, "
+                + "     OUT_ESTATURA "
                 + "FROM PRO_PESO_ALTURA(?)";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, idPaciente);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
@@ -59,15 +81,19 @@ public class M_Dato_Nacimiento {
     }
 
     public synchronized static ResultSet getPCefalico(int idPaciente) {
-        final String sql = "SELECT OUT_FECHANACIMIENTO, "
-                + "OUT_FECHACONSULTA, "
-                + "OUT_DEFERENCIAFECHA, "
-                + "OUT_PC "
+        final String sql 
+                = "SELECT "
+                + "     OUT_FECHANACIMIENTO, "
+                + "     OUT_FECHACONSULTA, "
+                + "     OUT_DEFERENCIAFECHA, "
+                + "     OUT_PC "
                 + "FROM PRO_PC(?)";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, idPaciente);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -77,15 +103,19 @@ public class M_Dato_Nacimiento {
     }
 
     public synchronized static ResultSet getPesoKG(int idPaciente) {
-        final String sql = "SELECT OUT_FECHANACIMIENTO, "
-                + "OUT_FECHACONSULTA, "
-                + "OUT_DEFERENCIAFECHA, "
-                + "OUT_PC "
+        final String sql 
+                = "SELECT "
+                + "     OUT_FECHANACIMIENTO, "
+                + "     OUT_FECHACONSULTA, "
+                + "     OUT_DEFERENCIAFECHA, "
+                + "     OUT_PC "
                 + "FROM PRO_PESO_EDAD(?)";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, idPaciente);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -95,14 +125,21 @@ public class M_Dato_Nacimiento {
     }
 
     public synchronized static ResultSet getLongitudOEstatura(int idPaciente) {
-        final String sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
-                + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
+        final String sql 
+                = "SELECT "
+                + "     OUT_FECHANACIMIENTO, "
+                + "     OUT_FECHACONSULTA, "
+                + "     OUT_DEFERENCIAFECHA, "
+                + "     OUT_LONGITUD, "
+                + "     OUT_ESTATURA "
                 + "FROM PRO_LONGITUD_ALTURA_EDAD(?)";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, idPaciente);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -112,17 +149,21 @@ public class M_Dato_Nacimiento {
     }
 
     public synchronized static ResultSet getLongitudPeso(int idPaciente) {
-        final String sql = "SELECT OUT_FECHANACIMIENTO, OUT_FECHACONSULTA, "
-                + "OUT_DEFERENCIAFECHA, OUT_LONGITUD, OUT_ESTATURA "
+        final String sql 
+                = "SELECT "
+                + "     OUT_FECHANACIMIENTO, "
+                + "     OUT_FECHACONSULTA, "
+                + "     OUT_DEFERENCIAFECHA, "
+                + "     OUT_LONGITUD, "
+                + "     OUT_ESTATURA "
                 + "FROM PRO_PESO_LONGITUD(?)";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, idPaciente);
-
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

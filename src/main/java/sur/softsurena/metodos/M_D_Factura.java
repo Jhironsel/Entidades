@@ -16,7 +16,7 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
  * @author jhironsel
  */
 public class M_D_Factura {
-    
+
     /**
      * Metodo utilizado para agregar los datos de los detalle de la factura del
      * sistema.
@@ -25,8 +25,7 @@ public class M_D_Factura {
      * consulta por V_DETALLE_FACTURA. Se agrega el metodo execute() para que se
      * devuelto como true o false.
      *
-     * @param d Es un objecto que tipo DetalleFactura que define el detalle de
-     * las facturas el sistema.
+     * TODO CREAR SP.
      *
      * @return Ahora devuelve un entero que indica las cantidades de registros
      * que fueron afectadas en la inserción del registro.
@@ -36,12 +35,17 @@ public class M_D_Factura {
      */
     public static synchronized Integer agregarDetalleFactura(Factura f) {
         List<D_Factura> d = f.getDetalleFactura();
-        final String INSERT_DETALLE_FACTURA
-            = "INSERT INTO V_D_FACTURAS (ID_FACTURA, ID_LINEA, ID_PRODUCTO, "
-            + "     PRECIO, CANTIDAD) "
-            + "VALUES (?, ?, ?, ?, ?);";
-        
-        try (PreparedStatement ps = getCnn().prepareStatement(INSERT_DETALLE_FACTURA)) {
+        final String sql
+                = "INSERT INTO V_D_FACTURAS (ID_FACTURA, ID_LINEA, ID_PRODUCTO, "
+                + "     PRECIO, CANTIDAD) "
+                + "VALUES (?, ?, ?, ?, ?);";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             for (Iterator<D_Factura> i = d.iterator(); i.hasNext();) {
                 D_Factura next = i.next();
 
@@ -69,14 +73,19 @@ public class M_D_Factura {
      * @return
      */
     public synchronized static ResultSet getBuscarTemporal(Integer idFactura) {
-        final String GET_DETALLE_FACTURA
-            = "SELECT r.ID_FACTURA, r.ID_LINEA, r.ID_PRODUCTO, r.DESCRIPCION, r.PRECIO, "
-            + "     r.CANTIDAD, r.TOTAL "
-            + "FROM GET_D_FACTURAS r"
-            + "WHERE ID_FACTURA = ? "
-            + "ORDER BY 1 2;";
-        
-        try (PreparedStatement ps = getCnn().prepareStatement(GET_DETALLE_FACTURA)) {
+        final String sql
+                = "SELECT r.ID_FACTURA, r.ID_LINEA, r.ID_PRODUCTO, r.DESCRIPCION, r.PRECIO, "
+                + "     r.CANTIDAD, r.TOTAL "
+                + "FROM GET_D_FACTURAS r"
+                + "WHERE ID_FACTURA = ? "
+                + "ORDER BY 1 2;";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, idFactura);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -86,13 +95,13 @@ public class M_D_Factura {
     }
 
     /**
-     *
+     * TODO CREAR VISTA.
      * @param idFactura
      * @return
      */
     public synchronized static ResultSet getFacturasDetalladas(String idFactura) {
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                "SELECT factura.idFactura, factura.idCliente, nombres||' '||apellidos AS nombreFull, "
+        final String sql 
+                = "SELECT factura.idFactura, factura.idCliente, nombres||' '||apellidos AS nombreFull, "
                 + "        fecha, idLinea, (SELECT p.Descripcion "
                 + "                            FROM TABLA_PRODUCTOS p "
                 + "                            WHERE p.idProducto = DETALLEFACTURA.IDPRODUCTO ) as Descripcion, "
@@ -100,7 +109,13 @@ public class M_D_Factura {
                 + "FROM TABLA_FACTURAS "
                 + "INNER JOIN TABLA_CLIENTES ON factura.idCliente = cliente.idCliente "
                 + "INNER JOIN TABLA_DETALLEFACTURA ON factura.idFactura = detalleFactura.idFactura "
-                + "WHERE factura.idFactura = ? ")) {
+                + "WHERE factura.idFactura = ? ";
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, idFactura);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -110,12 +125,13 @@ public class M_D_Factura {
     }
 
     /**
-     *
+     * TODO CREAR VISTA.
      * @param idCliente
      * @return
      */
     public synchronized static ResultSet getFacturasDetalladaPorCliente(String idCliente) {
-        final String sql = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
+        final String sql
+                = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
                 + "COALESCE(SUM(d.precio * d.cantidad), 0.00) AS Valor "
                 + "FROM TABLA_FACTURAS f "
                 + "LEFT JOIN TABLA_CLIENTES c ON f.idCliente = c.idCliente "
@@ -123,7 +139,12 @@ public class M_D_Factura {
                 + "WHERE f.idCliente = ? "
                 + "GROUP BY f.idFactura, f.estado , f.fecha, f.USUARIO "
                 + "order by 1";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, idCliente);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -133,14 +154,15 @@ public class M_D_Factura {
     }
 
     /**
-     *
+     * TODO CREAR VISTA.
      * @param idCliente
      * @param idFactura
      * @return
      */
     public synchronized static ResultSet getFacturasDetalladaPorCliente(
             String idCliente, int idFactura) {
-        final String sql = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
+        final String sql
+                = "SELECT f.idFactura, f.estado , f.fecha, f.USUARIO, "
                 + "COALESCE(SUM(d.precio * d.cantidad), 0.00) AS Valor "
                 + "FROM TABLA_FACTURAS f "
                 + "LEFT JOIN TABLA_CLIENTES c ON f.idCliente = c.idCliente "
@@ -148,7 +170,12 @@ public class M_D_Factura {
                 + "WHERE f.idCliente = ? and f.idFactura = ? "
                 + "GROUP BY f.idFactura, f.estado , f.fecha, f.USUARIO "
                 + "order by 1";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, idCliente);
             ps.setInt(2, idFactura);
             return ps.executeQuery();

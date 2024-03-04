@@ -14,6 +14,11 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
  */
 public class M_Proveedor {
     
+    /**
+     * 
+     * @param proveedor
+     * @return 
+     */
     public synchronized static String agregarProveedor(Proveedor proveedor) {
         final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_PROVEEDOR (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
@@ -22,20 +27,22 @@ public class M_Proveedor {
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-            
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             //ps.setInt(1, proveedor.getCodigoProveedor());
             ps.setString(2, proveedor.getPnombre());
             ps.setString(3, proveedor.getSnombre());
             ps.setBoolean(4, proveedor.getEstado());
 
             ps.executeUpdate();
-            return "🆗 Proveedor agregado correctamente.";
+            return __PROVEEDOR_AGREGADO_CORRECTAMENTE;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "⛔ Error al insertar Proveedor...";
+            return __ERROR_AL_INSERTAR__PROVEEDOR;
         }
     }
+    public static final String __ERROR_AL_INSERTAR__PROVEEDOR = "⛔ Error al insertar Proveedor...";
+    public static final String __PROVEEDOR_AGREGADO_CORRECTAMENTE = "🆗 Proveedor agregado correctamente.";
 
     /**
      * Metodo que permite la actualizacion de los proveedores del sistema de
@@ -46,13 +53,12 @@ public class M_Proveedor {
      */
     public synchronized static String modificarProveedor(Proveedor p) {
         final String sql = "EXECUTE PROCEDURE SP_UPDATE_PROVEEDORES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
-
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, p.getId_persona());
             ps.setString(2, p.getCodigoProveedor());
             ps.setString(3, p.getPersona() + "");
@@ -64,12 +70,14 @@ public class M_Proveedor {
             ps.setBoolean(9, p.getEstado());
 
             ps.executeUpdate(sql);
-            return "Consulta modificado correctamente";
+            return CONSULTA_MODIFICADO_CORRECTAMENTE;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al modificar consulta...";
+            return ERROR_AL_MODIFICAR_CONSULTA;
         }
     }
+    public static final String ERROR_AL_MODIFICAR_CONSULTA = "Error al modificar consulta...";
+    public static final String CONSULTA_MODIFICADO_CORRECTAMENTE = "Consulta modificado correctamente";
 
     /**
      * 
@@ -79,10 +87,12 @@ public class M_Proveedor {
         final String sql = "SELECT IDPROVEEDOR, CODIGO_PROVEEDOR, NOMBRE_PROVEEDOR, "
                 + "TELEFONO_PROVEEDOR, ESTADO "
                 + "FROM V_PROVEEDORES ";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

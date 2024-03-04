@@ -1,10 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.util.List;
-import javax.swing.JOptionPane;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -13,9 +10,10 @@ import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Almacen;
 import sur.softsurena.utilidades.Resultados;
-import static sur.softsurena.metodos.M_Almacen.ALMACEN_AGREGADO_CORRECTAMENTE;
 
 public class M_AlmacenNGTest {
+
+    private int idAlmacen, idAlmacen2;
 
     public M_AlmacenNGTest() {
     }
@@ -29,7 +27,10 @@ public class M_AlmacenNGTest {
                 "localhost",
                 "3050"
         );
-        assertTrue("Error al conectarse...", Conexion.verificar().getEstado());
+        assertTrue(
+                Conexion.verificar().getEstado(),
+                "Error al conectarse..."
+        );
     }
 
     @AfterClass
@@ -47,39 +48,103 @@ public class M_AlmacenNGTest {
 
     @Test(
             enabled = true,
-            description = "",
+            description = "Permite verificar si las tabla estan vacia.",
             priority = 0
     )
     public void testGetAlmacenesList() {
-        List result = M_Almacen.getAlmacenesList(0, "^");
-        assertNotEquals(result, null, "La tabla de almacen esta vacia.");
+        List result = M_Almacen.getAlmacenesList(0, "^+-*/");
+        assertTrue(
+                result.isEmpty(), 
+                "La tabla de almacen NO esta vacia."
+        );
 
-        result = M_Almacen.getAlmacenesList(-1, "Seleccione");
-        assertNotEquals(result, null, "La tabla de almacen esta vacia.");
+        result = M_Almacen.getAlmacenesList(-1, "*");
+        assertTrue(
+                result.isEmpty(), 
+                "La tabla de almacen NO esta vacia."
+        );
     }
 
     @Test(
-            enabled = false,
-            description = "",
-            priority = 0
+            enabled = true,
+            description = "Realiza el proceso de registro de un almacen de prueba.",
+            priority = 1
     )
     public void testAgregarAlmacen() {
-        Resultados expResult = Resultados
+        Resultados result = M_Almacen.agregarAlmacen(
+                Almacen
+                        .builder()
+                        .nombre("Registro prueba")
+                        .ubicacion("Debe de describir la ubicacion del almacen.")
+                        .estado(Boolean.TRUE)
+                        .build()
+        );
+
+        assertNotNull(result, "Error al registrar almacen al sistema.");
+
+        idAlmacen = result.getId();
+
+        result = M_Almacen.agregarAlmacen(Almacen
                 .builder()
-                .mensaje(ALMACEN_AGREGADO_CORRECTAMENTE)
-                .icono(JOptionPane.INFORMATION_MESSAGE)
-                .estado(Boolean.TRUE)
-                .build();
-        
-        Resultados result = M_Almacen.agregarAlmacen(Almacen
-                .builder()
-                .nombre("Registro prueba")
+                .nombre("Texto de prueba")
                 .ubicacion("Debe de describir la ubicacion del almacen.")
-                .estado(Boolean.TRUE)
+                .estado(Boolean.FALSE)
                 .build()
         );
-        assertEquals(result.getMensaje(), expResult.getMensaje());
-        assertEquals(result.getIcono(), expResult.getIcono());
-        assertEquals(result.getEstado(), expResult.getEstado());
+
+        assertNotNull(result, "Error al registrar almacen 2 al sistema.");
+
+        idAlmacen2 = result.getId();
+    }
+
+    @Test(
+            enabled = true,
+            description = "Permite verificar si las tabla estan vacia.",
+            priority = 2
+    )
+    public void testGetAlmacenes2List() {
+        List result = M_Almacen.getAlmacenesList(idAlmacen, "^+-*/");
+        assertFalse(result.isEmpty(), "La tabla de almacen NO esta vacia.");
+
+        result = M_Almacen.getAlmacenesList(idAlmacen2, "Seleccione");
+        assertFalse(result.isEmpty(), "La tabla de almacen NO esta vacia.");
+
+        result = M_Almacen.getAlmacenesList(-1, "Registro");
+        assertFalse(result.isEmpty(), "La tabla de almacen NO esta vacia.");
+
+        result = M_Almacen.getAlmacenesList(-1, "Texto");
+        assertFalse(result.isEmpty(), "La tabla de almacen NO esta vacia.");
+    }
+
+    @Test(
+            enabled = true,
+            description = "Prueba que actualiza el registro de los almacenes del sistema.",
+            priority = 3
+    )
+    public void testActualizarAlmacen() {
+
+        Resultados result = M_Almacen.actualizarAlmacen(
+                Almacen
+                        .builder()
+                        .id(idAlmacen)
+                        .nombre("Registro ha sido actualizado")
+                        .ubicacion("Ha sido movido.")
+                        .estado(Boolean.FALSE)
+                        .build()
+        );
+        assertNotNull(result);
+    }
+
+    @Test(
+            enabled = true,
+            description = "Prueba que elimina el registro de los almacenes del sistema.",
+            priority = 4
+    )
+    public void testEliminarAlmacen() {
+        Resultados result = M_Almacen.eliminarAlmacen(idAlmacen);
+        assertNotNull(result, "No pudo eliminarse el registro del almacen.");
+
+        result = M_Almacen.eliminarAlmacen(idAlmacen2);
+        assertNotNull(result, "No pudo eliminarse el registro del almacen 2.");
     }
 }

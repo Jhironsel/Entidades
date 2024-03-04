@@ -19,6 +19,11 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
  */
 public class M_Medicamento {
     
+    /**
+     * TODO CREAR SP.
+     * @param m
+     * @return 
+     */
     public synchronized static String modificarMedicamento(Medicamento m) {
         final String sql = "UPDATE V_MEDICAMENTOS "
                 + "SET "
@@ -43,7 +48,7 @@ public class M_Medicamento {
             ps = getCnn().prepareStatement(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT);
+                ResultSet.CLOSE_CURSORS_AT_COMMIT);
 
             ps.setInt(1, m.getId_proveedor());
             ps.setString(2, m.getDescripcion());
@@ -53,12 +58,14 @@ public class M_Medicamento {
 
             ps.executeUpdate();
 
-            return "Medicamento modificado correctamente";
+            return MEDICAMENTO_MODIFICADO_CORRECTAMENTE;
         } catch (SQLException | IOException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
-        return "Error al modificar Medicamento...";
+        return ERROR_AL_MODIFICAR__MEDICAMENTO;
     }
+    public static final String ERROR_AL_MODIFICAR__MEDICAMENTO = "Error al modificar Medicamento...";
+    public static final String MEDICAMENTO_MODIFICADO_CORRECTAMENTE = "Medicamento modificado correctamente";
 
     public synchronized static List<Medicamento> getMedicamentoActivo() {
         final String sql = "SELECT ID, DESCRIPCION "
@@ -87,6 +94,11 @@ public class M_Medicamento {
         }
     }
 
+    /**
+     * 
+     * @param idMedicamento
+     * @return 
+     */
     public synchronized static ResultSet getMedicamentoFoto(String idMedicamento) {
 
         final String sql = "SELECT FOTO FROM V_MEDICAMENTOS "
@@ -104,6 +116,11 @@ public class M_Medicamento {
         }
     }
 
+    /**
+     * 
+     * @param estado
+     * @return 
+     */
     public synchronized static ResultSet getMedicamento(boolean estado) {
         final String sql = "SELECT CODIGO_PROVEEDOR, IDMEDICAMENTO, "
                 + "          NOMBREMEDICAMENTO, ESTADO "

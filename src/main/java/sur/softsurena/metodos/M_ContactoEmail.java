@@ -18,7 +18,7 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
 public class M_ContactoEmail {
 
     /**
-     *
+     * TODO CREAR SP.
      * @param id
      * @param contactos
      * @return
@@ -44,7 +44,7 @@ public class M_ContactoEmail {
     }
 
     /**
-     *
+     * TODO CREAR SP.
      * @param id
      * @param contactos
      * @return
@@ -109,22 +109,23 @@ public class M_ContactoEmail {
             "@hotmail.com",
             "@gmail.com",
             "@outlook.com",
-            "@yahoo.com"
+            "@yahoo.com",
+            "@TeJodiste.net"
         };
-        int indexArea = (int) (Math.random() * 4);
+        int indexArea = (int) (Math.random() * correoDominio.length);
 
         int num1 = (int) (Math.random() * 10);
         int num2 = (int) (Math.random() * 10);
         int num3 = (int) (Math.random() * 10);
         int num4 = (int) (Math.random() * 10);
 
-        telefonoMovil.
-                append("correo_prueba_").
-                append(num1).
-                append(num2).
-                append(num3).
-                append(num4).
-                append(correoDominio[indexArea]);
+        telefonoMovil
+                .append("correo_prueba_")
+                .append(num1)
+                .append(num2)
+                .append(num3)
+                .append(num4)
+                .append(correoDominio[indexArea]);
 
         return telefonoMovil.toString();
     }

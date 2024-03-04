@@ -27,7 +27,12 @@ public class M_ContactoTel {
         final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_CONTACTOS_TEL(?, ?, ?, ?)";
         //TODO Completar procedimiento.
-        try (CallableStatement ps = getCnn().prepareCall(sql)) {
+        try (CallableStatement ps = getCnn().prepareCall(
+                sql, 
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             for (ContactoTel contacto : contactos) {
                 ps.setInt(1, id_persona);
                 ps.setString(2, contacto.getTelefono());
@@ -45,7 +50,8 @@ public class M_ContactoTel {
 
     /**
      * Metodo para agregar numeros telefonicos de las personas del sistema.
-     *
+     * 
+     * TODO CREAR SP.
      * @param id
      * @param contactos
      * @return
@@ -59,7 +65,12 @@ public class M_ContactoTel {
                 + "WHERE "
                 + "     a.ID = ?";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql, 
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             for (ContactoTel c : contactos) {
                 ps.setString(1, c.getTelefono());
                 ps.setString(2, c.getTipo());
@@ -83,15 +94,18 @@ public class M_ContactoTel {
      * @return
      */
     public synchronized static List<ContactoTel> getTelefonoByID(int id) {
-        final String SELECT_BY_ID
+        final String sql
                 = "SELECT ID, TELEFONO, TIPO, FECHA "
                 + "FROM V_CONTACTOS_TEL "
                 + "WHERE "
                 + "     ID_PERSONA = ?";
-
         List<ContactoTel> contactosTelList = new ArrayList<>();
-
-        try (PreparedStatement ps = getCnn().prepareStatement(SELECT_BY_ID)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql, 
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
@@ -110,6 +124,7 @@ public class M_ContactoTel {
         }
         return contactosTelList;
     }
+    
     public static String generarTelMovil(){
         StringBuilder telefonoMovil = new StringBuilder();
         String codigoArea[] = {"809", "829", "849"};

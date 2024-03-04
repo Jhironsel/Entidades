@@ -13,42 +13,55 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
  * @author jhironsel
  */
 public class M_Control_Consulta {
-    
+
     /**
-     * Metodo utilizado para eliminar los controles de consultas programadas 
-     * previamente. 
+     * Metodo utilizado para eliminar los controles de consultas programadas
+     * previamente.
      * 
+     * TODO CREAR SP.
+     *
      * @param idControlConsulta
-     * 
-     * @return 
+     *
+     * @return
      */
     public synchronized static String borrarControlConsulta(int idControlConsulta) {
-        final String DELETE 
-            = "DELETE FROM V_CONTROL_CONSULTA WHERE id = ?";
-        
-        try (PreparedStatement ps = getCnn().prepareStatement(DELETE);){
-            
+        final String sql
+                = "DELETE FROM V_CONTROL_CONSULTA WHERE id = ?";
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, idControlConsulta);
             ps.executeUpdate();
-            return "Borrado correctamente";
+            return CONTROL__CONSULTA_BORRADO_CORRECTAMENTE;
         } catch (SQLException ex) {
-            
+
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al borrar control de la consulta";
+            return ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA;
         }
     }
-    
+    public static final String ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA = "Error al borrar control de la consulta";
+    public static final String CONTROL__CONSULTA_BORRADO_CORRECTAMENTE = "Control Consulta borrado correctamente";
+
     /**
-     * 
+     * TODO CREAR SP.
+     *
      * @param controlConsulta
-     * @return 
+     * @return
      */
     public synchronized static String agregarControlConsulta(Control_Consulta controlConsulta) {
-        final String INSERT
-            = "insert into CONTROLCONSULTA (IDUSUARIO, CANTIDADPACIENTE, DIA, INICIAL, FINAL) "
-                    + "values (?, ?, ?, ?, ?)";
-        
-        try (PreparedStatement ps = getCnn().prepareStatement(INSERT)){
+        final String sql
+                = "insert into CONTROLCONSULTA (IDUSUARIO, CANTIDADPACIENTE, DIA, INICIAL, FINAL) "
+                + "values (?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, controlConsulta.getId());
             ps.setInt(2, controlConsulta.getCantidad());
             ps.setString(3, controlConsulta.getDia());
@@ -62,15 +75,16 @@ public class M_Control_Consulta {
             return "No se pueden guardar los cambios";
         }
     }
-    
+
     /**
-     * 
+     * TODO Crear SP.
+     *
      * @param controlConsulta
-     * @return 
+     * @return
      */
     public synchronized String modificarControlConsulta(Control_Consulta controlConsulta) {
-        final String sql = 
-                "UPDATE V_CONTROL_CONSULTA SET "
+        final String sql
+                = "UPDATE V_CONTROL_CONSULTA SET "
                 + "    IDUSUARIO = ? , "
                 + "    CANTIDADPACIENTE = ? , "
                 + "    DIA = ? , "
@@ -78,12 +92,12 @@ public class M_Control_Consulta {
                 + "    FINAL = ? "
                 + "WHERE IDCONTROLCONSULTA = ? ";
 
-        try ( PreparedStatement ps = getCnn().prepareStatement(
+        try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
             ps.setInt(1, controlConsulta.getId());
             ps.setInt(2, controlConsulta.getCantidad());
             ps.setString(3, controlConsulta.getDia());
@@ -100,16 +114,28 @@ public class M_Control_Consulta {
     }
     public static final String CONSULTA_MODIFICADO_CORRECTAMENTE = "Consulta modificado correctamente";
     public static final String ERROR_AL_MODIFICAR_CONSULTA = "Error al modificar consulta...";
+
     
+    /**
+     * 
+     * @param fecha
+     * @param actual
+     * @return 
+     */
     public synchronized static ResultSet getFechaDoctores(String fecha, boolean actual) {
-        final String sql = "SELECT IDCONTROLCONSULTA, loginName, dia, "
+        final String sql 
+                = "SELECT IDCONTROLCONSULTA, loginName, dia, "
                 + "INICIAL, FINAL, nombreCompleto, CANTIDAD_PACIENTE "
                 + "FROM GET_controlConsulta "
                 + "WHERE dia like (SELECT TCNOMBREDIA "
                 + "                FROM NOMBRE_DIA_CORTO (?)) " + (actual ? " and CURRENT_DATE <= ? ;" : "");
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql)) {
 
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, fecha);
 
             if (actual) {
@@ -123,18 +149,26 @@ public class M_Control_Consulta {
             return null;
         }
     }
-    
+
+    /**
+     * 
+     * @param idUsuario
+     * @return 
+     */
     public synchronized static ResultSet getHorario(String idUsuario) {
-        final String sql = "SELECT IDCONTROLCONSULTA, CANTIDADPACIENTE,"
+        final String sql 
+                = "SELECT IDCONTROLCONSULTA, CANTIDADPACIENTE,"
                 + "          DIA, INICIAL, FINAL "
                 + "FROM t_controlconsulta "
                 + "WHERE IDUSUARIO = ? "
                 + "order by DIA, INICIAL, FINAL";
-        
-        try ( PreparedStatement ps = getCnn().prepareStatement(sql,
+
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             ps.setString(1, idUsuario);
             return ps.executeQuery();
         } catch (SQLException ex) {

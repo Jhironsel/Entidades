@@ -2,6 +2,7 @@ package sur.softsurena.metodos;
 
 import java.util.ArrayList;
 import java.util.List;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -13,6 +14,8 @@ import sur.softsurena.entidades.Direccion;
 import sur.softsurena.entidades.Distrito_municipal;
 import sur.softsurena.entidades.Municipio;
 import sur.softsurena.entidades.Provincia;
+import static sur.softsurena.metodos.M_Direccion.agregarModificarDirecciones;
+import static sur.softsurena.metodos.M_Direccion.getDireccionByID;
 
 public class M_DireccionNGTest {
     
@@ -53,7 +56,8 @@ public class M_DireccionNGTest {
     public void testAgregarModificarDirecciones() {
         int id_persona = 0;
         List<Direccion> direcciones = new ArrayList<>();
-        direcciones.add(Direccion
+        direcciones.add(
+                Direccion
                         .builder()
                         .provincia(
                                 Provincia
@@ -75,7 +79,8 @@ public class M_DireccionNGTest {
                         .direccion("Insercion de prueba.")
                         .build()
         );
-        direcciones.add(Direccion
+        direcciones.add(
+                Direccion
                         .builder()
                         .provincia(
                                 Provincia
@@ -100,9 +105,9 @@ public class M_DireccionNGTest {
 
         boolean expResult = true;
 
-        //boolean result = Direcciones.agregarDirecciones(id_persona, direcciones);
+        boolean result = agregarModificarDirecciones(id_persona, direcciones);
 
-        //assertEquals(result, expResult);
+        assertEquals(result, expResult);
     }
 
     @Test(
@@ -113,7 +118,7 @@ public class M_DireccionNGTest {
     )
     public void testGetDireccionByID() {
         int id_persona = 0;
-        List result = M_Direccion.getDireccionByID(id_persona);
+        List result = getDireccionByID(id_persona);
         assertTrue(result.isEmpty(), "La lista contiene datos");
     }
     
