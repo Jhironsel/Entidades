@@ -9,7 +9,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.metodos.M_Role.ROL_ASIGNADO_A_USUARIO;
 
 public class M_RoleNGTest {
@@ -84,8 +84,8 @@ public class M_RoleNGTest {
     )
     public void testSetRole() {
         String i_role = "";
-        Resultados expResult = null;
-        Resultados result = M_Role.setRole(i_role);
+        Resultado expResult = null;
+        Resultado result = M_Role.setRole(i_role);
         assertEquals(result, expResult);
     }
 
@@ -96,8 +96,8 @@ public class M_RoleNGTest {
     )
     public void testDropRole() {
         String i_role = "";
-        Resultados expResult = null;
-        Resultados result = M_Role.dropRole(i_role);
+        Resultado expResult = null;
+        Resultado result = M_Role.dropRole(i_role);
         assertEquals(result, expResult);
     }
 
@@ -111,8 +111,8 @@ public class M_RoleNGTest {
         String rol = "";
         boolean admin = false;
         boolean otorgar = false;
-        Resultados expResult = null;
-        Resultados result = M_Role.asignarRol(procedimiento, rol, admin, otorgar);
+        Resultado expResult = null;
+        Resultado result = M_Role.asignarRol(procedimiento, rol, admin, otorgar);
         assertEquals(result, expResult);
     }
 
@@ -125,11 +125,11 @@ public class M_RoleNGTest {
         String rol = "RDB$ADMIN";
         String usuario = "SYSDBA";
         boolean admin = true;
-        Resultados expResult = Resultados
+        Resultado expResult = Resultado
                 .builder()
                 .mensaje(ROL_ASIGNADO_A_USUARIO)
                 .build();
-        Resultados result = M_Role.asignarRolUsuario(rol, usuario, admin);
+        Resultado result = M_Role.asignarRolUsuario(rol, usuario, admin);
         assertEquals(result, expResult);
     }
 
@@ -141,8 +141,8 @@ public class M_RoleNGTest {
     public void testQuitarRolUsuario() {
         String rol = "";
         String usuario = "";
-        Resultados expResult = null;
-        Resultados result = M_Role.quitarRolUsuario(rol, usuario);
+        Resultado expResult = null;
+        Resultado result = M_Role.quitarRolUsuario(rol, usuario);
         assertEquals(result, expResult);
     }
 
@@ -153,8 +153,8 @@ public class M_RoleNGTest {
     )
     public void testCreateRole() {
         String rolee = "";
-        Resultados expResult = null;
-        Resultados result = M_Role.createRole(rolee);
+        Resultado expResult = null;
+        Resultado result = M_Role.createRole(rolee);
         assertEquals(result, expResult);
     }
 
@@ -166,8 +166,8 @@ public class M_RoleNGTest {
     public void testModificarRol() {
         String actual = "";
         String nuevo = "";
-        Resultados expResult = null;
-        Resultados result = M_Role.modificarRol(actual, nuevo);
+        Resultado expResult = null;
+        Resultado result = M_Role.modificarRol(actual, nuevo);
         assertEquals(result, expResult);
     }
     

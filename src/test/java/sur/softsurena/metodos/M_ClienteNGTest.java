@@ -33,7 +33,7 @@ import static sur.softsurena.metodos.M_ContactoEmail.generarCorreo;
 import static sur.softsurena.metodos.M_ContactoTel.generarTelMovil;
 import static sur.softsurena.metodos.M_Generales.generarCedula;
 import sur.softsurena.utilidades.FiltroBusqueda;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 public class M_ClienteNGTest {
 
@@ -181,7 +181,7 @@ public class M_ClienteNGTest {
             priority = 0
     )
     public void testAgregarCliente() {
-        Resultados result = agregarCliente(cliente);
+        Resultado result = agregarCliente(cliente);
 
         idCliente = result.getId();
 
@@ -198,7 +198,7 @@ public class M_ClienteNGTest {
             priority = 1
     )
     public void testModificarCliente() {
-        Resultados result = modificarCliente(cliente);
+        Resultado result = modificarCliente(cliente);
         assertEquals(
                 ERROR_AL__MODIFICAR__CLIENTE,
                 result.toString(),
@@ -212,7 +212,7 @@ public class M_ClienteNGTest {
             priority = 2
     )
     public void testBorrarCliente() {
-        Resultados result = borrarCliente(idCliente);
+        Resultado result = borrarCliente(idCliente);
         assertEquals(
                 CLIENTE_NO_PUEDE_SER_BORRADO,
                 result.toString(),
@@ -226,7 +226,7 @@ public class M_ClienteNGTest {
             priority = 3
     )
     public void testAgregarClienteById() {
-        Resultados result = agregarClienteById(idCliente);
+        Resultado result = agregarClienteById(idCliente);
         assertEquals(
                 ERROR_AL_INSERTAR__CLIENTE,
                 result.toString(),
@@ -240,7 +240,7 @@ public class M_ClienteNGTest {
             priority = 4
     )
     public void testBorrarCliente2() {
-        Resultados result = borrarCliente(idCliente);
+        Resultado result = borrarCliente(idCliente);
         assertEquals(
                 CLIENTE_NO_PUEDE_SER_BORRADO,
                 result.toString(),

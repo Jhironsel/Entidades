@@ -10,7 +10,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Consulta;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 public class M_ConsultaNGTest {
     
@@ -50,7 +50,7 @@ public class M_ConsultaNGTest {
     public void testAgregarConsulta() {
         Consulta c = null;
         String expResult = "";
-        Resultados result = M_Consulta.agregarConsulta(c);
+        Resultado result = M_Consulta.agregarConsulta(c);
         assertEquals(result, expResult);
     }
 

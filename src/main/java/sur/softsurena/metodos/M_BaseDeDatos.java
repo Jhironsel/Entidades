@@ -14,7 +14,7 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
  * @author jhironsel
  */
 public class M_BaseDeDatos {
-    
+
     /**
      * Metodo que nos devuelve la ruta donde se encuentra la base de datos.
      *
@@ -37,7 +37,6 @@ public class M_BaseDeDatos {
             return "";
         }
     }
-
 
     /**
      * Este metodo devuelve un entero que indica el periodo de duracion de la
@@ -67,7 +66,6 @@ public class M_BaseDeDatos {
             return -1;
         }
     }
-
 
     /**
      * Metodo utilizado para settear las fechas del sistema.
@@ -124,16 +122,11 @@ public class M_BaseDeDatos {
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
-                )) {
-            
+        )) {
             ps.setString(1, tabla);
-            
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("cantidad");
-                } else {
-                    return 0;
-                }
+                rs.next();
+                return rs.getInt("cantidad");
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

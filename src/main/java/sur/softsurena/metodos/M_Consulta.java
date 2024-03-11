@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Consulta;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Consulta {
@@ -17,7 +17,7 @@ public class M_Consulta {
      * @param consulta
      * @return
      */
-    public static synchronized Resultados agregarConsulta(Consulta consulta) {
+    public static synchronized Resultado agregarConsulta(Consulta consulta) {
         final String sql
                 = "SELECT O_ID FROM SP_INSERT_CONSULTA(?, ?, ?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -36,14 +36,14 @@ public class M_Consulta {
                 rs.next();
                 id = rs.getInt("O_ID");
             }
-            return Resultados
+            return Resultado
                     .builder()
                     .id(id)
                     .mensaje(CONSULTA_AGREGADA_CORRECTAMENTE)
                     .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_INSERTAR_CONSULTA)

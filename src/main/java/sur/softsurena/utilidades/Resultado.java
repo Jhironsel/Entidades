@@ -8,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
-public class Resultados <T>{
+public class Resultado <T>{
     private final int id;
     private final String mensaje;
     private final Integer cantidad;
@@ -65,7 +65,7 @@ public class Resultados <T>{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Resultados<?> other = (Resultados<?>) obj;
+        final Resultado<?> other = (Resultado<?>) obj;
         if (this.id != other.id) {
             return false;
         }

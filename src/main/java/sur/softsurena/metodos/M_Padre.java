@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Padres;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
@@ -47,8 +47,8 @@ public class M_Padre {
      * @param p
      * @return
      */
-    public static Resultados agregarPadreMadre(Padres p) {
-        Resultados r;
+    public static Resultado agregarPadreMadre(Padres p) {
+        Resultado r;
         final String sql
                 = "SELECT p.O_ID FROM SP_INSERT_PADRES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) p;";
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
@@ -71,7 +71,7 @@ public class M_Padre {
 
             int id = rs.getInt(1);
 
-            r = Resultados.builder().
+            r = Resultado.builder().
                     id(id).
                     mensaje("Padre Agregado Exitosamente!").
                     cantidad(-1).build();
@@ -79,7 +79,7 @@ public class M_Padre {
             return r;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            r = Resultados.builder().
+            r = Resultado.builder().
                     id(-1).
                     mensaje("Error al agregar padre al sistema").
                     cantidad(-1).build();

@@ -21,6 +21,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -40,6 +41,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import net.sf.jasperreports.engine.DefaultJasperReportsContext;
@@ -61,10 +63,10 @@ public class Utilidades {
                     file.getPath(),
                     true
             );
-            
+
             fh.setLevel(Level.SEVERE);
             fh.setLevel(Level.WARNING);
-            
+
             fh.setFormatter(new SimpleFormatter());
 
             LOG.addHandler(fh);
@@ -612,6 +614,33 @@ public class Utilidades {
     public static void centralizar(javax.swing.JInternalFrame ventana) {
         Dimension d = ventana.getDesktopPane().getSize();
         ventana.setLocation((d.width - ventana.getSize().width) / 2, (d.height - ventana.getSize().height) / 2);
+    }
+
+    public static boolean validarCampo(javax.swing.JFormattedTextField campo) {
+        try {
+            campo.commitEdit();
+        } catch (ParseException ex) {
+            campo.requestFocusInWindow();
+            campo.selectAll();
+            return true;
+        }
+        return false;
+    }
+    
+    public static void eliminarRegistroTabla(JTable tabla, DefaultTableModel modelo, 
+            List lista) {
+        if (tabla.getSelectedRow() == -1) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Debe seleccionar un registro de la tabla",
+                    "",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+        lista.remove(tabla.getSelectedRow());
+        modelo.removeRow(tabla.getSelectedRow());
+        tabla.setModel(modelo);
     }
 
 }

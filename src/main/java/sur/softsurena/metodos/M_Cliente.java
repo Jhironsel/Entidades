@@ -13,16 +13,14 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Cliente;
 import sur.softsurena.entidades.Generales;
 import static sur.softsurena.metodos.M_ContactoEmail.agregarContactosEmail;
-import static sur.softsurena.metodos.M_ContactoEmail.modificarContactosEmail;
 import static sur.softsurena.metodos.M_ContactoTel.agregarContactosTel;
-import static sur.softsurena.metodos.M_ContactoTel.modificarContactosTel;
 import static sur.softsurena.metodos.M_Direccion.agregarModificarDirecciones;
 import sur.softsurena.utilidades.FiltroBusqueda;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Cliente {
-    
+
     /**
      * Metodos utilizado para agregar los clientes en el sistema, el cual es
      * utilizado para agregar los contactos de este.
@@ -34,7 +32,7 @@ public class M_Cliente {
      * objecto puede mostrar el identificador del cliente, el mensaje de la
      * operacion y la cantidad de registros afectados.
      */
-    public synchronized static Resultados agregarCliente(Cliente c) {
+    public synchronized static Resultado agregarCliente(Cliente c) {
         final String sql
                 = "SELECT V_ID FROM SP_INSERT_CLIENTE_SB (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
@@ -54,7 +52,7 @@ public class M_Cliente {
             ps.setDate(7, c.getFecha_nacimiento());
             ps.setBoolean(8, c.getEstado());
             ps.setString(9, String.valueOf(c.getGenerales().getEstado_civil()));
-            
+
             try (ResultSet rs = ps.executeQuery();) {
 
                 rs.next();
@@ -62,7 +60,7 @@ public class M_Cliente {
                 int id_persona = rs.getInt(1);
 
                 if (!agregarContactosTel(id_persona, c.getContactosTel())) {
-                    return Resultados
+                    return Resultado
                             .builder()
                             .id(-1)
                             .mensaje("Error al agregar contactos telefonico del cliente.")
@@ -72,7 +70,7 @@ public class M_Cliente {
                 }
 
                 if (!agregarContactosEmail(id_persona, c.getContactosEmail())) {
-                    return Resultados
+                    return Resultado
                             .builder()
                             .id(-1)
                             .mensaje("Error al agregar contactos correos electronicos del cliente.")
@@ -82,7 +80,7 @@ public class M_Cliente {
                 }
 
                 if (!agregarModificarDirecciones(id_persona, c.getDirecciones())) {
-                    return Resultados
+                    return Resultado
                             .builder()
                             .id(-1)
                             .mensaje("Error al agregar direcciones del cliente")
@@ -91,7 +89,7 @@ public class M_Cliente {
                             .build();
                 }
 
-                return Resultados
+                return Resultado
                         .builder()
                         .id(id_persona)
                         .mensaje(CLIENTE__AGREGADO__CORRECTAMENTE)
@@ -101,7 +99,7 @@ public class M_Cliente {
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, "Error al insertar un cliente al sistema", ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_INSERTAR__CLIENTE)
@@ -112,7 +110,7 @@ public class M_Cliente {
     }
     public static final String ERROR_AL_INSERTAR__CLIENTE = "Error al insertar Cliente.";
     public static final String CLIENTE__AGREGADO__CORRECTAMENTE = "Cliente Agregado Correctamente";
-    
+
     /**
      * Permite agregar un cliente ya registrado en la tabla de personas a
      * persona cliente.
@@ -120,7 +118,7 @@ public class M_Cliente {
      * @param id
      * @return
      */
-    public synchronized static Resultados agregarClienteById(int id) {
+    public synchronized static Resultado agregarClienteById(int id) {
         final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_PERSONA_CLIENTES_ID(?)";
         try (CallableStatement cs = getCnn().prepareCall(
@@ -132,7 +130,7 @@ public class M_Cliente {
             cs.setInt(1, id);
             boolean estado = cs.execute();
 
-            return Resultados
+            return Resultado
                     .builder()
                     .estado(estado)
                     .mensaje(CLIENTE__AGREGADO__CORRECTAMENTE)
@@ -140,7 +138,7 @@ public class M_Cliente {
                     .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, "Error al insertar id del clliente.", ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .estado(Boolean.TRUE)
                     .mensaje(ERROR_AL_INSERTAR__CLIENTE)
@@ -159,7 +157,7 @@ public class M_Cliente {
      * @param idCliente
      * @return
      */
-    public synchronized static Resultados borrarCliente(int idCliente) {
+    public synchronized static Resultado borrarCliente(int idCliente) {
         final String sql = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_SB (?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -170,7 +168,7 @@ public class M_Cliente {
         )) {
             ps.setInt(1, idCliente);
             int c = ps.executeUpdate();//Cantidad de registros afectados.
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(CLIENTE_BORRADO_CORRECTAMENTE)
@@ -179,7 +177,7 @@ public class M_Cliente {
                     .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(CLIENTE_NO_PUEDE_SER_BORRADO)
@@ -200,7 +198,7 @@ public class M_Cliente {
      * @return retorna un objecto de la clase resultado los cuales se envian lo
      * que es el mensaje, id y la cantidad de registro afetados.
      */
-    public synchronized static Resultados modificarCliente(Cliente cliente) {
+    public synchronized static Resultado modificarCliente(Cliente cliente) {
         final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE_SB(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -222,35 +220,33 @@ public class M_Cliente {
                     cliente.getGenerales().getEstado_civil()
             ));
 
-            agregarModificarDirecciones(cliente.getId_persona(), cliente.getDirecciones());
-            
-            modificarContactosEmail(cliente.getId_persona(), cliente.getContactosEmail());
-
-            modificarContactosTel(cliente.getId_persona(), cliente.getContactosTel());
-
-            //Cantidad de registros afectados.
-            int cant = ps.executeUpdate();
-
-            return Resultados
+            ps.executeUpdate();
+            return Resultado
                     .builder()
                     .id(cliente.getId_persona())
                     .mensaje(CLIENTE__MODIFICADO__CORRECTAMENTE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
-                    .cantidad(cant)
+                    .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL__MODIFICAR__CLIENTE, 
+                    ex
+            );
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL__MODIFICAR__CLIENTE)
                     .icono(JOptionPane.ERROR_MESSAGE)
-                    .cantidad(-1)
+                    .estado(Boolean.FALSE)
                     .build();
         }
     }
-    public static final String CLIENTE__MODIFICADO__CORRECTAMENTE = "Cliente modificado correctamente.";
-    public static final String ERROR_AL__MODIFICAR__CLIENTE = "Error al modificar cliente.";
+    public static final String CLIENTE__MODIFICADO__CORRECTAMENTE
+            = "Cliente modificado correctamente.";
+    public static final String ERROR_AL__MODIFICAR__CLIENTE
+            = "Error al modificar cliente.";
 
     /**
      * Metodo utilizado para presentar los datos en la tabla del formulario
@@ -303,23 +299,23 @@ public class M_Cliente {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
                     clienteList.add(Cliente.
+                            builder().
+                            id_persona(rs.getInt("ID")).
+                            persona(rs.getString("PERSONA").charAt(0)).
+                            generales(Generales.
                                     builder().
-                                    id_persona(rs.getInt("ID")).
-                                    persona(rs.getString("PERSONA").charAt(0)).
-                                    generales(Generales.
-                                            builder().
-                                            cedula(rs.getString("CEDULA")).
-                                            estado_civil(rs.getString("ESTADO_CIVIL").charAt(0)).
-                                            build()
-                                    ).
-                                    pnombre(rs.getString("PNOMBRE")).
-                                    snombre(rs.getString("SNOMBRE")).
-                                    apellidos(rs.getString("APELLIDOS")).
-                                    sexo(rs.getString("SEXO").charAt(0)).
-                                    fecha_nacimiento(rs.getDate("FECHA_NACIMIENTO")).
-                                    fecha_ingreso(rs.getDate("FECHA_INGRESO")).
-                                    estado(rs.getBoolean("ESTADO")).
+                                    cedula(rs.getString("CEDULA")).
+                                    estado_civil(rs.getString("ESTADO_CIVIL").charAt(0)).
                                     build()
+                            ).
+                            pnombre(rs.getString("PNOMBRE")).
+                            snombre(rs.getString("SNOMBRE")).
+                            apellidos(rs.getString("APELLIDOS")).
+                            sexo(rs.getString("SEXO").charAt(0)).
+                            fecha_nacimiento(rs.getDate("FECHA_NACIMIENTO")).
+                            fecha_ingreso(rs.getDate("FECHA_INGRESO")).
+                            estado(rs.getBoolean("ESTADO")).
+                            build()
                     );
                 }
                 return clienteList;

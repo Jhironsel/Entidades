@@ -44,12 +44,18 @@ public class M_Dato_Nacimiento {
             return DATOS_GUARDADO_CORRECTAMENTE;
 
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_INSERTAR_DATOS_DE__NACIMIENTO, 
+                    ex
+            );
             return ERROR_AL_INSERTAR_DATOS_DE__NACIMIENTO;
         }
     }
-    public static final String ERROR_AL_INSERTAR_DATOS_DE__NACIMIENTO = "Error al insertar datos de Nacimiento.";
-    public static final String DATOS_GUARDADO_CORRECTAMENTE = "Datos guardado correctamente";
+    public static final String ERROR_AL_INSERTAR_DATOS_DE__NACIMIENTO 
+            = "Error al insertar datos de Nacimiento.";
+    public static final String DATOS_GUARDADO_CORRECTAMENTE 
+            = "Datos guardado correctamente";
 
     /**
      * 
@@ -97,7 +103,11 @@ public class M_Dato_Nacimiento {
             ps.setInt(1, idPaciente);
             return ps.executeQuery();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    "Error al consultar la vista de TODO Crear Vista.>", 
+                    ex
+            );
             return null;
         }
     }

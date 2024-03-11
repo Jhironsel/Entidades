@@ -16,7 +16,7 @@ import sur.softsurena.entidades.Asegurado;
 import sur.softsurena.entidades.Consulta;
 import sur.softsurena.entidades.Generales;
 import sur.softsurena.entidades.Paciente;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.metodos.M_Antecedente.ANTECEDENTE_AGREGADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Antecedente.ANTECEDENTE_MODIFICADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Antecedente.BORRADO_CORRECTAMENTE;
@@ -75,7 +75,7 @@ public class M_AntecedentesNGTest {
     )
     public void testAgregarAntecedente() {
 
-        Resultados rPaciente = agregarPaciente(Paciente
+        Resultado rPaciente = agregarPaciente(Paciente
                         .builder()
                         .idPadre(0)
                         .idMadre(0)
@@ -115,7 +115,7 @@ public class M_AntecedentesNGTest {
         ).getId();
 
         //Se agrega un registro
-        Resultados result = agregarAntecedente(
+        Resultado result = agregarAntecedente(
                 id_consulta,
                 "Prueba de antecendetes"
         );

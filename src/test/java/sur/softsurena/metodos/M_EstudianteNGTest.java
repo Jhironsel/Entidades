@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Estudiante;
 import sur.softsurena.entidades.Inscripcion;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 /**
  *
@@ -56,8 +56,8 @@ public class M_EstudianteNGTest {
     )
     public void testAgregarEstudiante() {
         Estudiante e = null;
-        Resultados expResult = null;
-        Resultados result = M_Estudiante.agregarEstudiante(e);
+        Resultado expResult = null;
+        Resultado result = M_Estudiante.agregarEstudiante(e);
         assertEquals(result, expResult);
     }
 

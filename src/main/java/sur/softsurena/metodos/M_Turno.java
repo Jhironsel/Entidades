@@ -12,7 +12,7 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Almacen;
 import sur.softsurena.entidades.Factura;
 import sur.softsurena.entidades.Turno;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
@@ -171,7 +171,7 @@ public class M_Turno {
      * @param idUsuario
      * @return
      */
-    public synchronized static Resultados habilitarTurno(int id_almacen, String idUsuario) {
+    public synchronized static Resultado habilitarTurno(int id_almacen, String idUsuario) {
         final String sql = "EXECUTE PROCEDURE ADMIN_HABILITAR_TURNO(?, ?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
@@ -181,7 +181,7 @@ public class M_Turno {
         )) {
             cs.setInt(1, id_almacen);
             cs.setString(2, idUsuario);
-            return Resultados.
+            return Resultado.
                     builder().
                     estado(cs.execute()).
                     mensaje(TURNO_HABILITADO_CORRECTAMENTE).
@@ -189,7 +189,7 @@ public class M_Turno {
                     build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados.
+            return Resultado.
                     builder().
                     estado(Boolean.FALSE).
                     mensaje(ERROR_AL_HABILITAR_EL_TURNO).

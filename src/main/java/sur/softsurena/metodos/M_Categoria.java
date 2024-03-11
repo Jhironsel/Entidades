@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Categoria;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import sur.softsurena.utilidades.Utilidades;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
@@ -41,111 +41,100 @@ public class M_Categoria {
      * Agregar las categorias de los productos a la base de datos en la tabla
      * Categoria.
      *
-     * Actualizado el dia 06 de Julio del 2022: Se agrega el campo static
-     * INSERT_CATEGORIA.
-     *
-     * Actualizado el dia 09 de Julio del 2022: Se cambia el tipo de datos
-     * devueltode boolean a String, que permite mostrar mensaje del estado del
-     * metodo despues de hacer las operaciones.
-     *
      * @test agregarCategoria(), metodo creado para realizar pruebas al metodo.
      *
-     * @param c Es un objeto de la clase Categoria que contiene los metodos y
-     * atributos.
+     * @param categoria Es un objeto de la clase Categoria que contiene los
+     * metodos y atributos.
      *
      * @return Retorna un mensaje que permite saber si la categoria fue agregada
      * o no.
      */
-    public synchronized static Resultados agregarCategoria(Categoria c) {
+    public synchronized static Resultado agregarCategoria(Categoria categoria) {
         final String sql
-                = "EXECUTE PROCEDURE SP_INSERT_CATEGORIAS(?,?,?)";
-
-        try (CallableStatement cs = getCnn().prepareCall(
+                = "SELECT V_ID FROM SP_INSERT_CATEGORIA(?, ?, ?)";
+        try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
+            ps.setString(1, categoria.getDescripcion());
+            ps.setString(2, Utilidades.imagenEncode64(categoria.getPathImage()));
+            ps.setBoolean(3, categoria.getEstado());
 
-            cs.setString(1, c.getDescripcion());
-            cs.setString(2, Utilidades.imagenEncode64(c.getPathImage()));
-            cs.setBoolean(3, c.getEstado());
-
-            int cantidad = cs.executeUpdate();
-
-            return Resultados
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            return Resultado
                     .builder()
-                    .id(-1)
+                    .id(rs.getInt("V_ID"))
                     .mensaje(CATEGORIA_AGREGADA_CON_EXITO)
-                    .cantidad(cantidad)
-                    .estado(Boolean.TRUE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
-
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_INSERTAR_CATEGORIA)
-                    .cantidad(-1)
-                    .estado(Boolean.FALSE)
                     .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
     }
-    private static final String CATEGORIA_AGREGADA_CON_EXITO = "Categoria agregada con exito.";
-    private static final String ERROR_AL_INSERTAR_CATEGORIA = "Error al insertar categoria.";
+    private static final String CATEGORIA_AGREGADA_CON_EXITO
+            = "Categoria agregada con exito.";
+    private static final String ERROR_AL_INSERTAR_CATEGORIA
+            = "Error al insertar categoria.";
 
     /**
      * Metodo utilizado para modificar las categorias de los productos. En este
      * se puede modificar la descripción, la imagen de la categoria y el estado
      * de la categoria.
      *
-     * Actualizacion dia 09 julio 2022: Nota, Este metodo se modifica para que
-     * devuelta valores de tipo String que indique si el registro fue modificado
-     * o no.
-     *
-     * @param c Este objecto de la clase Categoria del sistema.
+     * @param categoria Este objecto de la clase Categoria del sistema.
      *
      * @return Retorna un valor de tipo String que indica si la operación se
      * realizo con exito si o no.
-     *
      */
-    public synchronized static Resultados modificarCategoria(Categoria c) {
+    public synchronized static Resultado modificarCategoria(Categoria categoria) {
         final String sql
-                = "EXECUTE PROCEDURE SP_UPDATE_CATEGORIA (?, ?, ?, ?);";
-        try (PreparedStatement ps = getCnn().prepareStatement(
+                = "EXECUTE PROCEDURE SP_UPDATE_CATEGORIA (?,?,?,?)";
+
+        try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
+            cs.setInt(1, categoria.getId_categoria());
+            cs.setString(2, categoria.getDescripcion());
+            cs.setString(3, Utilidades.imagenEncode64(categoria.getPathImage()));
+            cs.setBoolean(4, categoria.getEstado());
 
-            ps.setInt(1, c.getId_categoria());
-            ps.setString(2, c.getDescripcion());
-            ps.setString(3, Utilidades.imagenEncode64(c.getPathImage()));
-            ps.setBoolean(4, c.getEstado());
+            cs.executeUpdate();
 
-            int cantidad = ps.executeUpdate();
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(SE_MODIFICÓ_LA_CATEGORIA_CORRECTAMENTE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
-                    .cantidad(cantidad)
                     .estado(Boolean.TRUE)
                     .build();
+
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(ERROR_AL_MODIFICAR_LA_CATEGORIA)
                     .icono(JOptionPane.ERROR_MESSAGE)
-                    .cantidad(-1)
                     .estado(Boolean.FALSE)
                     .build();
         }
     }
-    public static final String ERROR_AL_MODIFICAR_LA_CATEGORIA = "Error al modificar la categoria.";
-    public static final String SE_MODIFICÓ_LA_CATEGORIA_CORRECTAMENTE = "Se modificó la categoria correctamente.";
+    public static final String ERROR_AL_MODIFICAR_LA_CATEGORIA
+            = "Error al modificar la categoria.";
+    public static final String SE_MODIFICÓ_LA_CATEGORIA_CORRECTAMENTE
+            = "Se modificó la categoria correctamente.";
 
     /**
      * Metodo para eliminar las categorias de la tablas V_CATEGORIAS. Para
@@ -159,38 +148,45 @@ public class M_Categoria {
      *
      * @return Devuelve un mensaje de la acción realizada.
      */
-    public static Resultados borrarCategoria(int idCategoria) {
+    public static Resultado borrarCategoria(int idCategoria) {
         final String sql
-                = "EXECUTE PROCEDURE SP_DELETE_CATEGORIAS (?);";
+                = "EXECUTE PROCEDURE SP_DELETE_CATEGORIA(?)";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             ps.setInt(1, idCategoria);
 
-            int cant = ps.executeUpdate();
+            ps.executeUpdate();
 
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(CATEGORIA__BORRADO__CORRECTAMENTE)
-                    .cantidad(cant)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            LOG.log(
+                    Level.SEVERE, 
+                    OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__CA.formatted(idCategoria), 
+                    ex
+            );
+            return Resultado
                     .builder()
-                    .mensaje(OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__CA)
-                    .cantidad(-1)
+                    .mensaje(OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__CA.formatted(idCategoria))
                     .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
     }
-    public static final String OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__CA = "Ocurrio un error al intentar borrar la Categoria...";
-    private static final String CATEGORIA__BORRADO__CORRECTAMENTE = "Categoria Borrado Correctamente.";
+    private static final String CATEGORIA__BORRADO__CORRECTAMENTE
+            = "Categoria Borrado Correctamente.";
+
+    public static final String OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__CA
+            = "Ocurrio un error al intentar borrar la Categoria {%s}...";
 
     /**
      * Metodo utilizado para obtener todas las categorias del sistema.
@@ -289,7 +285,7 @@ public class M_Categoria {
      */
     public synchronized static Boolean existeCategoria(String descripcion) {
         final String sql
-                = "SELECT (1) FROM V_CATEGORIAS WHERE descripcion like ?";
+                = "SELECT (1) FROM V_CATEGORIAS WHERE DESCRIPCION STARTING WITH ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,

@@ -10,13 +10,17 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Cajero;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
+/**
+ * 
+ * @author jhironsel
+ */
 public class M_Cajero {
-    
+
     /**
-     * Metodo que devuelve una lista de atributos de los usuarios del sistema. 
-     * 
-     * @return El valor devuelto de este metodo es una lista de atributos de 
-     * los usuarios del sistema. 
+     * Metodo que devuelve una lista de atributos de los usuarios del sistema.
+     *
+     * @return El valor devuelto de este metodo es una lista de atributos de los
+     * usuarios del sistema.
      */
     public synchronized static List<Cajero> getCajeros() {
         List<Cajero> cajerosList = new ArrayList<>();
@@ -42,18 +46,25 @@ public class M_Cajero {
                             estado(rs.getBoolean("ESTADO")).
                             descripcion(rs.getString("DESCRIPCION")).build());
                 }
-            } 
+            }
             return cajerosList;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_CONSULTAR_LA_VISTA_DE_GET_CAJERO,
+                    ex
+            );
             return null;
         }
     }
-    
+    public static final String ERROR_AL_CONSULTAR_LA_VISTA_DE_GET_CAJERO
+            = "Error al consultar la vista de GET_CAJEROS.";
+
     /**
-     * Metodo que devuelve una lista de nombres de usuarios del sistema. 
-     * @return El valor devuelto de este metodo es una lista de nombres de 
-     * usuarios del sistema. 
+     * Metodo que devuelve una lista de nombres de usuarios del sistema.
+     *
+     * @return El valor devuelto de este metodo es una lista de nombres de
+     * usuarios del sistema.
      */
     public synchronized static List<Cajero> getCajerosName() {
         List<Cajero> cajerosList = new ArrayList<>();
@@ -73,13 +84,14 @@ public class M_Cajero {
                             user_name(rs.getString("USER_NAME")).
                             build());
                 }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
             }
             return cajerosList;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_CONSULTAR_LA_VISTA_DE_GET_CAJERO, 
+                    ex
+            );
             return null;
         }
     }

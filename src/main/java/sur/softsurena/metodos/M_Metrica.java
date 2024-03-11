@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Metrica;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import sur.softsurena.utilidades.Utilidades;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
@@ -23,7 +23,7 @@ public class M_Metrica {
      * 
      * @return 
      */
-    public synchronized static Resultados agregarMetricas(Metrica metrica) {
+    public synchronized static Resultado agregarMetricas(Metrica metrica) {
         final String sql
                 = "INSERT INTO V_METRICAS (IDCONSULTA, PESOKG, ESTATURAMETRO, ESCEFALO, "
                 + "     ENF_DETECT, HALLAZGOS_POS, ID_DIAG, TX, COMPLEMENTO,"
@@ -48,7 +48,7 @@ public class M_Metrica {
 
             ps.executeUpdate();
 
-            return Resultados
+            return Resultado
                     .builder()
                     .build();
         } catch (SQLException ex) {

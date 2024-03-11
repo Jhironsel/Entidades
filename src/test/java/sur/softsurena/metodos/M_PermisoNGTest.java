@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 /**
  *
@@ -78,8 +78,8 @@ public class M_PermisoNGTest {
     public void testQuitarPermisoAdminRole() {
         String rol = "";
         String usuario = "";
-        Resultados expResult = null;
-        Resultados result = M_Permiso.quitarPermisoAdminRole(rol, usuario);
+        Resultado expResult = null;
+        Resultado result = M_Permiso.quitarPermisoAdminRole(rol, usuario);
         assertEquals(result, expResult);
     }
 
@@ -91,8 +91,8 @@ public class M_PermisoNGTest {
     public void testQuitarPermisoAdminProcedimiento() {
         String procedimiento = "";
         String rol = "";
-        Resultados expResult = null;
-        Resultados result = M_Permiso.quitarPermisoAdminProcedimiento(procedimiento, rol);
+        Resultado expResult = null;
+        Resultado result = M_Permiso.quitarPermisoAdminProcedimiento(procedimiento, rol);
         assertEquals(result, expResult);
     }
 
@@ -104,8 +104,8 @@ public class M_PermisoNGTest {
     public void testAgregarPermisoAdminProcedimiento() {
         String procedimiento = "";
         String rol = "";
-        Resultados expResult = null;
-        Resultados result = M_Permiso.agregarPermisoAdminProcedimiento(procedimiento, rol);
+        Resultado expResult = null;
+        Resultado result = M_Permiso.agregarPermisoAdminProcedimiento(procedimiento, rol);
         assertEquals(result, expResult);
     }
 
@@ -117,8 +117,8 @@ public class M_PermisoNGTest {
     public void testAgregarPermisoAdminRole() {
         String role = "";
         String usuario = "";
-        Resultados expResult = null;
-        Resultados result = M_Permiso.agregarPermisoAdminRole(role, usuario);
+        Resultado expResult = null;
+        Resultado result = M_Permiso.agregarPermisoAdminRole(role, usuario);
         assertEquals(result, expResult);
     }
 
@@ -130,8 +130,8 @@ public class M_PermisoNGTest {
     public void testBorrarPermisoAdminProcedimiento() {
         String procedimiento = "";
         String rol = "";
-        Resultados expResult = null;
-        Resultados result = M_Permiso.borrarPermisoAdminProcedimiento(procedimiento, rol);
+        Resultado expResult = null;
+        Resultado result = M_Permiso.borrarPermisoAdminProcedimiento(procedimiento, rol);
         assertEquals(result, expResult);
     }
 }

@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Estudiante;
 import sur.softsurena.entidades.Inscripcion;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
@@ -28,11 +28,11 @@ public class M_Estudiante {
      * @return Retorna un mensaje que indica si el estudiantes ha sido
      * registrado si o no.
      */
-    public synchronized static Resultados agregarEstudiante(Estudiante e) {
+    public synchronized static Resultado agregarEstudiante(Estudiante e) {
 
         final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_ESTUDIANTE (?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?);";
-        Resultados r;
+        Resultado r;
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -55,14 +55,14 @@ public class M_Estudiante {
 
             int cant = cs.executeUpdate();
 
-            r = Resultados.builder().
+            r = Resultado.builder().
                     id(-1).
                     mensaje(ESTUDIANTE__AGREGADO__CORRECTAMENTE).
                     cantidad(cant).build();
 
             return r;
         } catch (SQLException ex) {
-            r = Resultados.builder().
+            r = Resultado.builder().
                     id(-1).
                     mensaje(ERROR_AL_AGREGAR__ESTUDIANTE).
                     cantidad(-1).build();

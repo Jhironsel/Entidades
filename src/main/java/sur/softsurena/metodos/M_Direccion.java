@@ -61,7 +61,11 @@ public class M_Direccion {
             ps.executeBatch();
             return true;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    "Error al ejecutar el procedimiento SP_UPDATE_OR_INSERT_DIRECCION", 
+                    ex
+            );
         }
         return false;
     }
@@ -137,7 +141,11 @@ public class M_Direccion {
                 }
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    "Error al realizar la consulta en la vista GET_DIRECCION_BY_ID.", 
+                    ex
+            );
         }
         return direcciones;
     }

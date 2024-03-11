@@ -9,7 +9,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Almacen;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 public class M_AlmacenNGTest {
 
@@ -71,7 +71,7 @@ public class M_AlmacenNGTest {
             priority = 1
     )
     public void testAgregarAlmacen() {
-        Resultados result = M_Almacen.agregarAlmacen(
+        Resultado result = M_Almacen.agregarAlmacen(
                 Almacen
                         .builder()
                         .nombre("Registro prueba")
@@ -123,7 +123,7 @@ public class M_AlmacenNGTest {
     )
     public void testActualizarAlmacen() {
 
-        Resultados result = M_Almacen.actualizarAlmacen(
+        Resultado result = M_Almacen.actualizarAlmacen(
                 Almacen
                         .builder()
                         .id(idAlmacen)
@@ -141,7 +141,7 @@ public class M_AlmacenNGTest {
             priority = 4
     )
     public void testEliminarAlmacen() {
-        Resultados result = M_Almacen.eliminarAlmacen(idAlmacen);
+        Resultado result = M_Almacen.eliminarAlmacen(idAlmacen);
         assertNotNull(result, "No pudo eliminarse el registro del almacen.");
 
         result = M_Almacen.eliminarAlmacen(idAlmacen2);

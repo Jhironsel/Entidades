@@ -9,7 +9,7 @@ import sur.softsurena.entidades.ARS;
 import static sur.softsurena.metodos.M_ARS.BORRADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_ARS.SEGURO_AGREGADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_ARS.SEGURO_MODIFICADO_CORRECTAMENTE;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 public class M_ARSNGTest {
 
@@ -79,7 +79,7 @@ public class M_ARSNGTest {
                 .estado(Boolean.FALSE)
                 .build();
 
-        Resultados result = M_ARS.agregarSeguro(ars);
+        Resultado result = M_ARS.agregarSeguro(ars);
 
         assertEquals(result.getMensaje(), SEGURO_AGREGADO_CORRECTAMENTE);
 

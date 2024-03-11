@@ -21,7 +21,7 @@ import static sur.softsurena.metodos.M_Paciente.PACIENTE_MODIFICADO_CORRECTAMENT
 import static sur.softsurena.metodos.M_Paciente.agregarPaciente;
 import static sur.softsurena.metodos.M_Paciente.borrarPaciente;
 import static sur.softsurena.metodos.M_Paciente.modificarPaciente;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import sur.softsurena.utilidades.Utilidades;
 
 public class M_PacienteNGTest {
@@ -73,7 +73,7 @@ public class M_PacienteNGTest {
                 .id_tipo_sangre(0)
                 .build();
 
-        Resultados result = agregarPaciente(
+        Resultado result = agregarPaciente(
                 Paciente
                         .builder()
                         .idPadre(0)
@@ -140,8 +140,8 @@ public class M_PacienteNGTest {
     )
     public void testModificarPaciente() {
         Paciente p = null;
-        Resultados expResult = null;
-        Resultados result = M_Paciente.modificarPaciente(p);
+        Resultado expResult = null;
+        Resultado result = M_Paciente.modificarPaciente(p);
         assertEquals(result, expResult);
     }
 
@@ -152,8 +152,8 @@ public class M_PacienteNGTest {
     )
     public void testBorrarPaciente() {
         int id = 0;
-        Resultados expResult = null;
-        Resultados result = M_Paciente.borrarPaciente(id);
+        Resultado expResult = null;
+        Resultado result = M_Paciente.borrarPaciente(id);
         assertEquals(result, expResult);
     }
 

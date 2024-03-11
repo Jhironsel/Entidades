@@ -7,12 +7,12 @@ import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Gasto;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Gasto {
     
-    public synchronized static Resultados agregarGastosPorTurno(Gasto gasto) {
+    public synchronized static Resultado agregarGastosPorTurno(Gasto gasto) {
         
         final String sql = "EXECUTE PROCEDURE CAJERO_GASTOS (?, ?, ?)";
         
@@ -26,14 +26,14 @@ public class M_Gasto {
             cs.setString(2, gasto.getDescripcion());
             cs.setBigDecimal(3, gasto.getMonto());            
             cs.execute();
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(GASTO_REGISTRADOS_CORRECTAMENTE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
                     .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(ERROR_AL_REGISTRAR_EL_GASTO)
                     .icono(JOptionPane.ERROR_MESSAGE)

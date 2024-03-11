@@ -9,7 +9,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Turno;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 /**
  *
@@ -103,8 +103,8 @@ public class M_TurnoNGTest {
     public void testHabilitarTurno() {
         int id_almacen = 0;
         String idUsuario = "";
-        Resultados expResult = null;
-        Resultados result = M_Turno.habilitarTurno(id_almacen, idUsuario);
+        Resultado expResult = null;
+        Resultado result = M_Turno.habilitarTurno(id_almacen, idUsuario);
         assertEquals(result, expResult);
     }
 

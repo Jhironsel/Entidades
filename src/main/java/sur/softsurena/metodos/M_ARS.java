@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.logging.Level;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.ARS;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_ARS {
@@ -21,7 +21,7 @@ public class M_ARS {
     public synchronized static List<ARS> getARS() {
         final String sql
                 = "SELECT ID, DESCRIPCION, COVERTURA_CONSULTA_PORCIENTO, ESTADO, "
-                + "CANTIDAD_REGISTRO "
+                + "       CANTIDAD_REGISTRO "
                 + "FROM V_ARS ";
 
         List<ARS> arsList = new ArrayList<>();
@@ -48,10 +48,14 @@ public class M_ARS {
             }
             return arsList;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
+            LOG.log(Level.SEVERE, ERROR_AL_CONSULTAR_LA_VISTA_V_ARS_DEL,
+                    ex
+            );
+            return arsList;
         }
     }
+    public static final String ERROR_AL_CONSULTAR_LA_VISTA_V_ARS_DEL
+            = "Error al consultar la vista V_ARS del sistema.";
 
     /**
      * Trata de eliminar un registro de la tabla ARS, la cual debe tener una
@@ -59,9 +63,9 @@ public class M_ARS {
      * @param idARS
      * @return
      */
-    public synchronized static Resultados<Object> borrarSeguro(int idARS) {
+    public synchronized static Resultado<Object> borrarSeguro(int idARS) {
         final String sql = "EXECUTE PROCEDURE SP_DELETE_ARS (?);";
-        Resultados r;
+        Resultado r;
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -69,10 +73,8 @@ public class M_ARS {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             ps.setInt(1, idARS);
-
             int cantidad = ps.executeUpdate();
-
-            r = Resultados
+            r = Resultado
                     .builder()
                     .cantidad(cantidad)
                     .id(-1)
@@ -82,7 +84,7 @@ public class M_ARS {
             return r;
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            r = Resultados
+            r = Resultado
                     .builder()
                     .cantidad(-1)
                     .id(-1)
@@ -102,7 +104,7 @@ public class M_ARS {
      *
      * @return
      */
-    public synchronized static Resultados agregarSeguro(ARS ars) {
+    public synchronized static Resultado agregarSeguro(ARS ars) {
         final String sql
                 = "SELECT O_ID FROM SP_INSERT_ARS (?, ?, ?);";
 
@@ -117,24 +119,20 @@ public class M_ARS {
             ps.setBoolean(3, ars.getEstado());
 
             try (ResultSet rs = ps.executeQuery();) {
-                if (rs.next()) {
-                    return Resultados
-                            .builder()
-                            .id(rs.getInt("O_ID"))
-                            .mensaje(SEGURO_AGREGADO_CORRECTAMENTE)
-                            .build();
-                } else {
-                    return Resultados
-                            .builder()
-                            .id(-1)
-                            .mensaje(ERROR_AL_INSERTAR__SEGURO)
-                            .build();
-                }
-
+                rs.next();
+                return Resultado
+                        .builder()
+                        .id(rs.getInt("O_ID"))
+                        .mensaje(SEGURO_AGREGADO_CORRECTAMENTE)
+                        .build();
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_INSERTAR__SEGURO,
+                    ex
+            );
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_INSERTAR__SEGURO)
@@ -149,7 +147,7 @@ public class M_ARS {
      * @param ars
      * @return
      */
-    public synchronized static Resultados modificarSeguro(ARS ars) {
+    public synchronized static Resultado modificarSeguro(ARS ars) {
         String sql = "EXECUTE PROCEDURE SP_UPDATE_ARS (?, ?, ?, ?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -164,14 +162,17 @@ public class M_ARS {
             ps.setBoolean(4, ars.getEstado());
 
             ps.executeUpdate();
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(SEGURO_MODIFICADO_CORRECTAMENTE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-
-            return Resultados
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_MODIFICAR_SEGURO, 
+                    ex
+            );
+            return Resultado
                     .builder()
                     .mensaje(ERROR_AL_MODIFICAR_SEGURO)
                     .build();
@@ -187,7 +188,7 @@ public class M_ARS {
      * @return devuelve la lista de seguro que existe en la base de datos
      */
     public synchronized static List<ARS> getTipoSeguro() {
-        final String sql 
+        final String sql
                 = "SELECT ID, DESCRIPCION "
                 + "FROM V_ARS "
                 + "WHERE ESTADO; ";
@@ -213,7 +214,11 @@ public class M_ARS {
             }
             return arsList;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_CONSULTAR_LA_VISTA_V_ARS_DEL, 
+                    ex
+            );
             return null;
         }
     }

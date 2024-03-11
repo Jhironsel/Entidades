@@ -10,7 +10,7 @@ import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Asegurado;
 import sur.softsurena.entidades.Generales;
 import sur.softsurena.entidades.Paciente;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Paciente {
@@ -24,7 +24,7 @@ public class M_Paciente {
      * @return Retorna un objecto de la clase Resultados el cual indica si la
      * operacion fue exito o no.
      */
-    public synchronized static Resultados agregarPaciente(Paciente paciente) {
+    public synchronized static Resultado agregarPaciente(Paciente paciente) {
         final String sql
                 = "SELECT V_ID "
                 + "FROM SP_INSERT_PACIENTE(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
@@ -53,7 +53,7 @@ public class M_Paciente {
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
 
-                return Resultados
+                return Resultado
                         .builder()
                         .id(rs.getInt("V_ID"))
                         .mensaje(PACIENTE_AGREGADO_CORRECTAMENTE)
@@ -63,7 +63,7 @@ public class M_Paciente {
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_INSERTAR_PACIENTE)
@@ -80,7 +80,7 @@ public class M_Paciente {
      * @param paciente
      * @return
      */
-    public synchronized static Resultados modificarPaciente(Paciente paciente) {
+    public synchronized static Resultado modificarPaciente(Paciente paciente) {
         final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_PACIENTE (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try (CallableStatement ps = getCnn().prepareCall(
@@ -106,7 +106,7 @@ public class M_Paciente {
 
             int cantidad = ps.executeUpdate();
 
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(PACIENTE_MODIFICADO_CORRECTAMENTE)
@@ -114,7 +114,7 @@ public class M_Paciente {
                     .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_MODIFICAR_CLIENTE)
@@ -131,7 +131,7 @@ public class M_Paciente {
      * @param id
      * @return
      */
-    public synchronized static Resultados borrarPaciente(int id) {
+    public synchronized static Resultado borrarPaciente(int id) {
 
         final String sql = "EXECUTE PROCEDURE SP_DELETE_PACIENTE (?);";
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
@@ -140,7 +140,7 @@ public class M_Paciente {
 
             int cantidad = ps.executeUpdate();
 
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(PACIENTE_BORRADO_CORRECTAMENTE)
@@ -150,7 +150,7 @@ public class M_Paciente {
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_BORRAR_PACIENTE)

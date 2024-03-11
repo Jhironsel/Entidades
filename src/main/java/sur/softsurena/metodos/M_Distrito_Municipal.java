@@ -49,7 +49,11 @@ public class M_Distrito_Municipal {
                 }
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    "Error al consutar la vista V_DISTRITOS_MUNICIPALES.", 
+                    ex
+            );
         }
         return distritos_municipaleses_list;
     }

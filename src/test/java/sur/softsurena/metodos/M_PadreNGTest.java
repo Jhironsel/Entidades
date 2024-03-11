@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.entidades.Padres;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 /**
  *
@@ -54,8 +54,8 @@ public class M_PadreNGTest {
     )
     public void testAgregarPadreMadre() {
         Padres p = null;
-        Resultados expResult = null;
-        Resultados result = M_Padre.agregarPadreMadre(p);
+        Resultado expResult = null;
+        Resultado result = M_Padre.agregarPadreMadre(p);
         assertEquals(result, expResult);
     }
 

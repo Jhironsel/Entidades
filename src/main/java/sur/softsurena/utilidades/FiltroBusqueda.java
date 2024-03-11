@@ -13,8 +13,8 @@ public class FiltroBusqueda {
     private final Boolean estado;
     
     private final Boolean filas;
-    private final Integer nPaginaNro;
-    private final Integer nCantidadFilas;
+    private final int nPaginaNro;
+    private final int nCantidadFilas;
     
     private final Boolean conImagen;
 }

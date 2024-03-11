@@ -10,7 +10,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Deuda;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 /**
  *
@@ -69,8 +69,8 @@ public class M_DeudaNGTest {
     public void testModificarDeuda() {
         int idDeuda = 0;
         String op = "";
-        Resultados expResult = null;
-        Resultados result = M_Deuda.modificarDeuda(idDeuda, op);
+        Resultado expResult = null;
+        Resultado result = M_Deuda.modificarDeuda(idDeuda, op);
         assertEquals(result, expResult);
     }
 

@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 import javax.swing.JOptionPane;
 import lombok.NonNull;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 public class Conexion {
 
@@ -78,7 +78,7 @@ public class Conexion {
      * @return Retorna true si esta dentro o false si tuvo problema en la
      * conexion.
      */
-    public static Resultados<Object> verificar() {
+    public static Resultado<Object> verificar() {
 
         final Properties properties = new Properties();
         properties.setProperty("user", user);
@@ -87,14 +87,14 @@ public class Conexion {
 
         try {
             setCnn(DriverManager.getConnection(urlDB.toString(), properties));
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje("Mensaje")
                     .estado(Boolean.TRUE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
                     .build();
         } catch (java.sql.SQLInvalidAuthorizationSpecException ex1) {
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(JAVASQL_SQL_INVALID_AUTHORIZATION_SPEC_EXCEPTI)
                     .estado(Boolean.FALSE)
@@ -126,7 +126,7 @@ public class Conexion {
                 mensaje = ex.getMessage();
             }
 
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(mensaje)
                     .estado(Boolean.FALSE)

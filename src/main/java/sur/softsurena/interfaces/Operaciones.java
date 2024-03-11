@@ -2,13 +2,13 @@ package sur.softsurena.interfaces;
 
 import java.util.List;
 import sur.softsurena.utilidades.FiltroBusqueda;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 public interface Operaciones {
     abstract Object getEntity(FiltroBusqueda filtro);
     abstract List<Object> getEntities(FiltroBusqueda filtro);
-    abstract Resultados setEntity(Object object);
-    abstract Resultados putEntity(Object object);
-    abstract Resultados delEntity(int id);
+    abstract Resultado setEntity(Object object);
+    abstract Resultado putEntity(Object object);
+    abstract Resultado delEntity(int id);
     
 }

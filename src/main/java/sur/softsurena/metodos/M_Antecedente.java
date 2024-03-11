@@ -9,7 +9,7 @@ import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Antecedente;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Antecedente {
@@ -58,7 +58,7 @@ public class M_Antecedente {
      * @return retorna una cadena o mensaje con la accion realizada por el
      * sistema.
      */
-    public synchronized static Resultados agregarAntecedente(int id_consulta, String descripcion) {
+    public synchronized static Resultado agregarAntecedente(int id_consulta, String descripcion) {
         final String sql
                 = "SELECT O_ID FROM SP_INSERT_ANTECEDENTE (?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -71,7 +71,7 @@ public class M_Antecedente {
             ps.setString(2, descripcion);
             try (ResultSet rs = ps.executeQuery();) {
                 rs.next();
-                return Resultados
+                return Resultado
                         .builder()
                         .id(rs.getInt("O_ID"))
                         .mensaje(ANTECEDENTE_AGREGADO_CORRECTAMENTE)
@@ -80,7 +80,7 @@ public class M_Antecedente {
             }
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_INSERTAR__ANTECEDENTES)

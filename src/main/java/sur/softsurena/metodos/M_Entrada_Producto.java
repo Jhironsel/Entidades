@@ -20,11 +20,11 @@ public class M_Entrada_Producto {
      *
      * Actualizado el dia 13 de abril del 2022.
      *
-     * @param e Es un objeto de la clase EntradaProducto
+     * @param eProducto Es un objeto de la clase EntradaProducto
      *
      * @return Devuelve un valor booleano que indica si el registro fue exitoso.
      */
-    public static boolean agregarProductoEntrada(EntradaProducto e) {
+    public static boolean agregarProductoEntrada(EntradaProducto eProducto) {
         final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_ENTRADA_PRODUCTOS (?, ?, ?, ?, ?, ?);";
 
@@ -34,12 +34,12 @@ public class M_Entrada_Producto {
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
-            ps.setInt(1, e.getIdProvedor());
-            ps.setString(2, e.getCod_factura());
-            ps.setInt(3, e.getLinea());
-            ps.setInt(4, e.getIdProducto());
-            ps.setBigDecimal(5, e.getEntrada());
-            ps.setDate(6, e.getFechaVecimiento());
+            ps.setInt(1, eProducto.getIdProvedor());
+            ps.setString(2, eProducto.getCod_factura());
+            ps.setInt(3, eProducto.getLinea());
+            ps.setInt(4, eProducto.getIdProducto());
+            ps.setBigDecimal(5, eProducto.getEntrada());
+            ps.setDate(6, eProducto.getFechaVecimiento());
             ps.executeUpdate();
             return true;
         } catch (SQLException ex) {

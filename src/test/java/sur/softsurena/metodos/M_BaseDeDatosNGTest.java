@@ -1,5 +1,6 @@
 package sur.softsurena.metodos;
 
+import java.io.File;
 import java.sql.Date;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
@@ -7,6 +8,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import sur.softsurena.conexion.Conexion;
 
 /**
  *
@@ -19,10 +21,22 @@ public class M_BaseDeDatosNGTest {
 
     @BeforeClass
     public void setUpClass() throws Exception {
+        Conexion.getInstance(
+                "sysdba",
+                "1",
+                "BaseDeDatos.db",
+                "localhost",
+                "3050"
+        );
+        assertTrue(
+                Conexion.verificar().getEstado(),
+                "Error al conectarse..."
+        );
     }
 
     @AfterClass
     public void tearDownClass() throws Exception {
+        Conexion.getCnn().close();
     }
 
     @BeforeMethod
@@ -34,25 +48,29 @@ public class M_BaseDeDatosNGTest {
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             priority = 0,
-            description = ""
+            description = "Permite verificar que se obtiene una ruta a la base de datos."
     )
     public void testPathBaseDeDatos() {
-        String expResult = "";
         String result = M_BaseDeDatos.pathBaseDeDatos();
-        assertEquals(result, expResult);
+        assertNotNull(result, "No puede obtenerse la ruta a la base de datos.");
+        assertFalse(result.isBlank(), "La ruta se encuentra en blanco.");
+        File file = new File(result);
+        assertTrue(file.canRead(), "No puede leerse la base de datos.");
+        assertTrue(file.canWrite(), "No puede Escribirse en la base de datos.");
+        assertFalse(file.isHidden(), "El archivo de la base de datos esta oculto.");
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             priority = 0,
             description = ""
     )
     public void testPeriodoMaquina() {
-        int expResult = 0;
         int result = M_BaseDeDatos.periodoMaquina();
-        assertEquals(result, expResult);
+        //TODO Se debe verificar si el equipo esta registrado.
+        assertTrue(result > 0, "La base de datos cuenta con periodo insuficiente.");
     }
 
     @Test(

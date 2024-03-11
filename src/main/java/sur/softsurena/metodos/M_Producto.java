@@ -15,9 +15,13 @@ import sur.softsurena.entidades.Categoria;
 import sur.softsurena.entidades.Producto;
 import sur.softsurena.interfaces.IProducto;
 import sur.softsurena.utilidades.FiltroBusqueda;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
+/**
+ * 
+ * @author jhironsel
+ */
 public class M_Producto implements IProducto{
     
     /**
@@ -40,7 +44,7 @@ public class M_Producto implements IProducto{
                 + "      NOTA, FECHA_CREACION, IMAGEN_CATEGORIA, IMAGEN_PRODUCTO, "
                 + "      ESTADO "
                 + "FROM GET_PRODUCTOS "
-                + "WHERE ID = ? OR "
+                + "WHERE  ID = ? OR "
                 + "          TRIM(CODIGO) STARTING WITH TRIM(?) OR "
                 + "          TRIM(CODIGO) CONTAINING TRIM(?) OR "
                 + "          TRIM(DESCRIPCION) STARTING WITH TRIM(?) OR "
@@ -52,13 +56,14 @@ public class M_Producto implements IProducto{
                 + " ORDER BY ID "
                 + (Objects.isNull(filtro.getFilas()) ? "" : (filtro.getFilas() ? "ROWS (? - 1) * ? + 1 TO (? + (1 - 1)) * ?;" : ""));
 
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
-
-            ps.setInt(1, (Objects.isNull(filtro.getId()) ? -1 : filtro.getId()));
-
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
+            ps.setInt(1, (Objects.isNull(filtro.getId()) ? -1 : (int) filtro.getId()));
+            
             ps.setString(2, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
             ps.setString(3, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
             ps.setString(4, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
@@ -154,7 +159,7 @@ public class M_Producto implements IProducto{
      *
      * @return Devuelve un mensaje que indica como resultado de la acción.
      */
-    public synchronized static Resultados borrarProductoPorID(Integer ID) {
+    public synchronized static Resultado borrarProductoPorID(Integer ID) {
         final String sql
                 = "EXECUTE PROCEDURE SP_DELETE_PRODUCTO (?)";
         try (CallableStatement cs = getCnn().prepareCall(
@@ -166,17 +171,19 @@ public class M_Producto implements IProducto{
 
             cs.execute();
 
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(PRODUCTO__BORRADO__CORRECTAMENTE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            LOG.log(Level.SEVERE, OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_EL__PR, ex);
+            return Resultado
                     .builder()
                     .mensaje(OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_EL__PR)
                     .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
     }
@@ -200,7 +207,7 @@ public class M_Producto implements IProducto{
      * @return Devuelve un mensaje que notifica si el producto fue agregado
      * correctamente o no.
      */
-    public synchronized static Resultados agregarProducto(Producto producto) {
+    public synchronized static Resultado agregarProducto(Producto producto) {
         final String sql
                 = "SELECT O_ID FROM SP_INSERT_PRODUCTO(?,?,?,?,?,?)";
         
@@ -210,33 +217,33 @@ public class M_Producto implements IProducto{
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
-            
             ps.setInt(1, producto.getCategoria().getId_categoria());
             ps.setString(2, producto.getCodigo());
             ps.setString(3, producto.getDescripcion());
             ps.setString(4, producto.getImagenProducto());
             ps.setString(5, producto.getNota());
             ps.setBoolean(6, producto.getEstado());
-
-            ResultSet result = ps.executeQuery();
             
-            result.next();
+            ResultSet rs = ps.executeQuery();
             
-            return Resultados
+            rs.next();
+            
+            return Resultado
                     .builder()
-                    .id(result.getInt("O_ID"))
+                    .id(rs.getInt("O_ID"))
                     .mensaje(PRODUCTO_AGREGADO_CORRECTAMENTE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL__INSERTAR__PRODUCTO)
-                    .cantidad(-1)
                     .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
     }
@@ -259,7 +266,7 @@ public class M_Producto implements IProducto{
      *
      * @return
      */
-    public synchronized static Resultados modificarProducto(Producto p) {
+    public synchronized static Resultado modificarProducto(Producto p) {
         final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_PRODUCTO (?, ?, ?, ?, ?, ?, ?)";
         try (CallableStatement ps = getCnn().prepareCall(
@@ -277,27 +284,35 @@ public class M_Producto implements IProducto{
             ps.setBoolean(7, p.getEstado());
 
             ps.executeUpdate();
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(PRODUCTO__MODIFICADO__CORRECTAMENTE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL__MODIFICAR__PRODUCTO, 
+                    ex
+            );
+            return Resultado
                     .builder()
                     .mensaje(ERROR_AL__MODIFICAR__PRODUCTO)
                     .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
 
     }
-    public static final String ERROR_AL__MODIFICAR__PRODUCTO = "Error al Modificar Producto...";
+    public static final String ERROR_AL__MODIFICAR__PRODUCTO 
+            = "Error al Modificar Producto...";
     /**
      * Variable utilizar que indica cuando un producto ha sido modificado
      * correctamente.
      */
-    public static final String PRODUCTO__MODIFICADO__CORRECTAMENTE = "Producto Modificado Correctamente";
+    public static final String PRODUCTO__MODIFICADO__CORRECTAMENTE 
+            = "Producto Modificado Correctamente";
 
     /**
      * Metodo que nos permite verificar si una categoria esta asociada a un

@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Usuario;
 import static sur.softsurena.metodos.M_Role.asignarRolUsuario;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Usuario {
@@ -60,7 +60,7 @@ public class M_Usuario {
      * @param loginName
      * @return
      */
-    public synchronized static Resultados borrarUsuario(String loginName) {
+    public synchronized static Resultado borrarUsuario(String loginName) {
 
         final String sql = "EXECUTE PROCEDURE SP_DELETE_USUARIO (?);";
 
@@ -73,7 +73,7 @@ public class M_Usuario {
             ps.setString(1, loginName);
             ps.executeUpdate();
 
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(USUARIO_BORRADO_CORRECTAMENTE)
                     .estado(Boolean.TRUE)
@@ -90,7 +90,7 @@ public class M_Usuario {
                 );
             }
 
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(ERROR_AL_BORRAR_USUARIO)
                     .estado(Boolean.FALSE)
@@ -282,7 +282,7 @@ public class M_Usuario {
      * @param usuario Un objeto de la clase Usuario.
      * @return Devuelve un mensaje que indica si la actualizacion fue exitosa.
      */
-    public static synchronized Resultados agregarUsuario(Usuario usuario) {
+    public static synchronized Resultado agregarUsuario(Usuario usuario) {
         final String sql
                 = "EXECUTE PROCEDURE SP_INSERT_USUARIO(?,?,?,?,?,?,?,?,?)";
 
@@ -307,7 +307,7 @@ public class M_Usuario {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
 
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(ERROR_AL_AGREGAR__USUARIO)
                     .estado(Boolean.FALSE)
@@ -324,7 +324,7 @@ public class M_Usuario {
                 }
         );
 
-        return Resultados
+        return Resultado
                 .builder()
                 .mensaje(USUARIO_AGREGADO_CORRECTAMENTE)
                 .estado(Boolean.TRUE)
@@ -339,7 +339,7 @@ public class M_Usuario {
      * @param u
      * @return
      */
-    public static synchronized Resultados modificarUsuario(Usuario u) {
+    public static synchronized Resultado modificarUsuario(Usuario u) {
         final String sql
                 = "EXECUTE PROCEDURE SP_UPDATE_USUARIO (?,?,?,?,?,?,?,?)";
         try (CallableStatement cs = getCnn().prepareCall(sql,
@@ -357,7 +357,7 @@ public class M_Usuario {
             cs.executeUpdate();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje("Error al modificar usuario...")
                     .estado(Boolean.FALSE)
@@ -371,7 +371,7 @@ public class M_Usuario {
                     role.isConAdmin());
         });
 
-        return Resultados
+        return Resultado
                 .builder()
                 .mensaje("Usuario modificado correctamente.")
                 .estado(Boolean.TRUE)

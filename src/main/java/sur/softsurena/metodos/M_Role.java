@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Role;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Role {
@@ -155,7 +155,7 @@ public class M_Role {
      * el metodo.
      * @return
      */
-    public synchronized static Resultados<Object> setRole(String i_role) {
+    public synchronized static Resultado<Object> setRole(String i_role) {
         String sql = "EXECUTE PROCEDURE ADMIN_SET_ROLE(?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
@@ -165,7 +165,7 @@ public class M_Role {
         )) {
             cs.setString(1, i_role);
             cs.execute();
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ROL_ESTABLECIDO)
@@ -174,7 +174,7 @@ public class M_Role {
                     .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_ESTABLECER_ROL)
@@ -198,7 +198,7 @@ public class M_Role {
      * el metodo.
      * @return
      */
-    public synchronized static Resultados<Object> dropRole(String i_role) {
+    public synchronized static Resultado<Object> dropRole(String i_role) {
         String sql = "EXECUTE PROCEDURE ADMIN_BORRAR_ROLE(?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
@@ -208,7 +208,7 @@ public class M_Role {
             cs.setString(1, i_role);
             boolean execute = cs.execute();
 
-            return Resultados.builder().
+            return Resultado.builder().
                     id(-1).
                     mensaje(ROLE_ELIMINADO).
                     cantidad(-1).
@@ -216,7 +216,7 @@ public class M_Role {
                     build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados.builder().
+            return Resultado.builder().
                     id(-1).
                     mensaje(ERROR_AL_BORRAR_ROL).
                     cantidad(-1).
@@ -246,10 +246,10 @@ public class M_Role {
      * @return Devuelve un objecto de la clase resultados que indica si la
      * operacion fue un exito si o no.
      */
-    public synchronized static Resultados asignarRol(
+    public synchronized static Resultado asignarRol(
             String procedimiento, String rol, boolean admin, boolean otorgar) {
         if (!procedimiento.startsWith("PERM_")) {
-            return Resultados.builder().
+            return Resultado.builder().
                     id(-1).
                     mensaje(PROCEDIMIENTO_INCORRECTO_A_LA_BASE_DE_DAT).
                     cantidad(-1).
@@ -267,7 +267,7 @@ public class M_Role {
             cs.setBoolean(2, admin);
             cs.setBoolean(3, otorgar);
             boolean execute = cs.execute();
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(PERMISO__ACTUALIZADO)
@@ -276,7 +276,7 @@ public class M_Role {
                     .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_ESTABLECER_ROL1)
@@ -295,7 +295,7 @@ public class M_Role {
      * @param admin
      * @return
      */
-    public synchronized static Resultados asignarRolUsuario(
+    public synchronized static Resultado asignarRolUsuario(
             String rol, String usuario, boolean admin) {
         String sql = "EXECUTE PROCEDURE ADMIN_DAR_ROL_USUARIO(?,?,?)";
         try (CallableStatement cs = getCnn().prepareCall(
@@ -310,13 +310,13 @@ public class M_Role {
 
             boolean execute = cs.execute();
 
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(ROL_ASIGNADO_A_USUARIO)
                     .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .mensaje(ERROR_AL_ASIGNAR_ROL)
                     .build();
@@ -331,7 +331,7 @@ public class M_Role {
      * @param rol
      * @return
      */
-    public synchronized static Resultados<Object> quitarRolUsuario(
+    public synchronized static Resultado<Object> quitarRolUsuario(
             String rol, String usuario) {
         String sql = "EXECUTE PROCEDURE ADMIN_QUITAR_ROL_USUARIO(?,?)";
         try (CallableStatement cs = getCnn().prepareCall(
@@ -345,7 +345,7 @@ public class M_Role {
 
             boolean execute = cs.execute();
 
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ROL_BORRADO_CORRECTAMENTE)
@@ -356,7 +356,7 @@ public class M_Role {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
 
-            return Resultados
+            return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_BORRAR__ROL)
@@ -373,7 +373,7 @@ public class M_Role {
      * @param rolee Es el role a crear por el usuario.
      * @return
      */
-    public synchronized static Resultados<Object> createRole(String rolee) {
+    public synchronized static Resultado<Object> createRole(String rolee) {
         final String sql = "EXECUTE PROCEDURE ADMIN_CREATE_ROLE(?);";
 
         try (PreparedStatement cs = getCnn().prepareStatement(sql,
@@ -385,7 +385,7 @@ public class M_Role {
 
             int cantindad = cs.executeUpdate();
 
-            return Resultados.builder().
+            return Resultado.builder().
                     id(-1).
                     mensaje(ROL_CREADO_EXITOSAMENTE).
                     cantidad(cantindad).
@@ -393,7 +393,7 @@ public class M_Role {
                     build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados.builder().
+            return Resultado.builder().
                     id(-1).
                     mensaje(ERROR_AL_CREAR_ROLE).
                     cantidad(-1).
@@ -413,7 +413,7 @@ public class M_Role {
      *
      * @return devuelve un objecto Resultados para obtener informacion de la op.
      */
-    public synchronized static Resultados<Object> modificarRol(String actual,
+    public synchronized static Resultado<Object> modificarRol(String actual,
             String nuevo) {
         final String sql = "EXECUTE PROCEDURE ADMIN_ALTER_ROLE(?, ?);";
 
@@ -427,7 +427,7 @@ public class M_Role {
 
             int cantindad = cs.executeUpdate();
 
-            return Resultados.builder().
+            return Resultado.builder().
                     id(-1).
                     mensaje("Rol modificado exitosamente.").
                     cantidad(cantindad).
@@ -435,7 +435,7 @@ public class M_Role {
                     build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados.builder().
+            return Resultado.builder().
                     id(-1).
                     mensaje("Error al modificar role.").
                     cantidad(-1).

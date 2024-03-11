@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Deuda;
 import sur.softsurena.entidades.Generales;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Deuda {
@@ -79,7 +79,7 @@ public class M_Deuda {
      * @param op
      * @return
      */
-    public synchronized static Resultados modificarDeuda(int idDeuda, String op) {
+    public synchronized static Resultado modificarDeuda(int idDeuda, String op) {
         final String sql = "EXECUTE PROCEDURE SP_UPDATE_DEUDA_ESTADO (?, ?);";
 
         try (CallableStatement ps = getCnn().prepareCall(
@@ -91,7 +91,7 @@ public class M_Deuda {
             ps.setInt(1, idDeuda);
             ps.setString(2, op);
             boolean estado = ps.execute();
-            return Resultados
+            return Resultado
                     .builder()
                     .estado(estado)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
@@ -99,7 +99,7 @@ public class M_Deuda {
                     .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultados
+            return Resultado
                     .builder()
                     .estado(Boolean.FALSE)
                     .icono(JOptionPane.ERROR_MESSAGE)

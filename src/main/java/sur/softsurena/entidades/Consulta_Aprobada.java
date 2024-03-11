@@ -17,12 +17,6 @@ public class Consulta_Aprobada {
     
     @Override
     public String toString() {
-        return "ConsultasAprobadas{"
-                + "id=" + id
-                + ", codAutorizacion=" + codAutorizacion
-                + ", costo=" + costo
-                + ", descuento=" + descuento
-                + ", usuario=" + usuario
-                + ", totalCosto=" + totalCosto + '}';
+        return codAutorizacion;
     }
 }

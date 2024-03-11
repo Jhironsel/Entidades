@@ -10,7 +10,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 import sur.softsurena.entidades.Role;
 import sur.softsurena.entidades.Usuario;
 
@@ -62,7 +62,7 @@ public class M_UsuarioNGTest {
             priority = 0
     )
     public void testAgregarUsuario() {
-        Resultados expResult = null;
+        Resultado expResult = null;
         List<Role> roles = new ArrayList();
         
         roles.add(
@@ -89,7 +89,7 @@ public class M_UsuarioNGTest {
                         .build()
         );
         
-        Resultados result = M_Usuario.agregarUsuario(
+        Resultado result = M_Usuario.agregarUsuario(
                 Usuario
                         .builder()
                         .user_name("Prueba")
@@ -113,8 +113,8 @@ public class M_UsuarioNGTest {
     )
     public void testBorrarUsuario() {
         String loginName = "";
-        Resultados expResult = null;
-        Resultados result = M_Usuario.borrarUsuario(loginName);
+        Resultado expResult = null;
+        Resultado result = M_Usuario.borrarUsuario(loginName);
         assertEquals(result, expResult);
     }
 
@@ -170,8 +170,8 @@ public class M_UsuarioNGTest {
     )
     public void testModificarUsuario() {
         Usuario u = null;
-        Resultados expResult = null;
-        Resultados result = M_Usuario.modificarUsuario(u);
+        Resultado expResult = null;
+        Resultado result = M_Usuario.modificarUsuario(u);
         assertEquals(result, expResult);
     }
 

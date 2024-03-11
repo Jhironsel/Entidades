@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Gasto;
-import sur.softsurena.utilidades.Resultados;
+import sur.softsurena.utilidades.Resultado;
 
 public class M_GastoNGTest {
     
@@ -50,8 +50,8 @@ public class M_GastoNGTest {
     )
     public void testAgregarGastosPorTurno() {
         Gasto gasto = null;
-        Resultados expResult = null;
-        Resultados result = M_Gasto.agregarGastosPorTurno(gasto);
+        Resultado expResult = null;
+        Resultado result = M_Gasto.agregarGastosPorTurno(gasto);
         assertEquals(result, expResult);
     }
     
