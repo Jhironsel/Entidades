@@ -52,10 +52,12 @@ public class M_PrivilegioNGTest {
             description = ""
     )
     public void testPrivilegio() {
-        Privilegio privilegio = null;
-        boolean expResult = false;
-        boolean result = M_Privilegio.privilegio(privilegio);
-        assertEquals(result, expResult);
+        boolean result = M_Privilegio.privilegio(
+                Privilegio
+                        .builder()
+                        .build()
+        );
+        assertTrue(result, "Error al consultar permiso.");
     }
 
 }

@@ -27,7 +27,7 @@ public class M_Paciente {
     public synchronized static Resultado agregarPaciente(Paciente paciente) {
         final String sql
                 = "SELECT V_ID "
-                + "FROM SP_INSERT_PACIENTE(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                + "FROM SP_I_PACIENTE(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -48,27 +48,27 @@ public class M_Paciente {
             ps.setInt(11, paciente.getGenerales().getId_tipo_sangre());
             ps.setBoolean(12, paciente.getEstado());
 
-            /*Me quedo con la duda que si un paciente necesita numero de contacto
-            Ya que los padres si deberian de tenerlo*/
-            try (ResultSet rs = ps.executeQuery();) {
-                rs.next();
-
-                return Resultado
-                        .builder()
-                        .id(rs.getInt("V_ID"))
-                        .mensaje(PACIENTE_AGREGADO_CORRECTAMENTE)
-                        .cantidad(-1)
-                        .icono(JOptionPane.INFORMATION_MESSAGE)
-                        .build();
-            }
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            return Resultado
+                    .builder()
+                    .id(rs.getInt("V_ID"))
+                    .mensaje(PACIENTE_AGREGADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_INSERTAR_PACIENTE, 
+                    ex
+            );
             return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_INSERTAR_PACIENTE)
-                    .cantidad(-1)
                     .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
     }
@@ -104,26 +104,29 @@ public class M_Paciente {
             ps.setBoolean(13, paciente.getEstado());
             ps.setBoolean(14, paciente.getAsegurado().getEstado());
 
-            int cantidad = ps.executeUpdate();
+            ps.executeUpdate();
 
             return Resultado
                     .builder()
-                    .id(-1)
                     .mensaje(PACIENTE_MODIFICADO_CORRECTAMENTE)
-                    .cantidad(cantidad)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(Level.SEVERE, 
+                    ERROR_AL_MODIFICAR_PACIENTE, 
+                    ex
+            );
             return Resultado
                     .builder()
-                    .id(-1)
-                    .mensaje(ERROR_AL_MODIFICAR_CLIENTE)
-                    .cantidad(-1)
+                    .mensaje(ERROR_AL_MODIFICAR_PACIENTE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
     }
     public static final String PACIENTE_MODIFICADO_CORRECTAMENTE = "Paciente modificado correctamente";
-    public static final String ERROR_AL_MODIFICAR_CLIENTE = "Error al modificar cliente...";
+    public static final String ERROR_AL_MODIFICAR_PACIENTE = "Error al modificar cliente...";
 
     /**
      * Metodos que permiten borrar registros de la base de datos.
@@ -205,7 +208,7 @@ public class M_Paciente {
      * realizarse el registro a la base de datos.
      */
     public synchronized static boolean existePaciente(String cedula) {
-        final String sql 
+        final String sql
                 = "SELECT (1) "
                 + "FROM V_PACIENTES "
                 + "WHERE cedula = ?";
@@ -229,6 +232,7 @@ public class M_Paciente {
 
     /**
      * TODO CREAR TEST
+     *
      * @param idPaciente
      * @return
      */

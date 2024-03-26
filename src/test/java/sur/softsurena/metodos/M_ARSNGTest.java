@@ -6,12 +6,16 @@ import static org.testng.Assert.*;
 import org.testng.annotations.*;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.ARS;
-import static sur.softsurena.metodos.M_ARS.BORRADO_CORRECTAMENTE;
-import static sur.softsurena.metodos.M_ARS.SEGURO_AGREGADO_CORRECTAMENTE;
-import static sur.softsurena.metodos.M_ARS.SEGURO_MODIFICADO_CORRECTAMENTE;
+import static sur.softsurena.metodos.M_ARS.ERROR_AL_BORRAR_ARS;
+import static sur.softsurena.metodos.M_ARS.ERROR_AL_CONSULTAR_LA_VISTA_V_ARS_DEL;
+import static sur.softsurena.metodos.M_ARS.ERROR_AL_INSERTAR__SEGURO;
+import static sur.softsurena.metodos.M_ARS.ERROR_AL_MODIFICAR_SEGURO;
+import sur.softsurena.utilidades.FiltroBusqueda;
 import sur.softsurena.utilidades.Resultado;
 
 public class M_ARSNGTest {
+
+    private int id_ARS;
 
     public M_ARSNGTest() {
     }
@@ -46,81 +50,97 @@ public class M_ARSNGTest {
 
     @Test(
             enabled = true,
-            description = "",
+            description = "Test que verifica que un ARS puede ser insertardo en el sistema.",
             priority = 0
     )
-    public void testGetARS() {
-        List result = M_ARS.getARS();
-        assertNotNull(
-                result, 
-                "La tabla de ARS esta vacia."
+    public void testAgregarSeguro() {
+        Resultado result = M_ARS.agregarSeguro(
+                ARS
+                        .builder()
+                        .descripcion("Senasa2")
+                        .covertura(BigDecimal.valueOf(60.00))
+                        .estado(Boolean.FALSE)
+                        .build()
+        );
+        assertTrue(
+                result.getEstado(),
+                ERROR_AL_INSERTAR__SEGURO
+        );
+
+        id_ARS = result.getId();
+        
+        List result2 = M_ARS.getARS(
+                FiltroBusqueda
+                        .builder()
+                        .estado(Boolean.FALSE)
+                        .build()
+        );
+        assertFalse(
+                result2.isEmpty(),
+                ERROR_AL_CONSULTAR_LA_VISTA_V_ARS_DEL
+        );
+    }
+    
+    @Test(
+            enabled = true,
+            description = "Test para modificar las ars del sistema.",
+            priority = 1
+    )
+    public void testModificarSeguro() {
+        Resultado result = M_ARS.modificarSeguro(
+                ARS
+                        .builder()
+                        .id(id_ARS)
+                        .descripcion("Senasa3")
+                        .covertura(BigDecimal.valueOf(50.00))
+                        .estado(Boolean.TRUE)
+                        .build()
+        );
+        assertTrue(
+                result.getEstado(), 
+                ERROR_AL_MODIFICAR_SEGURO
+        );
+        
+        List result2 = M_ARS.getARS(
+                FiltroBusqueda
+                        .builder()
+                        .estado(Boolean.TRUE)
+                        .build()
+        );
+        assertFalse(
+                result2.isEmpty(),
+                ERROR_AL_CONSULTAR_LA_VISTA_V_ARS_DEL
         );
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
+            description = "Test en cargado de verificar la consultas de las ARS del sistema.",
+            priority = 2
+    )
+    public void testGetARS() {
+        List result = M_ARS.getARS(
+                FiltroBusqueda
+                        .builder()
+                        .build()
+        );
+        assertFalse(
+                result.isEmpty(),
+                ERROR_AL_CONSULTAR_LA_VISTA_V_ARS_DEL
+        );
+        
+    }
+
+    @Test(
+            enabled = true,
             description = "",
-            priority = 0
+            priority = 3
     )
     public void testBorrarSeguro() {
-
-    }
-
-    @Test(
-            enabled = true,
-            description = "",
-            priority = 0
-    )
-    public void testAgregarSeguro() {
-        ARS ars = ARS
-                .builder()
-                .descripcion("Senasa2")
-                .covertura(BigDecimal.valueOf(60.00))
-                .estado(Boolean.FALSE)
-                .build();
-
-        Resultado result = M_ARS.agregarSeguro(ars);
-
-        assertEquals(result.getMensaje(), SEGURO_AGREGADO_CORRECTAMENTE);
-
-        result = M_ARS.borrarSeguro(result.getId());
-        assertEquals(result.getMensaje(), BORRADO_CORRECTAMENTE);
-    }
-
-    @Test(
-            enabled = true,
-            description = "",
-            priority = 0
-    )
-    public void testModificarSeguro() {
-        String result = M_ARS.modificarSeguro(
-                ARS
-                        .builder()
-                        .id(1)
-                        .descripcion("Senasa")
-                        .covertura(BigDecimal.valueOf(60.00))
-                        .estado(Boolean.TRUE)
-                        .build()
-        ).getMensaje();
-
-        assertEquals(result, SEGURO_MODIFICADO_CORRECTAMENTE);
-    }
-
-    @Test(
-            enabled = true,
-            description = "",
-            priority = 0
-    )
-    public void testGetTipoSeguro() {
-        List<ARS> result = M_ARS.getTipoSeguro();
-        assertNotNull(result, "La tabla de ARS esta vacia.");
-
-        ARS ars = ARS
-                .builder()
-                .id(0)
-                .descripcion("Seleccione una ARS")
-                .build();
-        assertListContainsObject(result, ars, "La tabla de ARS no contiene registro 0");
-
+        Resultado result = M_ARS.borrarSeguro(id_ARS);
+        assertTrue(
+                result.getEstado(),
+                ERROR_AL_BORRAR_ARS
+        );
     }
 }

@@ -11,10 +11,13 @@ import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Cliente;
+import sur.softsurena.entidades.ContactoEmail;
+import sur.softsurena.entidades.ContactoTel;
+import sur.softsurena.entidades.Direccion;
 import sur.softsurena.entidades.Generales;
 import static sur.softsurena.metodos.M_ContactoEmail.agregarContactosEmail;
 import static sur.softsurena.metodos.M_ContactoTel.agregarContactosTel;
-import static sur.softsurena.metodos.M_Direccion.agregarModificarDirecciones;
+import static sur.softsurena.metodos.M_Direccion.agregarDireccion;
 import sur.softsurena.utilidades.FiltroBusqueda;
 import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
@@ -25,16 +28,20 @@ public class M_Cliente {
      * Metodos utilizado para agregar los clientes en el sistema, el cual es
      * utilizado para agregar los contactos de este.
      *
-     * @param c Es el objecto de la clase cliente que contiene los metodos
+     * @param cliente Es el objecto de la clase cliente que contiene los metodos
      * necesario para obtener los datos del cliente.
      *
      * @return devuelve el resultado de la operacion a realizar, la cual este
      * objecto puede mostrar el identificador del cliente, el mensaje de la
      * operacion y la cantidad de registros afectados.
      */
-    public synchronized static Resultado agregarCliente(Cliente c) {
+    public synchronized static Resultado agregarCliente(Cliente cliente) {
+        Objects.requireNonNull(cliente, "Objecto cliente nulo.");
         final String sql
-                = "SELECT V_ID FROM SP_INSERT_CLIENTE_SB (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                = """
+                  SELECT V_ID 
+                  FROM SP_I_CLIENTE_SB(?,?,?,?,?,?,?,?,?)
+                  """;
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -43,73 +50,85 @@ public class M_Cliente {
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
 
-            ps.setString(1, String.valueOf(c.getPersona()));
-            ps.setString(2, c.getGenerales().getCedula());
-            ps.setString(3, c.getPnombre());
-            ps.setString(4, c.getSnombre());
-            ps.setString(5, c.getApellidos());
-            ps.setString(6, String.valueOf(c.getSexo()));
-            ps.setDate(7, c.getFecha_nacimiento());
-            ps.setBoolean(8, c.getEstado());
-            ps.setString(9, String.valueOf(c.getGenerales().getEstado_civil()));
+            ps.setString(1, String.valueOf(cliente.getPersona()));
+            ps.setString(2, cliente.getGenerales().getCedula());
+            ps.setString(3, cliente.getPnombre());
+            ps.setString(4, cliente.getSnombre());
+            ps.setString(5, cliente.getApellidos());
+            ps.setString(6, String.valueOf(cliente.getSexo()));
+            ps.setDate(7, cliente.getFecha_nacimiento());
+            ps.setBoolean(8, cliente.getEstado());
+            ps.setString(9, String.valueOf(cliente.getGenerales().getEstado_civil()));
 
-            try (ResultSet rs = ps.executeQuery();) {
+            ResultSet rs = ps.executeQuery();
 
-                rs.next();
+            rs.next();
 
-                int id_persona = rs.getInt(1);
+            int id_persona = rs.getInt(1);
 
-                if (!agregarContactosTel(id_persona, c.getContactosTel())) {
-                    return Resultado
-                            .builder()
-                            .id(-1)
-                            .mensaje("Error al agregar contactos telefonico del cliente.")
-                            .cantidad(-1)
-                            .icono(JOptionPane.ERROR_MESSAGE)
-                            .build();
-                }
+            cliente.getContactosTel().stream().forEach(telefono -> {
+                agregarContactosTel(
+                        ContactoTel
+                                .builder()
+                                .id_persona(id_persona)
+                                .telefono(telefono.getTelefono())
+                                .tipo(telefono.getTipo())
+                                .por_defecto(telefono.getPor_defecto())
+                                .build()
+                );
+            });
 
-                if (!agregarContactosEmail(id_persona, c.getContactosEmail())) {
-                    return Resultado
-                            .builder()
-                            .id(-1)
-                            .mensaje("Error al agregar contactos correos electronicos del cliente.")
-                            .cantidad(-1)
-                            .icono(JOptionPane.ERROR_MESSAGE)
-                            .build();
-                }
+            cliente.getContactosEmail().stream().forEach(contactoEmail -> {
+                agregarContactosEmail(
+                        ContactoEmail
+                                .builder()
+                                .id_persona(id_persona)
+                                .email(contactoEmail.getEmail())
+                                .por_defecto(contactoEmail.getPor_defecto())
+                                .build()
+                );
+            });
 
-                if (!agregarModificarDirecciones(id_persona, c.getDirecciones())) {
-                    return Resultado
-                            .builder()
-                            .id(-1)
-                            .mensaje("Error al agregar direcciones del cliente")
-                            .cantidad(-1)
-                            .icono(JOptionPane.ERROR_MESSAGE)
-                            .build();
-                }
+            cliente.getDirecciones().stream().forEach(direccion -> {
+                agregarDireccion(
+                        Direccion
+                                .builder()
+                                .id_persona(id_persona)
+                                .provincia(direccion.getProvincia())
+                                .municipio(direccion.getMunicipio())
+                                .distrito_municipal(direccion.getDistrito_municipal())
+                                .direccion(direccion.getDireccion())
+                                .por_defecto(direccion.getPor_defecto())
+                                .build()
+                );
+            });
 
-                return Resultado
-                        .builder()
-                        .id(id_persona)
-                        .mensaje(CLIENTE__AGREGADO__CORRECTAMENTE)
-                        .cantidad(-1)
-                        .icono(JOptionPane.INFORMATION_MESSAGE)
-                        .build();
-            }
+            return Resultado
+                    .builder()
+                    .id(id_persona)
+                    .mensaje(CLIENTE__AGREGADO__CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, "Error al insertar un cliente al sistema", ex);
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_INSERTAR__CLIENTE,
+                    ex
+            );
             return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_INSERTAR__CLIENTE)
-                    .cantidad(-1)
                     .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
     }
-    public static final String ERROR_AL_INSERTAR__CLIENTE = "Error al insertar Cliente.";
-    public static final String CLIENTE__AGREGADO__CORRECTAMENTE = "Cliente Agregado Correctamente";
+    public static final String ERROR_AL_INSERTAR__CLIENTE
+            = "Error al insertar Cliente al sistema.";
+    public static final String CLIENTE__AGREGADO__CORRECTAMENTE
+            = "Cliente Agregado Correctamente";
 
     /**
      * Permite agregar un cliente ya registrado en la tabla de personas a
@@ -128,13 +147,12 @@ public class M_Cliente {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             cs.setInt(1, id);
-            boolean estado = cs.execute();
-
+            cs.execute();
             return Resultado
                     .builder()
-                    .estado(estado)
                     .mensaje(CLIENTE__AGREGADO__CORRECTAMENTE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, "Error al insertar id del clliente.", ex);
@@ -146,48 +164,6 @@ public class M_Cliente {
                     .build();
         }
     }
-
-    /**
-     * Este procedimiento tiene la habilidad de borrar los registros de las
-     * vistas siguiente: V_CONTACTS_TEL, V_CONTACTS_EMAIL, V_CLIENTES,
-     * V_DIRECCIONES, V_GENERALES y V_PERSONAS.
-     *
-     * Para eliminar un cliente, no debe de tener registros en el sistema.
-     *
-     * @param idCliente
-     * @return
-     */
-    public synchronized static Resultado borrarCliente(int idCliente) {
-        final String sql = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_SB (?);";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT
-        )) {
-            ps.setInt(1, idCliente);
-            int c = ps.executeUpdate();//Cantidad de registros afectados.
-            return Resultado
-                    .builder()
-                    .id(-1)
-                    .mensaje(CLIENTE_BORRADO_CORRECTAMENTE)
-                    .icono(JOptionPane.INFORMATION_MESSAGE)
-                    .cantidad(c)
-                    .build();
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultado
-                    .builder()
-                    .id(-1)
-                    .mensaje(CLIENTE_NO_PUEDE_SER_BORRADO)
-                    .icono(JOptionPane.ERROR_MESSAGE)
-                    .cantidad(-1)
-                    .build();
-        }
-    }
-    public static final String CLIENTE_BORRADO_CORRECTAMENTE = "Cliente borrado correctamente.";
-    public static final String CLIENTE_NO_PUEDE_SER_BORRADO = "Cliente no puede ser borrado.";
 
     /**
      * Metodo que permite modificar a los clientes del sistema de facturacion.
@@ -230,8 +206,8 @@ public class M_Cliente {
                     .build();
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    ERROR_AL__MODIFICAR__CLIENTE, 
+                    Level.SEVERE,
+                    ERROR_AL__MODIFICAR__CLIENTE,
                     ex
             );
             return Resultado
@@ -325,4 +301,54 @@ public class M_Cliente {
             return null;
         }
     }
+
+    /**
+     * Este procedimiento tiene la habilidad de borrar los registros de las
+     * vistas siguiente: V_CONTACTS_TEL, V_CONTACTS_EMAIL, V_CLIENTES,
+     * V_DIRECCIONES, V_GENERALES y V_PERSONAS.
+     *
+     * Para eliminar un cliente, no debe de tener registros en el sistema.
+     *
+     * @param idCliente
+     * @return
+     */
+    public synchronized static Resultado borrarCliente(int idCliente) {
+        final String sql = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_SB (?);";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
+            ps.setInt(1, idCliente);
+
+            ps.executeUpdate();
+
+            return Resultado
+                    .builder()
+                    .mensaje(CLIENTE_BORRADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
+        } catch (SQLException ex) {
+            LOG.log(
+                    Level.SEVERE,
+                    CLIENTE_NO_PUEDE_SER_BORRADO,
+                    ex
+            );
+            return Resultado
+                    .builder()
+                    .id(-1)
+                    .mensaje(CLIENTE_NO_PUEDE_SER_BORRADO)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
+        }
+    }
+    public static final String CLIENTE_BORRADO_CORRECTAMENTE
+            = "Cliente borrado correctamente.";
+    public static final String CLIENTE_NO_PUEDE_SER_BORRADO
+            = "Cliente no puede ser borrado.";
+
 }

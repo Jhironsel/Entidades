@@ -1,20 +1,25 @@
 package sur.softsurena.metodos;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.Date;
-import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import javax.swing.JOptionPane;
+import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
+import sur.softsurena.entidades.ARS;
 import sur.softsurena.entidades.Asegurado;
 import sur.softsurena.entidades.Generales;
 import sur.softsurena.entidades.Paciente;
+import static sur.softsurena.metodos.M_ARS.agregarSeguro;
 import static sur.softsurena.metodos.M_ContactoTel.generarTelMovil;
 import static sur.softsurena.metodos.M_Generales.generarCedula;
+import static sur.softsurena.metodos.M_Paciente.ERROR_AL_INSERTAR_PACIENTE;
+import static sur.softsurena.metodos.M_Paciente.ERROR_AL_MODIFICAR_PACIENTE;
 import static sur.softsurena.metodos.M_Paciente.PACIENTE_AGREGADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Paciente.PACIENTE_BORRADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Paciente.PACIENTE_MODIFICADO_CORRECTAMENTE;
@@ -25,7 +30,11 @@ import sur.softsurena.utilidades.Resultado;
 import sur.softsurena.utilidades.Utilidades;
 
 public class M_PacienteNGTest {
-    
+
+    private Resultado result;
+    private int id_ars;
+    private int idPaciente;
+
     public M_PacienteNGTest() {
     }
 
@@ -38,7 +47,10 @@ public class M_PacienteNGTest {
                 "localhost",
                 "3050"
         );
-        assertTrue("Error al conectarse...", Conexion.verificar().getEstado());
+        assertTrue(
+                Conexion.verificar().getEstado(),
+                "Error al conectarse..."
+        );
     }
 
     @AfterClass
@@ -60,26 +72,42 @@ public class M_PacienteNGTest {
             priority = 0
     )
     public void testAgregarPaciente() {
-        //Prueba de Insersion de paciente.
-        Asegurado asegurado = Asegurado
-                .builder()
-                .id_ars(0)
-                .no_nss(generarTelMovil().substring(9, 16))
-                .build();
+        result = agregarSeguro(
+                ARS
+                        .builder()
+                        .descripcion(
+                                "ARS PRUEBA "
+                                        .concat(
+                                                generarTelMovil().substring(11, 16)
+                                        )
+                        )
+                        .covertura(BigDecimal.TEN)
+                        .estado(Boolean.TRUE)
+                        .build()
+        );
 
-        Generales generales = Generales
-                .builder()
-                .cedula(generarCedula())
-                .id_tipo_sangre(0)
-                .build();
+        id_ars = result.getId();
 
-        Resultado result = agregarPaciente(
+        //TODO Crear los padres y la madre del paciente.
+        result = agregarPaciente(
                 Paciente
                         .builder()
                         .idPadre(0)
                         .idMadre(0)
-                        .asegurado(asegurado)
-                        .generales(generales)
+                        .asegurado(
+                                Asegurado
+                                        .builder()
+                                        .id_ars(id_ars)
+                                        .no_nss(generarTelMovil().substring(9, 16))
+                                        .build()
+                        )
+                        .generales(
+                                Generales
+                                        .builder()
+                                        .cedula(generarCedula())
+                                        .id_tipo_sangre(0)
+                                        .build()
+                        )
                         .pnombre("Ciliosther")
                         .snombre("")
                         .apellidos("Diaz Liriano")
@@ -89,72 +117,79 @@ public class M_PacienteNGTest {
                         .build()
         );
 
-        assertEquals(PACIENTE_AGREGADO_CORRECTAMENTE, result.toString());
+        assertTrue(
+                result.getEstado(),
+                ERROR_AL_INSERTAR_PACIENTE
+        );
 
-        //Prueba de Actualizacion de paciente.
-        asegurado = Asegurado
-                .builder()
-                .id_ars(0)
-                .no_nss(generarTelMovil().substring(9, 16))
-                .estado(Boolean.FALSE)
-                .build();
+        assertEquals(
+                result.getMensaje(),
+                PACIENTE_AGREGADO_CORRECTAMENTE,
+                ERROR_AL_INSERTAR_PACIENTE
+        );
 
-        generales = Generales
-                .builder()
-                .cedula(generarCedula())
-                .id_tipo_sangre(0)
-                .build();
+        assertEquals(
+                result.getIcono(),
+                JOptionPane.INFORMATION_MESSAGE,
+                ERROR_AL_INSERTAR_PACIENTE
+        );
 
-        int idPaciente = result.getId();
-
-        Paciente pUpdate = Paciente
-                .builder()
-                .id_persona(idPaciente)
-                .idPadre(0)
-                .idMadre(0)
-                .asegurado(asegurado)
-                .generales(generales)
-                .pnombre("Michael")
-                .snombre("")
-                .apellidos("Orozco")
-                .sexo('M')
-                .estado(Boolean.TRUE)
-                .fecha_nacimiento(
-                        Utilidades.javaDateToSqlDate(new Date())
-                )
-                .build();
-
-        result = modificarPaciente(pUpdate);
-
-        assertEquals(PACIENTE_MODIFICADO_CORRECTAMENTE, result.toString());
-
-        //Borrar el cliente. 
-        result = borrarPaciente(idPaciente);
-        assertEquals(PACIENTE_BORRADO_CORRECTAMENTE, result.toString());
+        idPaciente = result.getId();
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             description = "",
-            priority = 0
+            priority = 1
     )
     public void testModificarPaciente() {
-        Paciente p = null;
-        Resultado expResult = null;
-        Resultado result = M_Paciente.modificarPaciente(p);
-        assertEquals(result, expResult);
-    }
+        result = modificarPaciente(
+                Paciente
+                        .builder()
+                        .id_persona(idPaciente)
+                        .idPadre(0)
+                        .idMadre(0)
+                        .asegurado(
+                                Asegurado
+                                        .builder()
+                                        .id_ars(id_ars)
+                                        .no_nss(generarTelMovil().substring(9, 16))
+                                        .estado(Boolean.FALSE)
+                                        .build()
+                        )
+                        .generales(
+                                Generales
+                                        .builder()
+                                        .cedula(generarCedula())
+                                        .id_tipo_sangre(0)
+                                        .build()
+                        )
+                        .pnombre("Michael")
+                        .snombre("")
+                        .apellidos("Orozco")
+                        .sexo('M')
+                        .estado(Boolean.TRUE)
+                        .fecha_nacimiento(
+                                Utilidades.javaDateToSqlDate(new Date())
+                        )
+                        .build()
+        );
 
-    @Test(
-            enabled = false,
-            description = "",
-            priority = 0
-    )
-    public void testBorrarPaciente() {
-        int id = 0;
-        Resultado expResult = null;
-        Resultado result = M_Paciente.borrarPaciente(id);
-        assertEquals(result, expResult);
+        assertTrue(
+                result.getEstado(),
+                ERROR_AL_MODIFICAR_PACIENTE
+        );
+
+        assertEquals(
+                result.getIcono(),
+                JOptionPane.INFORMATION_MESSAGE,
+                ERROR_AL_MODIFICAR_PACIENTE
+        );
+
+        assertEquals(
+                result.getMensaje(),
+                PACIENTE_MODIFICADO_CORRECTAMENTE,
+                ERROR_AL_MODIFICAR_PACIENTE);
     }
 
     @Test(
@@ -269,5 +304,21 @@ public class M_PacienteNGTest {
         ResultSet expResult = null;
         ResultSet result = M_Paciente.getPacienteActivo3(filtro, fecha, idControlConsulta);
         assertEquals(result, expResult);
+    }
+
+    @Test(
+            enabled = false,
+            description = "",
+            priority = 0
+    )
+    public void testBorrarPaciente() {
+        int id = 0;
+        Resultado expResult = null;
+        Resultado result = M_Paciente.borrarPaciente(id);
+        assertEquals(result, expResult);
+
+        //Borrar el cliente. 
+        result = borrarPaciente(idPaciente);
+        assertEquals(PACIENTE_BORRADO_CORRECTAMENTE, result.toString());
     }
 }

@@ -5,10 +5,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
+import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.ContactoEmail;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
@@ -18,82 +21,152 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
 public class M_ContactoEmail {
 
     /**
-     * TODO CREAR SP.
-     * @param id
-     * @param contactos
+     * Metodo encargado de agregar o modificar los correo en el sistema.
+     *
+     * @param contacto Objeto que define la estructura basica de un correo para
+     * registros en el sistema.
      * @return
      */
-    public static boolean agregarContactosEmail(int id, List<ContactoEmail> contactos) {
-        final String INSERT
-                = "INSERT INTO V_CONTACTOS_EMAIL (ID_PERSONA, EMAIL) "
-                + "VALUES (?, ?);";
+    public static Resultado agregarContactosEmail(ContactoEmail contacto) {
+        final String sql = """
+                           SELECT p.O_ID
+                           FROM SP_I_CORREO (
+                                ?, --ID_PERSONA 
+                                ?, --EMAIL 
+                                ? --POR_DEFECTO 
+                           ) p;
+                  """;
 
-        try (PreparedStatement ps = getCnn().prepareStatement(INSERT)) {
-            for (ContactoEmail c : contactos) {
-                ps.setInt(1, id);
-                ps.setString(2, c.getEmail());
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
+            ps.setInt(1, contacto.getId_persona());
+            ps.setString(2, contacto.getEmail());
+            ps.setBoolean(3, contacto.getPor_defecto());
 
-                ps.addBatch();
-            }
-            ps.executeBatch();
-            return true;
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            return Resultado
+                    .builder()
+                    .id(rs.getInt(1))
+                    .mensaje(CORREO_AGREGADO_O_MODIFICADO_CORRECTAMENT)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_AGREGAR_O_MODIFICAR_CORREO,
+                    ex
+            );
+            return Resultado
+                    .builder()
+                    .id(-1)
+                    .mensaje(ERROR_AL_AGREGAR_O_MODIFICAR_CORREO)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
-        return false;
     }
+    public static final String ERROR_AL_AGREGAR_O_MODIFICAR_CORREO
+            = "Error al agregar o modificar correo.";
+    public static final String CORREO_AGREGADO_O_MODIFICADO_CORRECTAMENT
+            = "Correo agregado o modificado correctamente.";
 
     /**
      * TODO CREAR SP.
-     * @param id
-     * @param contactos
+     *
+     * @param contacto
      * @return
      */
-    public static boolean modificarContactosEmail(int id, List<ContactoEmail> contactos) {
-        final String UPDATE
+    public static Resultado modificarContactosEmail(ContactoEmail contacto) {
+        final String sql
                 = "UPDATE V_CONTACTOS_EMAIL a "
                 + "SET "
                 + "   a.EMAIL = ? "
                 + "WHERE "
                 + "     a.ID = ?";
 
-        try (PreparedStatement ps = getCnn().prepareStatement(UPDATE)) {
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
+            ps.setString(1, contacto.getEmail());
+            ps.setInt(2, contacto.getId());
 
-            for (ContactoEmail c : contactos) {
-                ps.setString(1, c.getEmail());
-                ps.setInt(2, id);
-
-                ps.addBatch();
-            }
             ps.executeBatch();
-            return true;
+            return Resultado
+                    .builder()
+                    .mensaje("El contacto de correo fue actualizado.")
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE,
+                    ex.getMessage(),
+                    ex
+            );
+            return Resultado
+                    .builder()
+                    .mensaje("Error al ejecutar el   del sistema.")
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
-        return false;
     }
 
-    public synchronized static List<ContactoEmail> getCorreoByID(int id) {
-        final String SELECT_BY_ID
-                = "SELECT ID, EMAIL, FECHA "
-                + "FROM V_CONTACTOS_EMAIL  "
-                + "WHERE ID_PERSONA = ?;";
+    /**
+     * Permite obtener un listado de correo de un clienten o persona a consultar
+     * por su id. 
+     * 
+     * @param id_persona
+     * @return
+     */
+    public synchronized static List<ContactoEmail> getCorreoByID(Integer id_persona) {
+        final String sql
+                = "SELECT ID, EMAIL, FECHA, ESTADO, POR_DEFECTO "
+                + "FROM V_CONTACTOS_EMAIL "
+                + (Objects.isNull(id_persona) ? "" : "WHERE ID_PERSONA = ? ")
+                + "ORDER BY 2, 1 "
+                + (Objects.isNull(id_persona) ? " ROWS (20) " : "");
+
         List<ContactoEmail> contactosEmailList = new ArrayList<>();
-        try (PreparedStatement ps = getCnn().prepareStatement(SELECT_BY_ID)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery();) {
-                while (rs.next()) {
-                    contactosEmailList.add(ContactoEmail.
-                            builder().
-                            id(rs.getInt("ID")).
-                            email(rs.getString("EMAIL")).
-                            fecha(rs.getDate("FECHA")).
-                            build()
-                    );
-                }
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
+            if (!Objects.isNull(id_persona)) {
+                ps.setInt(1, id_persona);
+            }
+            
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                contactosEmailList.add(
+                        ContactoEmail
+                                .builder()
+                                .id(rs.getInt("ID"))
+                                .email(rs.getString("EMAIL"))
+                                .fecha(rs.getDate("FECHA"))
+                                .estado(rs.getBoolean("ESTADO"))
+                                .por_defecto(rs.getBoolean("POR_DEFECTO"))
+                                .build()
+                );
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE,
+                    "Error al consultar la vista de V_CONTACTOS_EMAIL de las personas.",
+                    ex
+            );
         }
         return contactosEmailList;
     }
@@ -112,7 +185,6 @@ public class M_ContactoEmail {
             "@yahoo.com",
             "@TeJodiste.net"
         };
-        int indexArea = (int) (Math.random() * correoDominio.length);
 
         int num1 = (int) (Math.random() * 10);
         int num2 = (int) (Math.random() * 10);
@@ -125,7 +197,8 @@ public class M_ContactoEmail {
                 .append(num2)
                 .append(num3)
                 .append(num4)
-                .append(correoDominio[indexArea]);
+                .append(correoDominio[(int) (Math.random() * correoDominio.length)]
+                );
 
         return telefonoMovil.toString();
     }

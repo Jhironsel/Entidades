@@ -10,12 +10,16 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Factura;
+import static sur.softsurena.metodos.M_Factura.OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__FA;
+import sur.softsurena.utilidades.Resultado;
 
 /**
  *
  * @author jhironsel
  */
 public class M_FacturaNGTest {
+
+    private int id_factura;
 
     public M_FacturaNGTest() {
     }
@@ -65,10 +69,11 @@ public class M_FacturaNGTest {
             description = ""
     )
     public void testBorrarFactura() {
-        int id = 0;
-        String expResult = "";
-        String result = M_Factura.borrarFactura(id);
-        assertEquals(result, expResult);
+        Resultado result = M_Factura.borrarFactura(id_factura);
+        assertTrue(
+                result.getEstado(),
+                OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__FA
+        );
     }
 
     @Test(

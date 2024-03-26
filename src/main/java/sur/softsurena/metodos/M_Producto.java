@@ -109,10 +109,11 @@ public class M_Producto implements IProducto{
     }
 
     /**
-     * TODO Definir que hace este metodo.
+     * Permite obtener los productos del sistema por una categoria identificada 
+     * por su ID y su estado definido por el sistema.
      *
-     * @param idCategoria
-     * @param estado
+     * @param idCategoria Categoria que se necesita consultar.
+     * @param estado el estado por la categoria del producto. 
      * @return
      */
     public synchronized static List<Producto> getProductosByCategoria(
@@ -144,7 +145,11 @@ public class M_Producto implements IProducto{
             }
             return productosList;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    "Error al consultar la vista GET_PRODUCTOS del sistema.", 
+                    ex
+            );
         }
         return null;
     }

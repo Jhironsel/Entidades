@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.sql.ResultSet;
+import java.util.List;
 import static org.testng.Assert.assertEquals;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -8,6 +9,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.entidades.Tanda;
+import sur.softsurena.utilidades.Resultado;
 
 public class M_TandaNGTest {
     
@@ -38,7 +40,7 @@ public class M_TandaNGTest {
     public void testAgregarTanda() {
         Tanda t = null;
         String expResult = "";
-        String result = M_Tanda.agregarTanda(t);
+        Resultado result = M_Tanda.agregarTanda(t);
         assertEquals(result, expResult);
     }
 
@@ -51,7 +53,7 @@ public class M_TandaNGTest {
         Integer edadMin = null;
         Integer edadMax = null;
         ResultSet expResult = null;
-        ResultSet result = M_Tanda.getTandas(edadMin, edadMax);
+        List<Tanda> result = M_Tanda.getTandas(edadMin, edadMax);
         assertEquals(result, expResult);
     }
 
@@ -63,7 +65,7 @@ public class M_TandaNGTest {
     public void testModificarTanda() {
         Tanda t = null;
         String expResult = "";
-        String result = M_Tanda.modificarTanda(t);
+        Resultado result = M_Tanda.modificarTanda(t);
         assertEquals(result, expResult);
     }
 

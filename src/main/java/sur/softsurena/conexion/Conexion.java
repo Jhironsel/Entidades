@@ -78,7 +78,7 @@ public class Conexion {
      * @return Retorna true si esta dentro o false si tuvo problema en la
      * conexion.
      */
-    public static Resultado<Object> verificar() {
+    public static Resultado verificar() {
 
         final Properties properties = new Properties();
         properties.setProperty("user", user);

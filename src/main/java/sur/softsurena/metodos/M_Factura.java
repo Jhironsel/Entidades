@@ -6,9 +6,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Factura;
 import static sur.softsurena.metodos.M_D_Factura.agregarDetalleFactura;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
@@ -26,20 +28,32 @@ public class M_Factura {
 
         final String sql
                 = "SELECT ID FROM V_M_FACTURAS ORDER BY 1";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(sql);) {
-            List<Factura> facturasList = new ArrayList<>();
-
+        
+        List<Factura> facturasList = new ArrayList<>();
+        
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    facturasList.add(Factura.builder().
-                            id(rs.getInt("ID")).build());
+                    facturasList.add(
+                            Factura
+                                    .builder()
+                                    .id(rs.getInt("ID"))
+                                    .build());
                 }
             }
             return facturasList;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
+            LOG.log(
+                    Level.SEVERE, 
+                    "Error al consultar la vista V_M_FACTURAS del sistema.", 
+                    ex
+            );
+            return facturasList;
         }
     }
 
@@ -51,26 +65,38 @@ public class M_Factura {
      *
      * Actualizado el 17/05/2022.
      *
-     * TODO CREAR SP.
-     *
      * @param id Es el identificador del registro de la factura.
      * @return Devuelve un mensaje de la acción
      */
-    public synchronized static String borrarFactura(int id) {
+    public synchronized static Resultado borrarFactura(int id) {
         final String sql
-                = "DELETE FROM V_FACTURAS where id = ?";
+                = "EXECUTE PROCEDURE SP_D_M_FACTURA (?);";
         try (PreparedStatement ps = getCnn().prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
-            return FACTURA__BORRADA__CORRECTAMENTE;
+            return Resultado
+                    .builder()
+                    .mensaje(FACTURA__BORRADA__CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__FA;
+            LOG.log(
+                    Level.SEVERE,
+                    OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__FA,
+                    ex
+            );
+            return Resultado
+                    .builder()
+                    .mensaje(OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__FA)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
-    public static final String OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__FA 
+    public static final String OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__FA
             = "!Ocurrio un error al intentar borrar la Factura...!!!";
-    public static final String FACTURA__BORRADA__CORRECTAMENTE 
+    public static final String FACTURA__BORRADA__CORRECTAMENTE
             = "Factura Borrada Correctamente.";
 
     /**
@@ -158,6 +184,7 @@ public class M_Factura {
 
     /**
      * TODO CREAR VISTA.
+     *
      * @param filtro
      * @return
      */
@@ -179,13 +206,18 @@ public class M_Factura {
         )) {
             return ps.executeQuery();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
             return null;
         }
     }
 
     /**
      * TODO CREAR VISTA.
+     *
      * @param idFactura
      * @return
      */
@@ -204,7 +236,11 @@ public class M_Factura {
             ps.setInt(1, idFactura);
             return ps.executeQuery();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
             return null;
         }
     }

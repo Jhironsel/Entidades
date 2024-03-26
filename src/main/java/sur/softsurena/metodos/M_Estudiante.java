@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Estudiante;
 import sur.softsurena.entidades.Inscripcion;
@@ -104,7 +105,11 @@ public class M_Estudiante {
             ps.setString(1, matricula);
             return ps.executeQuery();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
             return null;
         }
     }
@@ -114,14 +119,9 @@ public class M_Estudiante {
      * @param e
      * @return
      */
-    public synchronized static String modificarEstudiante(Estudiante e) {
-        /*
-        Metodo para modificar los estudiante del sistema de ballet
-        Actualizado el 23 de abril del 2022.
-         */
+    public synchronized static Resultado modificarEstudiante(Estudiante e) {
         final String sql 
-                = "EXECUTE PROCEDURE SP_UPDATE_ESTUDIANTE (?, ?, ?, ?, ?, ?, ?,"
-                + " ?, ?, ?, ?);";
+                = "EXECUTE PROCEDURE SP_UPDATE_ESTUDIANTE(?,?,?,?,?,?,?,?,?,?,?)";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -142,14 +142,26 @@ public class M_Estudiante {
             ps.setBoolean(11, e.getEstado());
 
             ps.executeUpdate();
-            return ESTUDIANTE__MODIFICADO__CORRECTAMENTE;
+            return Resultado
+                    .builder()
+                    .mensaje(ESTUDIANTE__MODIFICADO__CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            return ESTUDIANTE_NO_PUDO_SER__MODIFICADO__CONCTAT;
+            return Resultado
+                    .builder()
+                    .mensaje(ESTUDIANTE_NO_PUDO_SER__MODIFICADO__CONCTAT)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
-    public static final String ESTUDIANTE_NO_PUDO_SER__MODIFICADO__CONCTAT = "Estudiante no pudo ser Modificado, Conctate SoftSureña...!!!";
     
-    public static final String ESTUDIANTE__MODIFICADO__CORRECTAMENTE = "Estudiante Modificado Correctamente...!!!";
+    public static final String ESTUDIANTE_NO_PUDO_SER__MODIFICADO__CONCTAT 
+            = "Estudiante no pudo ser Modificado, Conctate SoftSureña...!!!";
+    public static final String ESTUDIANTE__MODIFICADO__CORRECTAMENTE 
+            = "Estudiante Modificado Correctamente...!!!";
 
     public synchronized static String inscribirEstudiante(Inscripcion i) {
 

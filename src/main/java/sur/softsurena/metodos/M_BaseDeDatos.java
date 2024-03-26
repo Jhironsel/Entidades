@@ -57,12 +57,13 @@ public class M_BaseDeDatos {
             try (ResultSet rs = ps.executeQuery()) {
                 rs.next();
                 return rs.getInt(1);
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
-                return -1;
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    "Error al consultar la vista V_E_S_SYS del sistema.", 
+                    ex
+            );
             return -1;
         }
     }

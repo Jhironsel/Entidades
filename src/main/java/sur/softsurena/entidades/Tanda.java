@@ -20,11 +20,12 @@ public class Tanda {
     private final Boolean viernes;
     private final Boolean sabados;
     private final Boolean domingos;
-    private final int cantidad_estudiantes;
-    private final int edad_minima;
-    private final int edad_maxima;
+    private final Integer cantidad_estudiantes;
+    private final Integer edad_minima;
+    private final Integer edad_maxima;
     private final Boolean con_edad;
     private final Boolean estado;
+    private final String horario;
 
     @Override
     public String toString() {

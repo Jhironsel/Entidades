@@ -14,8 +14,6 @@ public class ContactoTel {
     private final Date fecha;//Fecha de registro consultado.
     private final Boolean estado;//Estado del registro, indicando si es activo o inactivo.
     private final Boolean por_defecto;//Indica cual es el telefono registrado por defecto de la persona.
-
-    private final Character accion;//La accion podrá ser i Insertar, a actualizar o b borrar
     
     @Override
     public String toString() {

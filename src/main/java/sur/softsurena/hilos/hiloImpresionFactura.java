@@ -33,7 +33,7 @@ public class hiloImpresionFactura extends Thread {
     
     private final boolean credito;
     
-    private String fileReporte;
+    private final String fileReporte;
     
     private final Map parametros;
     
@@ -52,6 +52,8 @@ public class hiloImpresionFactura extends Thread {
      * 
      * @param parametros Variable que permite recibir los parametros que se 
      * encuentra en el reporte.
+     * @param jPanelImpresion
+     * @param jprImpresion
      */
     public hiloImpresionFactura(Boolean preVista, Boolean credito,
             String fileReporte, Map parametros, JPanel jPanelImpresion,
@@ -113,14 +115,20 @@ public class hiloImpresionFactura extends Thread {
                     jprImpresion.setValue(73);
                     jprImpresion.setString("73% Generando Documento");
                     
-                    FileInputStream in = new FileInputStream("reportes/reporteTemp.pdf");
+                    FileInputStream in = new FileInputStream(
+                            "reportes/reporteTemp.pdf"
+                    );
                     Doc doc = new SimpleDoc(in, DocFlavor.INPUT_STREAM.PDF, null);
                     
                     jprImpresion.setValue(80);
                     jprImpresion.setString("80% Buscando Impres. Princ.");
                     
-                    PrintService service = PrintServiceLookup.lookupDefaultPrintService();
-                    service.createPrintJob().print(doc, new HashPrintRequestAttributeSet());
+                    PrintService service 
+                            = PrintServiceLookup.lookupDefaultPrintService();
+                    service.createPrintJob().print(
+                            doc, 
+                            new HashPrintRequestAttributeSet()
+                    );
                     
                     jprImpresion.setValue(88);
                     jprImpresion.setString("88% Enviando....");
@@ -128,7 +136,11 @@ public class hiloImpresionFactura extends Thread {
                     terminar();
                 }
             } catch (JRException | FileNotFoundException | PrintException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                LOG.log(
+                        Level.SEVERE, 
+                        ex.getMessage(), 
+                        ex
+                );
             }
             detenElHilo();
         }

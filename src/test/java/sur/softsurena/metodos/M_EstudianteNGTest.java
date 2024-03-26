@@ -81,7 +81,7 @@ public class M_EstudianteNGTest {
     public void testModificarEstudiante() {
         Estudiante e = null;
         String expResult = "";
-        String result = M_Estudiante.modificarEstudiante(e);
+        Resultado result = M_Estudiante.modificarEstudiante(e);
         assertEquals(result, expResult);
     }
 

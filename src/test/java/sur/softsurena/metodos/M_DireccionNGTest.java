@@ -1,9 +1,7 @@
 package sur.softsurena.metodos;
 
-import java.util.ArrayList;
 import java.util.List;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -14,8 +12,10 @@ import sur.softsurena.entidades.Direccion;
 import sur.softsurena.entidades.Distrito_municipal;
 import sur.softsurena.entidades.Municipio;
 import sur.softsurena.entidades.Provincia;
-import static sur.softsurena.metodos.M_Direccion.agregarModificarDirecciones;
+import static sur.softsurena.metodos.M_Direccion.ERROR_AL_INSERTAR_O_MODIFICAR_DIRECCION;
+import static sur.softsurena.metodos.M_Direccion.agregarDireccion;
 import static sur.softsurena.metodos.M_Direccion.getDireccionByID;
+import sur.softsurena.utilidades.Resultado;
 
 public class M_DireccionNGTest {
     
@@ -31,7 +31,10 @@ public class M_DireccionNGTest {
                 "localhost",
                 "3050"
         );
-        assertTrue(Conexion.verificar().getEstado(), "Error al conectarse...");
+        assertTrue(
+                Conexion.verificar().getEstado(), 
+                "Error al conectarse..."
+        );
     }
 
     @AfterClass
@@ -54,9 +57,8 @@ public class M_DireccionNGTest {
     
     )
     public void testAgregarModificarDirecciones() {
-        int id_persona = 0;
-        List<Direccion> direcciones = new ArrayList<>();
-        direcciones.add(
+
+        Resultado result = agregarDireccion(
                 Direccion
                         .builder()
                         .provincia(
@@ -79,7 +81,14 @@ public class M_DireccionNGTest {
                         .direccion("Insercion de prueba.")
                         .build()
         );
-        direcciones.add(
+
+        assertTrue(
+                result.getEstado(), 
+                ERROR_AL_INSERTAR_O_MODIFICAR_DIRECCION
+        );
+        
+        
+        result = agregarDireccion(
                 Direccion
                         .builder()
                         .provincia(
@@ -103,11 +112,10 @@ public class M_DireccionNGTest {
                         .build()
         );
 
-        boolean expResult = true;
-
-        boolean result = agregarModificarDirecciones(id_persona, direcciones);
-
-        assertEquals(result, expResult);
+        assertTrue(
+                result.getEstado(),
+                ERROR_AL_INSERTAR_O_MODIFICAR_DIRECCION
+        );
     }
 
     @Test(
@@ -119,7 +127,10 @@ public class M_DireccionNGTest {
     public void testGetDireccionByID() {
         int id_persona = 0;
         List result = getDireccionByID(id_persona);
-        assertTrue(result.isEmpty(), "La lista contiene datos");
+        assertTrue(
+                result.isEmpty(), 
+                "La lista contiene datos"
+        );
     }
     
 }

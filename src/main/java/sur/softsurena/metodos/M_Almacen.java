@@ -24,8 +24,7 @@ public class M_Almacen {
                 + "     UBICACION, "
                 + "     ESTADO "
                 + "FROM V_ALMACENES "
-                + "WHERE ID = ? OR "
-                + "      UPPER(NOMBRE) STARTING WITH UPPER(?);";
+                + "WHERE ID = ? OR UPPER(NOMBRE) STARTING WITH UPPER(?);";
 
         List<Almacen> almacenList = new ArrayList<>();
 
@@ -53,8 +52,12 @@ public class M_Almacen {
                 return almacenList;
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
+            LOG.log(
+                    Level.SEVERE, 
+                    "Error al consultar la vista V_ALMACENES del sistema.", 
+                    ex
+            );
+            return almacenList;
         }
     }
 
@@ -67,7 +70,7 @@ public class M_Almacen {
      */
     public synchronized static Resultado agregarAlmacen(Almacen almacen) {
         final String sql
-                = "SELECT O_ID FROM SP_INSERT_ALMACEN (?, ?, ?);";
+                = "SELECT O_ID FROM SP_I_ALMACEN (?, ?, ?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -119,7 +122,7 @@ public class M_Almacen {
      */
     public synchronized static Resultado eliminarAlmacen(int id) {
         final String sql
-                = "EXECUTE PROCEDURE SP_DELETE_ALMACEN (?)";
+                = "EXECUTE PROCEDURE SP_D_ALMACEN(?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -132,13 +135,19 @@ public class M_Almacen {
                     .builder()
                     .mensaje(ALMACEN_ELIMINADO_CORRECTAMENTE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ERROR_AL_ELIMINAR_ALMACEN, ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_ELIMINAR_ALMACEN, 
+                    ex
+            );
             return Resultado
                     .builder()
                     .mensaje(ERROR_AL_ELIMINAR_ALMACEN)
                     .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
     }
@@ -149,7 +158,7 @@ public class M_Almacen {
     
     public synchronized static Resultado actualizarAlmacen(Almacen almacen) {
         final String sql
-                = "EXECUTE PROCEDURE SP_UPDATE_ALMACEN (?,?,?,?)";
+                = "EXECUTE PROCEDURE SP_U_ALMACEN(?,?,?,?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,

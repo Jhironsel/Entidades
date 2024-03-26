@@ -34,18 +34,25 @@ public class M_Privilegio {
                 + "      TRIM(PRIVILEGIO) STARTING WITH TRIM(?) AND "
                 + "      TRIM(NOMBRE_RELACION) STARTING WITH TRIM(?) OR "
                 + "      TRIM(NOMBRE_CAMPO) STARTING WITH TRIM(?); ";
-        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )){
             ps.setString(1, privilegio.getPrivilegio().toString());
             ps.setString(2, privilegio.getNombre_relacion());
             ps.setString(3, privilegio.getNombre_campo());
+            
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    "Error al consultar la vista GET_PRIVILEGIOS del sistema.", 
+                    ex
+            );
             return false;
         }
     }
