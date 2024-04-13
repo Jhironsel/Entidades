@@ -2,6 +2,7 @@ package sur.softsurena.metodos;
 
 import java.sql.ResultSet;
 import java.util.List;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -15,6 +16,7 @@ import sur.softsurena.entidades.Medicamento;
  *
  * @author jhironsel
  */
+@Getter
 public class M_MedicamentoNGTest {
 
     public M_MedicamentoNGTest() {

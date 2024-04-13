@@ -2,6 +2,7 @@ package sur.softsurena.metodos;
 
 import java.sql.ResultSet;
 import java.util.List;
+import lombok.Getter;
 import static org.testng.Assert.assertEquals;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -11,6 +12,7 @@ import org.testng.annotations.Test;
 import sur.softsurena.entidades.Tanda;
 import sur.softsurena.utilidades.Resultado;
 
+@Getter
 public class M_TandaNGTest {
     
     public M_TandaNGTest() {

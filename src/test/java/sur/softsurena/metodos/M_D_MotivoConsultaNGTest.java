@@ -2,6 +2,7 @@ package sur.softsurena.metodos;
 
 import java.sql.ResultSet;
 import javax.swing.JOptionPane;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -20,6 +21,7 @@ import sur.softsurena.utilidades.Resultado;
  *
  * @author jhironsel
  */
+@Getter
 public class M_D_MotivoConsultaNGTest {
 
     public M_D_MotivoConsultaNGTest() {

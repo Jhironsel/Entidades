@@ -32,7 +32,7 @@ public class M_TiposSangres {
         List<TipoSangre> tiposSangresList = new ArrayList<>();
         final String sql
                 = "SELECT ID, DESCRIPCION "
-                + "FROM V_TIPOS_SANGRE "
+                + "FROM V_T_TIPOS_SANGRE "
                 + "WHERE ID >= 0 "
                 + "ORDER BY 1";
 

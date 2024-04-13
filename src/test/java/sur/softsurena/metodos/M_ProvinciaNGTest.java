@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.util.List;
+import lombok.Getter;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.AfterClass;
@@ -10,6 +11,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 
+@Getter
 public class M_ProvinciaNGTest {
     
     public M_ProvinciaNGTest() {

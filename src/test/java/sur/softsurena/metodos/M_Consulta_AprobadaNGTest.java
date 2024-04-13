@@ -1,5 +1,6 @@
 package sur.softsurena.metodos;
 
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -13,6 +14,7 @@ import sur.softsurena.entidades.Consulta_Aprobada;
  *
  * @author jhironsel
  */
+@Getter
 public class M_Consulta_AprobadaNGTest {
 
     public M_Consulta_AprobadaNGTest() {

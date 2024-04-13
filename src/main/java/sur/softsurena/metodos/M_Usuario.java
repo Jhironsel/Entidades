@@ -62,7 +62,7 @@ public class M_Usuario {
      */
     public synchronized static Resultado borrarUsuario(String loginName) {
 
-        final String sql = "EXECUTE PROCEDURE SP_DELETE_USUARIO (?);";
+        final String sql = "EXECUTE PROCEDURE SP_D_USUARIO(?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -76,30 +76,38 @@ public class M_Usuario {
             return Resultado
                     .builder()
                     .mensaje(USUARIO_BORRADO_CORRECTAMENTE)
-                    .estado(Boolean.TRUE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ERROR_AL_BORRAR_USUARIO, ex);
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_BORRAR_USUARIO, 
+                    ex
+            );
             if (ex.getMessage().contains("E_CAJERO_TURNO_ACTIVO")) {
-                JOptionPane.showMessageDialog(
-                        null,
-                        "Cajero cuenta con un turno activo.",
-                        "",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                return Resultado
+                    .builder()
+                    .mensaje(CAJERO_CUENTA_CON_UN_TURNO_ACTIVO)
+                    .icono(JOptionPane.WARNING_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
             }
 
             return Resultado
                     .builder()
                     .mensaje(ERROR_AL_BORRAR_USUARIO)
-                    .estado(Boolean.FALSE)
                     .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
     }
-    private static final String USUARIO_BORRADO_CORRECTAMENTE = "Usuario borrado correctamente.";
-    private static final String ERROR_AL_BORRAR_USUARIO = "Error al borrar usuario.";
+    public static final String CAJERO_CUENTA_CON_UN_TURNO_ACTIVO 
+            = "Cajero cuenta con un turno activo.";
+    private static final String USUARIO_BORRADO_CORRECTAMENTE 
+            = "Usuario borrado correctamente.";
+    private static final String ERROR_AL_BORRAR_USUARIO 
+            = "Error al borrar usuario.";
 
     /**
      * Nitido. Metodo para consultar cual es el usuario actual del sistema.
@@ -284,7 +292,7 @@ public class M_Usuario {
      */
     public static synchronized Resultado agregarUsuario(Usuario usuario) {
         final String sql
-                = "EXECUTE PROCEDURE SP_INSERT_USUARIO(?,?,?,?,?,?,?,?,?)";
+                = "EXECUTE PROCEDURE SP_I_USUARIO(?,?,?,?,?,?,?,?,?)";
 
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
@@ -305,17 +313,20 @@ public class M_Usuario {
             cs.executeUpdate();
 
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_AGREGAR__USUARIO, 
+                    ex
+            );
 
             return Resultado
                     .builder()
                     .mensaje(ERROR_AL_AGREGAR__USUARIO)
-                    .estado(Boolean.FALSE)
                     .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
-        usuario.getRoles().stream().forEach(
-                role -> {
+        usuario.getRoles().stream().forEach( role -> {
                     asignarRolUsuario(
                             role.getRoleName(),
                             usuario.getUser_name(),
@@ -327,12 +338,14 @@ public class M_Usuario {
         return Resultado
                 .builder()
                 .mensaje(USUARIO_AGREGADO_CORRECTAMENTE)
-                .estado(Boolean.TRUE)
                 .icono(JOptionPane.INFORMATION_MESSAGE)
+                .estado(Boolean.TRUE)
                 .build();
     }
-    public static final String USUARIO_AGREGADO_CORRECTAMENTE = "Usuario agregado correctamente.";
-    public static final String ERROR_AL_AGREGAR__USUARIO = "Error al agregar Usuario...";
+    public static final String USUARIO_AGREGADO_CORRECTAMENTE 
+            = "Usuario agregado correctamente.";
+    public static final String ERROR_AL_AGREGAR__USUARIO 
+            = "Error al agregar Usuario...";
 
     /**
      *
@@ -341,7 +354,7 @@ public class M_Usuario {
      */
     public static synchronized Resultado modificarUsuario(Usuario u) {
         final String sql
-                = "EXECUTE PROCEDURE SP_UPDATE_USUARIO (?,?,?,?,?,?,?,?)";
+                = "EXECUTE PROCEDURE SP_U_USUARIO (?,?,?,?,?,?,?,?)";
         try (CallableStatement cs = getCnn().prepareCall(sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,

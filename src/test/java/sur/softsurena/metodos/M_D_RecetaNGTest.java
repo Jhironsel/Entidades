@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.util.List;
+import lombok.Getter;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -12,6 +13,7 @@ import sur.softsurena.entidades.D_Receta;
  *
  * @author jhironsel
  */
+@Getter
 public class M_D_RecetaNGTest {
 
     public M_D_RecetaNGTest() {

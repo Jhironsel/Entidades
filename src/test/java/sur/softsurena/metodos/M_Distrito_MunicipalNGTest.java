@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.util.List;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -12,6 +13,7 @@ import org.testng.annotations.Test;
  *
  * @author jhironsel
  */
+@Getter
 public class M_Distrito_MunicipalNGTest {
 
     public M_Distrito_MunicipalNGTest() {

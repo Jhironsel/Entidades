@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.util.List;
+import lombok.Getter;
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.AfterClass;
@@ -9,9 +10,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
-import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.metodos.M_Role.ROL_ASIGNADO_A_USUARIO;
+import sur.softsurena.utilidades.Resultado;
 
+@Getter
 public class M_RoleNGTest {
     
     public M_RoleNGTest() {

@@ -4,8 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Control_Consulta;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
@@ -17,16 +19,16 @@ public class M_Control_Consulta {
     /**
      * Metodo utilizado para eliminar los controles de consultas programadas
      * previamente.
-     * 
+     *
      * TODO CREAR SP.
      *
      * @param idControlConsulta
      *
      * @return
      */
-    public synchronized static String borrarControlConsulta(int idControlConsulta) {
+    public synchronized static Resultado borrarControlConsulta(int idControlConsulta) {
         final String sql
-                = "DELETE FROM V_CONTROL_CONSULTA WHERE id = ?";
+                = "EXECUTE PROCEDURE SP_D_CONTROL_CONSULTA (?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -34,27 +36,47 @@ public class M_Control_Consulta {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             ps.setInt(1, idControlConsulta);
+            
             ps.executeUpdate();
-            return CONTROL__CONSULTA_BORRADO_CORRECTAMENTE;
+            
+            return Resultado
+                    .builder()
+                    .mensaje(CONTROL__CONSULTA_BORRADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA;
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA,
+                    ex
+            );
+            
+            return Resultado
+                    .builder()
+                    .mensaje(ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
-    public static final String ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA = "Error al borrar control de la consulta";
-    public static final String CONTROL__CONSULTA_BORRADO_CORRECTAMENTE = "Control Consulta borrado correctamente";
+    public static final String ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA
+            = "Error al borrar control de la consulta";
+    public static final String CONTROL__CONSULTA_BORRADO_CORRECTAMENTE
+            = "Control Consulta borrado correctamente";
 
     /**
-     * TODO CREAR SP.
+     * Permite agregar un control de consulta al sistema.
      *
      * @param controlConsulta
      * @return
      */
-    public synchronized static String agregarControlConsulta(Control_Consulta controlConsulta) {
+    public synchronized static Resultado agregarControlConsulta(Control_Consulta controlConsulta) {
         final String sql
-                = "insert into CONTROLCONSULTA (IDUSUARIO, CANTIDADPACIENTE, DIA, INICIAL, FINAL) "
-                + "values (?, ?, ?, ?, ?)";
+                = """
+                  SELECT O_ID
+                  FROM SP_I_CONTROL_CONSULTA (?, ?, ?, ?, ?, ?);
+                  """;
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -62,19 +84,42 @@ public class M_Control_Consulta {
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
-            ps.setInt(1, controlConsulta.getId());
+            ps.setString(1, controlConsulta.getUser_name());
             ps.setInt(2, controlConsulta.getCantidad());
             ps.setString(3, controlConsulta.getDia());
             ps.setTime(4, controlConsulta.getInicial());
             ps.setTime(5, controlConsulta.getFinall());
+            ps.setBoolean(6, controlConsulta.getEstado());
 
-            ps.executeUpdate();
-            return "Cambios Guardados";
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+
+            return Resultado
+                    .builder()
+                    .id(rs.getInt(1))
+                    .mensaje(CONTROL_CONSULTA_AGREGADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "No se pueden guardar los cambios";
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_AGREGAR__CONTROL__CONSULTA_AL_SIST,
+                    ex
+            );
+            return Resultado
+                    .builder()
+                    .id(-1)
+                    .mensaje(ERROR_AL_AGREGAR__CONTROL__CONSULTA_AL_SIST)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
+    public static final String ERROR_AL_AGREGAR__CONTROL__CONSULTA_AL_SIST
+            = "Error al agregar Control Consulta al sistema.";
+    public static final String CONTROL_CONSULTA_AGREGADO_CORRECTAMENTE
+            = "Control consulta agregado correctamente.";
 
     /**
      * TODO Crear SP.
@@ -115,15 +160,14 @@ public class M_Control_Consulta {
     public static final String CONSULTA_MODIFICADO_CORRECTAMENTE = "Consulta modificado correctamente";
     public static final String ERROR_AL_MODIFICAR_CONSULTA = "Error al modificar consulta...";
 
-    
     /**
-     * 
+     *
      * @param fecha
      * @param actual
-     * @return 
+     * @return
      */
     public synchronized static ResultSet getFechaDoctores(String fecha, boolean actual) {
-        final String sql 
+        final String sql
                 = "SELECT IDCONTROLCONSULTA, loginName, dia, "
                 + "INICIAL, FINAL, nombreCompleto, CANTIDAD_PACIENTE "
                 + "FROM GET_controlConsulta "
@@ -151,12 +195,12 @@ public class M_Control_Consulta {
     }
 
     /**
-     * 
+     *
      * @param idUsuario
-     * @return 
+     * @return
      */
     public synchronized static ResultSet getHorario(String idUsuario) {
-        final String sql 
+        final String sql
                 = "SELECT IDCONTROLCONSULTA, CANTIDADPACIENTE,"
                 + "          DIA, INICIAL, FINAL "
                 + "FROM t_controlconsulta "

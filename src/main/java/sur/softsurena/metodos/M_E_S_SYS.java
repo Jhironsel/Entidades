@@ -29,7 +29,7 @@ public class M_E_S_SYS {
      */
     public synchronized static boolean insertLogo(File file) {
         final String sql
-                = "UPDATE OR INSERT INTO V_E_S_SYS(ID, LOGO) "
+                = "UPDATE OR INSERT INTO V_T_E_S_SYS(ID, LOGO) "
                 + "VALUES(1,?) MATCHING(ID);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -40,7 +40,11 @@ public class M_E_S_SYS {
             ps.setString(1, Utilidades.imagenEncode64(file));
             return ps.execute();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
         }
         return false;
     }
@@ -53,7 +57,7 @@ public class M_E_S_SYS {
         final String sql
                 = "SELECT "
                 + "     LOGO "
-                + "FROM V_E_S_SYS "
+                + "FROM V_T_E_S_SYS "
                 + "WHERE ID = 1; ";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,

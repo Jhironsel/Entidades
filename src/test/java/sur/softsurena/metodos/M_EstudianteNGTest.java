@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.sql.ResultSet;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -16,6 +17,7 @@ import sur.softsurena.utilidades.Resultado;
  *
  * @author jhironsel
  */
+@Getter
 public class M_EstudianteNGTest {
 
     public M_EstudianteNGTest() {

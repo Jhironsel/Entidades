@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Consulta;
 import sur.softsurena.utilidades.Resultado;
@@ -19,7 +20,7 @@ public class M_Consulta {
      */
     public static synchronized Resultado agregarConsulta(Consulta consulta) {
         final String sql
-                = "SELECT O_ID FROM SP_INSERT_CONSULTA(?, ?, ?, ?);";
+                = "SELECT O_ID FROM SP_I_CONSULTA(?, ?, ?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -31,27 +32,38 @@ public class M_Consulta {
             ps.setInt(3, consulta.getTurno());
             ps.setDate(4, consulta.getFecha());
 
-            int id;
-            try (ResultSet rs = ps.executeQuery();) {
-                rs.next();
-                id = rs.getInt("O_ID");
-            }
+            
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            
             return Resultado
                     .builder()
-                    .id(id)
+                    .id(rs.getInt("O_ID"))
                     .mensaje(CONSULTA_AGREGADA_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
+            
+            
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_INSERTAR_CONSULTA,
+                    ex
+            );
             return Resultado
                     .builder()
                     .id(-1)
                     .mensaje(ERROR_AL_INSERTAR_CONSULTA)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
         }
     }
-    public static final String ERROR_AL_INSERTAR_CONSULTA = "Error al insertar consulta";
-    public static final String CONSULTA_AGREGADA_CORRECTAMENTE = "Consulta agregada correctamente";
+    public static final String ERROR_AL_INSERTAR_CONSULTA
+            = "Error al insertar consulta";
+    public static final String CONSULTA_AGREGADA_CORRECTAMENTE
+            = "Consulta agregada correctamente";
 
     /**
      *

@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.sql.ResultSet;
+import lombok.Getter;
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.AfterClass;
@@ -12,6 +13,7 @@ import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Consulta;
 import sur.softsurena.utilidades.Resultado;
 
+@Getter
 public class M_ConsultaNGTest {
     
     public M_ConsultaNGTest() {

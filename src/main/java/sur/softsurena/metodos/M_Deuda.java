@@ -80,7 +80,7 @@ public class M_Deuda {
      * @return
      */
     public synchronized static Resultado modificarDeuda(int idDeuda, String op) {
-        final String sql = "EXECUTE PROCEDURE SP_UPDATE_DEUDA_ESTADO (?, ?);";
+        final String sql = "EXECUTE PROCEDURE SP_U_DEUDA_ESTADO(?, ?);";
 
         try (CallableStatement ps = getCnn().prepareCall(
                 sql,

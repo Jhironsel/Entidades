@@ -2,6 +2,7 @@ package sur.softsurena.metodos;
 
 import java.io.File;
 import java.util.List;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -19,6 +20,7 @@ import sur.softsurena.utilidades.Resultado;
  *
  * @author jhironsel
  */
+@Getter
 public class M_CategoriaNGTest {
 
     public static int idCategoria1, idCategoria2;

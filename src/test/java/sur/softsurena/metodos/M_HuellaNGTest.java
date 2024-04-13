@@ -1,5 +1,6 @@
 package sur.softsurena.metodos;
 
+import lombok.Getter;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -9,6 +10,7 @@ import org.testng.annotations.BeforeMethod;
  *
  * @author jhironsel
  */
+@Getter
 public class M_HuellaNGTest {
 
     public M_HuellaNGTest() {

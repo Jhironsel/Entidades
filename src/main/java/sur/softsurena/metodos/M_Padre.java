@@ -4,8 +4,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
-import sur.softsurena.entidades.Padres;
+import sur.softsurena.entidades.Padre;
 import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
@@ -16,7 +17,8 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
 public class M_Padre {
 
     /**
-     *
+     * TODO Devolver un Resultado.
+     * 
      * @param cedula
      * @return
      */
@@ -48,31 +50,30 @@ public class M_Padre {
     }
 
     /**
-     *
-     * @param p
+     * Metodo que permite agregar los padres al sistema pediatrico. 
+     * @param padre
      * @return
      */
-    public static Resultado agregarPadreMadre(Padres p) {
-        Resultado r;
+    public static Resultado agregarPadreMadre(Padre padre) {
         final String sql
-                = "SELECT p.O_ID FROM SP_INSERT_PADRES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) p;";
+                = "SELECT O_ID FROM SP_I_PADRE(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
-            ps.setInt(1, p.getAsegurado().getId_ars());
-            ps.setString(2, p.getAsegurado().getNo_nss());
-            ps.setInt(3, p.getGenerales().getId_tipo_sangre());
-            ps.setString(4, p.getGenerales().getCedula());
-            ps.setString(5, p.getPnombre());
-            ps.setString(6, p.getSnombre());
-            ps.setString(7, p.getApellidos());
-            ps.setString(8, "" + p.getSexo());
-            ps.setDate(9, p.getFecha_nacimiento());
-            ps.setBoolean(10, p.getEstado());
-            ps.setString(11, "" + p.getGenerales().getEstado_civil());
+            ps.setInt(1, padre.getAsegurado().getId_ars());
+            ps.setString(2, padre.getAsegurado().getNo_nss());
+            ps.setInt(3, padre.getGenerales().getId_tipo_sangre());
+            ps.setString(4, padre.getGenerales().getCedula());
+            ps.setString(5, padre.getPnombre());
+            ps.setString(6, padre.getSnombre());
+            ps.setString(7, padre.getApellidos());
+            ps.setString(8, "" + padre.getSexo());
+            ps.setDate(9, padre.getFecha_nacimiento());
+            ps.setBoolean(10, padre.getEstado());
+            ps.setString(11, "" + padre.getGenerales().getEstado_civil());
 
             ResultSet rs = ps.executeQuery();
 
@@ -80,39 +81,42 @@ public class M_Padre {
 
             int id = rs.getInt(1);
 
-            r = Resultado
+            return Resultado
                     .builder()
                     .id(id)
-                    .mensaje("Padre Agregado Exitosamente!")
-                    .cantidad(-1)
+                    .mensaje(PADRE__AGREGADO__EXITOSAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
-
-            return r;
         } catch (SQLException ex) {
             LOG.log(
                     Level.SEVERE, 
-                    ex.getMessage(), 
+                    ERROR_AL_AGREGAR_PADRE_AL_SISTEMA, 
                     ex
             );
-            r = Resultado
+            return Resultado
                     .builder()
                     .id(-1)
-                    .mensaje("Error al agregar padre al sistema")
-                    .cantidad(-1)
+                    .mensaje(ERROR_AL_AGREGAR_PADRE_AL_SISTEMA)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
                     .build();
-            return r;
         }
 
     }
+    public static final String ERROR_AL_AGREGAR_PADRE_AL_SISTEMA 
+            = "Error al agregar padre al sistema";
+    public static final String PADRE__AGREGADO__EXITOSAMENTE 
+            = "Padre Agregado Exitosamente!";
 
     /**
      *
      * @param p
      * @return
      */
-    public synchronized static String modificarPadre(Padres p) {
-        final String sql = "EXECUTE PROCEDURE SP_UPDATE_PADRES (?, ?, ?, ?, ?, ?, ?, ?,"
-                + " ?, ?, ?, ?);";
+    public synchronized static Resultado modificarPadre(Padre p) {
+        final String sql 
+                = "EXECUTE PROCEDURE SP_U_PADRE(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -128,18 +132,36 @@ public class M_Padre {
             ps.setString(6, p.getPnombre());
             ps.setString(7, p.getSnombre());
             ps.setString(8, p.getApellidos());
-            ps.setString(9, "" + p.getSexo());
+            ps.setString(9, p.getSexo().toString());
             ps.setDate(10, p.getFecha_nacimiento());
             ps.setBoolean(11, p.getEstado());
-            ps.setString(12, "" + p.getGenerales().getEstado_civil());
+            ps.setString(12, p.getGenerales().getEstado_civil().toString());
 
             ps.executeUpdate();
-            return "Padre modificado correctamente";
+            return Resultado
+                    .builder()
+                    .mensaje(PADRE_MODIFICADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "Error al modificar padre...";
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_MODIFICAR_PADRE, 
+                    ex
+            );
+            return Resultado
+                    .builder()
+                    .mensaje(ERROR_AL_MODIFICAR_PADRE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
+    public static final String ERROR_AL_MODIFICAR_PADRE 
+            = "Error al modificar padre...";
+    public static final String PADRE_MODIFICADO_CORRECTAMENTE
+            = "Padre modificado correctamente";
 
     /**
      * TODO Crear SP.
@@ -172,39 +194,6 @@ public class M_Padre {
             );
             return "Error al borrar padre...";
         }
-    }
-
-    /**
-     * 
-     * @param estado
-     * @return
-     */
-    public synchronized static int numeroPadres(boolean estado) {
-        final String sql = "SELECT CANTIDAD "
-                + "FROM V_RECCOUNT "
-                + "WHERE ESTADO IS ? AND IDPADRE != 0;";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.HOLD_CURSORS_OVER_COMMIT
-        )) {
-            ps.setBoolean(1, estado);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
-                return rs.getInt(1);
-            }
-
-        } catch (SQLException ex) {
-            LOG.log(
-                    Level.SEVERE, 
-                    ex.getMessage(), 
-                    ex
-            );
-        }
-        return 1;
     }
 
     /**

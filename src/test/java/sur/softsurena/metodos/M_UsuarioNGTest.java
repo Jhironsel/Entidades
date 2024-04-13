@@ -2,6 +2,7 @@ package sur.softsurena.metodos;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.AfterClass;
@@ -10,10 +11,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
-import sur.softsurena.utilidades.Resultado;
 import sur.softsurena.entidades.Role;
 import sur.softsurena.entidades.Usuario;
+import sur.softsurena.utilidades.Resultado;
 
+@Getter
 public class M_UsuarioNGTest {
 
     public M_UsuarioNGTest() {

@@ -46,7 +46,7 @@ public class M_BaseDeDatos {
      */
     public synchronized static int periodoMaquina() {
         final String sql
-                = "SELECT DIAS_RESTANTES FROM V_E_S_SYS WHERE ID = 1";
+                = "SELECT DIAS_RESTANTES FROM V_T_E_S_SYS WHERE ID = 1";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,

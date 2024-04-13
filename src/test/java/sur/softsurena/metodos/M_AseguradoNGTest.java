@@ -1,5 +1,6 @@
 package sur.softsurena.metodos;
 
+import lombok.Getter;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -10,6 +11,7 @@ import org.testng.annotations.Test;
  *
  * @author jhironsel
  */
+@Getter
 public class M_AseguradoNGTest {
 
     public M_AseguradoNGTest() {

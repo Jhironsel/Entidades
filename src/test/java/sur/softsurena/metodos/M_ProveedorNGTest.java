@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.sql.ResultSet;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -9,11 +10,13 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Proveedor;
+import sur.softsurena.utilidades.Resultado;
 
 /**
  *
  * @author jhironsel
  */
+@Getter
 public class M_ProveedorNGTest {
 
     public M_ProveedorNGTest() {
@@ -53,9 +56,13 @@ public class M_ProveedorNGTest {
             description = ""
     )
     public void testAgregarProveedor() {
-        Proveedor proveedor = null;
         String expResult = "";
-        String result = M_Proveedor.agregarProveedor(proveedor);
+        Resultado result = M_Proveedor.agregarProveedor(
+                Proveedor
+                        .builder()
+                        .codigoProveedor("jkhskdhgkhjh23")
+                        .build()
+        );
         assertEquals(result, expResult);
     }
 
@@ -67,7 +74,7 @@ public class M_ProveedorNGTest {
     public void testModificarProveedor() {
         Proveedor p = null;
         String expResult = "";
-        String result = M_Proveedor.modificarProveedor(p);
+        Resultado result = M_Proveedor.modificarProveedor(p);
         assertEquals(result, expResult);
     }
 

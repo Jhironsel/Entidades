@@ -1,19 +1,21 @@
 package sur.softsurena.metodos;
 
 import java.sql.ResultSet;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import sur.softsurena.entidades.Padres;
+import sur.softsurena.entidades.Padre;
 import sur.softsurena.utilidades.Resultado;
 
 /**
  *
  * @author jhironsel
  */
+@Getter
 public class M_PadreNGTest {
 
     public M_PadreNGTest() {
@@ -53,7 +55,7 @@ public class M_PadreNGTest {
             description = ""
     )
     public void testAgregarPadreMadre() {
-        Padres p = null;
+        Padre p = null;
         Resultado expResult = null;
         Resultado result = M_Padre.agregarPadreMadre(p);
         assertEquals(result, expResult);
@@ -65,9 +67,9 @@ public class M_PadreNGTest {
             description = ""
     )
     public void testModificarPadre() {
-        Padres p = null;
+        Padre p = null;
         String expResult = "";
-        String result = M_Padre.modificarPadre(p);
+        Resultado result = M_Padre.modificarPadre(p);
         assertEquals(result, expResult);
     }
 
@@ -80,18 +82,6 @@ public class M_PadreNGTest {
         String cedula = "";
         String expResult = "";
         String result = M_Padre.borrarPadre(cedula);
-        assertEquals(result, expResult);
-    }
-
-    @Test(
-            enabled = false,
-            priority = 0,
-            description = ""
-    )
-    public void testNumeroPadres() {
-        boolean estado = false;
-        int expResult = 0;
-        int result = M_Padre.numeroPadres(estado);
         assertEquals(result, expResult);
     }
 

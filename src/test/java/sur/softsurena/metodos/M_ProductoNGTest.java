@@ -3,6 +3,7 @@ package sur.softsurena.metodos;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -21,6 +22,7 @@ import sur.softsurena.utilidades.FiltroBusqueda;
 import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.imagenEncode64;
 
+@Getter
 public class M_ProductoNGTest {
 
     private static Integer id_producto, id_producto2;
@@ -42,6 +44,7 @@ public class M_ProductoNGTest {
                 Conexion.verificar().getEstado(),
                 "Error al conectarse..."
         );
+
         M_CategoriaNGTest.testAgregarCategoria();
     }
 
@@ -58,7 +61,9 @@ public class M_ProductoNGTest {
                 .categoria(
                         Categoria
                                 .builder()
-                                .id_categoria(M_CategoriaNGTest.idCategoria1)
+                                .id_categoria(
+                                        M_CategoriaNGTest.idCategoria1
+                                )
                                 .build()
                 )
                 .codigo(M_ContactoTel.generarTelMovil().substring(8, 16))
@@ -68,22 +73,25 @@ public class M_ProductoNGTest {
                 .estado(Boolean.TRUE)
                 .build();
 
-        producto2 = Producto
-                .builder()
-                .id(id_producto2)
-                .categoria(
-                        Categoria
-                                .builder()
-                                .id_categoria(M_CategoriaNGTest.idCategoria2)
-                                .build()
-                )
-                .codigo(M_ContactoTel.generarTelMovil().substring(8, 16))
-                .descripcion("Descripcion Prueba %s".formatted(M_ContactoTel.generarTelMovil().substring(8, 16)))
-                .imagenProducto(imagenEncode64(null))
-                .nota("Esta es una prueba del sistema.")
-                .estado(Boolean.FALSE)
-                .build();
-
+        assertThrows(() -> {
+            producto2 = Producto
+                    .builder()
+                    .id(id_producto2)
+                    .categoria(
+                            Categoria
+                                    .builder()
+                                    .id_categoria(
+                                            M_CategoriaNGTest.idCategoria2
+                                    )
+                                    .build()
+                    )
+                    .codigo(M_ContactoTel.generarTelMovil().substring(8, 16))
+                    .descripcion("Descripcion Prueba %s".formatted(M_ContactoTel.generarTelMovil().substring(8, 16)))
+                    .imagenProducto(imagenEncode64(null))
+                    .nota("Esta es una prueba del sistema.")
+                    .estado(Boolean.FALSE)
+                    .build();
+        });
     }
 
     @AfterMethod
@@ -214,37 +222,60 @@ public class M_ProductoNGTest {
             priority = 3
     )
     public void testGetProductosByCategoria2() {
-        List<Producto> result = getProductosByCategoria(M_CategoriaNGTest.idCategoria1, null);
+        List<Producto> result = getProductosByCategoria(
+                M_CategoriaNGTest.idCategoria1,
+                null
+        );
+
         assertFalse(
                 result.isEmpty(),
                 "Se obtuvo resultados en la consulta."
         );
 
-        result = getProductosByCategoria(M_CategoriaNGTest.idCategoria1, true);
+        result = getProductosByCategoria(
+                M_CategoriaNGTest.idCategoria1,
+                true
+        );
         assertFalse(
                 result.isEmpty(),
                 "Se obtuvo resultados en la consulta."
         );
 
-        result = getProductosByCategoria(M_CategoriaNGTest.idCategoria1, false);
+        result = getProductosByCategoria(
+                M_CategoriaNGTest.idCategoria1,
+                false
+        );
+
         assertTrue(
                 result.isEmpty(),
                 "Se obtuvo resultados en la consulta."
         );
 
-        result = getProductosByCategoria(M_CategoriaNGTest.idCategoria2, null);
+        result = getProductosByCategoria(
+                M_CategoriaNGTest.idCategoria2,
+                null
+        );
+
         assertFalse(
                 result.isEmpty(),
                 "Se obtuvo resultados en la consulta."
         );
 
-        result = getProductosByCategoria(M_CategoriaNGTest.idCategoria2, true);
+        result = getProductosByCategoria(
+                M_CategoriaNGTest.idCategoria2,
+                true
+        );
+
         assertTrue(
                 result.isEmpty(),
                 "Se obtuvo resultados en la consulta."
         );
 
-        result = getProductosByCategoria(M_CategoriaNGTest.idCategoria2, false);
+        result = getProductosByCategoria(
+                M_CategoriaNGTest.idCategoria2,
+                false
+        );
+
         assertFalse(
                 result.isEmpty(),
                 "Se obtuvo resultados en la consulta."

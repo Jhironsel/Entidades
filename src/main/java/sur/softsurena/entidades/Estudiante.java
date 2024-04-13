@@ -1,17 +1,14 @@
 package sur.softsurena.entidades;
 
-import sur.softsurena.abstracta.Persona;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import sur.softsurena.abstracta.Persona;
 
 @Getter
 @SuperBuilder
 public class Estudiante extends Persona {
 
     private final String matricula;
-    private final Integer idPadre;
-    private final Integer idMadre;
-    private final Integer idTutor;
     private final Integer jcb_parentesco;
 
     @Override

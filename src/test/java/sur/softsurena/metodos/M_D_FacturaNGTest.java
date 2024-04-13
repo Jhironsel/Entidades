@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.sql.ResultSet;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -13,6 +14,7 @@ import sur.softsurena.entidades.Factura;
  *
  * @author jhironsel
  */
+@Getter
 public class M_D_FacturaNGTest {
 
     public M_D_FacturaNGTest() {

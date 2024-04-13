@@ -51,7 +51,7 @@ public class M_Categoria {
      */
     public synchronized static Resultado agregarCategoria(Categoria categoria) {
         final String sql
-                = "SELECT V_ID FROM SP_INSERT_CATEGORIA(?, ?, ?)";
+                = "SELECT V_ID FROM SP_I_CATEGORIA(?, ?, ?)";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -72,7 +72,11 @@ public class M_Categoria {
                     .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_INSERTAR_CATEGORIA, 
+                    ex
+            );
             return Resultado
                     .builder()
                     .id(-1)
@@ -99,7 +103,7 @@ public class M_Categoria {
      */
     public synchronized static Resultado modificarCategoria(Categoria categoria) {
         final String sql
-                = "EXECUTE PROCEDURE SP_UPDATE_CATEGORIA (?,?,?,?)";
+                = "EXECUTE PROCEDURE SP_U_CATEGORIA (?,?,?,?)";
 
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
@@ -150,7 +154,7 @@ public class M_Categoria {
      */
     public static Resultado borrarCategoria(int idCategoria) {
         final String sql
-                = "EXECUTE PROCEDURE SP_DELETE_CATEGORIA(?)";
+                = "EXECUTE PROCEDURE SP_D_CATEGORIA(?)";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,

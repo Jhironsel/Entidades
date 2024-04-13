@@ -166,7 +166,7 @@ public class M_Producto implements IProducto{
      */
     public synchronized static Resultado borrarProductoPorID(Integer ID) {
         final String sql
-                = "EXECUTE PROCEDURE SP_DELETE_PRODUCTO (?)";
+                = "EXECUTE PROCEDURE SP_D_PRODUCTO(?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
@@ -183,7 +183,11 @@ public class M_Producto implements IProducto{
                     .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_EL__PR, ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_EL__PR, 
+                    ex
+            );
             return Resultado
                     .builder()
                     .mensaje(OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_EL__PR)
@@ -192,18 +196,14 @@ public class M_Producto implements IProducto{
                     .build();
         }
     }
-    public static final String OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_EL__PR = "Ocurrio un error al intentar borrar el Producto...";
-    public static final String PRODUCTO__BORRADO__CORRECTAMENTE = "Producto Borrado Correctamente.";
+    public static final String OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_EL__PR 
+            = "Ocurrio un error al intentar borrar el Producto...";
+    public static final String PRODUCTO__BORRADO__CORRECTAMENTE 
+            = "Producto Borrado Correctamente.";
 
     /**
      * Agregar producto a la base de datos en la tabla productos.
-     *
-     * Actualizado el dia 13 Abril del 2022.
-     *
-     * Actualizado el dia 09 Julio del 2022, Nota: se ha llevado el SQL a la
-     * clase producto y por lo tanto se utiliza el nombre del campo que contiene
-     * el SQL de la consulta.
-     *
+     * 
      * @test agregarProducto() metodo que realiza la prueba unitaria del metodo.
      *
      * @param producto Objecto de la clase producto que permite obtener los valos de
@@ -214,7 +214,7 @@ public class M_Producto implements IProducto{
      */
     public synchronized static Resultado agregarProducto(Producto producto) {
         final String sql
-                = "SELECT O_ID FROM SP_INSERT_PRODUCTO(?,?,?,?,?,?)";
+                = "SELECT O_ID FROM SP_I_PRODUCTO(?,?,?,?,?,?)";
         
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -242,7 +242,11 @@ public class M_Producto implements IProducto{
                     .build();
 
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL__INSERTAR__PRODUCTO, 
+                    ex
+            );
             return Resultado
                     .builder()
                     .id(-1)
@@ -252,12 +256,10 @@ public class M_Producto implements IProducto{
                     .build();
         }
     }
-    public static final String ERROR_AL__INSERTAR__PRODUCTO = "Error al Insertar Producto.";
-    /**
-     * Variable utilizar que indica cuando un producto ha sido agregado
-     * correctamente.
-     */
-    public static final String PRODUCTO_AGREGADO_CORRECTAMENTE = "Producto agregado correctamente.";
+    public static final String ERROR_AL__INSERTAR__PRODUCTO 
+            = "Error al Insertar Producto.";
+    public static final String PRODUCTO_AGREGADO_CORRECTAMENTE 
+            = "Producto agregado correctamente.";
 
     /**
      * Metodo que permite modificar los productos del sistema como a la
@@ -273,7 +275,7 @@ public class M_Producto implements IProducto{
      */
     public synchronized static Resultado modificarProducto(Producto p) {
         final String sql
-                = "EXECUTE PROCEDURE SP_UPDATE_PRODUCTO (?, ?, ?, ?, ?, ?, ?)";
+                = "EXECUTE PROCEDURE SP_U_PRODUCTO (?, ?, ?, ?, ?, ?, ?)";
         try (CallableStatement ps = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -312,10 +314,6 @@ public class M_Producto implements IProducto{
     }
     public static final String ERROR_AL__MODIFICAR__PRODUCTO 
             = "Error al Modificar Producto...";
-    /**
-     * Variable utilizar que indica cuando un producto ha sido modificado
-     * correctamente.
-     */
     public static final String PRODUCTO__MODIFICADO__CORRECTAMENTE 
             = "Producto Modificado Correctamente";
 

@@ -26,8 +26,8 @@ public class M_Municipio {
 
         final String sql
                 = "SELECT ID, NOMBRE "
-                + "FROM V_MUNICIPIOS "
-                + "WHERE IDPROVINCIA = ? OR ID = 0 ORDER BY 1";
+                + "FROM V_T_MUNICIPIOS "
+                + "WHERE ID_PROVINCIA = ? OR ID = 0 ORDER BY 1";
 
         List<Municipio> municipioList = new ArrayList<>();
 
@@ -48,7 +48,11 @@ public class M_Municipio {
                 }
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
         }
         return municipioList;
     }

@@ -71,8 +71,8 @@ public class M_ARS {
      * @param idARS
      * @return
      */
-    public synchronized static Resultado borrarSeguro(int idARS) {
-        final String sql = "EXECUTE PROCEDURE SP_D_ARS (?);";
+    public synchronized static Resultado borrarSeguro(Integer idARS) {
+        final String sql = "EXECUTE PROCEDURE SP_D_ARS(?)";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -92,8 +92,14 @@ public class M_ARS {
                     .build();
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    ERROR_AL_BORRAR_ARS, 
+                    Level.SEVERE,
+                    ERROR_AL_BORRAR_ARS
+                            .concat(
+                                    " \nError al ejecutar SP_D_ARS(?) en el sistema, con el ID "
+                            )
+                            .concat(
+                                    idARS.toString()
+                            ),
                     ex
             );
             return Resultado
@@ -117,7 +123,7 @@ public class M_ARS {
      *
      * @return
      */
-    public synchronized static Resultado agregarSeguro(ARS ars) {
+    public synchronized static Resultado agregarARS(ARS ars) {
         final String sql
                 = """
                   SELECT O_ID 

@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.sql.ResultSet;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -14,6 +15,7 @@ import sur.softsurena.entidades.Dato_Nacimiento;
  *
  * @author jhironsel
  */
+@Getter
 public class M_Dato_NacimientoNGTest {
 
     public M_Dato_NacimientoNGTest() {
@@ -58,6 +60,17 @@ public class M_Dato_NacimientoNGTest {
         String expResult = "";
         String result = instance.agregarDatosNacimiento(dato);
         assertEquals(result, expResult);
+    }
+    
+    
+    @Test(
+            enabled = false,
+            description = "",
+            priority = 0
+    )
+    public void testGetDatosNacimiento() {
+//        Dato_Nacimiento result = M_Dato_Nacimiento.getDatosNacimiento(id);
+//        assertEquals(result, expResult);
     }
 
     @Test(

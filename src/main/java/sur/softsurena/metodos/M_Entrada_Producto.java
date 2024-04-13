@@ -4,8 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.EntradaProducto;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
@@ -24,9 +26,9 @@ public class M_Entrada_Producto {
      *
      * @return Devuelve un valor booleano que indica si el registro fue exitoso.
      */
-    public static boolean agregarProductoEntrada(EntradaProducto eProducto) {
+    public static Resultado agregarProductoEntrada(EntradaProducto eProducto) {
         final String sql
-                = "EXECUTE PROCEDURE SP_INSERT_ENTRADA_PRODUCTOS (?, ?, ?, ?, ?, ?);";
+                = "EXECUTE PROCEDURE SP_I_ENTRADA_PRODUCTO(?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql, 
@@ -40,13 +42,34 @@ public class M_Entrada_Producto {
             ps.setInt(4, eProducto.getIdProducto());
             ps.setBigDecimal(5, eProducto.getEntrada());
             ps.setDate(6, eProducto.getFechaVecimiento());
+            
             ps.executeUpdate();
-            return true;
+            
+            return Resultado
+                    .builder()
+                    .mensaje(PRODUCTO_AGREGADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return false;
+            LOG.log(
+                    Level.SEVERE, 
+                    EL_PRODUCTO_NO_FUE_AGREGADO, 
+                    ex
+            );
+            
+            return Resultado
+                    .builder()
+                    .mensaje(EL_PRODUCTO_NO_FUE_AGREGADO)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
+    public static final String PRODUCTO_AGREGADO_CORRECTAMENTE 
+            = "Producto agregado correctamente.";
+    public static final String EL_PRODUCTO_NO_FUE_AGREGADO 
+            = "El producto NO FUE agregado.";
 
     /**
      * CREAR SP.
@@ -80,7 +103,7 @@ public class M_Entrada_Producto {
     }
 
     /**
-     *
+     * TODO CREAR VISTA.
      * @param mes
      * @param year
      * @return

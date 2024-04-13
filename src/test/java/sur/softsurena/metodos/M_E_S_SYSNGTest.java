@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.io.File;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -13,6 +14,7 @@ import sur.softsurena.conexion.Conexion;
  *
  * @author jhironsel
  */
+@Getter
 public class M_E_S_SYSNGTest {
 
     public M_E_S_SYSNGTest() {

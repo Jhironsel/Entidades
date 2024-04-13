@@ -139,7 +139,7 @@ public class M_Cliente {
      */
     public synchronized static Resultado agregarClienteById(int id) {
         final String sql
-                = "EXECUTE PROCEDURE SP_INSERT_PERSONA_CLIENTES_ID(?)";
+                = "EXECUTE PROCEDURE SP_I_CLIENTE_ID(?)";
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -147,7 +147,9 @@ public class M_Cliente {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             cs.setInt(1, id);
+            
             cs.execute();
+            
             return Resultado
                     .builder()
                     .mensaje(CLIENTE__AGREGADO__CORRECTAMENTE)
@@ -155,7 +157,11 @@ public class M_Cliente {
                     .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, "Error al insertar id del clliente.", ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_INSERTAR__CLIENTE, 
+                    ex
+            );
             return Resultado
                     .builder()
                     .estado(Boolean.TRUE)
@@ -176,7 +182,7 @@ public class M_Cliente {
      */
     public synchronized static Resultado modificarCliente(Cliente cliente) {
         final String sql
-                = "EXECUTE PROCEDURE SP_UPDATE_CLIENTE_SB(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                = "EXECUTE PROCEDURE SP_U_CLIENTE_SB(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -199,7 +205,6 @@ public class M_Cliente {
             ps.executeUpdate();
             return Resultado
                     .builder()
-                    .id(cliente.getId_persona())
                     .mensaje(CLIENTE__MODIFICADO__CORRECTAMENTE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
                     .estado(Boolean.TRUE)
@@ -212,7 +217,6 @@ public class M_Cliente {
             );
             return Resultado
                     .builder()
-                    .id(-1)
                     .mensaje(ERROR_AL__MODIFICAR__CLIENTE)
                     .icono(JOptionPane.ERROR_MESSAGE)
                     .estado(Boolean.FALSE)
@@ -313,8 +317,7 @@ public class M_Cliente {
      * @return
      */
     public synchronized static Resultado borrarCliente(int idCliente) {
-        final String sql = "EXECUTE PROCEDURE SP_DELETE_CLIENTE_SB (?);";
-
+        final String sql = "EXECUTE PROCEDURE SP_D_CLIENTE_SB(?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,

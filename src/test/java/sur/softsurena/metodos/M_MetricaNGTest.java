@@ -1,5 +1,6 @@
 package sur.softsurena.metodos;
 
+import lombok.Getter;
 import static org.testng.Assert.assertTrue;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -13,6 +14,7 @@ import sur.softsurena.entidades.Metrica;
  *
  * @author jhironsel
  */
+@Getter
 public class M_MetricaNGTest {
 
     public M_MetricaNGTest() {

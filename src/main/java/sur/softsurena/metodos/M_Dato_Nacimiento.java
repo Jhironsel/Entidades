@@ -56,6 +56,40 @@ public class M_Dato_Nacimiento {
             = "Error al insertar datos de Nacimiento.";
     public static final String DATOS_GUARDADO_CORRECTAMENTE 
             = "Datos guardado correctamente";
+    
+    /**
+     *
+     * @param id_paciente
+     * @return
+     */
+    public synchronized static Dato_Nacimiento getDatosNacimiento(int id_paciente) {
+        final String sql
+                = "SELECT FECHANACIMIENTO, PESONACIMIENTOKG, ALTURA, MC, "
+                + "         CESAREA, TIEMPOGESTACION, PC "
+                + "FROM V_DATOSNACIMIENTO "
+                + "WHERE idPaciente = ?";
+        
+        try (PreparedStatement ps = getCnn().prepareStatement(sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+
+            ps.setInt(1, id_paciente);
+            
+            ResultSet rs = ps.executeQuery();
+            
+            rs.next();
+
+            return Dato_Nacimiento.builder().build();
+        } catch (SQLException ex) {
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
+            return Dato_Nacimiento.builder().build();
+        }
+    }
 
     /**
      * 

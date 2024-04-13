@@ -29,12 +29,8 @@ public class M_ContactoEmail {
      */
     public static Resultado agregarContactosEmail(ContactoEmail contacto) {
         final String sql = """
-                           SELECT p.O_ID
-                           FROM SP_I_CORREO (
-                                ?, --ID_PERSONA 
-                                ?, --EMAIL 
-                                ? --POR_DEFECTO 
-                           ) p;
+                           SELECT O_ID
+                           FROM SP_I_CONTACTO_EMAIL (?,?,?);
                   """;
 
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -84,11 +80,9 @@ public class M_ContactoEmail {
      */
     public static Resultado modificarContactosEmail(ContactoEmail contacto) {
         final String sql
-                = "UPDATE V_CONTACTOS_EMAIL a "
-                + "SET "
-                + "   a.EMAIL = ? "
-                + "WHERE "
-                + "     a.ID = ?";
+                = """
+                EXECUTE PROCEDURE SP_U_CONTACTO_EMAIL (?,?,?,?);
+                """;
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -96,13 +90,16 @@ public class M_ContactoEmail {
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
-            ps.setString(1, contacto.getEmail());
-            ps.setInt(2, contacto.getId());
+            ps.setInt(      1, contacto.getId());
+            ps.setString(   2, contacto.getEmail());
+            ps.setBoolean(  3, contacto.getEstado());
+            ps.setBoolean(  4, contacto.getPor_defecto());
 
-            ps.executeBatch();
+            ps.execute();
+            
             return Resultado
                     .builder()
-                    .mensaje("El contacto de correo fue actualizado.")
+                    .mensaje(EL_CONTACTO_DE_CORREO_FUE_ACTUALIZADO)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
                     .estado(Boolean.TRUE)
                     .build();
@@ -114,12 +111,17 @@ public class M_ContactoEmail {
             );
             return Resultado
                     .builder()
-                    .mensaje("Error al ejecutar el   del sistema.")
+                    .mensaje(ERROR_AL_EJECUTAR_EL___DEL_SISTEMA)
                     .icono(JOptionPane.ERROR_MESSAGE)
                     .estado(Boolean.FALSE)
                     .build();
         }
     }
+    public static final String ERROR_AL_EJECUTAR_EL___DEL_SISTEMA 
+            = "Error al ejecutar el procedimiento SP_U_CONTACTO_EMAIL del sistema.";
+    
+    public static final String EL_CONTACTO_DE_CORREO_FUE_ACTUALIZADO 
+            = "El contacto de correo fue actualizado.";
 
     /**
      * Permite obtener un listado de correo de un clienten o persona a consultar
@@ -163,13 +165,15 @@ public class M_ContactoEmail {
             }
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE,
-                    "Error al consultar la vista de V_CONTACTOS_EMAIL de las personas.",
+                    Level.SEVERE, 
+                    ERROR_AL_CONSULTAR_LA_VISTA_DE_V_CONTACTO,
                     ex
             );
         }
         return contactosEmailList;
     }
+    public static final String ERROR_AL_CONSULTAR_LA_VISTA_DE_V_CONTACTO =
+            "Error al consultar la vista de V_CONTACTOS_EMAIL de las personas.";
 
     /**
      * Metodo que genera correo aleatorio para cuestiones de pruebas.

@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.sql.ResultSet;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -9,11 +10,13 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.EntradaProducto;
+import sur.softsurena.utilidades.Resultado;
 
 /**
  *
  * @author jhironsel
  */
+@Getter
 public class M_Entrada_ProductoNGTest {
 
     public M_Entrada_ProductoNGTest() {
@@ -55,7 +58,7 @@ public class M_Entrada_ProductoNGTest {
     public void testAgregarProductoEntrada() {
         EntradaProducto e = null;
         boolean expResult = false;
-        boolean result = M_Entrada_Producto.agregarProductoEntrada(e);
+        Resultado result = M_Entrada_Producto.agregarProductoEntrada(e);
         assertEquals(result, expResult);
     }
 

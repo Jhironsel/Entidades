@@ -22,7 +22,7 @@ public class M_Antecedente {
      */
     public synchronized static String borrarAntecedente(int idAntecedente) {
         final String sql
-                = "EXECUTE PROCEDURE SP_DELETE_ANTECEDENTE (?);";
+                = "EXECUTE PROCEDURE SP_D_ANTECEDENTE(?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -60,7 +60,7 @@ public class M_Antecedente {
      */
     public synchronized static Resultado agregarAntecedente(int id_consulta, String descripcion) {
         final String sql
-                = "SELECT O_ID FROM SP_INSERT_ANTECEDENTE (?, ?);";
+                = "SELECT O_ID FROM SP_I_ANTECEDENTE (?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -69,8 +69,10 @@ public class M_Antecedente {
         )) {
             ps.setInt(1, id_consulta);
             ps.setString(2, descripcion);
-            try (ResultSet rs = ps.executeQuery();) {
-                rs.next();
+            
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
                 return Resultado
                         .builder()
                         .id(rs.getInt("O_ID"))
@@ -79,17 +81,23 @@ public class M_Antecedente {
                         .build();
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return Resultado
-                    .builder()
-                    .id(-1)
-                    .mensaje(ERROR_AL_INSERTAR__ANTECEDENTES)
-                    .icono(JOptionPane.ERROR_MESSAGE)
-                    .build();
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_INSERTAR__ANTECEDENTES,
+                    ex
+            );
         }
+        return Resultado
+                .builder()
+                .id(-1)
+                .mensaje(ERROR_AL_INSERTAR__ANTECEDENTES)
+                .icono(JOptionPane.ERROR_MESSAGE)
+                .build();
     }
-    public static final String ANTECEDENTE_AGREGADO_CORRECTAMENTE = "Antecedente agregado correctamente";
-    public static final String ERROR_AL_INSERTAR__ANTECEDENTES = "Error al insertar Antecedentes...";
+    public static final String ANTECEDENTE_AGREGADO_CORRECTAMENTE
+            = "Antecedente agregado correctamente";
+    public static final String ERROR_AL_INSERTAR__ANTECEDENTES
+            = "Error al insertar Antecedentes...";
 
     /**
      * Metodo que permite actualizar los antecendente de un paciente. Se utiliza
@@ -99,10 +107,9 @@ public class M_Antecedente {
      * @param descrpcion
      * @return
      */
-    public static synchronized String modificarAntecedente(int idAntecedente,
+    public static synchronized Resultado modificarAntecedente(int idAntecedente,
             String descrpcion) {
-
-        final String sql = "EXECUTE PROCEDURE SP_UPDATE_ANTECEDENTE(?, ?);";
+        final String sql = "EXECUTE PROCEDURE SP_U_ANTECEDENTE(?, ?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -115,14 +122,30 @@ public class M_Antecedente {
 
             ps.executeUpdate();
 
-            return ANTECEDENTE_MODIFICADO_CORRECTAMENTE;
+            return Resultado
+                    .builder()
+                    .mensaje(ANTECEDENTE_MODIFICADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return ERROR_AL_MODIFICAR_CLIENTE;
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_MODIFICAR_ANTECEDENTE,
+                    ex
+            );
+            return Resultado
+                    .builder()
+                    .mensaje(ERROR_AL_MODIFICAR_ANTECEDENTE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
-    public static final String ANTECEDENTE_MODIFICADO_CORRECTAMENTE = "Antecedente modificado correctamente";
-    public static final String ERROR_AL_MODIFICAR_CLIENTE = "Error al modificar cliente...";
+    public static final String ANTECEDENTE_MODIFICADO_CORRECTAMENTE
+            = "Antecedente modificado correctamente";
+    public static final String ERROR_AL_MODIFICAR_ANTECEDENTE
+            = "Error al modificar el antecendete...";
 
     /**
      * [INFO TABLA] Es una tabla utilizada para almacenar los antecedentes de
@@ -137,7 +160,7 @@ public class M_Antecedente {
      */
     public synchronized static List<Antecedente> getAntecedentes(
             int idPaciente) {
-        final String sql 
+        final String sql
                 = "SELECT ID, ID_CONSULTA, DESCRIPCION "
                 + "FROM V_ANTECEDENTES "
                 + "WHERE ID = ?;";
@@ -164,8 +187,12 @@ public class M_Antecedente {
             }
             return lista;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
+            LOG.log(
+                    Level.SEVERE,
+                    "Error al consultar la vista V_ANTECEDENTES del sistema.",
+                    ex
+            );
+            return lista;
         }
     }
 }

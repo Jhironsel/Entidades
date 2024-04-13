@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -22,6 +23,7 @@ import sur.softsurena.entidades.Provincia;
 import static sur.softsurena.metodos.M_Cliente.CLIENTE_BORRADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Cliente.CLIENTE_NO_PUEDE_SER_BORRADO;
 import static sur.softsurena.metodos.M_Cliente.CLIENTE__AGREGADO__CORRECTAMENTE;
+import static sur.softsurena.metodos.M_Cliente.CLIENTE__MODIFICADO__CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Cliente.ERROR_AL_INSERTAR__CLIENTE;
 import static sur.softsurena.metodos.M_Cliente.ERROR_AL__MODIFICAR__CLIENTE;
 import static sur.softsurena.metodos.M_Cliente.agregarCliente;
@@ -35,6 +37,7 @@ import static sur.softsurena.metodos.M_Generales.generarCedula;
 import sur.softsurena.utilidades.FiltroBusqueda;
 import sur.softsurena.utilidades.Resultado;
 
+@Getter
 public class M_ClienteNGTest {
 
     public Integer idCliente = -1;
@@ -121,6 +124,17 @@ public class M_ClienteNGTest {
     )
     public void testModificarCliente() {
         Resultado result = modificarCliente(cliente);
+        
+        assertTrue(
+                result.getMensaje().equals(CLIENTE__MODIFICADO__CORRECTAMENTE),
+                ERROR_AL__MODIFICAR__CLIENTE
+        );
+        
+        assertTrue(
+                result.getIcono() == JOptionPane.INFORMATION_MESSAGE,
+                ERROR_AL__MODIFICAR__CLIENTE
+        );
+        
         assertTrue(
                 result.getEstado(),
                 ERROR_AL__MODIFICAR__CLIENTE
@@ -134,9 +148,19 @@ public class M_ClienteNGTest {
     )
     public void testBorrarCliente() {
         Resultado result = borrarCliente(idCliente);
-        assertEquals(
-                CLIENTE_BORRADO_CORRECTAMENTE,
-                result.toString(),
+        
+        assertTrue(
+                result.getMensaje().equals(CLIENTE_BORRADO_CORRECTAMENTE),
+                CLIENTE_NO_PUEDE_SER_BORRADO
+        );
+        
+        assertTrue(
+                result.getIcono() == JOptionPane.INFORMATION_MESSAGE,
+                CLIENTE_NO_PUEDE_SER_BORRADO
+        );
+        
+        assertTrue(
+                result.getEstado(),
                 CLIENTE_NO_PUEDE_SER_BORRADO
         );
     }
@@ -155,12 +179,12 @@ public class M_ClienteNGTest {
         );
         
         assertTrue(
-                result.getEstado(), 
+                result.getIcono() == JOptionPane.INFORMATION_MESSAGE, 
                 ERROR_AL_INSERTAR__CLIENTE
         );
         
         assertTrue(
-                result.getIcono() == JOptionPane.INFORMATION_MESSAGE, 
+                result.getEstado(), 
                 ERROR_AL_INSERTAR__CLIENTE
         );
     }

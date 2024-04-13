@@ -21,7 +21,7 @@ public class M_Provincia {
      */
     public synchronized static List<Provincia> getProvincias() {
         final String SELECT
-            = "SELECT ID, NOMBRE FROM V_PROVINCIAS r";
+            = "SELECT ID, NOMBRE FROM V_T_PROVINCIAS";
         
         List<Provincia> provinciaList = new ArrayList<>();
         
@@ -40,7 +40,11 @@ public class M_Provincia {
                 }
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
         }
         return provinciaList;
     }

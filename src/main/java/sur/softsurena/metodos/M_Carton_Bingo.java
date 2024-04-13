@@ -100,7 +100,7 @@ public class M_Carton_Bingo {
     }
 
     public static Boolean generarCarton(int cantidad) {
-        final String sql = "EXECUTE PROCEDURE SP_INSERT_CARTON_BINGO (?, ?);";
+        final String sql = "EXECUTE PROCEDURE SP_I_CARTON_BINGO (?, ?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql, 

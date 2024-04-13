@@ -1,5 +1,6 @@
 package sur.softsurena.metodos;
 
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -12,6 +13,7 @@ import sur.softsurena.entidades.Mensaje;
  *
  * @author jhironsel
  */
+@Getter
 public class M_MensajeNGTest {
 
     public M_MensajeNGTest() {

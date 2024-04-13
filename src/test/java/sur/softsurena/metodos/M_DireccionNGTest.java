@@ -1,6 +1,8 @@
 package sur.softsurena.metodos;
 
 import java.util.List;
+import javax.swing.JOptionPane;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -12,12 +14,18 @@ import sur.softsurena.entidades.Direccion;
 import sur.softsurena.entidades.Distrito_municipal;
 import sur.softsurena.entidades.Municipio;
 import sur.softsurena.entidades.Provincia;
-import static sur.softsurena.metodos.M_Direccion.ERROR_AL_INSERTAR_O_MODIFICAR_DIRECCION;
+import static sur.softsurena.metodos.M_Direccion.DIRECCION_AGREGADA_CORRECTAMENTE;
+import static sur.softsurena.metodos.M_Direccion.ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI;
+import static sur.softsurena.metodos.M_Direccion.ERROR_AL_INSERTAR_DIRECCION;
+import static sur.softsurena.metodos.M_Direccion.REGISTRO_DE_LA_DIRECCION_BORRADO_CORRECTA;
 import static sur.softsurena.metodos.M_Direccion.agregarDireccion;
 import static sur.softsurena.metodos.M_Direccion.getDireccionByID;
 import sur.softsurena.utilidades.Resultado;
 
+@Getter
 public class M_DireccionNGTest {
+
+    private int id_direccion, id_direccion2;
     
     public M_DireccionNGTest() {
     }
@@ -51,12 +59,11 @@ public class M_DireccionNGTest {
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             description = "Metodo que permite agregar o modicar un direcion de los clientes.",
-            priority = 1
-    
+            priority = 0
     )
-    public void testAgregarModificarDirecciones() {
+    public void testAgregarDireccion() {
 
         Resultado result = agregarDireccion(
                 Direccion
@@ -81,11 +88,25 @@ public class M_DireccionNGTest {
                         .direccion("Insercion de prueba.")
                         .build()
         );
+        
+        assertEquals(
+                result.getMensaje(), 
+                DIRECCION_AGREGADA_CORRECTAMENTE,
+                ERROR_AL_INSERTAR_DIRECCION
+        );
+        
+        assertEquals(
+                result.getIcono(),
+                JOptionPane.INFORMATION_MESSAGE,
+                ERROR_AL_INSERTAR_DIRECCION
+                );
 
         assertTrue(
                 result.getEstado(), 
-                ERROR_AL_INSERTAR_O_MODIFICAR_DIRECCION
+                ERROR_AL_INSERTAR_DIRECCION
         );
+        
+        id_direccion = result.getId();
         
         
         result = agregarDireccion(
@@ -112,10 +133,25 @@ public class M_DireccionNGTest {
                         .build()
         );
 
-        assertTrue(
-                result.getEstado(),
-                ERROR_AL_INSERTAR_O_MODIFICAR_DIRECCION
+        assertEquals(
+                result.getMensaje(), 
+                DIRECCION_AGREGADA_CORRECTAMENTE,
+                ERROR_AL_INSERTAR_DIRECCION
         );
+        
+        assertEquals(
+                result.getIcono(),
+                JOptionPane.INFORMATION_MESSAGE,
+                ERROR_AL_INSERTAR_DIRECCION
+                );
+
+        assertTrue(
+                result.getEstado(), 
+                ERROR_AL_INSERTAR_DIRECCION
+        );
+        
+        id_direccion2 = result.getId();
+        
     }
 
     @Test(
@@ -130,6 +166,34 @@ public class M_DireccionNGTest {
         assertTrue(
                 result.isEmpty(), 
                 "La lista contiene datos"
+        );
+    }
+
+    @Test(
+            enabled = false,
+            description = "",
+            priority = 1
+    
+    )
+    public void testBorrarDireccion() {
+        
+        Resultado result = M_Direccion.borrarDireccion(id_direccion);
+        
+        assertTrue(
+                result.getEstado(),
+                ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI
+        );
+        
+        assertEquals(
+                result.getMensaje(), 
+                REGISTRO_DE_LA_DIRECCION_BORRADO_CORRECTA,
+                ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI
+        );
+        
+        assertEquals(
+                result.getIcono(), 
+                JOptionPane.INFORMATION_MESSAGE, 
+                ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI
         );
     }
     

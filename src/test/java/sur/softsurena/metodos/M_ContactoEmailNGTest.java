@@ -1,6 +1,8 @@
 package sur.softsurena.metodos;
 
 import java.util.List;
+import javax.swing.JOptionPane;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -9,12 +11,16 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.ContactoEmail;
+import static sur.softsurena.metodos.M_ContactoEmail.EL_CONTACTO_DE_CORREO_FUE_ACTUALIZADO;
+import static sur.softsurena.metodos.M_ContactoEmail.ERROR_AL_CONSULTAR_LA_VISTA_DE_V_CONTACTO;
+import static sur.softsurena.metodos.M_ContactoEmail.ERROR_AL_EJECUTAR_EL___DEL_SISTEMA;
 import sur.softsurena.utilidades.Resultado;
 
 /**
  *
  * @author jhironsel
  */
+@Getter
 public class M_ContactoEmailNGTest {
 
     private int idCorreo;
@@ -75,7 +81,7 @@ public class M_ContactoEmailNGTest {
     }
     
     @Test(
-            enabled = false,
+            enabled = true,
             priority = 1,
             description = "Modifica los contactos del sistema."
     )
@@ -93,21 +99,42 @@ public class M_ContactoEmailNGTest {
         
         assertTrue(
                 result.getEstado(), 
-                "Error al modificar contacto en el sistema."
+                ERROR_AL_EJECUTAR_EL___DEL_SISTEMA
+        );
+        
+        assertEquals(
+                result.getIcono(),
+                JOptionPane.INFORMATION_MESSAGE,
+                ERROR_AL_EJECUTAR_EL___DEL_SISTEMA
+        );
+        
+        assertEquals(
+                result.getMensaje(),
+                EL_CONTACTO_DE_CORREO_FUE_ACTUALIZADO, 
+                ERROR_AL_EJECUTAR_EL___DEL_SISTEMA
         );
     }
     
     @Test(
-            enabled = false,
-            priority = 1,
+            enabled = true,
+            priority = 2,
             description = "Realizamos consulta y eliminamos cliente."
     )
     public void testGetCorreoByID() {
         List result = M_ContactoEmail.getCorreoByID(cliente.idCliente);
-        assertFalse(result.isEmpty());
+        
+        assertFalse(
+                result.isEmpty(), 
+                ERROR_AL_CONSULTAR_LA_VISTA_DE_V_CONTACTO
+        );
+        
+        assertNotNull(
+                result,
+                "Consulta no puede devolver nulo."
+        );
         
         cliente.testBorrarCliente();
-        cliente.testBorrarCliente2();
+        //cliente.testBorrarCliente2();
     }
 
 
@@ -120,7 +147,7 @@ public class M_ContactoEmailNGTest {
         String result = M_ContactoEmail.generarCorreo();
         assertTrue(
                 M_ContactoEmail.correo(result),
-                "Correo que cauda el error %s".formatted(result)
+                "Correo que causa el error %s".formatted(result)
         );
     }
 

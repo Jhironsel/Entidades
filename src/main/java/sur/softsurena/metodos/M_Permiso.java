@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Role;
 import sur.softsurena.utilidades.Resultado;
@@ -187,7 +188,8 @@ public class M_Permiso {
     public synchronized static Resultado agregarPermisoAdminProcedimiento(
             String procedimiento, String rol) {
         String sql = "EXECUTE PROCEDURE ADMIN_AGREGAR_PERMISO_ADMIN_PROCE (?,?);";
-        try (PreparedStatement cs = getCnn().prepareStatement(sql,
+        try (PreparedStatement cs = getCnn().prepareStatement(
+                sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
@@ -195,27 +197,37 @@ public class M_Permiso {
             cs.setString(1, procedimiento);
             cs.setString(2, rol);
 
-            boolean execute = cs.execute();
+            cs.execute();
 
-            return Resultado.builder().
-                    id(-1).
-                    mensaje("Procedimiento con control administrativo.").
-                    cantidad(-1).
-                    estado(execute).
-                    build();
+            return Resultado
+                    .builder()
+                    .mensaje(PROCEDIMIENTO_CON_CONTROL_ADMINISTRATIVO)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_QUITAR_CONTROL_ADMINISTRATIVO1, 
+                    ex
+            );
+            
 
-            return Resultado.builder().
-                    id(-1).
-                    mensaje("Error al quitar control administrativo.").
-                    cantidad(-1).
-                    build();
+            return Resultado
+                    .builder()
+                    .mensaje(ERROR_AL_QUITAR_CONTROL_ADMINISTRATIVO1)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
+    public static final String ERROR_AL_QUITAR_CONTROL_ADMINISTRATIVO1 
+            = "Error al quitar control administrativo.";
+    public static final String PROCEDIMIENTO_CON_CONTROL_ADMINISTRATIVO 
+            = "Procedimiento con control administrativo.";
 
     /**
-     *
+     * TODO Darle definicion a este procedimiento.
      * @param role
      * @param usuario
      * @return

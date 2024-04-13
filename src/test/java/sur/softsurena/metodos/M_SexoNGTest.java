@@ -1,5 +1,6 @@
 package sur.softsurena.metodos;
 
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -13,6 +14,7 @@ import org.testng.annotations.Test;
  * 
  * @author jhironsel
  */
+@Getter
 public class M_SexoNGTest {
 
     public M_SexoNGTest() {

@@ -29,7 +29,7 @@ public class M_Direccion {
      */
     public static Resultado agregarDireccion(Direccion direccion) {
         final String sql
-                = "SELECT O_ID FROM SP_I_DIRECCION(?,?,?,?,?,?,?);";
+                = "SELECT O_ID FROM SP_I_CONTACTO_DIRECCION(?,?,?,?,?,?,?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -49,35 +49,34 @@ public class M_Direccion {
             );
             ps.setString(6, direccion.getDireccion());
             ps.setBoolean(7, direccion.getPor_defecto());
-            
+
             ResultSet rs = ps.executeQuery();
 
-            rs.next();
-            return Resultado
-                    .builder()
-                    .id(rs.getInt(1))
-                    .mensaje(DIRECCION_AGREGADA_CORRECTAMENTE)
-                    .icono(JOptionPane.INFORMATION_MESSAGE)
-                    .estado(Boolean.TRUE)
-                    .build();
-
+            if (rs.next()) {
+                return Resultado
+                        .builder()
+                        .id(rs.getInt(1))
+                        .mensaje(DIRECCION_AGREGADA_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build();
+            }
         } catch (SQLException ex) {
-            LOG.log(
-                    Level.SEVERE,
-                    ERROR_AL_INSERTAR_O_MODIFICAR_DIRECCION,
+            LOG.log(Level.SEVERE,
+                    ERROR_AL_INSERTAR_DIRECCION,
                     ex
             );
         }
         return Resultado
                 .builder()
                 .id(-1)
-                .mensaje(ERROR_AL_INSERTAR_O_MODIFICAR_DIRECCION)
+                .mensaje(ERROR_AL_INSERTAR_DIRECCION)
                 .icono(JOptionPane.ERROR_MESSAGE)
                 .estado(Boolean.FALSE)
                 .build();
     }
-    public static final String ERROR_AL_INSERTAR_O_MODIFICAR_DIRECCION
-            = "Error al insertar o modificar direccion.";
+    public static final String ERROR_AL_INSERTAR_DIRECCION
+            = "Error al insertar direccion.";
     public static final String DIRECCION_AGREGADA_CORRECTAMENTE
             = "Direccion agregada o modificada correctamente.";
 
@@ -155,7 +154,7 @@ public class M_Direccion {
             }
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
+                    Level.SEVERE,
                     ERROR_AL_REALIZAR_LA_CONSULTA_EN_LA_VISTA,
                     ex
             );
@@ -164,4 +163,44 @@ public class M_Direccion {
     }
     public static final String ERROR_AL_REALIZAR_LA_CONSULTA_EN_LA_VISTA
             = "Error al realizar la consulta en la vista GET_DIRECCION_BY_ID.";
+    
+    public synchronized static Resultado borrarDireccion(int id_direccion){
+        String sql = """
+                     EXECUTE PROCEDURE SP_D_CONTACTO_DIRECCION (?);
+                     """;
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT
+        )) {
+            ps.setInt(1, id_direccion);
+            
+            ps.execute();
+            
+            return Resultado
+                    .builder()
+                    .mensaje(REGISTRO_DE_LA_DIRECCION_BORRADO_CORRECTA)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
+            
+        }catch (SQLException ex) {
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI,
+                    ex
+            );
+        }
+        return Resultado
+                    .builder()
+                    .mensaje(ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
+    }
+    public static final String ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI 
+            = "Error al borrar el registro de la direccion.";
+    public static final String REGISTRO_DE_LA_DIRECCION_BORRADO_CORRECTA 
+            = "Registro de la direccion borrado correctamente.";
 }

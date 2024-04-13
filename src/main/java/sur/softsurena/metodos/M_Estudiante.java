@@ -32,7 +32,7 @@ public class M_Estudiante {
     public synchronized static Resultado agregarEstudiante(Estudiante e) {
 
         final String sql
-                = "EXECUTE PROCEDURE SP_INSERT_ESTUDIANTE (?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?);";
+                = "EXECUTE PROCEDURE SP_I_ESTUDIANTE(?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?);";
         Resultado r;
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
@@ -51,8 +51,6 @@ public class M_Estudiante {
             cs.setDate(9, e.getGenerales().getFecha_nacimiento());
             cs.setBoolean(10, e.getEstado());
             cs.setString(11, e.getMatricula());
-            cs.setInt(12, e.getIdPadre());
-            cs.setInt(13, e.getIdMadre());
 
             int cant = cs.executeUpdate();
 
@@ -130,9 +128,6 @@ public class M_Estudiante {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             ps.setInt(1, e.getId_persona());
-            ps.setInt(2, e.getIdPadre());
-            ps.setInt(3, e.getIdMadre());
-            ps.setInt(4, e.getIdTutor());
             ps.setInt(5, e.getJcb_parentesco());
             ps.setString(6, e.getPnombre());
             ps.setString(7, e.getSnombre());

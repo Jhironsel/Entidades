@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.util.List;
+import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -11,6 +12,7 @@ import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Almacen;
 import sur.softsurena.utilidades.Resultado;
 
+@Getter
 public class M_AlmacenNGTest {
 
     private int idAlmacen, idAlmacen2;
