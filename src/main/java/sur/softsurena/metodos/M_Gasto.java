@@ -18,7 +18,7 @@ public class M_Gasto {
         
         try(CallableStatement cs = getCnn().prepareCall(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {

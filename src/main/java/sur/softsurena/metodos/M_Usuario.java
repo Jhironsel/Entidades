@@ -35,7 +35,7 @@ public class M_Usuario {
                 = "EXECUTE PROCEDURE ADMIN_CAMBIAR_CLAVE_USUARIO_ACTUAL(?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
@@ -66,7 +66,7 @@ public class M_Usuario {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -179,7 +179,7 @@ public class M_Usuario {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -221,7 +221,7 @@ public class M_Usuario {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -261,7 +261,7 @@ public class M_Usuario {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -296,7 +296,7 @@ public class M_Usuario {
 
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
@@ -356,7 +356,7 @@ public class M_Usuario {
         final String sql
                 = "EXECUTE PROCEDURE SP_U_USUARIO (?,?,?,?,?,?,?,?)";
         try (CallableStatement cs = getCnn().prepareCall(sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             cs.setString(1, u.getUser_name());
@@ -414,7 +414,7 @@ public class M_Usuario {
                 + "FROM VS_USUARIOS "
                 + "WHERE TRIM(USERNAME) STARTING WITH TRIM(UPPER(?))";
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             ps.setString(1, userName);

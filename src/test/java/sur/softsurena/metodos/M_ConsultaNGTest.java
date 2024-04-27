@@ -28,7 +28,11 @@ public class M_ConsultaNGTest {
                 "localhost",
                 "3050"
         );
-        assertTrue("Error al conectarse...", Conexion.verificar().getEstado());
+        
+        assertTrue(
+                "Error al conectarse...", 
+                Conexion.verificar().getEstado()
+        );
     }
 
     @AfterClass
@@ -50,9 +54,15 @@ public class M_ConsultaNGTest {
             priority = 0
     )
     public void testAgregarConsulta() {
-        Consulta c = null;
         String expResult = "";
-        Resultado result = M_Consulta.agregarConsulta(c);
+        Resultado result = M_Consulta.agregarConsulta(
+                Consulta
+                        .builder()
+                        .id_paciente(0)
+                        .id_control_consulta(0)
+                        .turno(0)
+                        .build()
+        );
         assertEquals(result, expResult);
     }
 

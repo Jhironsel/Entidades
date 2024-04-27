@@ -36,7 +36,7 @@ public class M_Estudiante {
         Resultado r;
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
@@ -123,7 +123,7 @@ public class M_Estudiante {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
@@ -189,7 +189,7 @@ public class M_Estudiante {
 
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
@@ -214,7 +214,7 @@ public class M_Estudiante {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {

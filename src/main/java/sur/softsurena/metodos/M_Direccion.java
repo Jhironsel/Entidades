@@ -33,7 +33,7 @@ public class M_Direccion {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -103,7 +103,7 @@ public class M_Direccion {
                 + (Objects.isNull(id_persona) ? "ROWS (10);" : "WHERE ID_PERSONA = ?;");
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -170,7 +170,7 @@ public class M_Direccion {
                      """;
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {

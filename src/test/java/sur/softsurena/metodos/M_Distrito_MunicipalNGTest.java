@@ -8,6 +8,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import sur.softsurena.conexion.Conexion;
 
 /**
  *
@@ -21,10 +22,22 @@ public class M_Distrito_MunicipalNGTest {
 
     @BeforeClass
     public void setUpClass() throws Exception {
+        Conexion.getInstance(
+                "sysdba",
+                "1",
+                "BaseDeDatos.db",
+                "localhost",
+                "3050"
+        );
+        assertTrue(
+                Conexion.verificar().getEstado(),
+                "Error al conectarse..."
+        );
     }
 
     @AfterClass
     public void tearDownClass() throws Exception {
+        Conexion.getCnn().close();
     }
 
     @BeforeMethod
@@ -36,15 +49,25 @@ public class M_Distrito_MunicipalNGTest {
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             priority = 0,
-            description = ""
+            description = """
+                          Permite verificar la consultas a la bd de los datos de
+                          los distritos municipales de rd. 
+                          """
     )
     public void testGetDistritosMunicipales() {
-        int id_municipio = 0;
-        List expResult = null;
-        List result = M_Distrito_Municipal.getDistritosMunicipales(id_municipio);
-        assertEquals(result, expResult);
+        List result = M_Distrito_Municipal.getDistritosMunicipales(0);
+        assertFalse(
+                result.isEmpty(),
+                "Registro principal no existe."
+        );
+
+        result = M_Distrito_Municipal.getDistritosMunicipales(27);
+        assertFalse(
+                result.isEmpty(),
+                "Registros Distritos municipales de San Juan no encontrado."
+        );
     }
 
 }

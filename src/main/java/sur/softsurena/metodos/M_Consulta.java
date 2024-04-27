@@ -23,7 +23,7 @@ public class M_Consulta {
                 = "SELECT O_ID FROM SP_I_CONSULTA(?, ?, ?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -76,7 +76,7 @@ public class M_Consulta {
                 + "WHERE FECHA = ? and ESTADO;";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -97,7 +97,7 @@ public class M_Consulta {
         final String sql = "SELECT (1) FROM V_CONTROLCONSULTA WHERE fecha = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {

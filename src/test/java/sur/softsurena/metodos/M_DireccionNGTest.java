@@ -26,8 +26,12 @@ import sur.softsurena.utilidades.Resultado;
 public class M_DireccionNGTest {
 
     private int id_direccion, id_direccion2;
+    private M_ClienteNGTest cliente;
+    private M_PacienteNGTest paciente;
     
     public M_DireccionNGTest() {
+        cliente = new M_ClienteNGTest();
+        paciente = new M_PacienteNGTest();
     }
 
     @BeforeClass
@@ -64,10 +68,12 @@ public class M_DireccionNGTest {
             priority = 0
     )
     public void testAgregarDireccion() {
-
+        cliente.testAgregarCliente();
+        
         Resultado result = agregarDireccion(
                 Direccion
                         .builder()
+                        .id_persona(cliente.getIdCliente())
                         .provincia(
                                 Provincia
                                         .builder()
@@ -86,6 +92,7 @@ public class M_DireccionNGTest {
                                         .build()
                         )
                         .direccion("Insercion de prueba.")
+                        .por_defecto(Boolean.TRUE)
                         .build()
         );
         
@@ -108,10 +115,12 @@ public class M_DireccionNGTest {
         
         id_direccion = result.getId();
         
+        paciente.testAgregarPaciente();
         
         result = agregarDireccion(
                 Direccion
                         .builder()
+                        .id_persona(paciente.getIdPaciente())
                         .provincia(
                                 Provincia
                                         .builder()
@@ -130,6 +139,7 @@ public class M_DireccionNGTest {
                                         .build()
                         )
                         .direccion("Insercion de prueba 2.")
+                        .por_defecto(Boolean.TRUE)
                         .build()
         );
 
@@ -152,7 +162,7 @@ public class M_DireccionNGTest {
         
         id_direccion2 = result.getId();
         
-    }
+    }//FIN
 
     @Test(
             enabled = true,
@@ -195,6 +205,10 @@ public class M_DireccionNGTest {
                 JOptionPane.INFORMATION_MESSAGE, 
                 ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI
         );
+        
+        paciente.testBorrarPaciente();
+        cliente.testBorrarCliente();
+        cliente.testBorrarCliente2();
     }
     
 }

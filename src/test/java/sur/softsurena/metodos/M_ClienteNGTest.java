@@ -40,7 +40,7 @@ import sur.softsurena.utilidades.Resultado;
 @Getter
 public class M_ClienteNGTest {
 
-    public Integer idCliente = -1;
+    private Integer idCliente = -1;
     private final List<ContactoTel> contactosTels = new ArrayList<>();
     private final List<ContactoEmail> contactosEmails = new ArrayList<>();
     private final List<Direccion> direccion = new ArrayList<>();

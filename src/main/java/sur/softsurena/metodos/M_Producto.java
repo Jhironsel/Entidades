@@ -19,11 +19,11 @@ import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
- * 
+ *
  * @author jhironsel
  */
-public class M_Producto implements IProducto{
-    
+public class M_Producto implements IProducto {
+
     /**
      * Metodo que permite recuperar las propiedades de los productos del
      * sistema. Devolviendo asi un Listado de productos con todas sus
@@ -58,12 +58,12 @@ public class M_Producto implements IProducto{
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
             ps.setInt(1, (Objects.isNull(filtro.getId()) ? -1 : (int) filtro.getId()));
-            
+
             ps.setString(2, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
             ps.setString(3, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
             ps.setString(4, (Objects.isNull(filtro.getCriterioBusqueda()) ? "" : filtro.getCriterioBusqueda()));
@@ -80,11 +80,13 @@ public class M_Producto implements IProducto{
 
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    listaProducto.add(Producto
+                    listaProducto.add(
+                            Producto
                                     .builder()
                                     .id(rs.getInt("ID"))
                                     .descripcion(rs.getString("DESCRIPCION"))
-                                    .categoria(Categoria
+                                    .categoria(
+                                            Categoria
                                                     .builder()
                                                     .id_categoria(rs.getInt("ID_CATEGORIA"))
                                                     .descripcion(rs.getString("DESC_CATEGORIA"))
@@ -100,29 +102,36 @@ public class M_Producto implements IProducto{
                                     .build()
                     );
                 }
-                return listaProducto;
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_CONSULTAR_LA_BASE_DE_DATOS_CON_L,
+                    ex
+            );
         }
+        return listaProducto;
     }
+    public static final String ERROR_AL_CONSULTAR_LA_BASE_DE_DATOS_CON_L
+            = "Error al consultar la base de datos con la vista GET_PRODUCTOS del sistema.";
 
     /**
-     * Permite obtener los productos del sistema por una categoria identificada 
+     * Permite obtener los productos del sistema por una categoria identificada
      * por su ID y su estado definido por el sistema.
      *
      * @param idCategoria Categoria que se necesita consultar.
-     * @param estado el estado por la categoria del producto. 
+     * @param estado el estado por la categoria del producto.
      * @return
      */
     public synchronized static List<Producto> getProductosByCategoria(
-            int idCategoria, Boolean estado) {
+            int idCategoria,
+            Boolean estado
+    ) {
         final String sql
                 = "SELECT ID, DESCRIPCION, IMAGEN_PRODUCTO "
                 + "FROM GET_PRODUCTOS "
-                + "WHERE ID_CATEGORIA = ? " + (Objects.isNull(estado) ? ";" : 
-                    (estado ? " AND ESTADO;" : " AND ESTADO IS FALSE;"));
+                + "WHERE ID_CATEGORIA = ? " + (Objects.isNull(estado) ? ";"
+                : (estado ? " AND ESTADO;" : " AND ESTADO IS FALSE;"));
 
         List<Producto> productosList = new ArrayList<>();
 
@@ -133,25 +142,27 @@ public class M_Producto implements IProducto{
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
             ps.setInt(1, idCategoria);
-            try (ResultSet rs = ps.executeQuery();) {
-                while (rs.next()) {
-                    productosList.add(Producto.builder().
-                                    id(rs.getInt("ID")).
-                                    descripcion(rs.getString("DESCRIPCION")).
-                                    imagenProducto(rs.getString("IMAGEN_PRODUCTO")).
-                                    build()
-                    );
-                }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                productosList.add(
+                        Producto
+                                .builder()
+                                .id(rs.getInt("ID"))
+                                .descripcion(rs.getString("DESCRIPCION"))
+                                .imagenProducto(rs.getString("IMAGEN_PRODUCTO"))
+                                .build()
+                );
             }
-            return productosList;
+
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    "Error al consultar la vista GET_PRODUCTOS del sistema.", 
+                    Level.SEVERE,
+                    "Error al consultar la vista GET_PRODUCTOS del sistema.",
                     ex
             );
         }
-        return null;
+        return productosList;
     }
 
     /**
@@ -184,8 +195,8 @@ public class M_Producto implements IProducto{
                     .build();
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_EL__PR, 
+                    Level.SEVERE,
+                    OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_EL__PR,
                     ex
             );
             return Resultado
@@ -196,18 +207,19 @@ public class M_Producto implements IProducto{
                     .build();
         }
     }
-    public static final String OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_EL__PR 
+    public static final String OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_EL__PR
             = "Ocurrio un error al intentar borrar el Producto...";
-    public static final String PRODUCTO__BORRADO__CORRECTAMENTE 
+
+    public static final String PRODUCTO__BORRADO__CORRECTAMENTE
             = "Producto Borrado Correctamente.";
 
     /**
      * Agregar producto a la base de datos en la tabla productos.
-     * 
+     *
      * @test agregarProducto() metodo que realiza la prueba unitaria del metodo.
      *
-     * @param producto Objecto de la clase producto que permite obtener los valos de
-     * del producto agregar.
+     * @param producto Objecto de la clase producto que permite obtener los
+     * valos de del producto agregar.
      *
      * @return Devuelve un mensaje que notifica si el producto fue agregado
      * correctamente o no.
@@ -215,7 +227,7 @@ public class M_Producto implements IProducto{
     public synchronized static Resultado agregarProducto(Producto producto) {
         final String sql
                 = "SELECT O_ID FROM SP_I_PRODUCTO(?,?,?,?,?,?)";
-        
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
@@ -228,11 +240,11 @@ public class M_Producto implements IProducto{
             ps.setString(4, producto.getImagenProducto());
             ps.setString(5, producto.getNota());
             ps.setBoolean(6, producto.getEstado());
-            
+
             ResultSet rs = ps.executeQuery();
-            
+
             rs.next();
-            
+
             return Resultado
                     .builder()
                     .id(rs.getInt("O_ID"))
@@ -243,10 +255,11 @@ public class M_Producto implements IProducto{
 
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    ERROR_AL__INSERTAR__PRODUCTO, 
+                    Level.SEVERE,
+                    ERROR_AL__INSERTAR__PRODUCTO,
                     ex
             );
+
             return Resultado
                     .builder()
                     .id(-1)
@@ -256,9 +269,9 @@ public class M_Producto implements IProducto{
                     .build();
         }
     }
-    public static final String ERROR_AL__INSERTAR__PRODUCTO 
+    public static final String ERROR_AL__INSERTAR__PRODUCTO
             = "Error al Insertar Producto.";
-    public static final String PRODUCTO_AGREGADO_CORRECTAMENTE 
+    public static final String PRODUCTO_AGREGADO_CORRECTAMENTE
             = "Producto agregado correctamente.";
 
     /**
@@ -278,7 +291,7 @@ public class M_Producto implements IProducto{
                 = "EXECUTE PROCEDURE SP_U_PRODUCTO (?, ?, ?, ?, ?, ?, ?)";
         try (CallableStatement ps = getCnn().prepareCall(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
@@ -299,8 +312,8 @@ public class M_Producto implements IProducto{
                     .build();
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    ERROR_AL__MODIFICAR__PRODUCTO, 
+                    Level.SEVERE,
+                    ERROR_AL__MODIFICAR__PRODUCTO,
                     ex
             );
             return Resultado
@@ -312,9 +325,9 @@ public class M_Producto implements IProducto{
         }
 
     }
-    public static final String ERROR_AL__MODIFICAR__PRODUCTO 
+    public static final String ERROR_AL__MODIFICAR__PRODUCTO
             = "Error al Modificar Producto...";
-    public static final String PRODUCTO__MODIFICADO__CORRECTAMENTE 
+    public static final String PRODUCTO__MODIFICADO__CORRECTAMENTE
             = "Producto Modificado Correctamente";
 
     /**
@@ -342,11 +355,16 @@ public class M_Producto implements IProducto{
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
             ps.setInt(1, idCategoria);
+
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE,
+                    ex.getMessage(),
+                    ex
+            );
             return false;
         }
     }
@@ -382,7 +400,11 @@ public class M_Producto implements IProducto{
             }
 
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE,
+                    ex.getMessage(),
+                    ex
+            );
             return false;
         }
     }
@@ -411,12 +433,15 @@ public class M_Producto implements IProducto{
             }
 
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE,
+                    ex.getMessage(),
+                    ex
+            );
             return new BigDecimal(-1);
         }
     }
-    
-    
+
     public static String generarProducto() {
         StringBuilder telefonoMovil = new StringBuilder();
 

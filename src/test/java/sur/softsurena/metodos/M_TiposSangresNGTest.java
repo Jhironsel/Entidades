@@ -53,9 +53,11 @@ public class M_TiposSangresNGTest {
     @Test(
             enabled = true,
             priority = 0,
-            description = "Metodo que permite obtener de la base de datos los \n"
-                    + "tipos de sangre que existen en el sistema, para ser \n "
-                    + "asignado a los pacientes."
+            description = """
+                          Metodo que permite obtener de la base de datos los 
+                          tipos de sangre que existen en el sistema, para ser 
+                           asignado a los pacientes.
+                          """
     )
     public void testGetTipoSangre() {
         assertFalse(

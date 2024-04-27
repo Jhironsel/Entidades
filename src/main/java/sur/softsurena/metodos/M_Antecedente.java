@@ -20,27 +20,44 @@ public class M_Antecedente {
      * @param idAntecedente
      * @return
      */
-    public synchronized static String borrarAntecedente(int idAntecedente) {
+    public synchronized static Resultado borrarAntecedente(int idAntecedente) {
         final String sql
                 = "EXECUTE PROCEDURE SP_D_ANTECEDENTE(?);";
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             ps.setInt(1, idAntecedente);
 
-            ps.executeUpdate();
-            return BORRADO_CORRECTAMENTE;
+            ps.execute();
+            
+            return Resultado
+                    .builder()
+                    .mensaje(BORRADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return ERROR_AL_BORRAR_PACIENTE;
+            LOG.log(
+                    Level.SEVERE, 
+                    ERROR_AL_BORRAR_PACIENTE, 
+                    ex
+            );
+            return Resultado
+                    .builder()
+                    .mensaje(ERROR_AL_BORRAR_PACIENTE)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
-    public static final String BORRADO_CORRECTAMENTE = "Antecendente borrado correctamente";
-    public static final String ERROR_AL_BORRAR_PACIENTE = "Error al borrar paciente...";
+    public static final String BORRADO_CORRECTAMENTE 
+            = "Antecendente borrado correctamente";
+    public static final String ERROR_AL_BORRAR_PACIENTE 
+            = "Error al borrar paciente...";
 
     /**
      * Metodo que permite agregar los antecendentes de los pacientes del
@@ -63,7 +80,7 @@ public class M_Antecedente {
                 = "SELECT O_ID FROM SP_I_ANTECEDENTE (?, ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -113,7 +130,7 @@ public class M_Antecedente {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
@@ -167,7 +184,7 @@ public class M_Antecedente {
         List<Antecedente> lista = new ArrayList<>();
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {

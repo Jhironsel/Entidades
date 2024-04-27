@@ -30,7 +30,7 @@ public class M_D_MotivoConsulta {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
@@ -79,7 +79,7 @@ public class M_D_MotivoConsulta {
                 = "EXECUTE PROCEDURE SP_I_D_MOTIVO_CONSULTA (?,?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setInt(1, dmc.getIdConsulta());
@@ -118,7 +118,7 @@ public class M_D_MotivoConsulta {
                 + "WHERE d.IDCONSULTA = ? and d.TURNO = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {

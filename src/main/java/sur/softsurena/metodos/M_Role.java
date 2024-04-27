@@ -34,7 +34,7 @@ public class M_Role {
                 + "WHERE TRIM(USER_NAME) STARTING WITH TRIM(?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -72,7 +72,7 @@ public class M_Role {
                 + "                    WHERE TRIM(r.USER_NAME) = ?);";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -377,7 +377,7 @@ public class M_Role {
         final String sql = "EXECUTE PROCEDURE ADMIN_CREATE_ROLE(?);";
 
         try (PreparedStatement cs = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
@@ -418,7 +418,7 @@ public class M_Role {
         final String sql = "EXECUTE PROCEDURE ADMIN_ALTER_ROLE(?, ?);";
 
         try (PreparedStatement cs = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 

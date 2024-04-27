@@ -28,12 +28,18 @@ public class M_BaseDeDatos {
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
-            try (ResultSet rs1 = ps1.executeQuery()) {
-                rs1.next();
-                return rs1.getString(1);
-            }
+            ResultSet rs1 = ps1.executeQuery();
+
+            rs1.next();
+
+            return rs1.getString(1);
+
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE,
+                    "Error al consultar MON$DATABASE para obtener la ruta de la base de datos.",
+                    ex
+            );
             return "";
         }
     }
@@ -54,14 +60,15 @@ public class M_BaseDeDatos {
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
-            try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
-                return rs.getInt(1);
-            }
+            ResultSet rs = ps.executeQuery();
+            
+            rs.next();
+            
+            return rs.getInt(1);
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    "Error al consultar la vista V_E_S_SYS del sistema.", 
+                    Level.SEVERE,
+                    "Error al consultar la vista V_E_S_SYS del sistema.",
                     ex
             );
             return -1;
@@ -89,7 +96,7 @@ public class M_BaseDeDatos {
 
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
@@ -98,9 +105,18 @@ public class M_BaseDeDatos {
             cs.setString(3, clave1);
             cs.setString(4, clave2);
 
-            return cs.execute();
+            cs.execute();
+            
+            return true;
+            
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
+            
             return false;
         }
     }
@@ -115,23 +131,34 @@ public class M_BaseDeDatos {
      * en el parametro.
      */
     public synchronized static int cantidadRegistros(String tabla) {
-        final String sql = "SELECT COALESCE(cantidad, 0) as cantidad "
-                + "FROM V_RECCOUNT "
-                + "WHERE tabla = ?;";
+        final String sql = """
+            SELECT COALESCE(cantidad, 0) as cantidad 
+            FROM V_RECCOUNT 
+            WHERE tabla = ?;
+        """;
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
             ps.setString(1, tabla);
-            try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
                 return rs.getInt("cantidad");
             }
+
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return 0;
+            LOG.log(
+                    Level.SEVERE,
+                    ex.getMessage(),
+                    ex
+            );
         }
+        
+        return 0;
     }
 }

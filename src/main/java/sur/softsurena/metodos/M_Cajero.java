@@ -31,7 +31,7 @@ public class M_Cajero {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -74,7 +74,7 @@ public class M_Cajero {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 SELECT,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 

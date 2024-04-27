@@ -70,7 +70,7 @@ public class M_ContactoEmailNGTest {
         Resultado result = M_ContactoEmail.agregarContactosEmail(
                 ContactoEmail
                         .builder()
-                        .id_persona(cliente.idCliente)
+                        .id_persona(cliente.getIdCliente())
                         .email(M_ContactoEmail.generarCorreo())
                         .estado(Boolean.TRUE)
                         .por_defecto(Boolean.TRUE)
@@ -90,7 +90,7 @@ public class M_ContactoEmailNGTest {
                 ContactoEmail
                         .builder()
                         .id(idCorreo)
-                        .id_persona(cliente.idCliente)
+                        .id_persona(cliente.getIdCliente())
                         .email(M_ContactoEmail.generarCorreo())
                         .estado(Boolean.TRUE)
                         .por_defecto(Boolean.FALSE)
@@ -121,7 +121,7 @@ public class M_ContactoEmailNGTest {
             description = "Realizamos consulta y eliminamos cliente."
     )
     public void testGetCorreoByID() {
-        List result = M_ContactoEmail.getCorreoByID(cliente.idCliente);
+        List result = M_ContactoEmail.getCorreoByID(cliente.getIdCliente());
         
         assertFalse(
                 result.isEmpty(), 

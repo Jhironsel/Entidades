@@ -1,6 +1,5 @@
 package sur.softsurena.metodos;
 
-import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,20 +34,20 @@ public class M_Paciente {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
-            ps.setString(   1, paciente.getPnombre().strip());
-            ps.setString(   2, paciente.getSnombre().strip());
-            ps.setString(   3, paciente.getApellidos().strip());
-            ps.setString(   4, paciente.getSexo().toString());
-            ps.setDate(     5, paciente.getFecha_nacimiento());
-            ps.setBoolean(  6, paciente.getEstado());
-            ps.setString(   7, paciente.getGenerales().getCedula().strip());
-            ps.setInt(      8, paciente.getGenerales().getId_tipo_sangre());
-            ps.setInt(      9, paciente.getAsegurado().getId_ars());
-            ps.setString(   10,paciente.getAsegurado().getNo_nss().strip());
+            ps.setString(1, paciente.getPnombre().strip());
+            ps.setString(2, paciente.getSnombre().strip());
+            ps.setString(3, paciente.getApellidos().strip());
+            ps.setString(4, paciente.getSexo().toString());
+            ps.setDate(5, paciente.getFecha_nacimiento());
+            ps.setBoolean(6, paciente.getEstado());
+            ps.setString(7, paciente.getGenerales().getCedula().strip());
+            ps.setInt(8, paciente.getGenerales().getId_tipo_sangre());
+            ps.setInt(9, paciente.getAsegurado().getId_ars());
+            ps.setString(10, paciente.getAsegurado().getNo_nss().strip());
 
             ResultSet rs = ps.executeQuery();
             rs.next();
@@ -81,6 +80,7 @@ public class M_Paciente {
 
     /**
      * Metodo que te permite modificar los paciente del sistema.
+     *
      * @param paciente
      * @return
      */
@@ -91,26 +91,26 @@ public class M_Paciente {
                         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                   );
                   """;
-        try (CallableStatement ps = getCnn().prepareCall(
+        try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
-            ps.setInt(      1, paciente.getId_persona());
-            ps.setString(   2, paciente.getPnombre());
-            ps.setString(   3, paciente.getSnombre());
-            ps.setString(   4, paciente.getApellidos());
-            ps.setString(   5, paciente.getSexo().toString());
-            ps.setDate(     6, paciente.getFecha_nacimiento());
-            ps.setBoolean(  7, paciente.getEstado());
-            ps.setString(   8, paciente.getGenerales().getCedula());
-            ps.setInt(      9, paciente.getGenerales().getId_tipo_sangre());
-            ps.setInt(      10, paciente.getAsegurado().getId_ars());
-            ps.setString(   11, paciente.getAsegurado().getNo_nss());
-            ps.setBoolean(  12, paciente.getAsegurado().getEstado());
+            ps.setInt(1, paciente.getId_persona());
+            ps.setString(2, paciente.getPnombre());
+            ps.setString(3, paciente.getSnombre());
+            ps.setString(4, paciente.getApellidos());
+            ps.setString(5, paciente.getSexo().toString());
+            ps.setDate(6, paciente.getFecha_nacimiento());
+            ps.setBoolean(7, paciente.getEstado());
+            ps.setString(8, paciente.getGenerales().getCedula());
+            ps.setInt(9, paciente.getGenerales().getId_tipo_sangre());
+            ps.setInt(10, paciente.getAsegurado().getId_ars());
+            ps.setString(11, paciente.getAsegurado().getNo_nss());
+            ps.setBoolean(12, paciente.getAsegurado().getEstado());
 
-            ps.executeUpdate();
+            ps.execute();
 
             return Resultado
                     .builder()
@@ -142,16 +142,16 @@ public class M_Paciente {
      * @return
      */
     public synchronized static Resultado borrarPaciente(int idPaciente) {
-        final String sql = "EXECUTE PROCEDURE SP_D_PACIENTE(?)";
+        final String sql = "EXECUTE PROCEDURE SP_D_PERSONA_PACIENTE(?)";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             ps.setInt(1, idPaciente);
 
-            ps.executeUpdate();
+            ps.execute();
 
             return Resultado
                     .builder()
@@ -196,7 +196,7 @@ public class M_Paciente {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -208,7 +208,9 @@ public class M_Paciente {
 
             return rs.getString(1);
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ERROR_AL_CONSULTAR_EL_SEXO_DE_UN_PACIENTE,
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_CONSULTAR_EL_SEXO_DE_UN_PACIENTE,
                     ex
             );
             return "X";
@@ -235,7 +237,7 @@ public class M_Paciente {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -291,7 +293,7 @@ public class M_Paciente {
                 + "WHERE ID = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -351,7 +353,7 @@ public class M_Paciente {
                 + "WHERE Estado IS ?";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -383,7 +385,7 @@ public class M_Paciente {
                 + "a.Estado " + filtro;
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 
@@ -410,7 +412,7 @@ public class M_Paciente {
                 + filtro + " order by turno";
 
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
 

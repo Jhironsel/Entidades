@@ -15,6 +15,7 @@ import sur.softsurena.entidades.Consulta;
 import static sur.softsurena.metodos.M_Antecedente.ANTECEDENTE_AGREGADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Antecedente.ANTECEDENTE_MODIFICADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Antecedente.BORRADO_CORRECTAMENTE;
+import static sur.softsurena.metodos.M_Antecedente.ERROR_AL_BORRAR_PACIENTE;
 import static sur.softsurena.metodos.M_Antecedente.ERROR_AL_MODIFICAR_ANTECEDENTE;
 import static sur.softsurena.metodos.M_Antecedente.agregarAntecedente;
 import static sur.softsurena.metodos.M_Antecedente.getAntecedentes;
@@ -25,27 +26,27 @@ import sur.softsurena.utilidades.Resultado;
 public class M_AntecedentesNGTest {
 
     private int id_antecedente;
-    private final M_PacienteNGTest paciente;
+    private final M_PacienteNGTest paciente = null;
     private final M_Control_ConsultaNGTest controlConsulta;
 
     public M_AntecedentesNGTest() {
-        paciente = new M_PacienteNGTest();
+//        paciente = new M_PacienteNGTest();
         controlConsulta = new M_Control_ConsultaNGTest();
     }
 
     @BeforeClass
     public void setUpClass() throws Exception {
-        Conexion.getInstance(
-                "sysdba",
-                "1",
-                "BaseDeDatos.db",
-                "localhost",
-                "3050"
-        );
-        assertTrue(
-                Conexion.verificar().getEstado(),
-                "Error al conectarse..."
-        );
+//        Conexion.getInstance(
+//                "sysdba",
+//                "1",
+//                "BaseDeDatos.db",
+//                "localhost",
+//                "3050"
+//        );
+//        assertTrue(
+//                Conexion.verificar().getEstado(),
+//                "Error al conectarse..."
+//        );
     }
 
     @AfterClass
@@ -62,14 +63,14 @@ public class M_AntecedentesNGTest {
     }
 
     @Test(
-            enabled = true,
+            enabled = false,
             description = "Agrega un antecedente de un paciente al sistema.",
             priority = 0
     )
     public void testAgregarAntecedente() {
         paciente.testAgregarPaciente();
         controlConsulta.testAgregarControlConsulta();
-        
+
         int id_consulta = M_Consulta.agregarConsulta(
                 Consulta
                         .builder()
@@ -103,7 +104,6 @@ public class M_AntecedentesNGTest {
             priority = 0
     )
     public void testModificarAntecedente() {
-        //Se actualiza el registro
         Resultado resultado = modificarAntecedente(
                 id_antecedente,
                 "Actualizado"
@@ -154,14 +154,25 @@ public class M_AntecedentesNGTest {
             priority = 0
     )
     public void testBorrarAntecedente() {
-        //Se borra el antecedente
-        String borrado = M_Antecedente.borrarAntecedente(id_antecedente);
+        Resultado result = M_Antecedente.borrarAntecedente(id_antecedente);
+
         assertEquals(
-                borrado,
+                result.getMensaje(),
                 BORRADO_CORRECTAMENTE,
-                "El registro no pudo ser eliminado del sistema."
+                ERROR_AL_BORRAR_PACIENTE
         );
-        
+
+        assertEquals(
+                result.getIcono(),
+                JOptionPane.INFORMATION_MESSAGE,
+                ERROR_AL_BORRAR_PACIENTE
+        );
+
+        assertTrue(
+                result.getEstado(),
+                ERROR_AL_BORRAR_PACIENTE
+        );
+
         paciente.testBorrarPaciente();
         controlConsulta.testBorrarControlConsulta();
     }

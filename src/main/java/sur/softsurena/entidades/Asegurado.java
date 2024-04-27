@@ -1,9 +1,9 @@
 package sur.softsurena.entidades;
 
-import sur.softsurena.abstracta.Persona;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import sur.softsurena.abstracta.Persona;
 
 @SuperBuilder
 @Getter
@@ -34,6 +34,7 @@ public class Asegurado extends Persona {
             return false;
         }
         final Asegurado other = (Asegurado) obj;
+        
         return Objects.equals(this.no_nss, other.no_nss);
     }
 

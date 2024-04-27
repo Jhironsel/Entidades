@@ -100,6 +100,7 @@ public class M_Control_ConsultaNGTest {
                 result.getEstado(), 
                 ERROR_AL_AGREGAR__CONTROL__CONSULTA_AL_SIST
         );
+        
         assertTrue(
                 result.getMensaje().equals(
                         CONTROL_CONSULTA_AGREGADO_CORRECTAMENTE

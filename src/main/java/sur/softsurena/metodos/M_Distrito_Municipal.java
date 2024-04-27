@@ -27,34 +27,51 @@ public class M_Distrito_Municipal {
      * @return
      */
     public synchronized static List<Distrito_municipal> getDistritosMunicipales(
-            int id_municipio) {
-        final String sql
-                = "SELECT ID, NOMBRE "
-                + "FROM V_DISTRITOS_MUNICIPALES "
-                + "WHERE IDMUNICIPIO = ?  OR ID = 0 ORDER BY 1";
+            int id_municipio
+    ) {
+        final String sql = """
+            SELECT 
+                    ID, NOMBRE 
+            FROM V_T_DISTRITOS_MUNICIPALES 
+            WHERE 
+                    ID = 0 OR ID_MUNICIPIO = ?
+            ORDER BY 1
+        """;
+
         List<Distrito_municipal> distritos_municipaleses_list = new ArrayList<>();
+
         try (PreparedStatement ps1 = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
+
             ps1.setInt(1, id_municipio);
-            try (ResultSet rs = ps1.executeQuery();) {
-                while (rs.next()) {
-                    distritos_municipaleses_list.add(Distrito_municipal.builder().
-                            id(rs.getInt("id")).
-                            nombre(rs.getString("nombre")).build()
-                    );
-                }
+
+            ResultSet rs = ps1.executeQuery();
+            
+            while (rs.next()) {
+                distritos_municipaleses_list.add(
+                        Distrito_municipal
+                                .builder()
+                                .id(rs.getInt("id"))
+                                .nombre(rs.getString("nombre"))
+                                .build()
+                );
             }
+            
         } catch (SQLException ex) {
             LOG.log(
                     Level.SEVERE, 
-                    "Error al consutar la vista V_DISTRITOS_MUNICIPALES.", 
+                    ERROR_AL_CONSUTAR_LA_VISTA_V_DISTRITOS_MU,
                     ex
             );
         }
+        
         return distritos_municipaleses_list;
     }
+    
+    public static final String ERROR_AL_CONSUTAR_LA_VISTA_V_DISTRITOS_MU 
+            = "Error al consutar la vista V_DISTRITOS_MUNICIPALES.";
 }

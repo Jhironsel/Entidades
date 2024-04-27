@@ -56,12 +56,33 @@ public class M_BaseDeDatosNGTest {
     )
     public void testPathBaseDeDatos() {
         String result = M_BaseDeDatos.pathBaseDeDatos();
-        assertNotNull(result, "No puede obtenerse la ruta a la base de datos.");
-        assertFalse(result.isBlank(), "La ruta se encuentra en blanco.");
+        
+        assertNotNull(
+                result, 
+                "No puede obtenerse la ruta a la base de datos."
+        );
+        
+        assertFalse(
+                result.isBlank(), 
+                "La ruta se encuentra en blanco."
+        );
+        
         File file = new File(result);
-        assertTrue(file.canRead(), "No puede leerse la base de datos.");
-        assertTrue(file.canWrite(), "No puede Escribirse en la base de datos.");
-        assertFalse(file.isHidden(), "El archivo de la base de datos esta oculto.");
+        
+        assertTrue(
+                file.canRead(), 
+                "No puede leerse la base de datos."
+        );
+        
+        assertTrue(
+                file.canWrite(), 
+                "No puede Escribirse en la base de datos."
+        );
+        
+        assertFalse(
+                file.isHidden(), 
+                "El archivo de la base de datos esta oculto."
+        );
     }
 
     @Test(

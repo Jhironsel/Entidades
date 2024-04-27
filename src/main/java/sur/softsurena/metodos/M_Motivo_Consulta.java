@@ -26,7 +26,7 @@ public class M_Motivo_Consulta {
         final String sql
             = "DELETE FROM V_Motivos_Consulta WHERE ID = ?";
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
 
@@ -55,7 +55,7 @@ public class M_Motivo_Consulta {
         final String sql
             = "INSERT INTO V_MOTIVOS_CONSULTA (DESCRIPCION) values (?)";
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
             ps.setString(1, m);
@@ -77,7 +77,7 @@ public class M_Motivo_Consulta {
                 + "WHERE ESTADO "
                 + "ORDER BY 1";
         try (PreparedStatement ps = getCnn().prepareStatement(sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
             

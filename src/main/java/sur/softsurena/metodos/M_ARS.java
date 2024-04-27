@@ -34,7 +34,7 @@ public class M_ARS {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -52,15 +52,14 @@ public class M_ARS {
                     );
                 }
             }
-            return arsList;
         } catch (SQLException ex) {
             LOG.log(
                     Level.SEVERE,
                     ERROR_AL_CONSULTAR_LA_VISTA_V_ARS_DEL,
                     ex
             );
-            return arsList;
         }
+        return arsList;
     }
     public static final String ERROR_AL_CONSULTAR_LA_VISTA_V_ARS_DEL
             = "Error al consultar la vista V_ARS del sistema.";
@@ -76,13 +75,13 @@ public class M_ARS {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             ps.setInt(1, idARS);
 
-            ps.executeUpdate();
+            ps.execute();
 
             return Resultado
                     .builder()
@@ -132,7 +131,7 @@ public class M_ARS {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
@@ -181,7 +180,7 @@ public class M_ARS {
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
