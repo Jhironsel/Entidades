@@ -3,8 +3,7 @@ package sur.softsurena.metodos;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -30,7 +29,10 @@ public class M_UsuarioNGTest {
                 "localhost",
                 "3050"
         );
-        assertTrue("Error al conectarse...", Conexion.verificar().getEstado());
+        assertTrue(
+                Conexion.verificar().getEstado(),
+                "Error al conectarse..."
+        );
     }
 
     @AfterClass
@@ -55,7 +57,10 @@ public class M_UsuarioNGTest {
         String usuario = "sysdba";
         String clave = "1";
         boolean result = M_Usuario.cambioClave(usuario, clave);
-        assertTrue("La contraseña no fue cambiada. ", result);
+        assertTrue(
+                result,
+                "La contraseña no fue cambiada. "
+        );
     }
 
     @Test(

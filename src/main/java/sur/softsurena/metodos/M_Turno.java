@@ -20,7 +20,7 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
  * @author jhironsel
  */
 public class M_Turno {
-    
+
     /**
      * Metodo actualizado el 26 de abril 2022. Este metodo esta combinado con el
      * metodo usuarioTurnoActivo.
@@ -128,12 +128,13 @@ public class M_Turno {
      * @return
      */
     public static List<Turno> getTurnosByUserName(String userName) {
-        final String sql
-                = "SELECT ID, TURNO_USUARIO, FECHA_HORA_INICIO, FECHA_HORA_FINAL, "
-                + "     ESTADO, MONTO_FACTURADO, MONTO_DEVUELTO, MONTO_EFECTIVO,"
-                + "     MONTO_CREDITO "
-                + "FROM GET_TURNOS "
-                + "WHERE ESTADO IS FALSE AND TURNO_USUARIO STARTING WITH ? ";
+        final String sql = """
+                    SELECT ID, TURNO_USUARIO, FECHA_HORA_INICIO, FECHA_HORA_FINAL, 
+                            ESTADO, MONTO_FACTURADO, MONTO_DEVUELTO, MONTO_EFECTIVO,
+                            MONTO_CREDITO 
+                    FROM GET_TURNOS 
+                    WHERE ESTADO IS FALSE AND TURNO_USUARIO STARTING WITH ? 
+                  """;
         List<Turno> turnosList = new ArrayList<>();
 
         try (PreparedStatement ps = getCnn().prepareStatement(

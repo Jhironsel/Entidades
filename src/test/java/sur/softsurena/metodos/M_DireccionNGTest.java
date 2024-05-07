@@ -10,11 +10,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
+import sur.softsurena.entidades.Codigo_Postal;
 import sur.softsurena.entidades.Direccion;
 import sur.softsurena.entidades.Distrito_municipal;
 import sur.softsurena.entidades.Municipio;
 import sur.softsurena.entidades.Provincia;
 import static sur.softsurena.metodos.M_Direccion.DIRECCION_AGREGADA_CORRECTAMENTE;
+import static sur.softsurena.metodos.M_Direccion.DIRECCION_DE_CONTACTO_ACTUALIZADA_CORRECT;
+import static sur.softsurena.metodos.M_Direccion.ERROR_AL_ACTUALIZAR_LA_DIRECCION_DEL_CONT;
 import static sur.softsurena.metodos.M_Direccion.ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI;
 import static sur.softsurena.metodos.M_Direccion.ERROR_AL_INSERTAR_DIRECCION;
 import static sur.softsurena.metodos.M_Direccion.REGISTRO_DE_LA_DIRECCION_BORRADO_CORRECTA;
@@ -25,13 +28,11 @@ import sur.softsurena.utilidades.Resultado;
 @Getter
 public class M_DireccionNGTest {
 
-    private int id_direccion, id_direccion2;
-    private M_ClienteNGTest cliente;
-    private M_PacienteNGTest paciente;
-    
+    private int id_direccion;
+    private M_PersonaNGTest persona;
+
     public M_DireccionNGTest() {
-        cliente = new M_ClienteNGTest();
-        paciente = new M_PacienteNGTest();
+        persona = new M_PersonaNGTest();
     }
 
     @BeforeClass
@@ -44,7 +45,7 @@ public class M_DireccionNGTest {
                 "3050"
         );
         assertTrue(
-                Conexion.verificar().getEstado(), 
+                Conexion.verificar().getEstado(),
                 "Error al conectarse..."
         );
     }
@@ -64,16 +65,17 @@ public class M_DireccionNGTest {
 
     @Test(
             enabled = true,
-            description = "Metodo que permite agregar o modicar un direcion de los clientes.",
-            priority = 0
+            priority = 0,
+            description = """
+                          Metodo que permite agregar un direcion de una persona.
+                          """
     )
     public void testAgregarDireccion() {
-        cliente.testAgregarCliente();
-        
+        persona.testAgregarEntidad();
         Resultado result = agregarDireccion(
                 Direccion
                         .builder()
-                        .id_persona(cliente.getIdCliente())
+                        .id_persona(persona.getIdPersona())
                         .provincia(
                                 Provincia
                                         .builder()
@@ -87,40 +89,62 @@ public class M_DireccionNGTest {
                                         .build()
                         )
                         .distrito_municipal(Distrito_municipal
-                                        .builder()
-                                        .id(0)
-                                        .build()
+                                .builder()
+                                .id(0)
+                                .build()
                         )
                         .direccion("Insercion de prueba.")
                         .por_defecto(Boolean.TRUE)
                         .build()
         );
-        
+
         assertEquals(
-                result.getMensaje(), 
+                result.getMensaje(),
                 DIRECCION_AGREGADA_CORRECTAMENTE,
                 ERROR_AL_INSERTAR_DIRECCION
         );
-        
+
         assertEquals(
                 result.getIcono(),
                 JOptionPane.INFORMATION_MESSAGE,
                 ERROR_AL_INSERTAR_DIRECCION
-                );
+        );
 
         assertTrue(
-                result.getEstado(), 
+                result.getEstado(),
                 ERROR_AL_INSERTAR_DIRECCION
         );
-        
+
         id_direccion = result.getId();
-        
-        paciente.testAgregarPaciente();
-        
-        result = agregarDireccion(
+
+    }//FIN
+
+    @Test(
+            enabled = true,
+            description = "",
+            priority = 1
+    )
+    public void testGetDireccionByID() {
+        int id_persona = 0;
+        List result = getDireccionByID(id_persona);
+        assertTrue(
+                result.isEmpty(),
+                "La lista contiene datos"
+        );
+    }
+
+    @Test(
+            enabled = true,
+            priority = 1,
+            description = ""
+    )
+    public void testModificarDireccion() {
+
+        Resultado result = M_Direccion.modificarDireccion(
                 Direccion
                         .builder()
-                        .id_persona(paciente.getIdPaciente())
+                        .id(id_direccion)
+                        .id_persona(persona.getIdPersona())
                         .provincia(
                                 Provincia
                                         .builder()
@@ -133,82 +157,71 @@ public class M_DireccionNGTest {
                                         .id(12)
                                         .build()
                         )
-                        .distrito_municipal(Distrito_municipal
+                        .distrito_municipal(
+                                Distrito_municipal
                                         .builder()
                                         .id(23)
                                         .build()
                         )
+                        .codigo_postal(
+                                Codigo_Postal
+                                        .builder()
+                                        .id(0)
+                                        .build()
+                        )
                         .direccion("Insercion de prueba 2.")
                         .por_defecto(Boolean.TRUE)
+                        .estado(Boolean.FALSE)
                         .build()
         );
 
         assertEquals(
-                result.getMensaje(), 
-                DIRECCION_AGREGADA_CORRECTAMENTE,
-                ERROR_AL_INSERTAR_DIRECCION
+                result.getMensaje(),
+                DIRECCION_DE_CONTACTO_ACTUALIZADA_CORRECT,
+                ERROR_AL_ACTUALIZAR_LA_DIRECCION_DEL_CONT
         );
-        
+
         assertEquals(
                 result.getIcono(),
                 JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_INSERTAR_DIRECCION
-                );
-
-        assertTrue(
-                result.getEstado(), 
-                ERROR_AL_INSERTAR_DIRECCION
+                ERROR_AL_ACTUALIZAR_LA_DIRECCION_DEL_CONT
         );
-        
-        id_direccion2 = result.getId();
-        
-    }//FIN
 
-    @Test(
-            enabled = true,
-            description = "",
-            priority = 1
-    
-    )
-    public void testGetDireccionByID() {
-        int id_persona = 0;
-        List result = getDireccionByID(id_persona);
         assertTrue(
-                result.isEmpty(), 
-                "La lista contiene datos"
+                result.getEstado(),
+                ERROR_AL_ACTUALIZAR_LA_DIRECCION_DEL_CONT
         );
     }
 
     @Test(
-            enabled = false,
-            description = "",
-            priority = 1
-    
+            enabled = true,
+            priority = 2,
+            description = """
+                          Test que realiza la eliminacion de un registros de 
+                          direccion de un contacto del sistema.
+                          """
     )
     public void testBorrarDireccion() {
-        
+
         Resultado result = M_Direccion.borrarDireccion(id_direccion);
-        
+
         assertTrue(
                 result.getEstado(),
                 ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI
         );
-        
+
         assertEquals(
-                result.getMensaje(), 
+                result.getMensaje(),
                 REGISTRO_DE_LA_DIRECCION_BORRADO_CORRECTA,
                 ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI
         );
-        
+
         assertEquals(
-                result.getIcono(), 
-                JOptionPane.INFORMATION_MESSAGE, 
+                result.getIcono(),
+                JOptionPane.INFORMATION_MESSAGE,
                 ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI
         );
-        
-        paciente.testBorrarPaciente();
-        cliente.testBorrarCliente();
-        cliente.testBorrarCliente2();
+
+        persona.testEliminarEntidad();
     }
-    
 }

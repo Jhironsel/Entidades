@@ -15,9 +15,7 @@ public class Factura {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Factura{");
-        sb.append("id=").append(id);
-        sb.append('}');
+        sb.append("Factura{").append("id=").append(id).append('}');
         return sb.toString();
     }
 }

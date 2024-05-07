@@ -15,11 +15,11 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
  * @author jhironsel
  */
 public class M_D_MotivoConsulta {
-    
+
     /**
      * Metodo que elimina un detalle de la consulta de los paciente, por x o y
      * razones.
-     * 
+     *
      * @param dmc
      *
      * @return
@@ -47,8 +47,8 @@ public class M_D_MotivoConsulta {
                     .build();
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    ERROR_AL_ELIMINAR_DETALLE_DE_MOTIVO_DE_LA, 
+                    Level.SEVERE,
+                    ERROR_AL_ELIMINAR_DETALLE_DE_MOTIVO_DE_LA,
                     ex
             );
             return Resultado
@@ -59,19 +59,19 @@ public class M_D_MotivoConsulta {
                     .build();
         }
     }
-    
-    public static final String ERROR_AL_ELIMINAR_DETALLE_DE_MOTIVO_DE_LA 
+
+    public static final String ERROR_AL_ELIMINAR_DETALLE_DE_MOTIVO_DE_LA
             = "Error al eliminar detalle de motivo de la consulta.";
-    
-    public static final String MOTIVO_ELIMINADO_CORRECTAMENTE 
+
+    public static final String MOTIVO_ELIMINADO_CORRECTAMENTE
             = "Motivo eliminado correctamente.";
 
     /**
-     * Permite relacionar las consultas con los motivo que provocaron la 
+     * Permite relacionar las consultas con los motivo que provocaron la
      * consulta.
-     * 
+     *
      * @param dmc
-     * 
+     *
      * @return
      */
     public synchronized static Resultado agregarDetallleConsulta(D_MotivoConsulta dmc) {
@@ -94,8 +94,8 @@ public class M_D_MotivoConsulta {
                     .build();
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    ERROR_AL_INSERTAR__DETALLE__CONSULTA, 
+                    Level.SEVERE,
+                    ERROR_AL_INSERTAR__DETALLE__CONSULTA,
                     ex
             );
             return Resultado
@@ -106,16 +106,26 @@ public class M_D_MotivoConsulta {
                     .build();
         }
     }
-    public static final String ERROR_AL_INSERTAR__DETALLE__CONSULTA 
+    public static final String ERROR_AL_INSERTAR__DETALLE__CONSULTA
             = "Error al insertar Detalle Consulta...";
-    public static final String DETALLES_AGREGADOS_CORRECTAMENTE 
+    public static final String DETALLES_AGREGADOS_CORRECTAMENTE
             = "Detalles agregados correctamente";
 
-    public synchronized static ResultSet getDetalleMotivo(int idConsulta, int turno) {
-        final String sql 
+    /**
+     * TODO Devolver una lista.
+     *
+     * @param idConsulta
+     * @param turno
+     * @return
+     */
+    public synchronized static ResultSet getDetalleMotivo(
+            int idConsulta, int turno
+    ) {
+        final String sql
                 = "SELECT IDMCONSULTA "
                 + "FROM V_DETALLEMOTIVOCONSULTA d "
                 + "WHERE d.IDCONSULTA = ? and d.TURNO = ?";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
@@ -124,11 +134,12 @@ public class M_D_MotivoConsulta {
         )) {
             ps.setInt(1, idConsulta);
             ps.setInt(2, turno);
+            
             return ps.executeQuery();
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    "Error al consultar la vista V_DETALLEMOTIVOCONSULTA del sistema.", 
+                    Level.SEVERE,
+                    "Error al consultar la vista V_DETALLEMOTIVOCONSULTA del sistema.",
                     ex
             );
             return null;

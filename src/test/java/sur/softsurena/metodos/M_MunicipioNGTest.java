@@ -2,8 +2,7 @@ package sur.softsurena.metodos;
 
 import java.util.List;
 import lombok.Getter;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -26,7 +25,10 @@ public class M_MunicipioNGTest {
                 "localhost",
                 "3050"
         );
-        assertTrue("Error al conectarse...", Conexion.verificar().getEstado());
+        assertTrue(
+                Conexion.verificar().getEstado(),
+                "Error al conectarse..."
+        );
     }
 
     @AfterClass

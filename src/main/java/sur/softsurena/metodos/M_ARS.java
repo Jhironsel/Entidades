@@ -65,56 +65,6 @@ public class M_ARS {
             = "Error al consultar la vista V_ARS del sistema.";
 
     /**
-     * Trata de eliminar un registro de la tabla ARS, la cual debe tener una
-     *
-     * @param idARS
-     * @return
-     */
-    public synchronized static Resultado borrarSeguro(Integer idARS) {
-        final String sql = "EXECUTE PROCEDURE SP_D_ARS(?)";
-
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                sql,
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT
-        )) {
-            ps.setInt(1, idARS);
-
-            ps.execute();
-
-            return Resultado
-                    .builder()
-                    .mensaje(BORRADO_CORRECTAMENTE)
-                    .icono(JOptionPane.INFORMATION_MESSAGE)
-                    .estado(Boolean.TRUE)
-                    .build();
-        } catch (SQLException ex) {
-            LOG.log(
-                    Level.SEVERE,
-                    ERROR_AL_BORRAR_ARS
-                            .concat(
-                                    " \nError al ejecutar SP_D_ARS(?) en el sistema, con el ID "
-                            )
-                            .concat(
-                                    idARS.toString()
-                            ),
-                    ex
-            );
-            return Resultado
-                    .builder()
-                    .mensaje(ERROR_AL_BORRAR_ARS)
-                    .icono(JOptionPane.ERROR_MESSAGE)
-                    .estado(Boolean.FALSE)
-                    .build();
-        }
-    }
-    public static final String ERROR_AL_BORRAR_ARS
-            = "Error al borrar ARS del sistema.";
-    public static final String BORRADO_CORRECTAMENTE
-            = "Borrado correctamente.";
-
-    /**
      * Procedimiento que permite agregar los seguros de los paciente al sistema.
      *
      * @param ars Es un objecto que contiene la informacion de los seguros en el
@@ -189,7 +139,7 @@ public class M_ARS {
             ps.setBigDecimal(3, ars.getCovertura());
             ps.setBoolean(4, ars.getEstado());
 
-            ps.executeUpdate();
+            ps.execute();
             return Resultado
                     .builder()
                     .mensaje(SEGURO_MODIFICADO_CORRECTAMENTE)
@@ -214,4 +164,55 @@ public class M_ARS {
             = "Seguro modificado correctamente";
     public static final String ERROR_AL_MODIFICAR_SEGURO
             = "Error al modificar seguro...";
+
+    /**
+     * Trata de eliminar un registro de la tabla ARS, la cual debe tener una
+     *
+     * @param idARS
+     * @return
+     */
+    public synchronized static Resultado borrarSeguro(Integer idARS) {
+        final String sql = "EXECUTE PROCEDURE SP_D_ARS(?)";
+
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
+            ps.setInt(1, idARS);
+
+            ps.execute();
+
+            return Resultado
+                    .builder()
+                    .mensaje(BORRADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
+        } catch (SQLException ex) {
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_BORRAR_ARS
+                            .concat(
+                                    " \nError al ejecutar SP_D_ARS(?) en el sistema, con el ID "
+                            )
+                            .concat(
+                                    idARS.toString()
+                            ),
+                    ex
+            );
+            return Resultado
+                    .builder()
+                    .mensaje(ERROR_AL_BORRAR_ARS)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
+        }
+    }
+    public static final String ERROR_AL_BORRAR_ARS
+            = "Error al borrar ARS del sistema.";
+    public static final String BORRADO_CORRECTAMENTE
+            = "Borrado correctamente.";
+
 }

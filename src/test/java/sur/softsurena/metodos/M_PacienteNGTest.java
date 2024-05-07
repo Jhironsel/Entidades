@@ -1,7 +1,8 @@
 package sur.softsurena.metodos;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
-import java.util.Date;
+import java.util.List;
 import javax.swing.JOptionPane;
 import lombok.Getter;
 import static org.testng.Assert.*;
@@ -11,11 +12,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
-import sur.softsurena.entidades.Asegurado;
-import sur.softsurena.entidades.Generales;
 import sur.softsurena.entidades.Paciente;
-import static sur.softsurena.metodos.M_ContactoTel.generarTelMovil;
-import static sur.softsurena.metodos.M_Generales.generarCedula;
 import static sur.softsurena.metodos.M_Paciente.ERROR_AL_BORRAR_PACIENTE;
 import static sur.softsurena.metodos.M_Paciente.ERROR_AL_CONSULTAR_EL_SEXO_DE_UN_PACIENTE;
 import static sur.softsurena.metodos.M_Paciente.ERROR_AL_CONSULTAR_LA_CEDULA_DEL_PACIENTE;
@@ -25,22 +22,18 @@ import static sur.softsurena.metodos.M_Paciente.ERROR_AL_MODIFICAR_PACIENTE;
 import static sur.softsurena.metodos.M_Paciente.PACIENTE_AGREGADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Paciente.PACIENTE_BORRADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Paciente.PACIENTE_MODIFICADO_CORRECTAMENTE;
-import static sur.softsurena.metodos.M_Paciente.agregarPaciente;
-import static sur.softsurena.metodos.M_Paciente.borrarPaciente;
-import static sur.softsurena.metodos.M_Paciente.modificarPaciente;
+import static sur.softsurena.metodos.M_Paciente.eliminarEntidad;
+import static sur.softsurena.metodos.M_Paciente.getListEntidad;
 import sur.softsurena.utilidades.Resultado;
-import sur.softsurena.utilidades.Utilidades;
 
 @Getter
 public class M_PacienteNGTest {
 
-    private M_ARSNGTest ars;
-    private Integer idPaciente = -1;
-    private String cedulaPaciente;
+    private M_PersonaNGTest persona;
     private Paciente paciente;
 
     public M_PacienteNGTest() {
-        ars = new M_ARSNGTest();
+        persona = new M_PersonaNGTest();
     }
 
     @BeforeClass
@@ -72,80 +65,94 @@ public class M_PacienteNGTest {
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             description = "Test que realiza el ingreso de un paciente al sistema.",
             priority = 0
     )
-    public void testAgregarPaciente() {
-        ars.testAgregarArs();
+    public void testAgregarEntidad() {
+        persona.testAgregarEntidad();
         
-        cedulaPaciente = generarCedula();
         generarPaciente();
-        
-        Resultado result = agregarPaciente(paciente);
+
+        Resultado result = M_Paciente.agregarEntidad(paciente);
 
         assertEquals(
-                result.getMensaje(),
-                PACIENTE_AGREGADO_CORRECTAMENTE,
-                ERROR_AL_INSERTAR_PACIENTE
-        );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
+                result,
+                Resultado
+                    .builder()
+                    .mensaje(PACIENTE_AGREGADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
                 ERROR_AL_INSERTAR_PACIENTE
         );
 
         assertTrue(
-                result.getEstado(),
-                ERROR_AL_INSERTAR_PACIENTE
-        );
-
-        idPaciente = result.getId();
-
-        assertTrue(
-                idPaciente > 0,
+                persona.getIdPersona() > 0,
                 ERROR_AL_INSERTAR_PACIENTE
         );
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             description = "",
             priority = 1
     )
-    public void testModificarPaciente() {
-        cedulaPaciente = generarCedula();
+    public void testModificarEntidad() {
         generarPaciente();
+
+        Resultado result = M_Paciente.modificarEntidad(paciente);
         
-        Resultado result = modificarPaciente(paciente);
-
-        assertTrue(
-                result.getEstado(),
+        assertEquals(
+                result,
+                Resultado
+                    .builder()
+                    .mensaje(PACIENTE_MODIFICADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
                 ERROR_AL_MODIFICAR_PACIENTE
         );
+    }
+    
+    @Test(
+            enabled = true,
+            description = "",
+            priority = 2
+    )
+    public void testGetEntidad() {
+        Paciente result = M_Paciente.getEntidad(persona.getIdPersona());
 
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_MODIFICAR_PACIENTE
+        assertNotNull(
+                result,
+                ERROR_AL_CONSULTAR_LA_VISTA_GET_PACIENTES
         );
-
-        assertEquals(
-                result.getMensaje(),
-                PACIENTE_MODIFICADO_CORRECTAMENTE,
-                ERROR_AL_MODIFICAR_PACIENTE
+    }
+    
+    @Test(
+            enabled = true,
+            priority = 2,
+            description = """
+                          Test que verifica que la tabla de paciente contiene 
+                          registros en el sistema.
+                          """
+    )
+    public void testGetListEntidad() {
+        List<Paciente> result = getListEntidad();
+        assertFalse(
+                result.isEmpty(),
+                "Se encuentra registros en la lista de paciente."
         );
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             description = "",
             priority = 2
     )
     public void testGetSexoPaciente() {
         assertTrue(
-                M_Paciente.getSexoPaciente(idPaciente).equals("M"),
+                M_Paciente.getSexoPaciente(persona.getIdPersona()).equals("M"),
                 ERROR_AL_CONSULTAR_EL_SEXO_DE_UN_PACIENTE
         );
     }
@@ -157,25 +164,11 @@ public class M_PacienteNGTest {
     )
     public void testExistePaciente() {
 
-        Resultado result = M_Paciente.existePaciente(cedulaPaciente);
+        Resultado result = M_Paciente.existePaciente("");
 
         assertTrue(
                 result.getEstado(),
                 ERROR_AL_CONSULTAR_LA_CEDULA_DEL_PACIENTE
-        );
-    }
-
-    @Test(
-            enabled = false,
-            description = "",
-            priority = 2
-    )
-    public void testGetPacienteActivoID() {
-        Paciente result = M_Paciente.getPacienteActivoID(idPaciente);
-
-        assertNotNull(
-                result,
-                ERROR_AL_CONSULTAR_LA_VISTA_GET_PACIENTES
         );
     }
 
@@ -234,63 +227,36 @@ public class M_PacienteNGTest {
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             description = "Test que permite eliminar un paciente ya creado.",
             priority = 3
     )
-    public void testBorrarPaciente() {
-        Resultado result = borrarPaciente(idPaciente);
+    public void testEliminarEntidad() {
+        Resultado result = eliminarEntidad(persona.getIdPersona());
 
         assertEquals(
-                result.getMensaje(),
-                PACIENTE_BORRADO_CORRECTAMENTE,
-                ERROR_AL_BORRAR_PACIENTE
+                result,
+                Resultado
+                    .builder()
+                    .mensaje(PACIENTE_BORRADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
+                ERROR_AL_BORRAR_PACIENTE.formatted(persona.getIdPersona())
         );
 
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_BORRAR_PACIENTE
-        );
-
-        assertTrue(
-                result.getEstado(),
-                ERROR_AL_BORRAR_PACIENTE
-        );
-
-        ars.testBorrarSeguro();
+        persona.testEliminarEntidad();
     }
 
-    public synchronized void generarPaciente() {        
+    public synchronized void generarPaciente() {
         paciente = Paciente
                 .builder()
-                .id_persona(idPaciente)
-                .pnombre("Paciente Prueba")
-                .snombre("SNombre Prueba")
-                .apellidos("Apellidos Prueba")
-                .sexo('M')
-                .fecha_nacimiento(
-                        Utilidades.javaDateToSqlDate(
-                                new Date()
-                        )
-                )
-                .estado(Boolean.TRUE)
-                .generales(
-                        Generales
-                                .builder()
-                                .cedula(cedulaPaciente)
-                                .id_tipo_sangre(0)
-                                .build()
-                )
-                .asegurado(
-                        Asegurado
-                                .builder()
-                                .id_ars(ars.getId_ARS())
-                                .no_nss(generarTelMovil().substring(9, 16))
-                                .estado(Boolean.TRUE)
-                                .build()
-                )
+                .id_persona(persona.getIdPersona())
+                .pesoNacimiento(BigDecimal.TEN)
+                .altura(new BigDecimal("14.98"))
+                .perimetroCefalico(new BigDecimal(8.5d))
+                .cesarea(Boolean.FALSE)
+                .tiempoGestacion(8)
                 .build();
-    }
-
+    }    
 }

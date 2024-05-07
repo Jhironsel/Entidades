@@ -11,7 +11,7 @@ import sur.softsurena.entidades.Cajero;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
- * 
+ *
  * @author jhironsel
  */
 public class M_Cajero {
@@ -47,15 +47,15 @@ public class M_Cajero {
                             descripcion(rs.getString("DESCRIPCION")).build());
                 }
             }
-            return cajerosList;
         } catch (SQLException ex) {
             LOG.log(
                     Level.SEVERE,
                     ERROR_AL_CONSULTAR_LA_VISTA_DE_GET_CAJERO,
                     ex
             );
-            return null;
         }
+
+        return cajerosList;
     }
     public static final String ERROR_AL_CONSULTAR_LA_VISTA_DE_GET_CAJERO
             = "Error al consultar la vista de GET_CAJEROS.";
@@ -85,14 +85,13 @@ public class M_Cajero {
                             build());
                 }
             }
-            return cajerosList;
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    ERROR_AL_CONSULTAR_LA_VISTA_DE_GET_CAJERO, 
+                    Level.SEVERE,
+                    ERROR_AL_CONSULTAR_LA_VISTA_DE_GET_CAJERO,
                     ex
             );
-            return null;
         }
+        return cajerosList;
     }
 }

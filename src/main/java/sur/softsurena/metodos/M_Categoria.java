@@ -74,7 +74,7 @@ public class M_Categoria {
         } catch (SQLException ex) {
             LOG.log(
                     Level.SEVERE,
-                    ERROR_AL_INSERTAR_CATEGORIA, 
+                    ERROR_AL_INSERTAR_CATEGORIA,
                     ex
             );
             return Resultado
@@ -174,8 +174,8 @@ public class M_Categoria {
                     .build();
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__CA.formatted(idCategoria), 
+                    Level.SEVERE,
+                    OCURRIO_UN_ERROR_AL_INTENTAR_BORRAR_LA__CA.formatted(idCategoria),
                     ex
             );
             return Resultado
@@ -232,11 +232,14 @@ public class M_Categoria {
                         .build()
                 );
             }
-            return categorias;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
+            LOG.log(
+                    Level.SEVERE,
+                    ex.getMessage(),
+                    ex
+            );
         }
+        return categorias;
     }
 
     /**
@@ -266,11 +269,14 @@ public class M_Categoria {
                             image_texto(rs.getString("IMAGEN_TEXTO")).build());
                 }
             }
-            return categoriasList;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
+            LOG.log(
+                    Level.SEVERE,
+                    ex.getMessage(),
+                    ex
+            );
         }
+        return categoriasList;
     }
 
     /**

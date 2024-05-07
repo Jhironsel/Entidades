@@ -69,6 +69,7 @@ public class M_Carton_BingoNGTest {
         List result = M_Carton_Bingo.generarCarton();
         assertEquals(result, expResult);
     }
+
     @Test(
             enabled = false,
             priority = 0,

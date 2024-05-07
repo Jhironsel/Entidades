@@ -15,7 +15,7 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
  * @author jhironsel
  */
 public class M_Codigo_Postal {
-    
+
     /**
      * Metodo que me permite obtener los codigo postales de la republica
      * dominicana.
@@ -28,9 +28,9 @@ public class M_Codigo_Postal {
                 = "SELECT ID, IDPROVINCIA, LOCALIDAD, CODIGO_POSTAL "
                 + "FROM V_CODIGOS_POSTALES "
                 + "WHERE r.IDPROVINCIA = ?;";
-        
+
         List<Codigo_Postal> codigo_postal_list = new ArrayList<>();
-        
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
@@ -40,7 +40,7 @@ public class M_Codigo_Postal {
             ps.setInt(1, id_provincia);
 
             try (ResultSet rs = ps.executeQuery();) {
-                while(rs.next()){
+                while (rs.next()) {
                     codigo_postal_list.add(
                             Codigo_Postal.
                                     builder().
@@ -52,10 +52,13 @@ public class M_Codigo_Postal {
                     );
                 }
             }
-            return codigo_postal_list;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
+            LOG.log(
+                    Level.SEVERE,
+                    ex.getMessage(),
+                    ex
+            );
         }
+        return codigo_postal_list;
     }
 }

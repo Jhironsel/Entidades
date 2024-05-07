@@ -70,7 +70,7 @@ public class M_ContactoTelNGTest {
             priority = 0,
             description = ""
     )
-    public void testModificarContactosTel() {
+    public void testModificarContactoTel() {
         Resultado result = M_ContactoTel.modificarContactoTel(
                 ContactoTel
                         .builder()
@@ -85,12 +85,51 @@ public class M_ContactoTelNGTest {
     @Test(
             enabled = false,
             priority = 0,
-            description = ""
+            description = """
+                          """
     )
     public void testGetTelefonoByID() {
         int id = 0;
         List expResult = null;
         List result = M_ContactoTel.getTelefonoByID(id);
+        assertEquals(result, expResult);
+    }
+
+    @Test(
+            enabled = false,
+            priority = 0,
+            description = """
+                          """
+    )
+    public void testEliminarContactoTel() {
+        int id = 0;
+        Resultado expResult = null;
+        Resultado result = M_ContactoTel.eliminarContactoTel(id);
+        assertEquals(result, expResult);
+    }
+
+    @Test(
+            enabled = false,
+            priority = 0,
+            description = """
+                          """
+    )
+    public void testGenerarTelMovil() {
+        String expResult = "";
+        String result = M_ContactoTel.generarTelMovil();
+        assertEquals(result, expResult);
+    }
+
+    @Test(
+            enabled = false,
+            priority = 0,
+            description = """
+                          """
+    )
+    public void testTelefono() {
+        String tel = "";
+        boolean expResult = false;
+        boolean result = M_ContactoTel.telefono(tel);
         assertEquals(result, expResult);
     }
     

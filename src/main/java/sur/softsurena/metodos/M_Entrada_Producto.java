@@ -103,7 +103,9 @@ public class M_Entrada_Producto {
     }
 
     /**
-     * TODO CREAR VISTA.
+     * TODO CREAR VISTA. 
+     * TODO Devolver una lista.
+     * 
      * @param mes
      * @param year
      * @return

@@ -16,26 +16,8 @@ public class Resultado <T>{
     private final Object objecto;
     private final Object[] objectos;
     private final List<T> lista;
-    
-    /**
-     * Estado del resultado que espera respuesta. 
-     */
     private final Boolean estado;
-    
-    /**
-     * Las excepciones son aquellas que estan definicada en la base de datos.
-     */
     private final String excepcion;
-    
-    /**
-     * Los iconos pueden ser las variables estaticas de la clase JOptionPane como:
-     * 
-     * JOptionPane.ERROR_MESSAGE
-     * JOptionPane.INFORMATION_MESSAGE
-     * JOptionPane.PLAIN_MESSAGE
-     * JOptionPane.WARNING_MESSAGE
-     * JOptionPane.QUESTION_MESSAGE
-     */
     private final Integer icono;
 
     @Override
@@ -66,28 +48,8 @@ public class Resultado <T>{
             return false;
         }
         final Resultado<?> other = (Resultado<?>) obj;
-        if (this.id != other.id) {
-            return false;
-        }
+        
         if (!Objects.equals(this.mensaje, other.mensaje)) {
-            return false;
-        }
-        if (!Objects.equals(this.excepcion, other.excepcion)) {
-            return false;
-        }
-        if (!Objects.equals(this.cantidad, other.cantidad)) {
-            return false;
-        }
-        if (!Objects.equals(this.cantidadDecimal, other.cantidadDecimal)) {
-            return false;
-        }
-        if (!Objects.equals(this.objecto, other.objecto)) {
-            return false;
-        }
-        if (!Arrays.deepEquals(this.objectos, other.objectos)) {
-            return false;
-        }
-        if (!Objects.equals(this.lista, other.lista)) {
             return false;
         }
         if (!Objects.equals(this.estado, other.estado)) {

@@ -6,9 +6,10 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.D_Factura;
-import sur.softsurena.entidades.Factura;
+import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 /**
@@ -27,14 +28,17 @@ public class M_D_Factura {
      *
      * TODO CREAR SP.
      *
+     * @param idFactura
+     * @param detalleFactura
      * @return Ahora devuelve un entero que indica las cantidades de registros
      * que fueron afectadas en la inserción del registro.
      *
      * Antes: Devuelve un valor booleano que indica true si el registro se hizo
      * con exito y false si hubo un error al insertarla.
      */
-    public static synchronized Integer agregarDetalleFactura(Factura f) {
-        List<D_Factura> d = f.getDetalleFactura();
+    public static synchronized Resultado agregarDetalleFactura(Integer idFactura,
+            List<D_Factura> detalleFactura) {
+
         final String sql
                 = "INSERT INTO V_D_FACTURAS (ID_FACTURA, ID_LINEA, ID_PRODUCTO, "
                 + "     PRECIO, CANTIDAD) "
@@ -46,29 +50,46 @@ public class M_D_Factura {
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
-            for (Iterator<D_Factura> i = d.iterator(); i.hasNext();) {
-                D_Factura next = i.next();
-
-                ps.setInt(1, f.getId());
-                ps.setInt(2, next.getIdLinea());
-                ps.setInt(3, next.getIdProducto());
-                ps.setBigDecimal(4, next.getPrecio());
-                ps.setBigDecimal(5, next.getCantidad());
+            for (Iterator<D_Factura> i = detalleFactura.iterator(); i.hasNext();) {
+                D_Factura factura = i.next();
+                ps.setInt(1, idFactura);
+                ps.setInt(2, factura.getIdLinea());
+                ps.setInt(3, factura.getIdProducto());
+                ps.setBigDecimal(4, factura.getPrecio());
+                ps.setBigDecimal(5, factura.getCantidad());
 
                 ps.addBatch();
-
             }
+            
+            ps.executeBatch();
 
-            return ps.executeUpdate();
+            return Resultado
+                    .builder()
+                    .mensaje("Detalle de la factura agregado correctamente.")
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
 
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return -1;
+            LOG.log(
+                    Level.SEVERE,
+                    ex.getMessage(),
+                    ex
+            );
+
+            return Resultado
+                    .builder()
+                    .mensaje("Error al agregar detalle de la factura.")
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
+    
+    //--------------------------------------------------------------------------
 
     /**
-     *
+     * TODO Devolver una lista.
      * @param idFactura
      * @return
      */
@@ -95,21 +116,23 @@ public class M_D_Factura {
     }
 
     /**
-     * TODO CREAR VISTA.
+     * TODO CREAR VISTA. Devolver Lista
+     *
      * @param idFactura
      * @return
      */
     public synchronized static ResultSet getFacturasDetalladas(String idFactura) {
-        final String sql 
-                = "SELECT factura.idFactura, factura.idCliente, nombres||' '||apellidos AS nombreFull, "
-                + "        fecha, idLinea, (SELECT p.Descripcion "
-                + "                            FROM TABLA_PRODUCTOS p "
-                + "                            WHERE p.idProducto = DETALLEFACTURA.IDPRODUCTO ) as Descripcion, "
-                + "        idProducto, precio, cantidad, precio * cantidad AS Valor "
-                + "FROM TABLA_FACTURAS "
-                + "INNER JOIN TABLA_CLIENTES ON factura.idCliente = cliente.idCliente "
-                + "INNER JOIN TABLA_DETALLEFACTURA ON factura.idFactura = detalleFactura.idFactura "
-                + "WHERE factura.idFactura = ? ";
+        final String sql = """
+                  SELECT factura.idFactura, factura.idCliente, nombres||' '||apellidos AS nombreFull, 
+                        fecha, idLinea, (SELECT p.Descripcion 
+                                            FROM TABLA_PRODUCTOS p 
+                                            WHERE p.idProducto = DETALLEFACTURA.IDPRODUCTO ) as Descripcion, 
+                        idProducto, precio, cantidad, precio * cantidad AS Valor 
+                  FROM TABLA_FACTURAS 
+                  INNER JOIN TABLA_CLIENTES ON factura.idCliente = cliente.idCliente 
+                  INNER JOIN TABLA_DETALLEFACTURA ON factura.idFactura = detalleFactura.idFactura 
+                  WHERE factura.idFactura = ? """;
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
@@ -125,7 +148,8 @@ public class M_D_Factura {
     }
 
     /**
-     * TODO CREAR VISTA.
+     * TODO CREAR VISTA. devolver una lista.
+     *
      * @param idCliente
      * @return
      */
@@ -154,7 +178,8 @@ public class M_D_Factura {
     }
 
     /**
-     * TODO CREAR VISTA.
+     * TODO CREAR VISTA. Devolver Lista.
+     *
      * @param idCliente
      * @param idFactura
      * @return

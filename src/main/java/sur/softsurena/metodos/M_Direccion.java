@@ -163,8 +163,8 @@ public class M_Direccion {
     }
     public static final String ERROR_AL_REALIZAR_LA_CONSULTA_EN_LA_VISTA
             = "Error al realizar la consulta en la vista GET_DIRECCION_BY_ID.";
-    
-    public synchronized static Resultado borrarDireccion(int id_direccion){
+
+    public synchronized static Resultado borrarDireccion(int id_direccion) {
         String sql = """
                      EXECUTE PROCEDURE SP_D_CONTACTO_DIRECCION (?);
                      """;
@@ -175,32 +175,84 @@ public class M_Direccion {
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
             ps.setInt(1, id_direccion);
-            
+
             ps.execute();
-            
+
             return Resultado
                     .builder()
                     .mensaje(REGISTRO_DE_LA_DIRECCION_BORRADO_CORRECTA)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
                     .estado(Boolean.TRUE)
                     .build();
-            
-        }catch (SQLException ex) {
+
+        } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
+                    Level.SEVERE,
                     ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI,
                     ex
             );
         }
         return Resultado
-                    .builder()
-                    .mensaje(ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI)
-                    .icono(JOptionPane.ERROR_MESSAGE)
-                    .estado(Boolean.FALSE)
-                    .build();
+                .builder()
+                .mensaje(ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI)
+                .icono(JOptionPane.ERROR_MESSAGE)
+                .estado(Boolean.FALSE)
+                .build();
     }
-    public static final String ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI 
+    public static final String ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI
             = "Error al borrar el registro de la direccion.";
-    public static final String REGISTRO_DE_LA_DIRECCION_BORRADO_CORRECTA 
+    public static final String REGISTRO_DE_LA_DIRECCION_BORRADO_CORRECTA
             = "Registro de la direccion borrado correctamente.";
+
+    public static synchronized Resultado modificarDireccion(
+            Direccion direccion
+    ) {
+        final String sql = """
+                           EXECUTE PROCEDURE SP_U_CONTACTO_DIRECCION
+                                (?,?,?,?,?,?,?,?,?);
+                           """;
+
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
+            ps.setInt(1, direccion.getId());
+            ps.setInt(2, direccion.getId_persona());
+            ps.setInt(3, direccion.getProvincia().getId());
+            ps.setInt(4, direccion.getMunicipio().getId());
+            ps.setInt(5, direccion.getDistrito_municipal().getId());
+            ps.setInt(6, direccion.getCodigo_postal().getId());
+            ps.setString(7, direccion.getDireccion());
+            ps.setBoolean(8, direccion.getEstado());
+            ps.setBoolean(9, direccion.getPor_defecto());
+
+            ps.execute();
+
+            return Resultado
+                    .builder()
+                    .mensaje(DIRECCION_DE_CONTACTO_ACTUALIZADA_CORRECT)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
+        } catch (SQLException ex) {
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_ACTUALIZAR_LA_DIRECCION_DEL_CONT,
+                    ex
+            );
+        }
+        return Resultado
+                .builder()
+                .mensaje(ERROR_AL_ACTUALIZAR_LA_DIRECCION_DEL_CONT)
+                .icono(JOptionPane.ERROR_MESSAGE)
+                .estado(Boolean.FALSE)
+                .build();
+
+    }
+    public static final String DIRECCION_DE_CONTACTO_ACTUALIZADA_CORRECT
+            = "Direccion de contacto actualizada correctamente.";
+    public static final String ERROR_AL_ACTUALIZAR_LA_DIRECCION_DEL_CONT
+            = "Error al actualizar la direccion del contacto.";
 }

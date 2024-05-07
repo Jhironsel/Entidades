@@ -62,7 +62,7 @@ public class M_ARSNGTest {
                           el sistema.
                           """
     )
-    public synchronized void testAgregarArs() {
+    public void testAgregarArs() {
         Resultado result = M_ARS.agregarARS(
                 ARS
                         .builder()
@@ -79,28 +79,22 @@ public class M_ARSNGTest {
         );
 
         assertEquals(
-                result.getMensaje(),
-                SEGURO_AGREGADO_CORRECTAMENTE,
-                ERROR_AL_INSERTAR__SEGURO
-        );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(SEGURO_AGREGADO_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_AL_INSERTAR__SEGURO
         );
 
         assertTrue(
-                result.getEstado(),
+                result.getId() > 0,
                 ERROR_AL_INSERTAR__SEGURO
         );
 
         id_ARS = result.getId();
-
-        assertTrue(
-                id_ARS > 0,
-                ERROR_AL_INSERTAR__SEGURO
-        );
     }
 
     @Test(
@@ -143,28 +137,22 @@ public class M_ARSNGTest {
         );
 
         assertEquals(
-                result.getMensaje(),
-                SEGURO_MODIFICADO_CORRECTAMENTE,
-                ERROR_AL_MODIFICAR_SEGURO
-        );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_MODIFICAR_SEGURO
-        );
-
-        assertTrue(
-                result.getEstado(),
+                result,
+                Resultado
+                    .builder()
+                    .mensaje(SEGURO_MODIFICADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
                 ERROR_AL_MODIFICAR_SEGURO
         );
     }
 
     @Test(
             enabled = true,
+            priority = 3,
             description = "Test en cargado de verificar la consultas de las "
-                    + "ARS del sistema.",
-            priority = 3
+                    + "ARS del sistema."
     )
     public void testGetARS2() {
         List result2 = M_ARS.getARS(
@@ -209,24 +197,18 @@ public class M_ARSNGTest {
                           sistema.
                           """
     )
-    public synchronized void testBorrarSeguro() {
+    public void testBorrarSeguro() {
         
         Resultado result = M_ARS.borrarSeguro(id_ARS);
-        
-        assertTrue(
-                result.getEstado(),
-                ERROR_AL_BORRAR_ARS
-        );
-        
+                
         assertEquals(
-                result.getIcono(), 
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_BORRAR_ARS
-        );
-        
-        assertEquals(
-                result.getMensaje(), 
-                BORRADO_CORRECTAMENTE,
+                result, 
+                Resultado
+                    .builder()
+                    .mensaje(BORRADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
                 ERROR_AL_BORRAR_ARS
         );
         

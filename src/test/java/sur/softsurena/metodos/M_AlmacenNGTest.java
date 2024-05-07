@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.util.List;
+import javax.swing.JOptionPane;
 import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
@@ -10,6 +11,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Almacen;
+import static sur.softsurena.metodos.M_Almacen.ALMACEN_ACTUALIZADO_CORRECTAMENTE;
+import static sur.softsurena.metodos.M_Almacen.ALMACEN_AGREGADO_CORRECTAMENTE;
+import static sur.softsurena.metodos.M_Almacen.ALMACEN_ELIMINADO_CORRECTAMENTE;
+import static sur.softsurena.metodos.M_Almacen.ERROR_AL_ELIMINAR_ALMACEN;
 import sur.softsurena.utilidades.Resultado;
 
 @Getter
@@ -56,13 +61,13 @@ public class M_AlmacenNGTest {
     public void testGetAlmacenesList() {
         List result = M_Almacen.getAlmacenesList(0, "^+-*/");
         assertTrue(
-                result.isEmpty(), 
+                result.isEmpty(),
                 "La tabla de almacen NO esta vacia."
         );
 
         result = M_Almacen.getAlmacenesList(-1, "*");
         assertTrue(
-                result.isEmpty(), 
+                result.isEmpty(),
                 "La tabla de almacen NO esta vacia."
         );
     }
@@ -82,16 +87,26 @@ public class M_AlmacenNGTest {
                         .build()
         );
 
-        assertNotNull(result, "Error al registrar almacen al sistema.");
+        assertEquals(
+                result, 
+                Resultado
+                        .builder()
+                        .mensaje(ALMACEN_AGREGADO_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
+                M_Almacen.ERROR_AL_INSERTAR__ALMACEN
+                );
 
         idAlmacen = result.getId();
 
-        result = M_Almacen.agregarAlmacen(Almacen
-                .builder()
-                .nombre("Texto de prueba")
-                .ubicacion("Debe de describir la ubicacion del almacen.")
-                .estado(Boolean.FALSE)
-                .build()
+        result = M_Almacen.agregarAlmacen(
+                Almacen
+                        .builder()
+                        .nombre("Texto de prueba")
+                        .ubicacion("Debe de describir la ubicacion del almacen.")
+                        .estado(Boolean.FALSE)
+                        .build()
         );
 
         assertNotNull(result, "Error al registrar almacen 2 al sistema.");
@@ -105,17 +120,30 @@ public class M_AlmacenNGTest {
             priority = 2
     )
     public void testGetAlmacenes2List() {
-        List result = M_Almacen.getAlmacenesList(idAlmacen, "^+-*/");
-        assertFalse(result.isEmpty(), "La tabla de almacen NO esta vacia.");
+        List result = M_Almacen.getAlmacenesList(idAlmacen, "^+-*/");        
+        assertFalse(
+                result.isEmpty(), 
+                "La tabla de almacen NO esta vacia."
+        );
 
+        
         result = M_Almacen.getAlmacenesList(idAlmacen2, "Seleccione");
-        assertFalse(result.isEmpty(), "La tabla de almacen NO esta vacia.");
+        assertFalse(
+                result.isEmpty(), 
+                "La tabla de almacen NO esta vacia."
+        );
 
         result = M_Almacen.getAlmacenesList(-1, "Registro");
-        assertFalse(result.isEmpty(), "La tabla de almacen NO esta vacia.");
+        assertFalse(
+                result.isEmpty(), 
+                "La tabla de almacen NO esta vacia."
+        );
 
         result = M_Almacen.getAlmacenesList(-1, "Texto");
-        assertFalse(result.isEmpty(), "La tabla de almacen NO esta vacia.");
+        assertFalse(
+                result.isEmpty(), 
+                "La tabla de almacen NO esta vacia."
+        );
     }
 
     @Test(
@@ -124,7 +152,6 @@ public class M_AlmacenNGTest {
             priority = 3
     )
     public void testActualizarAlmacen() {
-
         Resultado result = M_Almacen.actualizarAlmacen(
                 Almacen
                         .builder()
@@ -134,7 +161,17 @@ public class M_AlmacenNGTest {
                         .estado(Boolean.FALSE)
                         .build()
         );
-        assertNotNull(result);
+        
+        assertEquals(
+                result,
+                Resultado
+                    .builder()
+                    .mensaje(ALMACEN_ACTUALIZADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(), 
+                ERROR_AL_ELIMINAR_ALMACEN
+        );
     }
 
     @Test(
@@ -144,9 +181,27 @@ public class M_AlmacenNGTest {
     )
     public void testEliminarAlmacen() {
         Resultado result = M_Almacen.eliminarAlmacen(idAlmacen);
-        assertNotNull(result, "No pudo eliminarse el registro del almacen.");
+        assertEquals(
+                result, 
+                Resultado
+                    .builder()
+                    .mensaje(ALMACEN_ELIMINADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
+                ERROR_AL_ELIMINAR_ALMACEN
+        );
 
         result = M_Almacen.eliminarAlmacen(idAlmacen2);
-        assertNotNull(result, "No pudo eliminarse el registro del almacen 2.");
+        assertEquals(
+                result, 
+                Resultado
+                    .builder()
+                    .mensaje(ALMACEN_ELIMINADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
+                ERROR_AL_ELIMINAR_ALMACEN
+        );
     }
 }

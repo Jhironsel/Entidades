@@ -11,7 +11,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Antecedente;
-import sur.softsurena.entidades.Consulta;
 import static sur.softsurena.metodos.M_Antecedente.ANTECEDENTE_AGREGADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Antecedente.ANTECEDENTE_MODIFICADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Antecedente.BORRADO_CORRECTAMENTE;
@@ -26,27 +25,27 @@ import sur.softsurena.utilidades.Resultado;
 public class M_AntecedentesNGTest {
 
     private int id_antecedente;
-    private final M_PacienteNGTest paciente = null;
-    private final M_Control_ConsultaNGTest controlConsulta;
+    private final M_PacienteNGTest paciente;
+    private final M_ConsultaNGTest consulta;
 
     public M_AntecedentesNGTest() {
-//        paciente = new M_PacienteNGTest();
-        controlConsulta = new M_Control_ConsultaNGTest();
+        paciente = new M_PacienteNGTest();
+        consulta = new M_ConsultaNGTest();
     }
 
     @BeforeClass
     public void setUpClass() throws Exception {
-//        Conexion.getInstance(
-//                "sysdba",
-//                "1",
-//                "BaseDeDatos.db",
-//                "localhost",
-//                "3050"
-//        );
-//        assertTrue(
-//                Conexion.verificar().getEstado(),
-//                "Error al conectarse..."
-//        );
+        Conexion.getInstance(
+                "sysdba",
+                "1",
+                "BaseDeDatos.db",
+                "localhost",
+                "3050"
+        );
+        assertTrue(
+                Conexion.verificar().getEstado(),
+                "Error al conectarse..."
+        );
     }
 
     @AfterClass
@@ -63,29 +62,16 @@ public class M_AntecedentesNGTest {
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             description = "Agrega un antecedente de un paciente al sistema.",
             priority = 0
     )
     public void testAgregarAntecedente() {
-        paciente.testAgregarPaciente();
-        controlConsulta.testAgregarControlConsulta();
-
-        int id_consulta = M_Consulta.agregarConsulta(
-                Consulta
-                        .builder()
-                        .id_persona(
-                                paciente.getIdPaciente()
-                        )
-                        .id_control_consulta(
-                                controlConsulta.getIdControlConsulta()
-                        )
-                        .turno(0)
-                        .build()
-        ).getId();
+        paciente.testAgregarEntidad();
+        consulta.testAgregarConsulta();
 
         Resultado result = agregarAntecedente(
-                id_consulta,
+                consulta.getIdConsulta(),
                 "Prueba de antecendetes"
         );
 
@@ -99,7 +85,7 @@ public class M_AntecedentesNGTest {
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             description = "",
             priority = 0
     )
@@ -128,7 +114,7 @@ public class M_AntecedentesNGTest {
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             description = "",
             priority = 0
     )
@@ -149,7 +135,7 @@ public class M_AntecedentesNGTest {
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             description = "",
             priority = 0
     )
@@ -173,7 +159,7 @@ public class M_AntecedentesNGTest {
                 ERROR_AL_BORRAR_PACIENTE
         );
 
-        paciente.testBorrarPaciente();
-        controlConsulta.testBorrarControlConsulta();
+        consulta.testEliminarConsulta();
+        paciente.testEliminarEntidad();
     }
 }

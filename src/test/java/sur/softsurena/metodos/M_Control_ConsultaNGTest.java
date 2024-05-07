@@ -12,10 +12,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import sur.softsurena.conexion.Conexion;
 import sur.softsurena.entidades.Control_Consulta;
+import static sur.softsurena.metodos.M_Control_Consulta.CONSULTA_MODIFICADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Control_Consulta.CONTROL_CONSULTA_AGREGADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Control_Consulta.CONTROL__CONSULTA_BORRADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Control_Consulta.ERROR_AL_AGREGAR__CONTROL__CONSULTA_AL_SIST;
 import static sur.softsurena.metodos.M_Control_Consulta.ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA;
+import static sur.softsurena.metodos.M_Control_Consulta.ERROR_AL_MODIFICAR_CONSULTA;
 import sur.softsurena.utilidades.Resultado;
 
 /**
@@ -64,69 +66,43 @@ public class M_Control_ConsultaNGTest {
             description = "Te que permite registrar un control de una consulta."
     )
     public void testAgregarControlConsulta() {
-        Calendar horaInicial = Calendar.getInstance();
-        horaInicial.set(
-                Calendar.HOUR_OF_DAY, 
-                11
-        );
-        
-        Calendar horaFinal = Calendar.getInstance();
-        horaFinal.set(
-                Calendar.HOUR_OF_DAY, 
-                13
-        );
-        
+
         Resultado result = M_Control_Consulta.agregarControlConsulta(
-                Control_Consulta
-                        .builder()
-                        .user_name("SYSDBA")
-                        .cantidad(10)
-                        .dia("LU")
-                        .inicial(
-                                new java.sql.Time(
-                                        horaInicial.getTimeInMillis()
-                                )
-                        )
-                        .finall(
-                                new java.sql.Time(
-                                        horaFinal.getTimeInMillis()
-                                )
-                        )
-                        .estado(Boolean.TRUE)
-                        .build()
+                controlConsulta()
         );
-        
-        assertTrue(
-                result.getEstado(), 
+
+        assertEquals(
+                result,
+                Resultado
+                    .builder()
+                    .mensaje(CONTROL_CONSULTA_AGREGADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
                 ERROR_AL_AGREGAR__CONTROL__CONSULTA_AL_SIST
         );
-        
-        assertTrue(
-                result.getMensaje().equals(
-                        CONTROL_CONSULTA_AGREGADO_CORRECTAMENTE
-                ), 
-                ERROR_AL_AGREGAR__CONTROL__CONSULTA_AL_SIST
-        );
-        
-        assertTrue(
-                result.getIcono() == JOptionPane.INFORMATION_MESSAGE, 
-                ERROR_AL_AGREGAR__CONTROL__CONSULTA_AL_SIST
-        );
-        
+
+
         idControlConsulta = result.getId();
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             priority = 1,
             description = ""
     )
     public void testModificarControlConsulta() {
-        Control_Consulta controlConsulta = null;
-        M_Control_Consulta instance = new M_Control_Consulta();
-        String expResult = "";
-        String result = instance.modificarControlConsulta(controlConsulta);
-        assertEquals(result, expResult);
+        Resultado result = M_Control_Consulta.modificarControlConsulta(controlConsulta());
+        assertEquals(
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(CONSULTA_MODIFICADO_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
+                ERROR_AL_MODIFICAR_CONSULTA
+        );
     }
 
     @Test(
@@ -153,7 +129,7 @@ public class M_Control_ConsultaNGTest {
         ResultSet result = M_Control_Consulta.getHorario(idUsuario);
         assertEquals(result, expResult);
     }
-    
+
     @Test(
             enabled = true,
             priority = 5,
@@ -161,23 +137,50 @@ public class M_Control_ConsultaNGTest {
     )
     public void testBorrarControlConsulta() {
         Resultado result = M_Control_Consulta.borrarControlConsulta(idControlConsulta);
-        
-        assertTrue(
-                result.getEstado(), 
-                ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA        
-        );
-        
+
         assertEquals(
-                result.getIcono(), 
-                JOptionPane.INFORMATION_MESSAGE,
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(CONTROL__CONSULTA_BORRADO_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA
         );
-        
-        assertEquals(
-                result.getMensaje(), 
-                CONTROL__CONSULTA_BORRADO_CORRECTAMENTE,
-                ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA
+    }
+
+    private Control_Consulta controlConsulta() {
+        Calendar horaInicial = Calendar.getInstance();
+        horaInicial.set(
+                Calendar.HOUR_OF_DAY,
+                11
         );
+
+        Calendar horaFinal = Calendar.getInstance();
+        horaFinal.set(
+                Calendar.HOUR_OF_DAY,
+                13
+        );
+
+        return Control_Consulta
+                .builder()
+                .id(idControlConsulta)
+                .user_name("SYSDBA")
+                .cantidad(3)
+                .dia("LU")
+                .inicial(
+                        new java.sql.Time(
+                                horaInicial.getTimeInMillis()
+                        )
+                )
+                .finall(
+                        new java.sql.Time(
+                                horaFinal.getTimeInMillis()
+                        )
+                )
+                .estado(Boolean.TRUE)
+                .build();
     }
 
 }

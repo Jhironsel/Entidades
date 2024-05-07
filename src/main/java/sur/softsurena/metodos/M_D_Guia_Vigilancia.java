@@ -44,7 +44,7 @@ public class M_D_Guia_Vigilancia {
     public static final String GUIA_DE__DESARROLLO_AGREGADA_CORRECTAMENTE = "Guia de Desarrollo agregada correctamente";
 
     /**
-     * 
+     * TODO Devolver una lista.
      * @param idPaciente
      * @param cero
      * @return 

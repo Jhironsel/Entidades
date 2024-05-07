@@ -1,6 +1,5 @@
 package sur.softsurena.metodos;
 
-import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,13 +17,15 @@ public class M_Almacen {
     public synchronized static List<Almacen> getAlmacenesList(int id,
             String criterioBusqueda) {
         final String sql
-                = "SELECT "
-                + "     ID, "
-                + "     NOMBRE, "
-                + "     UBICACION, "
-                + "     ESTADO "
-                + "FROM V_ALMACENES "
-                + "WHERE ID = ? OR UPPER(NOMBRE) STARTING WITH UPPER(?);";
+                = """
+                    SELECT 
+                        ID, 
+                        NOMBRE, 
+                        UBICACION, 
+                        ESTADO 
+                    FROM V_ALMACENES 
+                    WHERE ID = ? OR UPPER(NOMBRE) STARTING WITH UPPER(?);
+                """;
 
         List<Almacen> almacenList = new ArrayList<>();
 
@@ -49,16 +50,15 @@ public class M_Almacen {
                                     .build()
                     );
                 }
-                return almacenList;
             }
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    "Error al consultar la vista V_ALMACENES del sistema.", 
+                    Level.SEVERE,
+                    "Error al consultar la vista V_ALMACENES del sistema.",
                     ex
             );
-            return almacenList;
         }
+        return almacenList;
     }
 
     /**
@@ -106,31 +106,34 @@ public class M_Almacen {
         }
     }
     public static final String ERROR_AL_INSERTAR__ALMACEN
-            = "Error al insertar Almacen...";
-    public static final String ALMACEN_AGREGADO_CORRECTAMENTE 
+            = "Error al registrar almacen al sistema.";
+    public static final String ALMACEN_AGREGADO_CORRECTAMENTE
             = "Almacen agregado correctamente";
-    
+
     /**
      * Elimina los registro de almacenes en el sistema.
-     * 
+     *
      * Para poder eliminar un almacen este no debe contener productos registrado
-     * o relacionado. 
-     * 
-     * 
+     * o relacionado.
+     *
+     *
      * @param id
-     * @return 
+     * @return
      */
     public synchronized static Resultado eliminarAlmacen(int id) {
-        final String sql
-                = "EXECUTE PROCEDURE SP_D_ALMACEN(?)";
-        try (CallableStatement cs = getCnn().prepareCall(
-                sql,
+        try (PreparedStatement cs = getCnn().prepareStatement(
+                """
+                EXECUTE PROCEDURE SP_D_ALMACEN(?);
+                """,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
+            
             cs.setInt(1, id);
+            
             cs.execute();
+            
             return Resultado
                     .builder()
                     .mensaje(ALMACEN_ELIMINADO_CORRECTAMENTE)
@@ -139,8 +142,8 @@ public class M_Almacen {
                     .build();
         } catch (SQLException ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    ERROR_AL_ELIMINAR_ALMACEN, 
+                    Level.SEVERE,
+                    ERROR_AL_ELIMINAR_ALMACEN,
                     ex
             );
             return Resultado
@@ -151,41 +154,55 @@ public class M_Almacen {
                     .build();
         }
     }
-    public static final String ALMACEN_ELIMINADO_CORRECTAMENTE 
+    public static final String ALMACEN_ELIMINADO_CORRECTAMENTE
             = "Almacen eliminado correctamente.";
-    public static final String ERROR_AL_ELIMINAR_ALMACEN 
+    public static final String ERROR_AL_ELIMINAR_ALMACEN
             = "Error al eliminar almacen.";
-    
+
+    //--------------------------------------------------------------------------
+    /**
+     *
+     * @param almacen
+     * @return
+     */
     public synchronized static Resultado actualizarAlmacen(Almacen almacen) {
-        final String sql
-                = "EXECUTE PROCEDURE SP_U_ALMACEN(?,?,?,?)";
-        try (CallableStatement cs = getCnn().prepareCall(
-                sql,
+        try (PreparedStatement cs = getCnn().prepareStatement(
+                """
+                EXECUTE PROCEDURE SP_U_ALMACEN(?,?,?,?)
+                """,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             cs.setInt(1, almacen.getId());
-            cs.setString(1, almacen.getNombre());
-            cs.setString(1, almacen.getUbicacion());
-            cs.setBoolean(1, almacen.getEstado());
+            cs.setString(2, almacen.getNombre());
+            cs.setString(3, almacen.getUbicacion());
+            cs.setBoolean(4, almacen.getEstado());
+
             cs.execute();
+
             return Resultado
                     .builder()
                     .mensaje(ALMACEN_ACTUALIZADO_CORRECTAMENTE)
                     .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
                     .build();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ERROR_AL_ELIMINAR_ALMACEN, ex);
-            return Resultado
-                    .builder()
-                    .mensaje(ERROR_AL_ACTUALIZAR_EL_REGISTRO_DEL_ALMAC)
-                    .icono(JOptionPane.ERROR_MESSAGE)
-                    .build();
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_ELIMINAR_ALMACEN,
+                    ex
+            );
         }
+        return Resultado
+                .builder()
+                .mensaje(ERROR_AL_ACTUALIZAR_EL_REGISTRO_DEL_ALMAC)
+                .icono(JOptionPane.ERROR_MESSAGE)
+                .estado(Boolean.FALSE)
+                .build();
     }
-    public static final String ERROR_AL_ACTUALIZAR_EL_REGISTRO_DEL_ALMAC 
+    public static final String ERROR_AL_ACTUALIZAR_EL_REGISTRO_DEL_ALMAC
             = "Error al actualizar el registro del almacen.";
-    public static final String ALMACEN_ACTUALIZADO_CORRECTAMENTE 
+    public static final String ALMACEN_ACTUALIZADO_CORRECTAMENTE
             = "Almacen actualizado correctamente.";
 }

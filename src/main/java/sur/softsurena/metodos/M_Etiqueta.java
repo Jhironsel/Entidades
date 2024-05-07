@@ -11,14 +11,15 @@ import sur.softsurena.entidades.Etiqueta;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
 public class M_Etiqueta {
-    
+
     public static synchronized List<Etiqueta> getEtiquetasUsuario(String usuario) {
         List<Etiqueta> etiquetaList = new ArrayList<>();
-        Etiqueta etiqueta;
-        final String sql 
+
+        final String sql
                 = "SELECT LLAVE, VALOR "
                 + "FROM VS_USUARIOS_TAGS "
                 + "WHERE USUARIO STARTING WITH ?";
+        
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
@@ -28,17 +29,22 @@ public class M_Etiqueta {
             ps.setString(1, usuario.strip().toUpperCase());
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
-                    etiqueta = Etiqueta.builder().
-                            propiedad(rs.getString("LLAVE")).
-                            valor(rs.getString("VALOR")).
-                            build();
-                    etiquetaList.add(etiqueta);
+                    etiquetaList.add(
+                            Etiqueta
+                                    .builder()
+                                    .propiedad(rs.getString("LLAVE"))
+                                    .valor(rs.getString("VALOR"))
+                                    .build()
+                    );
                 }
             }
-            return etiquetaList;
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
+            LOG.log(
+                    Level.SEVERE,
+                    ex.getMessage(),
+                    ex
+            );
         }
+        return etiquetaList;
     }
 }

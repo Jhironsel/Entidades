@@ -59,7 +59,7 @@ public class M_EstudianteNGTest {
     public void testAgregarEstudiante() {
         Estudiante e = null;
         Resultado expResult = null;
-        Resultado result = M_Estudiante.agregarEstudiante(e);
+        Resultado result = M_Estudiante.agregarEntidad(e);
         assertEquals(result, expResult);
     }
 

@@ -1,21 +1,23 @@
 package sur.softsurena.entidades;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Time;
+import java.sql.Timestamp;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import sur.softsurena.abstracta.Persona;
 
 @Getter
 @SuperBuilder
-public class HeaderFactura{
-    private final int idCliente;
-    private final int idTurno;
+public class HeaderFactura extends Persona{
+    private final Integer id;
+    private final Integer idContactoTel;
+    private final Integer idContactoEmail;
+    private final Integer idContactoDireccion;
+    private final Integer idTurno;
+    private final Timestamp fechaHora;
+    private final BigDecimal total;
     private final BigDecimal efectivo;
-    private final BigDecimal cambio;
-    private final Date fecha;
-    private final Time hora;
-    private final char estado;
+    private final Character estadoFactura;
+    private final String nombreTemporal;
     private final String userName;
-    private final Boolean credito;
 }

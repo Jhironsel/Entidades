@@ -17,55 +17,6 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
 public class M_Control_Consulta {
 
     /**
-     * Metodo utilizado para eliminar los controles de consultas programadas
-     * previamente.
-     *
-     * TODO CREAR SP.
-     *
-     * @param idControlConsulta
-     *
-     * @return
-     */
-    public synchronized static Resultado borrarControlConsulta(int idControlConsulta) {
-        final String sql
-                = "EXECUTE PROCEDURE SP_D_CONTROL_CONSULTA (?);";
-        try (PreparedStatement ps = getCnn().prepareStatement(
-                sql,
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT
-        )) {
-            ps.setInt(1, idControlConsulta);
-            
-            ps.executeUpdate();
-            
-            return Resultado
-                    .builder()
-                    .mensaje(CONTROL__CONSULTA_BORRADO_CORRECTAMENTE)
-                    .icono(JOptionPane.INFORMATION_MESSAGE)
-                    .estado(Boolean.TRUE)
-                    .build();
-        } catch (SQLException ex) {
-            LOG.log(
-                    Level.SEVERE,
-                    ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA,
-                    ex
-            );
-            
-            return Resultado
-                    .builder()
-                    .mensaje(ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA)
-                    .icono(JOptionPane.INFORMATION_MESSAGE)
-                    .estado(Boolean.FALSE)
-                    .build();
-        }
-    }
-    public static final String ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA
-            = "Error al borrar control de la consulta";
-    public static final String CONTROL__CONSULTA_BORRADO_CORRECTAMENTE
-            = "Control Consulta borrado correctamente";
-
-    /**
      * Permite agregar un control de consulta al sistema.
      *
      * @param controlConsulta
@@ -127,15 +78,13 @@ public class M_Control_Consulta {
      * @param controlConsulta
      * @return
      */
-    public synchronized String modificarControlConsulta(Control_Consulta controlConsulta) {
+    public static synchronized Resultado modificarControlConsulta(
+            Control_Consulta controlConsulta
+    ) {
         final String sql
-                = "UPDATE V_CONTROL_CONSULTA SET "
-                + "    IDUSUARIO = ? , "
-                + "    CANTIDADPACIENTE = ? , "
-                + "    DIA = ? , "
-                + "    INICIAL = ? , "
-                + "    FINAL = ? "
-                + "WHERE IDCONTROLCONSULTA = ? ";
+                = """
+                  EXECUTE PROCEDURE SP_U_CONTROL_CONSULTA (?,?,?,?,?,?,?);
+                  """;
 
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
@@ -144,24 +93,38 @@ public class M_Control_Consulta {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             ps.setInt(1, controlConsulta.getId());
-            ps.setInt(2, controlConsulta.getCantidad());
-            ps.setString(3, controlConsulta.getDia());
-            ps.setTime(4, controlConsulta.getInicial());
-            ps.setTime(5, controlConsulta.getFinall());
-            ps.setInt(6, controlConsulta.getId());
+            ps.setString(2, controlConsulta.getUser_name());
+            ps.setInt(3, controlConsulta.getCantidad());
+            ps.setString(4, controlConsulta.getDia());
+            ps.setTime(5, controlConsulta.getInicial());
+            ps.setTime(6, controlConsulta.getFinall());
+            ps.setBoolean(7, controlConsulta.getEstado());
 
-            ps.executeUpdate(sql);
-            return CONSULTA_MODIFICADO_CORRECTAMENTE;
+            ps.execute();
+            
+            return Resultado
+                    .builder()
+                    .mensaje(CONSULTA_MODIFICADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return ERROR_AL_MODIFICAR_CONSULTA;
+            return Resultado
+                    .builder()
+                    .mensaje(ERROR_AL_MODIFICAR_CONSULTA)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
         }
     }
-    public static final String CONSULTA_MODIFICADO_CORRECTAMENTE = "Consulta modificado correctamente";
-    public static final String ERROR_AL_MODIFICAR_CONSULTA = "Error al modificar consulta...";
+    public static final String CONSULTA_MODIFICADO_CORRECTAMENTE 
+            = "Control Consulta modificado correctamente.";
+    public static final String ERROR_AL_MODIFICAR_CONSULTA 
+            = "Error al modificar control consulta del sistema.";
 
     /**
-     *
+     * TODO Devulver una lista.
      * @param fecha
      * @param actual
      * @return
@@ -195,7 +158,7 @@ public class M_Control_Consulta {
     }
 
     /**
-     *
+     * TODO Devolver una lista.
      * @param idUsuario
      * @return
      */
@@ -220,4 +183,53 @@ public class M_Control_Consulta {
             return null;
         }
     }
+    
+    /**
+     * Metodo utilizado para eliminar los controles de consultas programadas
+     * previamente.
+     *
+     * TODO CREAR SP.
+     *
+     * @param idControlConsulta
+     *
+     * @return
+     */
+    public synchronized static Resultado borrarControlConsulta(int idControlConsulta) {
+        final String sql
+                = "EXECUTE PROCEDURE SP_D_CONTROL_CONSULTA (?);";
+        try (PreparedStatement ps = getCnn().prepareStatement(
+                sql,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT
+        )) {
+            ps.setInt(1, idControlConsulta);
+            
+            ps.execute();
+            
+            return Resultado
+                    .builder()
+                    .mensaje(CONTROL__CONSULTA_BORRADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build();
+        } catch (SQLException ex) {
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA,
+                    ex
+            );
+            
+            return Resultado
+                    .builder()
+                    .mensaje(ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA)
+                    .icono(JOptionPane.ERROR_MESSAGE)
+                    .estado(Boolean.FALSE)
+                    .build();
+        }
+    }
+    public static final String ERROR_AL_BORRAR_CONTROL_DE_LA_CONSULTA
+            = "Error al borrar control de la consulta";
+    public static final String CONTROL__CONSULTA_BORRADO_CORRECTAMENTE
+            = "Control Consulta borrado correctamente";
 }

@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.Deuda;
-import sur.softsurena.entidades.Generales;
 import sur.softsurena.utilidades.Resultado;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
@@ -30,11 +29,13 @@ public class M_Deuda {
      * @return
      */
     public static synchronized List<Deuda> getDeudas() {
-        List<Deuda> deudasList = new ArrayList<>();
         final String sql
                 = "SELECT ID, ID_CLIENTE, CONCEPTO, MONTO, FECHA, HORA,"
                 + "     ESTADO, P_NOMBRE, S_NOMBRE, APELLIDOS, CEDULA "
                 + "FROM GET_DEUDAS";
+
+        List<Deuda> deudasList = new ArrayList<>();
+
         try (PreparedStatement ps = getCnn().prepareStatement(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,
@@ -56,20 +57,18 @@ public class M_Deuda {
                                     .pnombre(rs.getString("P_NOMBRE"))
                                     .snombre(rs.getString("S_NOMBRE"))
                                     .apellidos(rs.getString("APELLIDOS"))
-                                    .generales(
-                                            Generales
-                                                    .builder()
-                                                    .cedula(rs.getString("CEDULA"))
-                                                    .build())
                                     .build()
                     );
                 }
-                return deudasList;
             }
         } catch (SQLException e) {
-            LOG.log(Level.SEVERE, e.getMessage(), e);
-            return null;
+            LOG.log(
+                    Level.SEVERE,
+                    e.getMessage(),
+                    e
+            );
         }
+        return deudasList;
     }
 
     /**
@@ -159,11 +158,12 @@ public class M_Deuda {
 
     /**
      * TODO CREAR VISTA.
+     *
      * @param estado
      * @return
      */
     public synchronized static ResultSet getDeudaClientesEstado(String estado) {
-        final String sql 
+        final String sql
                 = "SELECT r.IDDEUDAS, IIF(r.IDCLIENTE = '0', '000-0000000-0', "
                 + "r.IDCLIENTE) as IDCLIENTE, c.NOMBRES, c.APELLIDOS, "
                 + "r.CONCEPTO, r.MONTO, r.FECHA, "
@@ -194,7 +194,7 @@ public class M_Deuda {
      * @return
      */
     public synchronized static ResultSet getDeudaCliente(String idCliente) {
-        final String sql 
+        final String sql
                 = "SELECT r.IDDEUDAS, r.CONCEPTO, r.MONTO, r.FECHA, r.ESTADO "
                 + "FROM TABLA_DEUDAS r "
                 + "WHERE r.IDCLIENTE LIKE ? AND r.ESTADO NOT IN('n', 'p')";
@@ -218,7 +218,7 @@ public class M_Deuda {
      * @return
      */
     public synchronized static ResultSet getDeudaClienteExterna(String idDeuda) {
-        final String sql 
+        final String sql
                 = "SELECT r.CODIGO, r.FECHA, r.HORA, r.MONTO "
                 + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
                 + "WHERE r.IDDEUDA = ?";
@@ -243,7 +243,7 @@ public class M_Deuda {
      */
     //!OJO Metodo para analizarlo
     public synchronized static ResultSet getPagoDeudasExterna(int idDeuda) {
-        final String sql 
+        final String sql
                 = "SELECT r.CODIGO, r.MONTO, r.FECHA, r.HORA "
                 + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
                 + "WHERE r.IDDEUDA = ?";
@@ -268,7 +268,7 @@ public class M_Deuda {
      */
     //!OJO Metodo para analizarlo
     public synchronized static ResultSet getPagoDeudas(int idFactura) {
-        final String sql 
+        final String sql
                 = "SELECT r.IDPAGODEUDA, r.FECHA, r.HORA, r.MONTOPAGO "
                 + "FROM TABLA_PAGODEUDA r "
                 + "WHERE r.IDFACTURA = ?";
@@ -293,7 +293,7 @@ public class M_Deuda {
      * @return
      */
     public synchronized static BigDecimal getDeudaActual(String idCliente) {
-        final String sql 
+        final String sql
                 = "SELECT r.DEUDAACTUAL "
                 + "FROM TABLA_DEUDAS r "
                 + "WHERE r.IDCLIENTE LIKE ?;";
@@ -320,7 +320,7 @@ public class M_Deuda {
     }
 
     public synchronized static BigDecimal sumaMontoPagoDeudaExterna(int idDeuda) {
-        final String sql 
+        final String sql
                 = "SELECT SUM(r.MONTO) "
                 + "FROM TABLA_PAGO_DEUDAS_EXTERNA r "
                 + "WHERE r.IDDEUDA = ?";

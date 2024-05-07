@@ -27,7 +27,7 @@ public class M_Permiso {
      * @return
      */
     public synchronized static List<Role> getPermisosAsignados(String rol) {
-        System.out.println("sur.softsurena.metodos.M_Permiso.getPermisosAsignados()");
+        
         final String sql
                 = """
                   SELECT GRANT_OPTION, PROCEDIMIENTO, DESCRIPCION

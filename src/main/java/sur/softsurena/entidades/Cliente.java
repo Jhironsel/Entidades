@@ -1,10 +1,10 @@
 package sur.softsurena.entidades;
 
-import sur.softsurena.abstracta.Persona;
 import java.math.BigDecimal;
 import java.sql.Date;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import sur.softsurena.abstracta.Persona;
 
 @Getter
 @SuperBuilder
@@ -25,9 +25,6 @@ public class Cliente extends Persona {
      */
     @Override
     public String toString() {
-        if (super.getPnombre() == null) {
-            return super.getGenerales().getCedula();
-        }
         return super.toString();
     }
 }

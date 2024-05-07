@@ -17,7 +17,7 @@ import static sur.softsurena.utilidades.Utilidades.LOG;
 public class M_Padre {
 
     /**
-     * TODO Devolver un Resultado.
+     * TODO Devolver una lista.
      * 
      * @param cedula
      * @return
@@ -63,17 +63,12 @@ public class M_Padre {
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
         )) {
-            ps.setInt(1, padre.getAsegurado().getId_ars());
-            ps.setString(2, padre.getAsegurado().getNo_nss());
-            ps.setInt(3, padre.getGenerales().getId_tipo_sangre());
-            ps.setString(4, padre.getGenerales().getCedula());
             ps.setString(5, padre.getPnombre());
             ps.setString(6, padre.getSnombre());
             ps.setString(7, padre.getApellidos());
             ps.setString(8, "" + padre.getSexo());
             ps.setDate(9, padre.getFecha_nacimiento());
             ps.setBoolean(10, padre.getEstado());
-            ps.setString(11, "" + padre.getGenerales().getEstado_civil());
 
             ResultSet rs = ps.executeQuery();
 
@@ -124,18 +119,12 @@ public class M_Padre {
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
-            ps.setInt(1, p.getId_persona());
-            ps.setInt(2, p.getAsegurado().getId_ars());
-            ps.setString(3, p.getAsegurado().getNo_nss());
-            ps.setInt(4, p.getGenerales().getId_tipo_sangre());
-            ps.setString(5, p.getGenerales().getCedula());
             ps.setString(6, p.getPnombre());
             ps.setString(7, p.getSnombre());
             ps.setString(8, p.getApellidos());
             ps.setString(9, p.getSexo().toString());
             ps.setDate(10, p.getFecha_nacimiento());
             ps.setBoolean(11, p.getEstado());
-            ps.setString(12, p.getGenerales().getEstado_civil().toString());
 
             ps.executeUpdate();
             return Resultado

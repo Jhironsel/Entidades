@@ -92,7 +92,7 @@ public class M_Dato_Nacimiento {
     }
 
     /**
-     * 
+     * TODO devolver una lista.
      * @param idPaciente
      * @return 
      */
@@ -115,11 +115,20 @@ public class M_Dato_Nacimiento {
             ps.setInt(1, idPaciente);
             return ps.executeQuery();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
             return null;
         }
     }
 
+    /**
+     * TODO Devolver una lista.
+     * @param idPaciente
+     * @return 
+     */
     public synchronized static ResultSet getPCefalico(int idPaciente) {
         final String sql 
                 = "SELECT "
@@ -146,6 +155,11 @@ public class M_Dato_Nacimiento {
         }
     }
 
+    /**
+     * TODO Devolver una lista.
+     * @param idPaciente
+     * @return 
+     */
     public synchronized static ResultSet getPesoKG(int idPaciente) {
         final String sql 
                 = "SELECT "
@@ -163,11 +177,20 @@ public class M_Dato_Nacimiento {
             ps.setInt(1, idPaciente);
             return ps.executeQuery();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(),
+                    ex
+            );
             return null;
         }
     }
 
+    /**
+     * TODO Devolver una lista.
+     * @param idPaciente
+     * @return 
+     */
     public synchronized static ResultSet getLongitudOEstatura(int idPaciente) {
         final String sql 
                 = "SELECT "
@@ -187,11 +210,20 @@ public class M_Dato_Nacimiento {
             ps.setInt(1, idPaciente);
             return ps.executeQuery();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
             return null;
         }
     }
 
+    /**
+     * TODO Devolver una lista.
+     * @param idPaciente
+     * @return 
+     */
     public synchronized static ResultSet getLongitudPeso(int idPaciente) {
         final String sql 
                 = "SELECT "
@@ -210,7 +242,11 @@ public class M_Dato_Nacimiento {
             ps.setInt(1, idPaciente);
             return ps.executeQuery();
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
             return null;
         }
     }

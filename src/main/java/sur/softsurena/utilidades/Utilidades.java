@@ -1,6 +1,7 @@
 package sur.softsurena.utilidades;
 
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -17,6 +18,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -79,6 +83,7 @@ public class Utilidades {
         }
     }
 
+    //--------------------------------------------------------------------------
     /**
      * No se está utilizando...
      *
@@ -101,6 +106,7 @@ public class Utilidades {
         });
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Metodo que nos permite seleccionar el contenido de un JTextField. Dicho
      * metodo debe ser declarado despues del metodo init del constructor de la
@@ -125,6 +131,7 @@ public class Utilidades {
         });
     }
 
+    //--------------------------------------------------------------------------
     /**
      * TODO llevar esto a un metodo para jasper
      *
@@ -159,6 +166,7 @@ public class Utilidades {
         }
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Se utiliza, pero debe ser cambiado por bigDecimal....
      *
@@ -173,6 +181,7 @@ public class Utilidades {
         return valueTwo;
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Metodo utilizado para copiar un archivo de un lugar a otro.
      *
@@ -193,6 +202,7 @@ public class Utilidades {
         }
     }
 
+    //--------------------------------------------------------------------------
     /**
      * No se está utilizando...
      *
@@ -208,6 +218,7 @@ public class Utilidades {
         }
     }
 
+    //--------------------------------------------------------------------------
     /**
      * No se está utilizando...
      *
@@ -223,6 +234,7 @@ public class Utilidades {
         }
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Utilizado....
      *
@@ -236,6 +248,7 @@ public class Utilidades {
         return new java.sql.Date(date.getTime());
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Metodo utilizado para devolver un String con la fecha que se le ha pasado
      * del tipo java.util.Date, la cual se devolverá con el tipo que se indique
@@ -255,6 +268,7 @@ public class Utilidades {
         return formatoDelTexto.format(fecha);
     }
 
+    //--------------------------------------------------------------------------
     /**
      *
      * @param Obj
@@ -266,6 +280,7 @@ public class Utilidades {
         return Double.parseDouble(aux);
     }
 
+    //--------------------------------------------------------------------------
     /**
      *
      * @param Obj
@@ -276,6 +291,7 @@ public class Utilidades {
         return Integer.parseInt(Str);
     }
 
+    //--------------------------------------------------------------------------
     /**
      *
      * @param price
@@ -286,6 +302,7 @@ public class Utilidades {
         return formatter.format(price);
     }
 
+    //--------------------------------------------------------------------------
     /**
      *
      */
@@ -294,6 +311,7 @@ public class Utilidades {
         System.out.flush();
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Muestra el toolTip de cualquier componente.
      *
@@ -316,6 +334,7 @@ public class Utilidades {
 
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Convierte una imagen a Base64, esto con el objetivo de almacenar la
      * imagen o archivo a una forma standar.
@@ -350,6 +369,7 @@ public class Utilidades {
         return "Foto NO Insertada";
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Metodo utilizado para decodificar una cadena de string en base64 aun
      * formato de imagen PNG.
@@ -360,29 +380,33 @@ public class Utilidades {
      * @return
      */
     public synchronized static ImageIcon imagenDecode64(String imagen64, int ancho, int alto) {
+
         byte[] data = Base64.decodeBase64(imagen64);
 
-        Imagenes img = new Imagenes();
         if (Objects.isNull(data) || data.length <= 1) {
-            return new ImageIcon(img.getIcono("NoImageTransp 96 x 96.png")
-                    .getImage()
-                    .getScaledInstance(ancho, alto, Image.SCALE_DEFAULT));
+            return new Imagenes("NoImageTransp 96 x 96.png").getIcono(ancho, alto);
         }
 
         try {
-            return new ImageIcon(new ImageIcon(
-                    ImageIO.read(
-                            new ByteArrayInputStream(data))).getImage()
-                    .getScaledInstance(ancho, alto, Image.SCALE_DEFAULT));
+            return new ImageIcon(
+                    new ImageIcon(
+                            ImageIO.read(
+                                    new ByteArrayInputStream(data)
+                            )
+                    ).getImage().getScaledInstance(ancho, alto, Image.SCALE_DEFAULT)
+            );
 
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return new ImageIcon(img.getIcono("NoImageTransp 96 x 96.png")
-                    .getImage()
-                    .getScaledInstance(ancho, alto, Image.SCALE_DEFAULT));
+            LOG.log(
+                    Level.SEVERE,
+                    ex.getMessage(),
+                    ex
+            );
+            return new Imagenes("NoImageTransp 96 x 96.png").getIcono(ancho, alto);
         }
     }
 
+    //--------------------------------------------------------------------------
     /**
      *
      * @param obj
@@ -399,6 +423,7 @@ public class Utilidades {
         return aux;
     }
 
+    //--------------------------------------------------------------------------
     /**
      *
      * @param obj
@@ -414,6 +439,7 @@ public class Utilidades {
         return aux;
     }
 
+    //--------------------------------------------------------------------------
     public static Date sqlDateToUtilDate(java.sql.Date sqlDate) {
         java.sql.Date sqlDates = sqlDate;
 
@@ -422,6 +448,12 @@ public class Utilidades {
         return utilDate;
     }
 
+    //--------------------------------------------------------------------------
+    /**
+     * 
+     * @param index
+     * @return 
+     */
     public static char Persona(int index) {
         if (index == 1) {
             return 'F';
@@ -432,6 +464,7 @@ public class Utilidades {
         return 'X';
     }
 
+    //--------------------------------------------------------------------------
     /**
      *
      * @param cadena
@@ -447,11 +480,12 @@ public class Utilidades {
         }
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Para campos de tipo fecha sql.
      *
      * javaDateToSqlDate( stringToDate("08.06.2012", "dd.MM.yyyy") )
-     *
+     * stringToDate("01.01.2000", "dd.MM.YYY")
      * @param fecha
      * @return
      */
@@ -462,10 +496,16 @@ public class Utilidades {
         try {
             aux = formatoDelTexto.parse(fecha);
         } catch (Exception ex) {
+            LOG.log(
+                    Level.SEVERE, 
+                    "Error al parsear la fecha en el sistema.", 
+                    ex
+            );
         }
         return aux;
     }
 
+    //--------------------------------------------------------------------------
     /**
      *
      * @param numero
@@ -478,6 +518,7 @@ public class Utilidades {
         return (float) (Math.rint(numero * cifras) / cifras);
     }
 
+    //--------------------------------------------------------------------------
     /**
      *
      * @param numero
@@ -490,6 +531,7 @@ public class Utilidades {
         return "" + (Math.rint(Numero * cifras) / cifras);
     }
 
+    //--------------------------------------------------------------------------
     /**
      *
      * @param price
@@ -500,11 +542,13 @@ public class Utilidades {
         return formatter.format(price);
     }
 
+    //--------------------------------------------------------------------------
     public static String priceWithoutDecimal(Double price) {
         DecimalFormat formatter = new DecimalFormat("#.00");
         return formatter.format(price);
     }
 
+    //--------------------------------------------------------------------------
     public static String priceToString(Float price) {
         String toShow = priceWithoutDecimal((double) price);
         if (toShow.indexOf(".") > 0) {
@@ -514,6 +558,7 @@ public class Utilidades {
         }
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Este metodo nos permite administrar el ancho de las columnas de las
      * tablas, pudiendo asi tener el alcho de las columnas. Deberia de ejecutar
@@ -522,7 +567,9 @@ public class Utilidades {
      * @param miTabla Es el componente JTable que va a modicarse su ancho
      * automaticamente.
      */
-    public static void repararColumnaTable(JTable miTabla) {
+    public static void repararColumnaTable(
+            JTable miTabla
+    ) {
         DefaultTableCellRenderer tcr = new DefaultTableCellHeaderRenderer() {
         };
         tcr.setHorizontalAlignment(SwingConstants.LEFT);
@@ -563,6 +610,7 @@ public class Utilidades {
         }
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Metodo utilizado para convertir las columnas de una Jtable con un
      * checkBox dentro.
@@ -573,7 +621,9 @@ public class Utilidades {
      * @param indexColumna El indice de la columna que necesita tener un
      * checkBox dentro.
      */
-    public static void columnasCheckBox(JTable tblTabla, int[] indexColumna) {
+    public static void columnasCheckBox(
+            JTable tblTabla, int[] indexColumna
+    ) {
         for (int i = 0; i < indexColumna.length; i++) {
             //tblTabla.getColumnModel().getColumn(indexColumna[i]).setCellEditor(new Celda_CheckBox());
             tblTabla.getColumnModel().getColumn(indexColumna[i]).setCellRenderer(new Render_CheckBox());
@@ -581,6 +631,7 @@ public class Utilidades {
 
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Por el momento no se le está dando uso a este metodo, pero es utilizado
      * para limitar los caracteres de un campos de texto, será util en otros
@@ -592,8 +643,9 @@ public class Utilidades {
      * @param txt
      * @return
      */
-    public static KeyListener limitarCaracteres(final int limite, final JFormattedTextField txt) {
-
+    public static KeyListener limitarCaracteres(
+            final int limite, final JFormattedTextField txt
+    ) {
         KeyListener keyListener = new KeyAdapter() {
             private int suma = 0;
 
@@ -611,6 +663,7 @@ public class Utilidades {
         return keyListener;
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Metodo utilizado para centralizar las ventanas del tipo JInternalFrame
      */
@@ -619,6 +672,7 @@ public class Utilidades {
         ventana.setLocation((d.width - ventana.getSize().width) / 2, (d.height - ventana.getSize().height) / 2);
     }
 
+    //--------------------------------------------------------------------------
     public static boolean validarCampo(javax.swing.JFormattedTextField campo) {
         try {
             campo.commitEdit();
@@ -630,8 +684,10 @@ public class Utilidades {
         return false;
     }
 
-    public static void eliminarRegistroTabla(JTable tabla, DefaultTableModel modelo,
-            List lista) {
+    //--------------------------------------------------------------------------
+    public static void eliminarRegistroTabla(JTable tabla,
+            DefaultTableModel modelo, List lista
+    ) {
         if (tabla.getSelectedRow() == -1) {
             JOptionPane.showMessageDialog(
                     null,
@@ -646,13 +702,14 @@ public class Utilidades {
         tabla.setModel(modelo);
     }
 
+    //--------------------------------------------------------------------------
     /**
      * Dado un monto, este metodo devuelve un Array con la lista de cambios del
-     * arreglo de coins. 
-     * 
-     * @param amount Monto a menuduzar. 
-     * 
-     * @return 
+     * arreglo de coins.
+     *
+     * @param amount Monto a menuduzar.
+     *
+     * @return
      */
     public static ArrayList<Integer> coinChangeProblem(int amount) {
         // Define an array of coin denominations in descending order
@@ -676,4 +733,31 @@ public class Utilidades {
         }
         return ans;
     }
+
+    //--------------------------------------------------------------------------
+    public static void abrirURL(String enlace) {
+        try {
+            URL url = new URL(enlace);
+
+            Desktop.getDesktop().browse(url.toURI());
+
+        } catch (MalformedURLException | URISyntaxException e1) {
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_EN_LA_URL,
+                    e1
+            );
+        } catch (IOException ex) {
+            LOG.log(
+                    Level.SEVERE,
+                    ERROR_EN_LA_URL,
+                    ex
+            );
+        }
+    }
+    /**
+     * Variable utilizada para mostrar mensaje.
+     */
+    public static final String ERROR_EN_LA_URL
+            = "Error en la URL.";
 }

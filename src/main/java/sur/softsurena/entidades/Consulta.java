@@ -8,7 +8,6 @@ import lombok.experimental.SuperBuilder;
 @Getter
 public class Consulta extends Paciente {
     private final int id;
-    private final int id_paciente;
     private final int id_control_consulta;
     private final Date fecha;
     private final int turno;
