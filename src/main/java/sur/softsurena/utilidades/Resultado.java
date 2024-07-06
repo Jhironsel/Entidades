@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Getter
 public class Resultado <T>{
-    private final int id;
+    private final Integer id;
     private final String mensaje;
     private final Integer cantidad;
     private final Float cantidadDecimal;

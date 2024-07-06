@@ -11,7 +11,9 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.JComponent;
-public class Switch extends JComponent implements MouseListener{
+
+public class Switch extends JComponent implements MouseListener {
+
     // Captura el estado del interruptor
     private boolean OnOff = true;
     //Margen entre el borde del componente y el interruptor
@@ -23,23 +25,24 @@ public class Switch extends JComponent implements MouseListener{
     //Color del boton circular del interruptor
     private Color buttonColor;
     //Color del interrupor cuando esta desabilitado
-    private final Color DISABLED_COMPONENT_COLOR = new Color(131,131,131);
+    private final Color DISABLED_COMPONENT_COLOR = new Color(131, 131, 131);
+
     //Constructor de clase
-    public Switch(){
+    public Switch() {
         super();
         Switch.this.setSize(new Dimension(60, 40));
         Switch.this.setPreferredSize(new Dimension(60, 40));
         Switch.this.setMinimumSize(new Dimension(60, 40));
         Switch.this.setVisible(true);
         Switch.this.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        Switch.this.addMouseListener(Switch.this);  
+        Switch.this.addMouseListener(Switch.this);
         //colores iniciales
-        Switch.this.setBackgroundColor(new Color(75,216,101));
-        Switch.this.setButtonColor(new Color(255,255,255));
+        Switch.this.setBackgroundColor(new Color(75, 216, 101));
+        Switch.this.setButtonColor(new Color(255, 255, 255));
     }
-    
+
     @Override
-    public void paintComponent(Graphics g){
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -49,22 +52,22 @@ public class Switch extends JComponent implements MouseListener{
             g2.fill(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
         }
 
-        if(isEnabled()){//componente habilitado
-            g2.setColor(( (OnOff) ? getBackgroundColor():new Color(216,217,219) ) );
-            g2.fill(new RoundRectangle2D.Double((float) MARGIN, (float) MARGIN, 
-                (float) getWidth() - MARGIN * 2, (float) getHeight() - MARGIN * 2,
-                getHeight() - MARGIN * 2, getHeight() - MARGIN * 2));
-        }else{//componente desabilitado
-            g2.setColor(DISABLED_COMPONENT_COLOR );    
-            g2.draw(new RoundRectangle2D.Double((float) MARGIN, (float) MARGIN, 
-                (float) getWidth() - MARGIN * 2, (float) getHeight() - MARGIN * 2,
-                getHeight() - MARGIN * 2, getHeight() - MARGIN * 2));
+        if (isEnabled()) {//componente habilitado
+            g2.setColor(((OnOff) ? getBackgroundColor() : new Color(216, 217, 219)));
+            g2.fill(new RoundRectangle2D.Double((float) MARGIN, (float) MARGIN,
+                    (float) getWidth() - MARGIN * 2, (float) getHeight() - MARGIN * 2,
+                    getHeight() - MARGIN * 2, getHeight() - MARGIN * 2));
+        } else {//componente desabilitado
+            g2.setColor(DISABLED_COMPONENT_COLOR);
+            g2.draw(new RoundRectangle2D.Double((float) MARGIN, (float) MARGIN,
+                    (float) getWidth() - MARGIN * 2, (float) getHeight() - MARGIN * 2,
+                    getHeight() - MARGIN * 2, getHeight() - MARGIN * 2));
         }
-        
+
         g2.setColor((isEnabled()) ? getButtonColor() : DISABLED_COMPONENT_COLOR);
         //boton circular        
         if (OnOff) {//ON a la izquierda           
-            g2.fillOval(MARGIN + BORDER / 2, MARGIN + BORDER / 2, 
+            g2.fillOval(MARGIN + BORDER / 2, MARGIN + BORDER / 2,
                     getHeight() - MARGIN * 2 - BORDER, getHeight() - MARGIN * 2 - BORDER);
         } else {//OFF a la derecha
             g2.fillOval(getWidth() - getHeight() + MARGIN + BORDER / 2, MARGIN + BORDER / 2,
@@ -74,7 +77,7 @@ public class Switch extends JComponent implements MouseListener{
 
     /**
      * retorna el estado del interruptor
-     * 
+     *
      * @return boolean True: ON False: OFF
      */
     public boolean isOnOff() {
@@ -82,7 +85,7 @@ public class Switch extends JComponent implements MouseListener{
     }
 
     public void setOnOff(boolean OnOff) {
-        this.OnOff = OnOff;        
+        this.OnOff = OnOff;
     }
 
     public Color getBackgroundColor() {
@@ -100,7 +103,7 @@ public class Switch extends JComponent implements MouseListener{
     public void setButtonColor(Color buttonColor) {
         this.buttonColor = buttonColor;
     }
-    
+
     @Override
     public void mouseClicked(MouseEvent e) {
         if (isEnabled()) {
@@ -110,15 +113,19 @@ public class Switch extends JComponent implements MouseListener{
     }
 
     @Override
-    public void mousePressed(MouseEvent e) { /*...*/ }
+    public void mousePressed(MouseEvent e) {
+        /*...*/ }
 
     @Override
-    public void mouseReleased(MouseEvent e) { /*...*/ }
+    public void mouseReleased(MouseEvent e) {
+        /*...*/ }
 
     @Override
-    public void mouseEntered(MouseEvent e) { /*...*/ }
+    public void mouseEntered(MouseEvent e) {
+        /*...*/ }
 
     @Override
-    public void mouseExited(MouseEvent e) { /*...*/ }
-    
+    public void mouseExited(MouseEvent e) {
+        /*...*/ }
+
 }//Switch:end

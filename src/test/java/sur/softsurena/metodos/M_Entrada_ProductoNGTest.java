@@ -27,7 +27,7 @@ public class M_Entrada_ProductoNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );

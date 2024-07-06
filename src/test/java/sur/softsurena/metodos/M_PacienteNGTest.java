@@ -22,7 +22,6 @@ import static sur.softsurena.metodos.M_Paciente.ERROR_AL_MODIFICAR_PACIENTE;
 import static sur.softsurena.metodos.M_Paciente.PACIENTE_AGREGADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Paciente.PACIENTE_BORRADO_CORRECTAMENTE;
 import static sur.softsurena.metodos.M_Paciente.PACIENTE_MODIFICADO_CORRECTAMENTE;
-import static sur.softsurena.metodos.M_Paciente.eliminarEntidad;
 import static sur.softsurena.metodos.M_Paciente.getListEntidad;
 import sur.softsurena.utilidades.Resultado;
 
@@ -41,7 +40,7 @@ public class M_PacienteNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );
@@ -71,7 +70,7 @@ public class M_PacienteNGTest {
     )
     public void testAgregarEntidad() {
         persona.testAgregarEntidad();
-        
+
         generarPaciente();
 
         Resultado result = M_Paciente.agregarEntidad(paciente);
@@ -79,11 +78,11 @@ public class M_PacienteNGTest {
         assertEquals(
                 result,
                 Resultado
-                    .builder()
-                    .mensaje(PACIENTE_AGREGADO_CORRECTAMENTE)
-                    .icono(JOptionPane.INFORMATION_MESSAGE)
-                    .estado(Boolean.TRUE)
-                    .build(),
+                        .builder()
+                        .mensaje(PACIENTE_AGREGADO_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_AL_INSERTAR_PACIENTE
         );
 
@@ -102,19 +101,19 @@ public class M_PacienteNGTest {
         generarPaciente();
 
         Resultado result = M_Paciente.modificarEntidad(paciente);
-        
+
         assertEquals(
                 result,
                 Resultado
-                    .builder()
-                    .mensaje(PACIENTE_MODIFICADO_CORRECTAMENTE)
-                    .icono(JOptionPane.INFORMATION_MESSAGE)
-                    .estado(Boolean.TRUE)
-                    .build(),
+                        .builder()
+                        .mensaje(PACIENTE_MODIFICADO_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_AL_MODIFICAR_PACIENTE
         );
     }
-    
+
     @Test(
             enabled = true,
             description = "",
@@ -128,7 +127,7 @@ public class M_PacienteNGTest {
                 ERROR_AL_CONSULTAR_LA_VISTA_GET_PACIENTES
         );
     }
-    
+
     @Test(
             enabled = true,
             priority = 2,
@@ -232,16 +231,16 @@ public class M_PacienteNGTest {
             priority = 3
     )
     public void testEliminarEntidad() {
-        Resultado result = eliminarEntidad(persona.getIdPersona());
+        Resultado result = M_Paciente.eliminarEntidad(persona.getIdPersona());
 
         assertEquals(
                 result,
                 Resultado
-                    .builder()
-                    .mensaje(PACIENTE_BORRADO_CORRECTAMENTE)
-                    .icono(JOptionPane.INFORMATION_MESSAGE)
-                    .estado(Boolean.TRUE)
-                    .build(),
+                        .builder()
+                        .mensaje(PACIENTE_BORRADO_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_AL_BORRAR_PACIENTE.formatted(persona.getIdPersona())
         );
 
@@ -258,5 +257,5 @@ public class M_PacienteNGTest {
                 .cesarea(Boolean.FALSE)
                 .tiempoGestacion(8)
                 .build();
-    }    
+    }
 }

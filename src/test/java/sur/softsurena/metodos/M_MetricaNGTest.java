@@ -25,7 +25,7 @@ public class M_MetricaNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );

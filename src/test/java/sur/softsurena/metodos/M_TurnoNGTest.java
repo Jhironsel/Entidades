@@ -27,7 +27,7 @@ public class M_TurnoNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );

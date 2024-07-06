@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import sur.softsurena.entidades.Generales;
 
 @Getter
 @SuperBuilder
@@ -21,6 +22,7 @@ public class Persona {
     private final Boolean estado;
     private final String user_name;
     private final String rol;
+    private final Generales generales;
 
         
     @Override

@@ -19,7 +19,7 @@ public class M_AnaliticaNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );

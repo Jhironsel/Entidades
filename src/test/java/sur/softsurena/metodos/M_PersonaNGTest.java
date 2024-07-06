@@ -30,10 +30,8 @@ import static sur.softsurena.utilidades.Utilidades.stringToDate;
 public class M_PersonaNGTest {
 
     private int idPersona;
-    private Persona persona;
 
     public M_PersonaNGTest() {
-        persona();
     }
 
     @BeforeClass
@@ -41,7 +39,7 @@ public class M_PersonaNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );
@@ -60,8 +58,6 @@ public class M_PersonaNGTest {
     public void setUpMethod() throws Exception {
     }
 
-    
-
     @AfterMethod
     public void tearDownMethod() throws Exception {
     }
@@ -76,27 +72,19 @@ public class M_PersonaNGTest {
                           """
     )
     public void testAgregarEntidad() {
-        
-        persona();
-        
+
         Resultado result = M_Persona.agregarEntidad(
-                persona
+                persona()
         );
 
         assertEquals(
-                result.getMensaje(),
-                REGISTRO_DE_PERSONA_CORRECTAMENTE,
-                ERROR_AL_REGISTRAR_PERSONA_AL_SISTEMA
-        );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_REGISTRAR_PERSONA_AL_SISTEMA
-        );
-
-        assertTrue(
-                result.getEstado(),
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(REGISTRO_DE_PERSONA_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_AL_REGISTRAR_PERSONA_AL_SISTEMA
         );
 
@@ -119,24 +107,17 @@ public class M_PersonaNGTest {
                           """
     )
     public void testModificarEntidad() {
-        persona();
-        
-        Resultado result = M_Persona.modificarEntidad(persona);
-        
-        assertEquals(
-                result.getMensaje(),
-                PERSONA_ACTUALIZADA_CORRECTAMENTE,
-                ERROR_ACTUALIZAR_PERSONA_EN_EL_SISTEMA
-        );
+
+        Resultado result = M_Persona.modificarEntidad(persona());
 
         assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_ACTUALIZAR_PERSONA_EN_EL_SISTEMA
-        );
-
-        assertTrue(
-                result.getEstado(),
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(PERSONA_ACTUALIZADA_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_ACTUALIZAR_PERSONA_EN_EL_SISTEMA
         );
     }
@@ -191,30 +172,23 @@ public class M_PersonaNGTest {
                           """
     )
     public void testEliminarEntidad() {
-        
+
         Resultado result = M_Persona.eliminarEntidad(idPersona);
 
         assertEquals(
-                result.getMensaje(),
-                REGISTRO_DE_PERSONA_ELIMINADO_CORRECTAMEN,
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(REGISTRO_DE_PERSONA_ELIMINADO_CORRECTAMEN)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_AL_ELIMINAR_REGISTROS_CODIGO_S.formatted(idPersona)
         );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_ELIMINAR_REGISTROS_CODIGO_S
-        );
-
-        assertTrue(
-                result.getEstado(),
-                ERROR_AL_ELIMINAR_REGISTROS_CODIGO_S
-        );
-
     }
-    
-    private void persona() {
-        persona = Persona
+
+    private Persona persona() {
+        return Persona
                 .builder()
                 .id_persona(idPersona)
                 .persona('J')

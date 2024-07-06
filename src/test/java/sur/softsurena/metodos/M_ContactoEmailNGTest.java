@@ -39,7 +39,7 @@ public class M_ContactoEmailNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );
@@ -82,19 +82,13 @@ public class M_ContactoEmailNGTest {
         );
 
         assertEquals(
-                result.getMensaje(),
-                CORREO_AGREGADO_O_MODIFICADO_CORRECTAMENT,
-                ERROR_AL_AGREGAR_O_MODIFICAR_CORREO
-        );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_AGREGAR_O_MODIFICAR_CORREO
-        );
-
-        assertTrue(
-                result.getEstado(),
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(CORREO_AGREGADO_O_MODIFICADO_CORRECTAMENT)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_AL_AGREGAR_O_MODIFICAR_CORREO
         );
 
@@ -109,7 +103,9 @@ public class M_ContactoEmailNGTest {
     @Test(
             enabled = true,
             priority = 1,
-            description = "Modifica los contactos del sistema."
+            description = """
+                          Modifica los contactos del sistema.
+                          """
     )
     public void testModificarContactosEmail() {
         Resultado result = M_ContactoEmail.modificarContactosEmail(
@@ -123,20 +119,14 @@ public class M_ContactoEmailNGTest {
                         .build()
         );
 
-        assertTrue(
-                result.getEstado(),
-                ERROR_AL_EJECUTAR_EL___DEL_SISTEMA
-        );
-
         assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_EJECUTAR_EL___DEL_SISTEMA
-        );
-
-        assertEquals(
-                result.getMensaje(),
-                EL_CONTACTO_DE_CORREO_FUE_ACTUALIZADO,
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(EL_CONTACTO_DE_CORREO_FUE_ACTUALIZADO)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_AL_EJECUTAR_EL___DEL_SISTEMA
         );
     }
@@ -196,27 +186,23 @@ public class M_ContactoEmailNGTest {
     @Test(
             enabled = true,
             priority = 3,
-            description = "Verificamos si validan los correo correctamente."
+            description = """
+                          Verificamos si validan los correo correctamente.
+                          """
     )
     public void testBorrarContactoEmail() {
         Resultado result = M_ContactoEmail.borrarContactoEmail(idCorreo);
 
         assertEquals(
-                result.getMensaje(),
-                CONTACTO_BORRADO_CORRECTAMENTE,
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(CONTACTO_BORRADO_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_AL_BORRAR_EL_CONTACTO_DE_CORREO_DEL
         );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_BORRAR_EL_CONTACTO_DE_CORREO_DEL
-        );
-
-        assertTrue(
-                result.getEstado(),
-                ERROR_AL_BORRAR_EL_CONTACTO_DE_CORREO_DEL
-        );
-
+        persona.testEliminarEntidad();
     }
 }

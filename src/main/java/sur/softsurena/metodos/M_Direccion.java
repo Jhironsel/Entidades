@@ -27,7 +27,7 @@ public class M_Direccion {
      *
      * @return Devuelve true si la operacion fue exitosa, false caso contrario.
      */
-    public static Resultado agregarDireccion(Direccion direccion) {
+    public static synchronized Resultado agregarDireccion(Direccion direccion) {
         final String sql
                 = "SELECT O_ID FROM SP_I_CONTACTO_DIRECCION(?,?,?,?,?,?,?);";
 

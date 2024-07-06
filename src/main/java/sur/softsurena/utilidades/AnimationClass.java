@@ -1,4 +1,4 @@
-package utilidades;
+package sur.softsurena.utilidades;
 
 import java.util.logging.Level;
 import javax.swing.JLabel;

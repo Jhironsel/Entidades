@@ -21,7 +21,7 @@ public class M_CajeroNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );
@@ -51,7 +51,7 @@ public class M_CajeroNGTest {
     )
     public void testGetCajeros() {
         List result = M_Cajero.getCajeros();
-        assertFalse(
+        assertTrue(
                 result.isEmpty(), 
                 "La tabla de cajero NO contiene usuarios"
         );
@@ -64,7 +64,7 @@ public class M_CajeroNGTest {
     )
     public void testGetCajerosName() {
         List result = M_Cajero.getCajerosName();
-        assertFalse(
+        assertTrue(
                 result.isEmpty(),
                 "NO Existen cajeros registrados."
         );

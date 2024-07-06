@@ -67,14 +67,14 @@ public class M_Consulta {
             = "Consulta agregada correctamente";
 
     /**
-     * TODO CREAR VISTA para obtener las consultas del sistema.
+     * Consulta al sistema sobre las consultas registradas. 
      * @param fecha
      * @return
      */
     public synchronized static List<Consulta> getConsulta(Date fecha) {
         final String sql = """
-                           SELECT idConsulta, TURNO, idPaciente, FINAL, NOMBRES, APELLIDOS, IDARS, NONSS 
-                           FROM GET_CONSULTAS 
+                           SELECT ID, ID_PACIENTE, ID_CONTROL_CONSULTA, TURNO
+                           FROM V_CONSULTAS  
                            WHERE FECHA = ? and ESTADO;
                            """;
         List<Consulta> consultaList = new ArrayList<>();
@@ -92,6 +92,10 @@ public class M_Consulta {
                     consultaList.add(
                             Consulta
                                     .builder()
+                                    .id(rs.getInt("ID"))
+                                    .id_persona(rs.getInt("ID_PACIENTE"))
+                                    .id_control_consulta(rs.getInt("ID_CONTROL_CONSULTA"))
+                                    .turno(rs.getInt("TURNO"))
                                     .build()
                     );
                 }
@@ -125,11 +129,20 @@ public class M_Consulta {
                 return rs.next();
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            LOG.log(
+                    Level.SEVERE, 
+                    ex.getMessage(), 
+                    ex
+            );
             return false;
         }
     }
     
+    /**
+     * 
+     * @param idConsulta
+     * @return 
+     */
     public static synchronized Resultado eliminarConsulta(Integer idConsulta){
         final String sql = """
                            EXECUTE PROCEDURE SP_D_CONSULTA (?);

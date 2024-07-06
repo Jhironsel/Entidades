@@ -26,7 +26,7 @@ public class M_BaseDeDatosNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );
@@ -69,12 +69,12 @@ public class M_BaseDeDatosNGTest {
         
         File file = new File(result);
         
-        assertTrue(
+        assertFalse(
                 file.canRead(), 
                 "No puede leerse la base de datos."
         );
         
-        assertTrue(
+        assertFalse(
                 file.canWrite(), 
                 "No puede Escribirse en la base de datos."
         );

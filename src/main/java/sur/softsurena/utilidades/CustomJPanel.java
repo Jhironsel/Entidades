@@ -1,4 +1,4 @@
-package utilidades;
+package sur.softsurena.utilidades;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;

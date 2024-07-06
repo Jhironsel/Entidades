@@ -316,19 +316,19 @@ public class M_Generales {
         } catch (SQLException ex) {
             LOG.log(
                     Level.SEVERE,
-                    ERROR_AL_BORRAR_LAS_GENERALES_EN_EL_SISTE,
+                    ERROR_AL_BORRAR_LAS_GENERALES_EN_EL_SISTE.formatted(id),
                     ex
             );
         }
         return Resultado
                 .builder()
-                .mensaje(ERROR_AL_BORRAR_LAS_GENERALES_EN_EL_SISTE)
+                .mensaje(ERROR_AL_BORRAR_LAS_GENERALES_EN_EL_SISTE.formatted(id))
                 .icono(JOptionPane.ERROR_MESSAGE)
                 .estado(Boolean.FALSE)
                 .build();
     }
     public static final String ERROR_AL_BORRAR_LAS_GENERALES_EN_EL_SISTE
-            = "Error al borrar las generales en el sistema.";
+            = "Error al borrar las generales en el sistema. [Codigo: s%]";
     public static final String GENERALES_BORRADA_CORRECTAMENTE_DEL_SISTE
             = "Generales borrada correctamente del sistema.";
 

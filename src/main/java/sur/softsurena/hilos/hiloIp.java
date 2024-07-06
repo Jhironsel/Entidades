@@ -14,7 +14,7 @@ public class hiloIp extends Thread implements hiloMetodos {
     @Override
     public void run() {
         while (iniciar) {
-            
+
             Process p;
             BufferedReader stdInput;
             try {
@@ -23,7 +23,7 @@ public class hiloIp extends Thread implements hiloMetodos {
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 JOptionPane.showMessageDialog(
-                        null, 
+                        null,
                         "No esta conectado a ninguna RED",
                         "",
                         JOptionPane.ERROR_MESSAGE
@@ -36,7 +36,7 @@ public class hiloIp extends Thread implements hiloMetodos {
                 String resp = stdInput.readLine();
                 if (resp == null) {
                     JOptionPane.showMessageDialog(
-                            null, 
+                            null,
                             "Revise su conexion a Internet",
                             "",
                             JOptionPane.ERROR_MESSAGE
@@ -44,7 +44,7 @@ public class hiloIp extends Thread implements hiloMetodos {
                     return;
                 }
                 JOptionPane.showMessageDialog(
-                        null, 
+                        null,
                         resp,
                         "",
                         JOptionPane.INFORMATION_MESSAGE
@@ -69,7 +69,7 @@ public class hiloIp extends Thread implements hiloMetodos {
 
     @Override
     public void correr() {
-        
+
     }
 
 }

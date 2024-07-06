@@ -309,7 +309,9 @@ public class M_Role {
                     estado(Boolean.FALSE).
                     build();
         }
+        
         String sql = "EXECUTE PROCEDURE " + procedimiento + " (?,?,?)";
+        
         try (CallableStatement cs = getCnn().prepareCall(
                 sql,
                 ResultSet.TYPE_FORWARD_ONLY,

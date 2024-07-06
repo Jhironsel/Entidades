@@ -1,6 +1,7 @@
 package sur.softsurena.metodos;
 
 import java.util.List;
+import javax.swing.JOptionPane;
 import lombok.Getter;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
@@ -18,8 +19,12 @@ import sur.softsurena.utilidades.Resultado;
  */
 @Getter
 public class M_ContactoTelNGTest {
-    
+
+    private final M_PersonaNGTest persona;
+    private Integer idContactoTel = -1;
+
     public M_ContactoTelNGTest() {
+        persona = new M_PersonaNGTest();
     }
 
     @BeforeClass
@@ -27,7 +32,7 @@ public class M_ContactoTelNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );
@@ -51,86 +56,149 @@ public class M_ContactoTelNGTest {
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             priority = 0,
-            description = ""
+            description = """
+                          Test que permite agregar un telefono de contacto de 
+                          una persona.
+                          """
     )
     public void testAgregarContactosTel() {
+        persona.testAgregarEntidad();
+
         Resultado result = M_ContactoTel.agregarContactosTel(
-                ContactoTel.builder().build()
+                telefono()
         );
+
+        assertEquals(
+                result,
+                Resultado
+                        .builder()
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .mensaje(M_ContactoTel.CONTACTO_TELEFONICO_AGREGADO_CORRECTAMENT)
+                        .estado(Boolean.TRUE)
+                        .build(),
+                M_ContactoTel.ERROR_AL_EJECUTAR_EL_SP_I_CONTACTO_TEL_EN
+        );
+
         assertTrue(
-                result.getEstado(), 
-                "Error al agregar un contacto al sistema."
+                result.getId() > 0,
+                M_ContactoTel.ERROR_AL_EJECUTAR_EL_SP_I_CONTACTO_TEL_EN
         );
+
+        idContactoTel = result.getId();
     }
 
     @Test(
-            enabled = false,
-            priority = 0,
-            description = ""
+            enabled = true,
+            priority = 1,
+            description = """
+                          Test que permite actualizar uno numero telefonico en
+                          el sistema.
+                          """
     )
     public void testModificarContactoTel() {
         Resultado result = M_ContactoTel.modificarContactoTel(
-                ContactoTel
-                        .builder()
-                        .build()
+                telefono()
         );
-        assertTrue(
-                result.getEstado(), 
-                "Test de Modificar Contacto Tel. falló."
+
+        assertEquals(
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(
+                                M_ContactoTel.CONTACTO_TELEFONICO_ACTUALIZADO_CORRECTAM
+                        )
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
+                M_ContactoTel.ERROR_AL_EJECUTAR_EL_SP_U_CONTACTO_TEL_DE
         );
     }
 
     @Test(
-            enabled = false,
-            priority = 0,
+            enabled = true,
+            priority = 2,
             description = """
+                          Test que localiza un numero telefonico de una persona
+                          en el sistema.
                           """
     )
     public void testGetTelefonoByID() {
-        int id = 0;
-        List expResult = null;
-        List result = M_ContactoTel.getTelefonoByID(id);
-        assertEquals(result, expResult);
+        List result = M_ContactoTel.getTelefonoByID(
+                persona.getIdPersona()
+        );
+        
+        assertFalse(
+                result.isEmpty(),
+                M_ContactoTel.ERROR_AL_CONSULTAR_LA_VISTA_V_CONTACTOS_T
+        );
     }
 
     @Test(
-            enabled = false,
-            priority = 0,
+            enabled = true,
+            priority = 5,
             description = """
+                          Test que permite eliminar un contacto telefonico del 
+                          sistema.
                           """
     )
     public void testEliminarContactoTel() {
-        int id = 0;
-        Resultado expResult = null;
-        Resultado result = M_ContactoTel.eliminarContactoTel(id);
-        assertEquals(result, expResult);
+        Resultado result = M_ContactoTel.eliminarContactoTel(idContactoTel);
+        assertEquals(
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(M_ContactoTel.CONTACTO_TELEFONICO_ELIMINADO_CORRECTAMEN)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
+                M_ContactoTel.ERROR_AL_ELIMINAR_CONTACTO_TELEFONICO_EN_
+        );
+        persona.testEliminarEntidad();
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             priority = 0,
             description = """
                           """
     )
     public void testGenerarTelMovil() {
-        String expResult = "";
         String result = M_ContactoTel.generarTelMovil();
-        assertEquals(result, expResult);
+        assertTrue(
+                M_ContactoTel.telefono(result),
+                "Numero generado no es correcto."
+        );
     }
 
     @Test(
-            enabled = false,
+            enabled = true,
             priority = 0,
             description = """
                           """
     )
     public void testTelefono() {
-        String tel = "";
-        boolean expResult = false;
+        String tel = M_ContactoTel.generarTelMovil();
+        boolean expResult = true;
         boolean result = M_ContactoTel.telefono(tel);
-        assertEquals(result, expResult);
+        assertEquals(
+                result,
+                expResult,
+                "Metodo de validar telefono captura numero incorrecto."
+        );
     }
-    
+
+    private ContactoTel telefono() {
+        return ContactoTel
+                .builder()
+                .id(idContactoTel)
+                .id_persona(persona.getIdPersona())
+                .telefono(M_ContactoTel.generarTelMovil())
+                .tipo("Telefono")
+                .por_defecto(Boolean.TRUE)
+                .estado(Boolean.TRUE)
+                .build();
+    }
+
 }

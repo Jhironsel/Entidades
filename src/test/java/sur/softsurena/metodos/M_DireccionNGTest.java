@@ -40,7 +40,7 @@ public class M_DireccionNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );
@@ -71,7 +71,9 @@ public class M_DireccionNGTest {
                           """
     )
     public void testAgregarDireccion() {
+        
         persona.testAgregarEntidad();
+        
         Resultado result = agregarDireccion(
                 Direccion
                         .builder()
@@ -99,22 +101,21 @@ public class M_DireccionNGTest {
         );
 
         assertEquals(
-                result.getMensaje(),
-                DIRECCION_AGREGADA_CORRECTAMENTE,
-                ERROR_AL_INSERTAR_DIRECCION
-        );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
+                result,
+                Resultado
+                        .builder()
+                        .mensaje(DIRECCION_AGREGADA_CORRECTAMENTE)
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .estado(Boolean.TRUE)
+                        .build(),
                 ERROR_AL_INSERTAR_DIRECCION
         );
 
         assertTrue(
-                result.getEstado(),
+                result.getId() > 0,
                 ERROR_AL_INSERTAR_DIRECCION
         );
-
+        
         id_direccion = result.getId();
 
     }//FIN
@@ -176,19 +177,13 @@ public class M_DireccionNGTest {
         );
 
         assertEquals(
-                result.getMensaje(),
-                DIRECCION_DE_CONTACTO_ACTUALIZADA_CORRECT,
-                ERROR_AL_ACTUALIZAR_LA_DIRECCION_DEL_CONT
-        );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_ACTUALIZAR_LA_DIRECCION_DEL_CONT
-        );
-
-        assertTrue(
-                result.getEstado(),
+                result,
+                Resultado
+                    .builder()
+                    .mensaje(DIRECCION_DE_CONTACTO_ACTUALIZADA_CORRECT)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
                 ERROR_AL_ACTUALIZAR_LA_DIRECCION_DEL_CONT
         );
     }
@@ -205,20 +200,14 @@ public class M_DireccionNGTest {
 
         Resultado result = M_Direccion.borrarDireccion(id_direccion);
 
-        assertTrue(
-                result.getEstado(),
-                ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI
-        );
-
         assertEquals(
-                result.getMensaje(),
-                REGISTRO_DE_LA_DIRECCION_BORRADO_CORRECTA,
-                ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI
-        );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
+                result,
+                Resultado
+                    .builder()
+                    .mensaje(REGISTRO_DE_LA_DIRECCION_BORRADO_CORRECTA)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
                 ERROR_AL_BORRAR_EL_REGISTRO_DE_LA_DIRECCI
         );
 

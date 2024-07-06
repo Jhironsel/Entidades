@@ -204,17 +204,18 @@ public class M_Persona {
     public static Persona getEntidad(Integer id) {
         final String sql = """
                            SELECT 
-                               ID, 
-                               PERSONA, 
-                               PNOMBRE, 
-                               SNOMBRE, 
-                               APELLIDOS, 
-                               SEXO, 
-                               FECHA_NACIMIENTO, 
-                               FECHA_INGRESO,
-                               FECHA_HORA_ULTIMO_UPDATE, 
-                               ESTADO, USER_NAME, 
-                               ROL_USUARIO
+                                ID, 
+                                PERSONA, 
+                                PNOMBRE, 
+                                SNOMBRE, 
+                                APELLIDOS, 
+                                SEXO, 
+                                FECHA_NACIMIENTO, 
+                                FECHA_INGRESO,
+                                FECHA_HORA_ULTIMO_UPDATE, 
+                                ESTADO, 
+                                USER_NAME, 
+                                ROL_USUARIO
                            FROM V_PERSONAS
                            WHERE ID = ?
                            """;

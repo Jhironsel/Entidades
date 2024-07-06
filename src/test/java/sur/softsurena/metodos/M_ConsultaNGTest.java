@@ -33,7 +33,7 @@ public class M_ConsultaNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );
@@ -59,8 +59,11 @@ public class M_ConsultaNGTest {
 
     @Test(
             enabled = true,
-            description = "",
-            priority = 0
+            priority = 0,
+            description = """
+                          Test que permite agregar una consulta al sistema.
+                          esta crea el paciente y el control de la consulta.
+                          """
     )
     public void testAgregarConsulta() {
         paciente.testAgregarEntidad();
@@ -76,19 +79,13 @@ public class M_ConsultaNGTest {
         );
 
         assertEquals(
-                result.getMensaje(),
-                M_Consulta.CONSULTA_AGREGADA_CORRECTAMENTE,
-                M_Consulta.ERROR_AL_INSERTAR_CONSULTA
-        );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                M_Consulta.ERROR_AL_INSERTAR_CONSULTA
-        );
-
-        assertTrue(
-                result.getEstado(),
+                result,
+                Resultado
+                    .builder()
+                    .mensaje(M_Consulta.CONSULTA_AGREGADA_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
                 M_Consulta.ERROR_AL_INSERTAR_CONSULTA
         );
 
@@ -99,8 +96,6 @@ public class M_ConsultaNGTest {
         );
 
         idConsulta = result.getId();
-
-
     }
 
     @Test(
@@ -132,6 +127,8 @@ public class M_ConsultaNGTest {
             priority = 0,
             description = """
                           Test que permite eliminar una consulta ya programada.
+                          Tambien, elimina el control de la consulta creada y 
+                          el paciente creado recientemente.
                           """
     )
     public void testEliminarConsulta() {

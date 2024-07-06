@@ -41,7 +41,7 @@ public class M_GeneralesNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );
@@ -74,6 +74,7 @@ public class M_GeneralesNGTest {
                           M_Generales.cedula() Nos valida que la cedula sea 
                           valida.
                           """
+            
     )
     public void testGenerarCedula() {
         String cedula2 = M_Generales.generarCedula();
@@ -234,19 +235,13 @@ public class M_GeneralesNGTest {
         Resultado result = M_Generales.borrarEntidad(persona.getIdPersona());
         
         assertEquals(
-                result.getMensaje(), 
-                GENERALES_BORRADA_CORRECTAMENTE_DEL_SISTE,
-                ERROR_AL_BORRAR_LAS_GENERALES_EN_EL_SISTE
-        );
-        
-        assertEquals(
-                result.getIcono(), 
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_BORRAR_LAS_GENERALES_EN_EL_SISTE
-        );
-        
-        assertTrue(
-                result.getEstado(),
+                result, 
+                Resultado
+                    .builder()
+                    .mensaje(GENERALES_BORRADA_CORRECTAMENTE_DEL_SISTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
                 ERROR_AL_BORRAR_LAS_GENERALES_EN_EL_SISTE
         );
         

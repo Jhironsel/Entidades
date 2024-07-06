@@ -27,14 +27,12 @@ public class M_ContactoEmail {
      * registros en el sistema.
      * @return
      */
-    public static Resultado agregarContactosEmail(ContactoEmail contacto) {
-        final String sql = """
-                           SELECT O_ID
-                           FROM SP_I_CONTACTO_EMAIL (?,?,?);
-                  """;
-
+    public static synchronized Resultado agregarContactosEmail(ContactoEmail contacto) {
         try (PreparedStatement ps = getCnn().prepareStatement(
-                sql,
+                """
+                SELECT O_ID
+                FROM SP_I_CONTACTO_EMAIL (?,?,?);
+                """,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT
@@ -75,19 +73,16 @@ public class M_ContactoEmail {
             = "Correo agregado o modificado correctamente.";
 
     /**
-     * TODO CREAR SP.
+     * Modifica el contacto de correo de una persona.
      *
      * @param contacto
      * @return
      */
     public static Resultado modificarContactosEmail(ContactoEmail contacto) {
-        final String sql
-                = """
-                EXECUTE PROCEDURE SP_U_CONTACTO_EMAIL (?,?,?,?);
-                """;
-
         try (PreparedStatement ps = getCnn().prepareStatement(
-                sql,
+                """
+                EXECUTE PROCEDURE SP_U_CONTACTO_EMAIL (?,?,?,?);
+                """,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
@@ -132,7 +127,9 @@ public class M_ContactoEmail {
      * @param id_persona
      * @return
      */
-    public synchronized static List<ContactoEmail> getCorreoByID(Integer id_persona) {
+    public synchronized static List<ContactoEmail> getCorreoByID(
+            Integer id_persona
+    ) {
         final String sql
                 = "SELECT ID, EMAIL, FECHA, ESTADO, POR_DEFECTO "
                 + "FROM V_CONTACTOS_EMAIL "
@@ -222,12 +219,10 @@ public class M_ContactoEmail {
     }
 
     public static Resultado borrarContactoEmail(int idEmail) {
-        final String sql = """
-                           EXECUTE PROCEDURE SP_D_CONTACTO_EMAIL (?);
-                           """;
-
         try (PreparedStatement ps = getCnn().prepareStatement(
-                sql,
+                """
+                EXECUTE PROCEDURE SP_D_CONTACTO_EMAIL (?);
+                """,
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.HOLD_CURSORS_OVER_COMMIT

@@ -10,7 +10,6 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperPrintManager;
 import net.sf.jasperreports.engine.export.JRCsvExporter;
 import net.sf.jasperreports.engine.export.JRRtfExporter;
-import net.sf.jasperreports.engine.export.JRXlsExporter;
 import net.sf.jasperreports.engine.export.oasis.JROdsExporter;
 import net.sf.jasperreports.engine.export.oasis.JROdtExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
@@ -20,7 +19,6 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimpleWriterExporterOutput;
-import net.sf.jasperreports.export.SimpleXlsReportConfiguration;
 import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
 import static sur.softsurena.utilidades.Utilidades.LOG;
 
@@ -98,12 +96,11 @@ public class ShapesApp {
 
         File destFile = new File(sourceFile.getParent(), jasperPrint.getName() + ".xls");
 
-        JRXlsExporter exporter = new JRXlsExporter();
-
+        JRXlsxExporter exporter = new JRXlsxExporter();
         exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
-        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(destFile));
-        SimpleXlsReportConfiguration configuration = new SimpleXlsReportConfiguration();
-        configuration.setOnePagePerSheet(false);
+        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(destFile));        
+        SimpleXlsxReportConfiguration configuration = new SimpleXlsxReportConfiguration();
+        configuration.setOnePagePerSheet(false);        
         exporter.setConfiguration(configuration);
 
         exporter.exportReport();

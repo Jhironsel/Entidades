@@ -402,7 +402,7 @@ public class M_Paciente {
     public static Resultado agregarEntidad(Paciente paciente) {
         final String sql
                 = """
-                  EXECUTE PROCEDURE SP_I_PACIENTE (?,?,?,?,?,?);
+                  EXECUTE PROCEDURE SP_I_PERSONA_PACIENTE (?,?,?,?,?,?);
                   """;
 
         try (PreparedStatement ps = getCnn().prepareStatement(

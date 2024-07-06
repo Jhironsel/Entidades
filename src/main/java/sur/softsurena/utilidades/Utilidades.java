@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -61,13 +62,13 @@ import sur.softsurena.metodos.Imagenes;
 public class Utilidades {
 
     public static final Logger LOG = Logger.getLogger(Utilidades.class.getName());
-
+    
     static {
-        try {
-            final File file = new File("Logs/Log " + new Date().toString() + ".log");
+        final File file = new File("Logs/Log " + new Date().toString() + ".log");;
+        try {     
 
             FileHandler fh = new FileHandler(
-                    file.getPath(),
+                    file.getPath(), 
                     true
             );
 
@@ -79,7 +80,31 @@ public class Utilidades {
             LOG.addHandler(fh);
 
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            //LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            System.err.println("Error al escribir log.");
+            ex.printStackTrace(System.out);
+        }
+    }
+    
+    public static void limpiarDiretorio(String rutaDirectorio){
+        
+        File directorio = new File(rutaDirectorio);
+
+        if (directorio.exists() && directorio.isDirectory()) {
+            File[] archivos = directorio.listFiles();
+            if (archivos != null) {
+                for (File archivo : archivos) {
+                    if (archivo.isFile() && archivo.length() == 0) {
+                        if (archivo.delete()) {
+                            System.out.println("El archivo " + archivo.getName() + " ha sido eliminado correctamente.");
+                        } else {
+                            System.out.println("No se pudo eliminar el archivo " + archivo.getName());
+                        }
+                    }
+                }
+            }
+        } else {
+            System.out.println("El directorio no existe o no es válido.");
         }
     }
 
@@ -175,8 +200,8 @@ public class Utilidades {
      */
     public static double controlDouble(Object longValue) {
         double valueTwo = -99; // whatever to state invalid!
-        if (longValue instanceof Number) {
-            valueTwo = ((Number) longValue).doubleValue();
+        if (longValue instanceof Number number) {
+            valueTwo = number.doubleValue();
         }
         return valueTwo;
     }
@@ -441,18 +466,17 @@ public class Utilidades {
 
     //--------------------------------------------------------------------------
     public static Date sqlDateToUtilDate(java.sql.Date sqlDate) {
-        java.sql.Date sqlDates = sqlDate;
 
-        java.util.Date utilDate = new java.util.Date(sqlDates.getTime());
+        java.util.Date utilDate = new java.util.Date(sqlDate.getTime());
 
         return utilDate;
     }
 
     //--------------------------------------------------------------------------
     /**
-     * 
+     *
      * @param index
-     * @return 
+     * @return
      */
     public static char Persona(int index) {
         if (index == 1) {
@@ -486,6 +510,7 @@ public class Utilidades {
      *
      * javaDateToSqlDate( stringToDate("08.06.2012", "dd.MM.yyyy") )
      * stringToDate("01.01.2000", "dd.MM.YYY")
+     *
      * @param fecha
      * @return
      */
@@ -497,8 +522,8 @@ public class Utilidades {
             aux = formatoDelTexto.parse(fecha);
         } catch (Exception ex) {
             LOG.log(
-                    Level.SEVERE, 
-                    "Error al parsear la fecha en el sistema.", 
+                    Level.SEVERE,
+                    "Error al parsear la fecha en el sistema.",
                     ex
             );
         }
@@ -760,4 +785,9 @@ public class Utilidades {
      */
     public static final String ERROR_EN_LA_URL
             = "Error en la URL.";
+    
+    
+    public static void beep(){
+        Toolkit.getDefaultToolkit().beep();
+    }
 }

@@ -31,7 +31,7 @@ public class M_ClienteNGTest {
         Conexion.getInstance(
                 "sysdba",
                 "1",
-                "BaseDeDatos.db",
+                "SoftSurena.db",
                 "localhost",
                 "3050"
         );
@@ -68,21 +68,16 @@ public class M_ClienteNGTest {
         );
 
         assertEquals(
-                result.getMensaje(),
-                CLIENTE__AGREGADO__CORRECTAMENTE,
+                result,
+                Resultado
+                    .builder()
+                    .mensaje(CLIENTE__AGREGADO__CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
                 ERROR_AL_INSERTAR__CLIENTE
         );
 
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                ERROR_AL_INSERTAR__CLIENTE
-        );
-
-        assertTrue(
-                result.getEstado(),
-                ERROR_AL_INSERTAR__CLIENTE
-        );
     }
 
     @Test(
@@ -98,20 +93,16 @@ public class M_ClienteNGTest {
         );
 
         assertEquals(
-                result.getMensaje(),
-                CLIENTE_BORRADO_CORRECTAMENTE,
+                result,
+                Resultado
+                    .builder()
+                    .mensaje(CLIENTE_BORRADO_CORRECTAMENTE)
+                    .icono(JOptionPane.INFORMATION_MESSAGE)
+                    .estado(Boolean.TRUE)
+                    .build(),
                 CLIENTE_NO_PUEDE_SER_BORRADO
         );
-
-        assertEquals(
-                result.getIcono(),
-                JOptionPane.INFORMATION_MESSAGE,
-                CLIENTE_NO_PUEDE_SER_BORRADO
-        );
-
-        assertTrue(
-                result.getEstado(),
-                CLIENTE_NO_PUEDE_SER_BORRADO
-        );
+        
+        persona.testEliminarEntidad();
     }
 }

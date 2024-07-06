@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
+import lombok.Cleanup;
 import static sur.softsurena.conexion.Conexion.getCnn;
 import sur.softsurena.entidades.ContactoTel;
 import sur.softsurena.utilidades.Resultado;
@@ -23,7 +24,7 @@ public class M_ContactoTel {
      * @param contacto
      * @return
      */
-    public static Resultado agregarContactosTel(ContactoTel contacto) {
+    public static synchronized Resultado agregarContactosTel(ContactoTel contacto) {
         final String sql
                 = "SELECT O_ID FROM SP_I_CONTACTO_TEL(?,?,?,?)";
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -37,15 +38,19 @@ public class M_ContactoTel {
             ps.setString(3, contacto.getTipo());
             ps.setBoolean(4, contacto.getPor_defecto());
 
+            @Cleanup
             ResultSet rs = ps.executeQuery();
-            rs.next();
-            return Resultado
-                    .builder()
-                    .id(rs.getInt("O_ID"))
-                    .icono(JOptionPane.INFORMATION_MESSAGE)
-                    .mensaje(CONTACTO_TELEFONICO_AGREGADO_CORRECTAMENT)
-                    .estado(Boolean.TRUE)
-                    .build();
+
+            if (rs.next()) {
+                return Resultado
+                        .builder()
+                        .id(rs.getInt("O_ID"))
+                        .icono(JOptionPane.INFORMATION_MESSAGE)
+                        .mensaje(CONTACTO_TELEFONICO_AGREGADO_CORRECTAMENT)
+                        .estado(Boolean.TRUE)
+                        .build();
+            }
+
         } catch (SQLException ex) {
             LOG.log(
                     Level.SEVERE,
@@ -56,14 +61,14 @@ public class M_ContactoTel {
                             .concat(sql),
                     ex
             );
-            return Resultado
-                    .builder()
-                    .id(-1)
-                    .icono(JOptionPane.ERROR_MESSAGE)
-                    .mensaje(ERROR_AL_EJECUTAR_EL_SP_I_CONTACTO_TEL_EN)
-                    .estado(Boolean.FALSE)
-                    .build();
         }
+        return Resultado
+                .builder()
+                .id(-1)
+                .icono(JOptionPane.ERROR_MESSAGE)
+                .mensaje(ERROR_AL_EJECUTAR_EL_SP_I_CONTACTO_TEL_EN)
+                .estado(Boolean.FALSE)
+                .build();
     }
     public static final String ERROR_AL_EJECUTAR_EL_SP_I_CONTACTO_TEL_EN
             = "Error al ejecutar el SP_I_CONTACTO_TEL en el sistema.";
@@ -79,13 +84,7 @@ public class M_ContactoTel {
     public static Resultado modificarContactoTel(ContactoTel contacto) {
         final String sql
                 = """
-                  EXECUTE PROCEDURE SP_U_CONTACTO_TEL(
-                  ?, --ID 
-                  ?, --TELEFONO
-                  ?, --TIPO
-                  ?, --ESTADO
-                  ? --POR_DEFECTO
-                  );
+                  EXECUTE PROCEDURE SP_U_CONTACTO_TEL(?,?,?,?,? );
                   """;
 
         try (PreparedStatement ps = getCnn().prepareStatement(
@@ -94,12 +93,14 @@ public class M_ContactoTel {
                 ResultSet.CONCUR_READ_ONLY,
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
-            ps.setInt(1, contacto.getId());
-            ps.setString(2, contacto.getTelefono());
-            ps.setString(3, contacto.getTipo());
-            ps.setBoolean(4, contacto.getEstado());
-            ps.setBoolean(5, contacto.getPor_defecto());
-            ps.executeUpdate();
+            ps.setInt(      1, contacto.getId());
+            ps.setString(   2, contacto.getTelefono());
+            ps.setString(   3, contacto.getTipo());
+            ps.setBoolean(  4, contacto.getEstado());
+            ps.setBoolean(  5, contacto.getPor_defecto());
+            
+            ps.execute();
+            
             return Resultado
                     .builder()
                     .mensaje(CONTACTO_TELEFONICO_ACTUALIZADO_CORRECTAM)
@@ -137,7 +138,8 @@ public class M_ContactoTel {
                 ResultSet.CLOSE_CURSORS_AT_COMMIT
         )) {
             ps.setInt(1, id);
-            ps.executeUpdate();
+            
+            ps.execute();
             return Resultado
                     .builder()
                     .mensaje(CONTACTO_TELEFONICO_ELIMINADO_CORRECTAMEN)
